@@ -1,7 +1,7 @@
 function App() {
   return (
-    <main>
-      <h1>STREAM</h1>
+    <main className="flex min-h-screen items-center justify-center">
+      <h1 className="font-bold text-3xl">STREAM</h1>
     </main>
   );
 }

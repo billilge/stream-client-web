@@ -33,6 +33,17 @@
     "expand": "auto"
   },
 
+  "css": {
+    "parser": {
+      // Tailwind CSS 4 지시어(@theme, @apply 등) 파싱 허용 — 없으면 index.css의 @theme 블록에서 파싱 에러가 난다
+      "tailwindDirectives": true
+    },
+    "linter": {
+      // Tailwind 전용 at-rule과 충돌하는 CSS 린터는 끈다
+      "enabled": false
+    }
+  },
+
   "linter": {
     "enabled": true,
 
@@ -41,7 +52,19 @@
     },
 
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
+
+      "nursery": {
+        // Tailwind 클래스 순서를 자동 정렬
+        "useSortedClasses": {
+          "level": "error",
+          "fix": "safe",
+          "options": {
+            "attributes": ["class", "className"],
+            "functions": ["clsx", "cva", "cn", "twMerge", "twJoin"]
+          }
+        }
+      },
 
       "correctness": {
         "noUnusedImports": {
