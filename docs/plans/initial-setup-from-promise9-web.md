@@ -50,11 +50,11 @@ stream-client는 Vite 템플릿을 그대로 생성한 상태라 lint/format, �
 
 ## 구현 계획
 
-1. [ ] chore: npm → pnpm 전환 — `package-lock.json` 삭제, `pnpm install`로 `pnpm-lock.yaml` 생성, `packageManager` 필드 추가, README에 `pnpm` 사용 안내 (다른 커밋들이 전제하므로 가장 먼저 진행)
-2. [ ] chore: Node 버전 고정 — `.nvmrc` 추가
-3. [ ] chore: ESLint 제거, Biome 도입 — `biome.jsonc`, `package.json` scripts/deps
-4. [ ] chore: 경로 별칭(`@/*`) 추가 — `tsconfig.app.json` paths + `vite.config.ts` resolve.alias
-5. [ ] refactor: 기능 기반 폴더 구조로 `src/` 정비 — `app/`, `components/ui/`, `hooks/`, `lib/`, `utils/`, `constants/` 뼈대 생성, 기존 파일 이동
+1. [x] chore: npm → pnpm 전환 — `package-lock.json` 삭제, `pnpm install`로 `pnpm-lock.yaml` 생성, `packageManager` 필드 추가, README에 `pnpm` 사용 안내 (다른 커밋들이 전제하므로 가장 먼저 진행)
+2. [x] chore: Node 버전 고정 — `.nvmrc` 추가
+3. [x] chore: ESLint 제거, Biome 도입 — `biome.jsonc`, `package.json` scripts/deps
+4. [x] chore: 경로 별칭(`@/*`) 추가 — `tsconfig.app.json` paths + `vite.config.ts` resolve.alias (TS 6.x에서 `baseUrl`이 deprecated라 `paths`만 사용)
+5. [x] refactor: 기능 기반 폴더 구조로 `src/` 정비 — 실행 중 계획 수정: git은 빈 디렉터리를 추적하지 못하고, Promise.9-Web의 "빈 폴더 미리 만들지 않기" 원칙과도 맞지 않아 `components/ui/`·`hooks/`·`lib/`·`utils/`·`constants/`는 만들지 않음. 실제 내용이 있는 `app/`(App.tsx 이동)만 먼저 만들고, 나머지는 첫 필요 시점에 생성. 겸사겸사 Vite 템플릿 데모 콘텐츠(로고·카운터 등)와 미사용 자산(`assets/*`, `public/icons.svg`) 정리.
 6. [ ] chore: Tailwind CSS v4 도입 — `@tailwindcss/vite` 설치·플러그인 등록, `index.css`에 `@import "tailwindcss"` + 빈 `@theme` 블록, 기본 Vite 스타일 정리, Biome에 Tailwind 클래스 정렬·CSS 파서 설정 추가
 7. [ ] docs: `coding-style.md` 컨벤션 문서 추가
 8. [ ] chore: PR 담당자 자동 지정 GitHub Action 추가 (`reviewers`는 비워두고 `assignees`만 적용, 팀원 아이디 정해지면 추가)
