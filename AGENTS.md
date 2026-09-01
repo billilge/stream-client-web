@@ -12,6 +12,10 @@ React + TypeScript + Vite 기반 프론트엔드.
 - 요청받은 범위만 수정한다. 인접 코드 개선·리팩토링은 임의로 하지 않는다.
 - 테스트 코드는 지시하는 사람이 명시적으로 요청하지 않는 이상 작성하지 않는다.
 
+## 코딩 컨벤션
+
+자세한 내용은 `docs/conventions/coding-style.md` 참고. TypeScript strict, 네이밍, 폴더 구조, import 순서, Biome lint/format 규칙을 다룬다.
+
 ## Git 컨벤션
 
 자세한 내용은 `docs/conventions/git-convention.md` 참고.
