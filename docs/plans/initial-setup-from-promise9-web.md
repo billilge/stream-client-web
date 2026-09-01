@@ -44,7 +44,7 @@ stream-client는 Vite 템플릿을 그대로 생성한 상태라 lint/format, �
 - `.nvmrc` 신설
 - `src/` 폴더 재구성 — 현재 `App.tsx`/`App.css`/`main.tsx`/`index.css`를 정리된 구조로 이동, `App.css`의 Vite 기본 스타일은 Tailwind 도입으로 제거
 - `src/index.css` — `@import "tailwindcss";` + 디자인 토큰을 넣을 빈 `@theme { }` 블록 추가 (Tailwind v4는 CSS 기반 설정이라 `tailwind.config.js` 불필요)
-- `src/components/ui/` — 디자인 시스템 컴포넌트가 들어갈 자리 (기본 폴더 구조 정비에 포함, 내용은 비워둠)
+- `src/components/ui/` 등 — 실제 컴포넌트가 생기기 전까지는 만들지 않는다 (git이 빈 디렉터리를 추적하지 못함 + "빈 폴더 미리 만들지 않기" 원칙, 아래 5번 항목 참고)
 - `docs/conventions/coding-style.md`, `docs/conventions/00-index.md`(있으면 갱신, 없으면 필요 시 신설) — [[stream-client 컨벤션 인덱스]]
 - `.github/workflows/review-assign.yml` 신설
 
@@ -55,18 +55,21 @@ stream-client는 Vite 템플릿을 그대로 생성한 상태라 lint/format, �
 3. [x] chore: ESLint 제거, Biome 도입 — `biome.jsonc`, `package.json` scripts/deps
 4. [x] chore: 경로 별칭(`@/*`) 추가 — `tsconfig.app.json` paths + `vite.config.ts` resolve.alias (TS 6.x에서 `baseUrl`이 deprecated라 `paths`만 사용)
 5. [x] refactor: 기능 기반 폴더 구조로 `src/` 정비 — 실행 중 계획 수정: git은 빈 디렉터리를 추적하지 못하고, Promise.9-Web의 "빈 폴더 미리 만들지 않기" 원칙과도 맞지 않아 `components/ui/`·`hooks/`·`lib/`·`utils/`·`constants/`는 만들지 않음. 실제 내용이 있는 `app/`(App.tsx 이동)만 먼저 만들고, 나머지는 첫 필요 시점에 생성. 겸사겸사 Vite 템플릿 데모 콘텐츠(로고·카운터 등)와 미사용 자산(`assets/*`, `public/icons.svg`) 정리.
-6. [ ] chore: Tailwind CSS v4 도입 — `@tailwindcss/vite` 설치·플러그인 등록, `index.css`에 `@import "tailwindcss"` + 빈 `@theme` 블록, 기본 Vite 스타일 정리, Biome에 Tailwind 클래스 정렬·CSS 파서 설정 추가
-7. [ ] docs: `coding-style.md` 컨벤션 문서 추가
-8. [ ] chore: PR 담당자 자동 지정 GitHub Action 추가 (`reviewers`는 비워두고 `assignees`만 적용, 팀원 아이디 정해지면 추가)
+6. [x] chore: Tailwind CSS v4 도입 — `@tailwindcss/vite` 설치·플러그인 등록, `index.css`에 `@import "tailwindcss"` + 빈 `@theme` 블록, 기본 Vite 스타일 정리, Biome에 Tailwind 클래스 정렬·CSS 파서 설정 추가
+7. [x] docs: `coding-style.md` 컨벤션 문서 추가
+8. [x] chore: PR 담당자 자동 지정 GitHub Action 추가 (`reviewers`는 비워두고 `assignees`만 적용, 팀원 아이디 정해지면 추가)
 
 ## API 연동 / 외부 의존성 (해당 시)
 
 해당 없음 — 초기 설정(tooling) 범위이며 백엔드 연동은 별도 작업.
 
-## 결정 필요 사항 / 리스크
+## 구현 완료
 
-- **Biome 포맷 스타일**: Promise.9-Web은 double quote·세미콜론 항상·trailing comma all·line width 80을 쓴다. 이번 계획은 이 스타일을 그대로 따르는 것으로 가정했다 — 다른 취향이 있으면 확인 필요.
-- **폴더 구조 시점**: Promise.9-Web의 `entities/`·`features/`는 실제 도메인(링크·폴더 등)이 있어서 나온 구조다. stream-client는 아직 도메인 코드가 없으므로, 이번 계획에서는 `entities/`·`features/`를 미리 만들지 않고 `app/`·`components/ui/`·`hooks/`·`lib/`·`utils/`만 뼈대로 잡는 쪽으로 결정했다 (Promise.9-Web도 "빈 폴더 미리 만들지 않기" 원칙). 첫 도메인 기능을 추가할 때 `entities/`·`features/`를 그때 붙이는 것을 제안한다 — 동의하는지 확인 필요.
-- **PR 리뷰어 계정**: `review-assign.yml`의 `reviewers` 값은 Promise.9-Web 팀원 GitHub 아이디가 하드코딩돼 있다. 일단 비워두고(assignee 자동 지정만 적용) 팀원 아이디가 정해지면 채우는 것으로 결정.
-- **디자인 시스템 구현 방식**: 자체 컴포넌트를 처음부터 만들지, shadcn/ui 같은 헤드리스 라이브러리를 기반으로 할지는 아직 미정. 이번 계획에서는 `components/ui/` 자리와 Tailwind `@theme` 토큰 자리만 마련하고, 실제 컴포넌트·토큰 값 채우기는 디자인이 확정된 뒤 별도 계획으로 진행하는 것을 제안한다.
+위 8개 커밋으로 전부 적용됨 (`chore/#3-initial-setup` 브랜치). `pnpm build`·`pnpm check`로 검증 완료.
+
+## 남은 결정 필요 사항
+
+- **PR 리뷰어 계정**: `review-assign.yml`의 `reviewers`는 일단 비워뒀다 (assignee 자동 지정만 동작). 팀원 GitHub 아이디가 정해지면 채워야 한다.
+- **디자인 시스템 구현 방식**: 자체 컴포넌트를 처음부터 만들지, shadcn/ui 같은 헤드리스 라이브러리를 기반으로 할지는 아직 미정. `components/ui/` 자리와 Tailwind `@theme` 토큰 자리만 마련했고, 실제 컴포넌트·토큰 값 채우기는 디자인이 확정된 뒤 별도 계획으로 진행한다.
 - **`tailwind-merge`/`cva`류 클래스 병합 유틸리티 도입 여부**: 조건부 Tailwind 클래스가 많아지면 필요해지는데, 지금은 컴포넌트가 없어 판단 보류. 필요해지는 시점에 결정.
+- **`entities/`·`features/` 도입 시점**: 첫 도메인 기능을 추가할 때 그 자리에서 만드는 것으로 합의 (5번 항목 참고). 실제로 그 시점이 오면 `coding-style.md`의 폴더 구조 절도 함께 갱신할 것.
