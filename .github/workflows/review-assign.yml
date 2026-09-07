@@ -12,4 +12,4 @@ jobs:
         with:
           assignees: ${{ github.actor }}
           # 팀원 GitHub 아이디가 정해지면 콤마로 구분해 채운다 (예: reviewers: alice, bob)
-          reviewers: ""
+          reviewers: "xeoxxn, jjunh33, tnals0924, sangrae2325, leegain1"
