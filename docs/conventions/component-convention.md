@@ -1,0 +1,61 @@
+# Component Convention
+
+> Figma 디자인을 코드 컴포넌트로 옮길 때 따르는 구조 규칙.
+> `docs/conventions/coding-style.md`(네이밍·폴더·TS 규칙)를 보완하는 문서이며, `/component` 스킬이 만드는 모든 컴포넌트는 이 규칙을 따른다.
+
+## 0. 원칙
+
+Figma에 있는 요소라고 전부 새로 코드를 짜지 않는다.
+
+- **WDS(원티드 디자인 시스템) 컴포넌트로 확인된 건 반드시 `@wanteddev/wds`/`@wanteddev/wds-icon`을 import해서 쓴다.** 직접 마크업을 새로 짜지 않는다. 판별 기준은 `docs/conventions/wds-component-usage.md`.
+- **Stream 고유 UI만 새 컴포넌트로 만든다** — WDS에 없는, Stream 서비스에서만 쓰는 화면 조각(카드, 리스트 아이템 등).
+
+## 1. 파일 위치
+
+`coding-style.md`의 기능 기반(feature-based) 구조를 따른다.
+
+- 지금 다루는 화면/기능 전용이면 `features/<기능>/components/<ComponentName>.tsx`
+- 이미 다른 화면에서도 쓰이는 게 Figma 상에서 확인되면 `components/ui/<ComponentName>.tsx`
+- **애매하면 먼저 `features/` 아래에 둔다.** 두 번째 화면에서 실제로 재사용될 때 `components/ui/`로 옮긴다 — 성급하게 공용 폴더부터 만들지 않는다(coding-style.md의 "빈 폴더 미리 만들지 않는다"와 같은 이유).
+
+## 2. 파일 구조
+
+- **컴포넌트 하나 = 파일 하나** (`ComponentName.tsx`). 폴더로 쪼개지 않는다 — 실제로 서브컴포넌트가 분리될 필요가 생기면 그때 판단한다.
+- Figma의 variant(예: `trailingControl: Button | Stepper`)는 **Props의 유니온 타입 하나로 매핑**한다. variant 조합마다 별도 컴포넌트를 만들지 않는다.
+- Props는 `interface`로 선언한다(coding-style.md TypeScript 규칙).
+
+```tsx
+interface RentalItemCardProps {
+  itemName: string
+  quantity: number
+  trailingControl?: 'button' | 'stepper'
+}
+```
+
+## 3. WDS 컴포넌트 사용
+
+- 매칭된 서브트리는 `get_design_context`가 준 raw JSX 대신 **실제 WDS export로 치환**한다.
+- export 이름은 반드시 `node_modules/@wanteddev/wds/dist/components/`에서 확인 후 쓴다 — 이름을 추측하지 않는다.
+  - 예: Figma `Button/Button` → `import { Button } from '@wanteddev/wds'`
+  - 예: Figma `Chip/Chip` → `import { Chip } from '@wanteddev/wds'`
+- 아이콘은 `@wanteddev/wds-icon`에서 가져온다.
+- **WDS 컴포넌트 내부를 임의로 오버라이드하지 않는다.** 간격·배치 같은 레이아웃 조정은 감싸는 wrapper에서 한다.
+
+## 4. Stream 고유 UI (신규 컴포넌트)
+
+- `get_design_context`의 raw JSX/Tailwind는 **레퍼런스일 뿐, 그대로 커밋하지 않는다.** 프로젝트 Tailwind 클래스(추후 `@theme` 토큰이 채워지면 그것)로 다시 짠다.
+- Stream 자체 이미지·아이콘(일러스트, 물품 아이콘 등)은 `download_assets`로 받아 `src/assets/`에 커밋한다. Figma asset URL은 **7일 후 만료**되므로 절대 코드에 그대로 참조하지 않는다.
+- `data-node-id` 같은 Figma 추적용 속성은 컴포넌트 마크업에 남기지 않는다. 대신 파일 최상단에 원본 Figma 노드를 알 수 있는 주석 한 줄만 남긴다 — 나중에 디자인이 바뀌었을 때 다시 대조할 수 있도록:
+
+```tsx
+// Figma: Rental Item Card (nodeId 1041:61407)
+```
+
+## 5. 완료 기준 체크리스트
+
+- [ ] WDS로 확인된 요소는 전부 import로 대체했다 (raw JSX 없음)
+- [ ] Stream 고유 요소만 새 컴포넌트로 작성했다
+- [ ] Props가 Figma variant를 유니온 타입으로 반영한다
+- [ ] 이미지/아이콘 asset을 다운로드해 커밋했다 (만료되는 Figma URL 미참조)
+- [ ] 파일 위치가 재사용 범위(feature 전용 vs 공용)에 맞는다
+- [ ] `pnpm check`(Biome) 통과
