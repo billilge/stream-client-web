@@ -1,5 +1,24 @@
 @import "tailwindcss";
+@import "@wanteddev/wds/global.css" layer(base);
 
 @theme {
-  /* 디자인 시스템 토큰 자리 — 디자인이 정해지면 색상·타이포그래피·간격 등을 여기에 채운다 */
+  /* WDS(@wanteddev/wds/global.css)의 semantic/atomic CSS 변수를 Tailwind 색상 토큰으로 별칭 연결. */
+  /* 값을 새로 정의하지 않고 WDS 걸 그대로 참조하므로 다크 테마(html[data-theme=dark])도 자동 반영된다. */
+  /* Figma get_variable_defs로 뽑은 실제 값과 대조해서 확정함(빌릴게 화면, nodeId 1243:73331 기준). */
+  --color-label-strong: var(--semantic-label-strong);
+  --color-label-normal: var(--semantic-label-normal);
+  --color-label-alternative: var(--semantic-label-alternative);
+  --color-label-assistive: var(--semantic-label-assistive);
+
+  --color-background-normal: var(--semantic-background-normal-normal);
+  --color-background-alternative: var(--semantic-background-normal-alternative);
+
+  --color-line-solid-neutral: var(--semantic-line-solid-neutral);
+  --color-line-normal-neutral: var(--semantic-line-normal-neutral);
+
+  --color-primary: var(--semantic-primary-normal);
+  --color-primary-subtle: var(--atomic-blue-95);
+
+  /* WDS 시맨틱 세트에 없는 값(Figma "Icons/Primary") — 홈 인디케이터 전용, 값 자체는 Figma에서 확인됨 */
+  --color-icons-primary: #0f172a;
 }
