@@ -43,7 +43,13 @@ interface RentalItemCardProps {
 
 ## 4. Stream 고유 UI (신규 컴포넌트)
 
-- `get_design_context`의 raw JSX/Tailwind는 **레퍼런스일 뿐, 그대로 커밋하지 않는다.** 프로젝트 Tailwind 클래스(추후 `@theme` 토큰이 채워지면 그것)로 다시 짠다.
+- `get_design_context`의 raw JSX/Tailwind는 **레퍼런스일 뿐, 그대로 커밋하지 않는다.** 프로젝트 Tailwind 클래스로 다시 짜되, 색상은 아래 "색상 토큰" 규칙을 따른다.
+
+### 색상 토큰
+
+- 색은 `text-[#171719]`처럼 hex를 직접 박지 않는다. `src/index.css`의 `@theme` 블록에 있는 시맨틱 토큰(`text-label-normal`, `bg-background-alternative`, `border-line-solid-neutral`, `text-primary`, `bg-primary-subtle` 등)을 쓴다. 이 토큰들은 `@wanteddev/wds/global.css`가 심어둔 `--semantic-*`/`--atomic-*` CSS 변수를 그대로 별칭 연결한 것이라 다크 테마 전환도 자동으로 따라간다.
+- 필요한 색이 아직 토큰으로 없으면, hex를 추측해서 쓰지 말고 `get_variable_defs(fileKey, nodeId)`로 해당 노드의 실제 Figma 변수명·값을 확인한 뒤 `index.css`의 `@theme`에 새 토큰을 추가한다. `Line/Normal/Neutral`(반투명 `#70737c29`)과 `Line/Solid/Neutral`(불투명 `#eaebec`)처럼 이름이 비슷해도 값이 다른 토큰이 있으니 이름만 보고 넘겨짚지 않는다.
+- 컴포넌트 인스턴스가 없는 화면 배경/외곽선처럼 Figma 값이 실제로는 안 보이는 경우(예: Bottom Nav 상단 border가 바로 위 배경과 같은 색이라 안 보였던 사례)도 있다 — 이럴 땐 왜 다른 토큰으로 바꿨는지 주석으로 남긴다.
 - Stream 자체 이미지·아이콘(일러스트, 물품 아이콘 등)은 `download_assets`로 받아 `src/assets/`에 커밋한다. Figma asset URL은 **7일 후 만료**되므로 절대 코드에 그대로 참조하지 않는다.
 - `data-node-id` 같은 Figma 추적용 속성은 컴포넌트 마크업에 남기지 않는다. 대신 파일 최상단에 원본 Figma 노드를 알 수 있는 주석 한 줄만 남긴다 — 나중에 디자인이 바뀌었을 때 다시 대조할 수 있도록:
 

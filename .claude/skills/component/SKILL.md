@@ -25,7 +25,7 @@ Figma URL이 주어지면 거기서 fileKey/nodeId를 추출한다. node-id만 �
 
 ## Step 2 — WDS 대조
 
-1. `docs/conventions/wds-component-usage.md`를 먼저 읽는다. 이미 확정된 매핑이 있으면 재조사 없이 바로 쓴다.
+1. `docs/conventions/wds-component-usage.md`를 먼저 읽는다. 이미 확정된 매핑이 있으면 재조사 없이 바로 쓴다 — **단, 대상 노드의 실제 스크린샷/스타일이 문서에 기록된 것과 눈에 띄게 다르면(색상·활성 상태 표현 등) 같은 이름이라도 재확인한다.** 파일 전체에서 한 번 확정된 컴포넌트라도 다른 화면에서는 Stream이 로컬로 새로 만든 동명의 요소일 수 있다(사례: `docs/conventions/wds-component-usage.md`의 "빌릴게 필터 Chip은 WDS Chip/Chip이 아니었다" 참고).
 2. 대상 노드 안의 인스턴스 중 문서에 없는 이름이 있으면:
    1. `search_design_system`을 WDS libraryKey로 스코프 제한해서 정확한 이름으로 검색한다.
    2. 결과가 애매하면(이름만 비슷하거나 여러 개 매칭) `get_design_context`로 실제 인스턴스 노드를 열어, 응답의 "Component descriptions" 섹션에 나오는 메인 컴포넌트 Node ID·공식 문서 링크(`montage.wanted.co.kr`)로 확정한다.

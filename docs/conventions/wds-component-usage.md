@@ -51,6 +51,48 @@
 
 WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인스턴스가 확인된다(위 표 합계 기준). `Textinput/Textarea`, `Chip/Chip`, `Icon/Normal/Location`, `Icon/Normal/Circle Info`, `Pagination/Dots` 5개는 `get_design_context`로 실제 노드를 열어 WDS 메인 컴포넌트 Node ID(및 3개는 원티드 공식 디자인 시스템 문서 링크)까지 확인해 완전히 확정했다.
 
+## 이후 세션에서 개별 화면 작업 중 추가 확인된 매핑
+
+파일 전체 스캔이 아니라 `/component`로 특정 화면(빌릴게, `1243:73331`)을 구현하면서 `get_design_context`로 열어본 김에 확정한 것들. 인스턴스 수는 파일 전체 기준이 아니라 "이 화면에서 확인됨"이다.
+
+| WDS 컴포넌트 | 확인 경로 | WDS 메인 컴포넌트 Node ID / 문서 |
+|---|---|---|
+| `Segmented Control/Segmented Control` | 빌릴게 화면 Top Navigation 안 "대여/반납" 토글 | `500:11592` — [문서](https://montage.wanted.co.kr/docs/components/selection-and-input/segmented-control/design) |
+| `Icon/Normal/Search` | 빌릴게 화면 Top Navigation 트레일링 아이콘 | `445:5904` |
+| `Icon/Normal/Bell` | 빌릴게 화면 Top Navigation 트레일링 아이콘 | `445:13236` |
+| `Icon/Normal/Home` | Bottom Nav "홈" 탭(Normal 상태) | `980:35475` |
+| `Icon/Normal/Ticket` | Bottom Nav "행사" 탭(Normal 상태) | `980:35529` |
+| `Icon/Normal/List` | Bottom Nav "게시판" 탭(Normal 상태) | `980:35703` |
+
+코드에서는 `@wanteddev/wds-icon`의 `IconSearch`/`IconBell`/`IconHome`/`IconTicket`/`IconList`로 대응된다(각각 default export를 `index.d.ts`에서 named export로 재노출). `Segmented Control`은 `@wanteddev/wds`의 `SegmentedControl`/`SegmentedControlItem`으로 대응된다.
+
+### 반례 — 빌릴게 필터 Chip은 WDS `Chip/Chip`이 아니었다
+
+위 "WDS 컴포넌트로 확인됨" 표에 `Chip/Chip`이 파일 전체 기준 24개 인스턴스로 확정돼 있다고 해서, **다른 화면의 비슷하게 생긴 칩도 자동으로 WDS라고 가정하면 안 된다.** 빌릴게 화면의 카테고리 필터(전체/전자기기/생활잡화/상비약/위생용품)를 처음 구현할 때 이 표만 보고 재조사 없이 WDS `Chip`을 그대로 썼는데, 실제 Figma 스타일(활성 = 연한 파랑 배경 + 파랑 outline, 비활성 = 회색 outline)이 WDS Chip의 기본 활성 스타일(검정 배경)과 달랐다 — Stream이 로컬로 새로 만든 칩이었다. **스타일이 눈에 띄게 다르면, 이름이 같아 보여도 그 인스턴스는 따로 `get_design_context`로 열어 확인한다.** 코드는 `src/features/rental/components/RentalCategoryFilter.tsx` 참고 (plain `<button>` 기반, WDS import 없음).
+
+### Bottom Nav — 구현 시점 판단 결과 (WDS `BottomNavigation` 시도 → 철회)
+
+54번째 줄 아래 "제외됨" 표의 `Bottom Nav` 항목에 "실제 구현 시에는 WDS 코드 컴포넌트를 기반으로 만드는 게 나을 수 있다 — 구현 단계에서 판단"이라고 남겨뒀던 것을, 빌릴게 화면을 처음 조립할 때는 `@wanteddev/wds`의 `BottomNavigation`/`BottomNavigationItem`을 그대로 썼다. **그런데 실제로 써보니 문제가 있었다**: `BottomNavigation`은 기본적으로 iOS 스타일 반투명 배경(`theme.semantic.platform.ios.navigation`)을 쓰고, 게다가 `document.body` 기준 스크롤이 끝에 도달했는지를 감지해서 배경을 아예 투명하게 바꾸는 로직까지 내장돼 있다(`bottom-navigation/style.js`의 `&[data-scroll-end='true']`). 우리 화면은 body가 아니라 헤더/푸터 사이 안쪽 div만 스크롤되는 구조라서 이 감지가 항상 "스크롤 끝"으로 오판했고, `sx`로 배경을 덮어써도 그 규칙의 특이성(attribute selector)이 더 높아서 안 먹혔다.
+
+그래서 **Bottom Nav는 원래 결론(Stream 로컬 컴포넌트)대로 되돌려 `src/components/ui/BottomNav.tsx`를 새로 만들었다.** Figma의 `Bottom Nav` 공통 컴포넌트(`985:39948`, `Selected=Home/Event/Board/Rental` variant)를 `/component`로 다시 열어 확인:
+- 비선택(Normal) 상태 아이콘은 4개 다 WDS로 확인됨: `Icon/Normal/Home`, `Icon/Normal/Ticket`, `Icon/Normal/List`(위 표 참고) + `Icon/Normal/Storage`(`980:35839`, 코드 export `IconStorage` — 원래 설명은 "AI 이전 대화 기록 보관함"이지만 글리프가 보관함/사물함 모양이라 빌릴게 탭에 그대로 재사용)
+- 선택(Selected) 상태 아이콘 4개는 전부 Figma에서 내려받은 컬러 아이콘(`src/assets/icons/bottom-nav/{home,event,board,rental}-selected.svg`)을 쓴다. `IconHomeFill`/`IconTicketFill`은 `@wanteddev/wds-icon`에 존재하지만 게시판(List)에는 대응하는 Fill 아이콘이 없어서, 4개 전부 통일해서 실제 에셋을 쓰는 쪽을 택했다(하나만 WDS 아이콘 쓰고 나머지 셋만 에셋 쓰면 방식이 갈려서 더 헷갈림).
+
+### `Menu/Resource/Action Area/Trailing Content/Button` — 코드 export가 없어서 `Button` + `sx` 보정으로 대체
+
+위 표에서 componentKey까지 확정된 `Menu/Resource/Action Area/Trailing Content/Button`(빌릴게 카드의 "대여 신청" 버튼)은 `@wanteddev/wds`에 1:1 대응하는 export가 없다. `search_design_system`으로 찾아보면 `Menu/Resource/Action Area/*`가 `Leading Content/Icon`·`Leading Content/Badge`·`Trailing Content/Button`·`Trailing Content/Badge`·`Trailing Content/Icon Button` 등으로 Figma에서만 슬롯별로 잘게 쪼갠 구성 컴포넌트들이라, 코드 쪽엔 이런 이름의 컴포넌트가 따로 없다(리스트 행 컴포넌트인 `ListCell`/`ListCellContent`의 `variant="button"`도 열어봤지만 자체 배경색을 안 입혀서 매칭 안 됨).
+
+대신 `@wanteddev/wds`의 `Button`을 직접 열어보니(`node_modules/@wanteddev/wds/dist/components/button/style.js`) `size="small"`이 padding(`7px 14px`)·`border-radius: 8px`·타이포(`label2`)까지 Figma 스펙과 정확히 일치했다. 다만 `Button`의 공개 variant(`variant: 'solid'|'outlined'` × `color: 'primary'|'assistive'` 4가지 조합)엔 이 버튼의 "옅은 파랑 배경(`#EAF2FE`) + 파랑 텍스트(`#0066FF`)" 조합이 없어서, 그 두 색상만 `sx`로 덮어썼다:
+
+```tsx
+<Button color="primary" size="small" variant="solid"
+  sx={{ backgroundColor: "var(--color-primary-subtle)", color: "var(--color-primary)" }}>
+  대여 신청
+</Button>
+```
+
+hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참조했고, `Button` 자체(접근성 속성, `disabled`/`loading` 상태 처리 등)는 그대로 재사용한다. `src/features/rental/components/RentalItemCard.tsx` 참고.
+
 ## 제외됨 — Stream 자체 로컬 컴포넌트 (WDS 아님)
 
 이름은 비슷해 보여도 WDS 검색 결과에 없거나, `component` 섹션(985:36615)에서 로컬 심볼로 직접 정의된 것들:
