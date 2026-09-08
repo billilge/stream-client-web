@@ -16,7 +16,8 @@
     "@wanteddev/wds": "^3.12.0",
     "@wanteddev/wds-icon": "^3.12.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.11",
