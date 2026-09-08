@@ -6,8 +6,10 @@ import {
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import BottomNav, { type BottomNavValue } from "@/components/ui/BottomNav";
+import type { BottomNavValue } from "@/components/ui/BottomNav";
+import ScreenLayout from "@/components/ui/ScreenLayout";
 import RentalCategoryFilter from "@/features/rental/components/RentalCategoryFilter";
 import RentalItemCard from "@/features/rental/components/RentalItemCard";
 import { RENTAL_ITEMS } from "@/features/rental/constants/rentalItems";
@@ -18,11 +20,20 @@ function RentalListScreen() {
   const [category, setCategory] = useState("전체");
   const [bottomNavValue, setBottomNavValue] =
     useState<BottomNavValue>("rental");
+  const navigate = useNavigate();
+
+  const handleBottomNavValueChange = (value: BottomNavValue) => {
+    setBottomNavValue(value);
+    if (value === "home") {
+      navigate("/");
+    }
+  };
 
   return (
-    <div className="flex h-[812px] w-[375px] flex-col overflow-hidden bg-background-alternative">
-      <div className="shrink-0">
-        {/* background 기본값(true)은 iOS 반투명 스타일이라 뒤 배경이 비쳐 보인다. Figma는 별도 배경 없이 화면 배경을 그대로 쓴다. */}
+    <ScreenLayout
+      bottomNavValue={bottomNavValue}
+      header={
+        // background 기본값(true)은 iOS 반투명 스타일이라 뒤 배경이 비쳐 보인다. Figma는 별도 배경 없이 화면 배경을 그대로 쓴다.
         <TopNavigation
           background={false}
           toolbar={
@@ -47,35 +58,30 @@ function RentalListScreen() {
         >
           빌릴게
         </TopNavigation>
+      }
+      onBottomNavValueChange={handleBottomNavValueChange}
+    >
+      <div className="px-5 py-4">
+        <RentalCategoryFilter onChange={setCategory} value={category} />
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-5 py-4">
-          <RentalCategoryFilter onChange={setCategory} value={category} />
+      {tab === "rent" ? (
+        <div className="flex flex-col gap-2 px-5 pb-4">
+          {RENTAL_ITEMS.map((item) => (
+            <RentalItemCard
+              icon={item.icon}
+              itemName={item.name}
+              key={item.id}
+              quantity={item.quantity}
+            />
+          ))}
         </div>
-
-        {tab === "rent" ? (
-          <div className="flex flex-col gap-2 px-5 pb-4">
-            {RENTAL_ITEMS.map((item) => (
-              <RentalItemCard
-                icon={item.icon}
-                itemName={item.name}
-                key={item.id}
-                quantity={item.quantity}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center py-20 text-label-alternative text-sm">
-            반납 화면은 아직 준비 중이에요
-          </div>
-        )}
-      </div>
-
-      <div className="shrink-0">
-        <BottomNav onValueChange={setBottomNavValue} value={bottomNavValue} />
-      </div>
-    </div>
+      ) : (
+        <div className="flex items-center justify-center py-20 text-label-alternative text-sm">
+          반납 화면은 아직 준비 중이에요
+        </div>
+      )}
+    </ScreenLayout>
   );
 }
 
