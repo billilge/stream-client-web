@@ -84,9 +84,7 @@ function BottomNav({ value, onValueChange }: BottomNavProps) {
           );
         })}
       </div>
-      <div className="relative h-[34px] w-full">
-        <div className="absolute bottom-2 left-1/2 h-[5px] w-[134px] -translate-x-1/2 rounded-full bg-icons-primary" />
-      </div>
+      <div className="h-[34px] w-full" />
     </div>
   );
 }

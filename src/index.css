@@ -21,8 +21,6 @@
   --color-primary: var(--semantic-primary-normal);
   --color-primary-subtle: var(--atomic-blue-95);
 
-  /* WDS 시맨틱 세트에 없는 값(Figma "Icons/Primary") — 홈 인디케이터 전용, 값 자체는 Figma에서 확인됨 */
-  --color-icons-primary: #0f172a;
   /* WDS 시맨틱 세트에 없는 값(Figma "Sky/Base") — Native / Bottom Sheet Indicator(드래그 핸들) 전용 */
   --color-sheet-indicator: #cdcfd0;
 }
