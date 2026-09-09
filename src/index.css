@@ -22,3 +22,13 @@
   /* WDS 시맨틱 세트에 없는 값(Figma "Icons/Primary") — 홈 인디케이터 전용, 값 자체는 Figma에서 확인됨 */
   --color-icons-primary: #0f172a;
 }
+
+/* 무한 스크롤 목록 등 스크롤은 동작하되 스크롤바는 안 보이게 할 때 쓰는 재사용 유틸리티 */
+@utility scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

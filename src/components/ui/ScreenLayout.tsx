@@ -35,7 +35,8 @@ function ScreenLayout() {
     <ScreenHeaderContext.Provider value={setHeader}>
       <div className="flex h-[812px] w-[375px] flex-col overflow-hidden bg-background-alternative">
         <div className="shrink-0">{header}</div>
-        <div className="flex-1 overflow-y-auto">
+        {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤) */}
+        <div className="flex-1 overflow-hidden">
           <Outlet />
         </div>
         <div className="shrink-0">
