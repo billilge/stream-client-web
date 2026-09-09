@@ -39,7 +39,10 @@ const MINUTE_OPTIONS: WheelPickerOption<number>[] = Array.from(
 // 3개 컬럼 공통으로 하나 깔아주기 때문에 여기서는 텍스트 스타일만 다룬다.
 const WHEEL_CLASS_NAMES: WheelPickerClassNames = {
   highlightItem: "font-semibold text-label-normal text-lg tabular-nums",
-  highlightWrapper: "",
+  // 뒤쪽 옵션 리스트(회색)가 하이라이트 리스트(진한 글자)에 그대로 비쳐서 겹쳐 보이는 문제 —
+  // 배경색을 채워서 가운데 줄만큼은 회색 글자를 완전히 가려야 한다. 공유 pill과 같은 색이라
+  // 컬럼 사이 gap에서 보이는 pill과 이어져서 하나의 막대처럼 보인다.
+  highlightWrapper: "bg-background-alternative",
   optionItem: "font-medium text-[17px] text-label-disable tabular-nums",
 };
 
@@ -140,7 +143,7 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
             </div>
           </div>
 
-          <div className="flex items-start gap-2">
+          <div className="flex items-center gap-2">
             <IconCircleInfo className="size-5 shrink-0 text-primary" />
             <p className="text-primary text-xs">
               대여 시작 시간은 최소 5분 뒤부터 선택할 수 있어요
