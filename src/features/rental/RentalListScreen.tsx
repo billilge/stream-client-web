@@ -6,9 +6,7 @@ import {
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-import type { BottomNavValue } from "@/components/ui/BottomNav";
 import ScreenLayout from "@/components/ui/ScreenLayout";
 import RentalCategoryFilter from "@/features/rental/components/RentalCategoryFilter";
 import RentalItemCard from "@/features/rental/components/RentalItemCard";
@@ -18,20 +16,9 @@ import { RENTAL_ITEMS } from "@/features/rental/constants/rentalItems";
 function RentalListScreen() {
   const [tab, setTab] = useState("rent");
   const [category, setCategory] = useState("전체");
-  const [bottomNavValue, setBottomNavValue] =
-    useState<BottomNavValue>("rental");
-  const navigate = useNavigate();
-
-  const handleBottomNavValueChange = (value: BottomNavValue) => {
-    setBottomNavValue(value);
-    if (value === "home") {
-      navigate("/");
-    }
-  };
 
   return (
     <ScreenLayout
-      bottomNavValue={bottomNavValue}
       header={
         // background 기본값(true)은 iOS 반투명 스타일이라 뒤 배경이 비쳐 보인다. Figma는 별도 배경 없이 화면 배경을 그대로 쓴다.
         <TopNavigation
@@ -59,7 +46,6 @@ function RentalListScreen() {
           빌릴게
         </TopNavigation>
       }
-      onBottomNavValueChange={handleBottomNavValueChange}
     >
       <div className="px-5 py-4">
         <RentalCategoryFilter onChange={setCategory} value={category} />
