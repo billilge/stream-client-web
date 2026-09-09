@@ -145,7 +145,7 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
 
           <div className="flex items-center gap-2">
             <IconCircleInfo className="size-5 shrink-0 text-primary" />
-            <p className="text-primary text-xs">
+            <p className="font-medium text-primary text-xs">
               대여 시작 시간은 최소 5분 뒤부터 선택할 수 있어요
             </p>
           </div>

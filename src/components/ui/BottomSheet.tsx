@@ -38,7 +38,7 @@ function BottomSheet({ open, onClose, children }: BottomSheetProps) {
           open ? "translate-y-0" : "translate-y-full"
         }`}
       >
-        <div className="flex shrink-0 justify-center pt-2 pb-1">
+        <div className="mb-2 flex h-6 shrink-0 items-center justify-center">
           <div className="h-[5px] w-12 rounded-full bg-sheet-indicator" />
         </div>
         {children}
