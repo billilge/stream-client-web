@@ -3,12 +3,12 @@ import { useState } from "react";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import RentalCategoryFilter from "@/features/rental/components/RentalCategoryFilter";
-import RentalItemCard from "@/features/rental/components/RentalItemCard";
-import { RENTAL_ITEMS } from "@/features/rental/constants/rentalItems";
+import BililgeCategoryFilter from "@/features/bililge/components/BililgeCategoryFilter";
+import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
+import { BILILGE_ITEMS } from "@/features/bililge/constants/bililgeItems";
 
 // Figma: 빌릴게 (nodeId 1243:73331)
-function RentalListScreen() {
+function BililgeListScreen() {
   const [tab, setTab] = useState("rent");
   const [category, setCategory] = useState("전체");
 
@@ -26,14 +26,14 @@ function RentalListScreen() {
       </div>
 
       <div className="shrink-0 px-5 py-4">
-        <RentalCategoryFilter onChange={setCategory} value={category} />
+        <BililgeCategoryFilter onChange={setCategory} value={category} />
       </div>
 
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
         {tab === "rent" ? (
           <div className="flex flex-col gap-2 px-5 pb-4">
-            {RENTAL_ITEMS.map((item) => (
-              <RentalItemCard
+            {BILILGE_ITEMS.map((item) => (
+              <BililgeItemCard
                 icon={item.icon}
                 itemName={item.name}
                 key={item.id}
@@ -51,4 +51,4 @@ function RentalListScreen() {
   );
 }
 
-export default RentalListScreen;
+export default BililgeListScreen;

@@ -1,20 +1,20 @@
-import eightPinCharger from "@/assets/icons/rental-items/8pin-charger.svg";
-import alcoholSwab from "@/assets/icons/rental-items/alcohol-swab.svg";
-import bandAid from "@/assets/icons/rental-items/band-aid.svg";
-import curlingIron from "@/assets/icons/rental-items/curling-iron.svg";
-import eyeDrops from "@/assets/icons/rental-items/eye-drops.svg";
-import hairDryer from "@/assets/icons/rental-items/hair-dryer.svg";
-import laptopCharger from "@/assets/icons/rental-items/laptop-charger.svg";
-import mask from "@/assets/icons/rental-items/mask.svg";
-import ointment from "@/assets/icons/rental-items/ointment.svg";
-import painReliefPatch from "@/assets/icons/rental-items/pain-relief-patch.svg";
-import pill from "@/assets/icons/rental-items/pill.svg";
-import powerBank from "@/assets/icons/rental-items/power-bank.svg";
-import sanitaryPad from "@/assets/icons/rental-items/sanitary-pad.svg";
-import umbrella from "@/assets/icons/rental-items/umbrella.svg";
-import usbCCharger from "@/assets/icons/rental-items/usb-c-charger.svg";
+import eightPinCharger from "@/assets/icons/bililge-items/8pin-charger.svg";
+import alcoholSwab from "@/assets/icons/bililge-items/alcohol-swab.svg";
+import bandAid from "@/assets/icons/bililge-items/band-aid.svg";
+import curlingIron from "@/assets/icons/bililge-items/curling-iron.svg";
+import eyeDrops from "@/assets/icons/bililge-items/eye-drops.svg";
+import hairDryer from "@/assets/icons/bililge-items/hair-dryer.svg";
+import laptopCharger from "@/assets/icons/bililge-items/laptop-charger.svg";
+import mask from "@/assets/icons/bililge-items/mask.svg";
+import ointment from "@/assets/icons/bililge-items/ointment.svg";
+import painReliefPatch from "@/assets/icons/bililge-items/pain-relief-patch.svg";
+import pill from "@/assets/icons/bililge-items/pill.svg";
+import powerBank from "@/assets/icons/bililge-items/power-bank.svg";
+import sanitaryPad from "@/assets/icons/bililge-items/sanitary-pad.svg";
+import umbrella from "@/assets/icons/bililge-items/umbrella.svg";
+import usbCCharger from "@/assets/icons/bililge-items/usb-c-charger.svg";
 
-export interface RentalItem {
+export interface BililgeItem {
   id: string;
   name: string;
   quantity: number;
@@ -22,7 +22,7 @@ export interface RentalItem {
 }
 
 // Figma: 빌릴게 Item Grid (nodeId 1243:73343) 순서·물품명·수량을 그대로 옮긴 목데이터 — 실 API 연동 전까지 사용
-export const RENTAL_ITEMS: RentalItem[] = [
+export const BILILGE_ITEMS: BililgeItem[] = [
   { icon: curlingIron, id: "curling-iron", name: "고데기", quantity: 28 },
   {
     icon: laptopCharger,

@@ -7,10 +7,10 @@ import { ScreenHeaderContext } from "@/components/ui/screenHeaderContext";
 
 // Bottom Nav 탭 ↔ 라우트 경로 매핑. 화면이 늘어나면 여기에 추가한다.
 const BOTTOM_NAV_PATHS: Record<BottomNavValue, string> = {
+  bililge: "/bililge",
   board: "/board",
   event: "/event",
   home: "/",
-  rental: "/rental",
 };
 
 function getBottomNavValueFromPath(pathname: string): BottomNavValue {

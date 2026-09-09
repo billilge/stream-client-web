@@ -12,7 +12,7 @@ function HomeScreen() {
       <p className="text-label-alternative text-sm">
         홈 화면은 아직 준비 중이에요
       </p>
-      <Link className="text-primary text-sm underline" to="/rental">
+      <Link className="text-primary text-sm underline" to="/bililge">
         빌릴게 화면 보기
       </Link>
     </div>

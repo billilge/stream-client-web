@@ -1,4 +1,4 @@
-const RENTAL_CATEGORIES = [
+const BILILGE_CATEGORIES = [
   "전체",
   "전자기기",
   "생활잡화",
@@ -6,17 +6,20 @@ const RENTAL_CATEGORIES = [
   "위생용품",
 ];
 
-interface RentalCategoryFilterProps {
+interface BililgeCategoryFilterProps {
   value: string;
   onChange: (category: string) => void;
 }
 
 // Figma: 빌릴게 Filter Row (nodeId 1243:73337) — WDS Chip이 아니라 Stream 로컬 커스텀 칩.
 // 카테고리·물품 매핑 API가 아직 없어 필터링 없이 선택 상태만 표시한다.
-function RentalCategoryFilter({ value, onChange }: RentalCategoryFilterProps) {
+function BililgeCategoryFilter({
+  value,
+  onChange,
+}: BililgeCategoryFilterProps) {
   return (
     <div className="flex gap-1.5 overflow-x-auto">
-      {RENTAL_CATEGORIES.map((category) => {
+      {BILILGE_CATEGORIES.map((category) => {
         const active = category === value;
         return (
           <button
@@ -37,4 +40,4 @@ function RentalCategoryFilter({ value, onChange }: RentalCategoryFilterProps) {
   );
 }
 
-export default RentalCategoryFilter;
+export default BililgeCategoryFilter;
