@@ -42,8 +42,11 @@ function BottomSheet({ open, onClose, children }: BottomSheetProps) {
           <div className="h-[5px] w-12 rounded-full bg-sheet-indicator" />
         </div>
         {children}
-        {/* iOS Home Indicator 안전 영역 — 모든 BottomSheet가 공통으로 필요해서 여기서 확보한다 */}
-        <div className="h-[34px] shrink-0" />
+        {/* Figma의 Action Area는 버튼을 감싸는 Container(p-5=20px, 이건 WDS ActionArea 자체
+            padding으로 이미 확보됨) 다음에 iOS 홈 인디케이터용 "Gesture" 여백(pt-3.5=14px)이
+            하나 더 붙는데, 실제 @wanteddev/wds의 ActionArea 컴포넌트에는 이 14px이 없어서
+            여기서 더해준다. */}
+        <div className="h-[14px] shrink-0" />
       </div>
     </div>,
     portalEl,
