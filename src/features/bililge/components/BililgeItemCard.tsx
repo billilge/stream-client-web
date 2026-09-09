@@ -4,7 +4,7 @@ import { Button } from "@wanteddev/wds";
 import circleMinusFill from "@/assets/icons/circle-minus-fill.svg";
 import circlePlusFill from "@/assets/icons/circle-plus-fill.svg";
 
-interface RentalItemCardProps {
+interface BililgeItemCardProps {
   icon: string;
   itemName: string;
   quantity: number;
@@ -19,7 +19,7 @@ interface RentalItemCardProps {
 // 그 이름과 1:1 대응하는 코드 export는 없다 — 대신 WDS `Button`(size="small")이 padding(7px/14px)·
 // radius(8px)·타이포(label2)까지 정확히 일치해서 그걸 쓰고, Button 공개 variant엔 없는 "연한 파랑 배경
 // + 파랑 텍스트" 조합만 sx로 보정했다. 스테퍼 +/- 아이콘은 여전히 WDS 미확정이라 하드코딩 — docs/plans 참고.
-function RentalItemCard({
+function BililgeItemCard({
   icon,
   itemName,
   quantity,
@@ -28,7 +28,7 @@ function RentalItemCard({
   stepperValue = 1,
   onStepperDecrease,
   onStepperIncrease,
-}: RentalItemCardProps) {
+}: BililgeItemCardProps) {
   const isStepper = trailingControl === "stepper";
 
   return (
@@ -87,4 +87,4 @@ function RentalItemCard({
   );
 }
 
-export default RentalItemCard;
+export default BililgeItemCard;

@@ -5,12 +5,12 @@ import {
   IconTicket,
 } from "@wanteddev/wds-icon";
 
+import bililgeSelected from "@/assets/icons/bottom-nav/bililge-selected.svg";
 import boardSelected from "@/assets/icons/bottom-nav/board-selected.svg";
 import eventSelected from "@/assets/icons/bottom-nav/event-selected.svg";
 import homeSelected from "@/assets/icons/bottom-nav/home-selected.svg";
-import rentalSelected from "@/assets/icons/bottom-nav/rental-selected.svg";
 
-export type BottomNavValue = "home" | "event" | "board" | "rental";
+export type BottomNavValue = "home" | "event" | "board" | "bililge";
 
 interface BottomNavProps {
   value: BottomNavValue;
@@ -47,8 +47,8 @@ const TABS: BottomNavTab[] = [
   {
     NormalIcon: IconStorage,
     label: "빌릴게",
-    selectedIcon: rentalSelected,
-    value: "rental",
+    selectedIcon: bililgeSelected,
+    value: "bililge",
   },
 ];
 
