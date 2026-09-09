@@ -70,7 +70,7 @@ function BililgeItemCard({
             >
               <img alt="" className="size-6" src={circleMinusFill} />
             </button>
-            <span className="font-semibold text-label-normal text-lg">
+            <span className="w-5 text-center font-semibold text-label-normal text-lg tabular-nums">
               {stepperValue}
             </span>
             <button

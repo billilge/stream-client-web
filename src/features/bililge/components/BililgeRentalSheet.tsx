@@ -38,9 +38,9 @@ const MINUTE_OPTIONS: WheelPickerOption<number>[] = Array.from(
 // 선택되지 않은 칸은 옅게, 가운데 선택된 칸만 진하게 — 배경 하이라이트 바는 Time Picker 쪽에서
 // 3개 컬럼 공통으로 하나 깔아주기 때문에 여기서는 텍스트 스타일만 다룬다.
 const WHEEL_CLASS_NAMES: WheelPickerClassNames = {
-  highlightItem: "font-semibold text-label-normal text-lg",
+  highlightItem: "font-semibold text-label-normal text-lg tabular-nums",
   highlightWrapper: "",
-  optionItem: "font-medium text-[17px] text-label-disable",
+  optionItem: "font-medium text-[17px] text-label-disable tabular-nums",
 };
 
 function getDefaultStartTime(): {
@@ -106,31 +106,34 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
                     onValueChange={(period) =>
                       setTime((prev) => ({ ...prev, period }))
                     }
+                    optionItemHeight={24}
                     options={PERIOD_OPTIONS}
                     value={time.period}
-                    visibleCount={8}
+                    visibleCount={12}
                   />
                 </div>
-                <div className="w-5">
+                <div className="w-7">
                   <WheelPicker
                     classNames={WHEEL_CLASS_NAMES}
                     onValueChange={(hour) =>
                       setTime((prev) => ({ ...prev, hour }))
                     }
+                    optionItemHeight={24}
                     options={HOUR_OPTIONS}
                     value={time.hour}
-                    visibleCount={8}
+                    visibleCount={12}
                   />
                 </div>
-                <div className="w-5">
+                <div className="w-7">
                   <WheelPicker
                     classNames={WHEEL_CLASS_NAMES}
                     onValueChange={(minute) =>
                       setTime((prev) => ({ ...prev, minute }))
                     }
+                    optionItemHeight={24}
                     options={MINUTE_OPTIONS}
                     value={time.minute}
-                    visibleCount={8}
+                    visibleCount={12}
                   />
                 </div>
               </WheelPickerWrapper>
