@@ -1,14 +1,11 @@
 import { Link } from "react-router-dom";
 
+import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 
 // 홈 화면 콘텐츠는 아직 없어서, 라우팅이 실제로 동작하는지 확인할 placeholder만 둔다.
 function HomeScreen() {
-  useScreenHeader(
-    <div className="p-4">
-      <h1 className="font-bold text-2xl text-label-normal">STREAM</h1>
-    </div>,
-  );
+  useScreenHeader(<ScreenHeader title="STREAM" />);
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20">
