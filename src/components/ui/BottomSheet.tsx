@@ -42,8 +42,12 @@ function BottomSheet({ open, onClose, children }: BottomSheetProps) {
           <div className="h-[5px] w-12 rounded-full bg-sheet-indicator" />
         </div>
         {children}
-        {/* iOS Home Indicator 안전 영역 — 모든 BottomSheet가 공통으로 필요해서 여기서 확보한다 */}
-        <div className="h-[34px] shrink-0" />
+        {/* Figma: Native / Home Indicator (nodeId 1422:57206) — 이 시트가 열려있는 동안은 화면
+            맨 아래 chrome 역할을 하므로, BottomNav 대신 여기서 안전 영역 + 홈 인디케이터 바를
+            직접 그린다. */}
+        <div className="relative h-[34px] shrink-0">
+          <div className="absolute bottom-2 left-1/2 h-[5px] w-[148px] -translate-x-1/2 rounded-full bg-ink-darkest" />
+        </div>
       </div>
     </div>,
     portalEl,

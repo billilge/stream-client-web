@@ -25,6 +25,8 @@
   --color-icons-primary: #0f172a;
   /* WDS 시맨틱 세트에 없는 값(Figma "Sky/Base") — Native / Bottom Sheet Indicator(드래그 핸들) 전용 */
   --color-sheet-indicator: #cdcfd0;
+  /* WDS 시맨틱 세트에 없는 값(Figma "Ink/Darkest") — Native / Home Indicator(하단 세이프에어리어 바) 전용 */
+  --color-ink-darkest: #090a0a;
 }
 
 /* 무한 스크롤 목록 등 스크롤은 동작하되 스크롤바는 안 보이게 할 때 쓰는 재사용 유틸리티 */
