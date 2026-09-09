@@ -5,12 +5,18 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import BililgeCategoryFilter from "@/features/bililge/components/BililgeCategoryFilter";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
-import { BILILGE_ITEMS } from "@/features/bililge/constants/bililgeItems";
+import BililgeRentalSheet from "@/features/bililge/components/BililgeRentalSheet";
+import {
+  BILILGE_ITEMS,
+  type BililgeItem,
+} from "@/features/bililge/constants/bililgeItems";
 
 // Figma: 빌릴게 (nodeId 1243:73331)
 function BililgeListScreen() {
   const [tab, setTab] = useState("rent");
   const [category, setCategory] = useState("전체");
+  const [rentalItem, setRentalItem] = useState<BililgeItem | null>(null);
+  const [rentalSheetOpen, setRentalSheetOpen] = useState(false);
 
   useScreenHeader(<ScreenHeader title="빌릴게" />);
 
@@ -37,6 +43,10 @@ function BililgeListScreen() {
                 icon={item.icon}
                 itemName={item.name}
                 key={item.id}
+                onRentRequest={() => {
+                  setRentalItem(item);
+                  setRentalSheetOpen(true);
+                }}
                 quantity={item.quantity}
               />
             ))}
@@ -47,6 +57,12 @@ function BililgeListScreen() {
           </div>
         )}
       </div>
+
+      <BililgeRentalSheet
+        item={rentalItem}
+        onClose={() => setRentalSheetOpen(false)}
+        open={rentalSheetOpen}
+      />
     </div>
   );
 }

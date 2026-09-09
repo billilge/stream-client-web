@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@wanteddev/wds/global.css" layer(base);
+@import "@ncdai/react-wheel-picker/style.css" layer(base);
 
 @theme {
   /* WDS(@wanteddev/wds/global.css)의 semantic/atomic CSS 변수를 Tailwind 색상 토큰으로 별칭 연결. */
@@ -9,6 +10,7 @@
   --color-label-normal: var(--semantic-label-normal);
   --color-label-alternative: var(--semantic-label-alternative);
   --color-label-assistive: var(--semantic-label-assistive);
+  --color-label-disable: var(--semantic-label-disable);
 
   --color-background-normal: var(--semantic-background-normal-normal);
   --color-background-alternative: var(--semantic-background-normal-alternative);
@@ -21,6 +23,8 @@
 
   /* WDS 시맨틱 세트에 없는 값(Figma "Icons/Primary") — 홈 인디케이터 전용, 값 자체는 Figma에서 확인됨 */
   --color-icons-primary: #0f172a;
+  /* WDS 시맨틱 세트에 없는 값(Figma "Sky/Base") — Native / Bottom Sheet Indicator(드래그 핸들) 전용 */
+  --color-sheet-indicator: #cdcfd0;
 }
 
 /* 무한 스크롤 목록 등 스크롤은 동작하되 스크롤바는 안 보이게 할 때 쓰는 재사용 유틸리티 */
