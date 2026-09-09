@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
+import ScreenLayout from "@/components/ui/ScreenLayout";
 import HomeScreen from "@/features/home/HomeScreen";
 import RentalListScreen from "@/features/rental/RentalListScreen";
 
@@ -8,8 +9,10 @@ function App() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#e5e5e5] py-6">
       <Routes>
-        <Route element={<HomeScreen />} path="/" />
-        <Route element={<RentalListScreen />} path="/rental" />
+        <Route element={<ScreenLayout />}>
+          <Route element={<HomeScreen />} path="/" />
+          <Route element={<RentalListScreen />} path="/rental" />
+        </Route>
       </Routes>
     </div>
   );
