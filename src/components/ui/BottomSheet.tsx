@@ -21,7 +21,7 @@ function BottomSheet({ open, onClose, children }: BottomSheetProps) {
 
   return createPortal(
     <div
-      className={`absolute inset-0 transition-opacity duration-200 ${
+      className={`absolute inset-0 transition-opacity duration-300 ease-out ${
         open
           ? "pointer-events-auto opacity-100"
           : "pointer-events-none opacity-0"
@@ -34,7 +34,7 @@ function BottomSheet({ open, onClose, children }: BottomSheetProps) {
         type="button"
       />
       <div
-        className={`absolute inset-x-0 bottom-0 flex flex-col rounded-t-2xl bg-background-normal transition-transform duration-300 ${
+        className={`absolute inset-x-0 bottom-0 flex flex-col rounded-t-2xl bg-background-normal transition-transform duration-[380ms] ease-[cubic-bezier(0.32,0.72,0,1)] ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
       >
