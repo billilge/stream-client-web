@@ -1,5 +1,5 @@
 import { SegmentedControl, SegmentedControlItem } from "@wanteddev/wds";
-import { useState } from "react";
+import { startTransition, useState } from "react";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
@@ -44,8 +44,14 @@ function BililgeListScreen() {
                 itemName={item.name}
                 key={item.id}
                 onRentRequest={() => {
-                  setRentalItem(item);
+                  // 바텀시트를 여는 것(슬라이드 애니메이션)은 즉시 반영하고, 그 안의 휠
+                  // 피커(특히 분 60개) 마운트처럼 무거운 작업은 startTransition으로 낮은
+                  // 우선순위로 미뤄서 첫 프레임이 버벅이지 않게 한다 — 처음 열 때만 해당하고,
+                  // rentalItem은 닫아도 null로 안 돌아가서 두 번째부터는 이 마운트 비용 자체가 없다.
                   setRentalSheetOpen(true);
+                  startTransition(() => {
+                    setRentalItem(item);
+                  });
                 }}
                 quantity={item.quantity}
               />
