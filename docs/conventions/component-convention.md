@@ -40,6 +40,7 @@ interface RentalItemCardProps {
   - 예: Figma `Chip/Chip` → `import { Chip } from '@wanteddev/wds'`
 - 아이콘은 `@wanteddev/wds-icon`에서 가져온다.
 - **WDS 컴포넌트 내부를 임의로 오버라이드하지 않는다.** 간격·배치 같은 레이아웃 조정은 감싸는 wrapper에서 한다.
+- **화면 헤더는 화면에서 `TopNavigation`을 직접 새로 조립하지 않고 `src/components/ui/ScreenHeader.tsx`를 거친다.** Figma의 Top Navigation 패턴(타이틀 정렬, leading/trailing 조합, 게시판류의 토글형 타이틀 등)을 `ScreenHeader`의 props(`variant`/`title`/`leading`/`trailing`)로 고르게 돼 있다 — 화면마다 손으로 다시 조립하면 컨벤션이 흩어진다. 새 헤더 패턴이 필요하면 `ScreenHeader`부터 확장한다(`docs/plans/unified-screen-header.md` 참고).
 
 ## 4. Stream 고유 UI (신규 컴포넌트)
 

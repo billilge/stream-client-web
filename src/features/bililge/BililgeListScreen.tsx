@@ -1,4 +1,9 @@
-import { SegmentedControl, SegmentedControlItem } from "@wanteddev/wds";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+  TopNavigationButton,
+} from "@wanteddev/wds";
+import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { startTransition, useState } from "react";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -18,7 +23,21 @@ function BililgeListScreen() {
   const [rentalItem, setRentalItem] = useState<BililgeItem | null>(null);
   const [rentalSheetOpen, setRentalSheetOpen] = useState(false);
 
-  useScreenHeader(<ScreenHeader title="빌릴게" />);
+  useScreenHeader(
+    <ScreenHeader
+      title="빌릴게"
+      trailing={
+        <>
+          <TopNavigationButton aria-label="검색" variant="icon">
+            <IconSearch />
+          </TopNavigationButton>
+          <TopNavigationButton aria-label="알림" variant="icon">
+            <IconBell />
+          </TopNavigationButton>
+        </>
+      }
+    />,
+  );
 
   return (
     <div className="flex h-full flex-col">
