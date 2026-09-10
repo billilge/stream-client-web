@@ -1,39 +1,89 @@
-import { TopNavigationButton, Typography } from "@wanteddev/wds";
-import { IconBell, IconSearch } from "@wanteddev/wds-icon";
+import { TopNavigation, Typography } from "@wanteddev/wds";
+import type { ReactNode } from "react";
 
-interface ScreenHeaderProps {
-  title: string;
+interface ScreenHeaderToggleTitle {
+  options: string[];
+  activeIndex: number;
+  onChange?: (index: number) => void;
 }
 
-// Figma: Top Navigation(nodeId 1765:71193)의 타이틀 + 검색/알림 아이콘 부분 — 행사·빌릴게 등
-// 여러 화면에서 완전히 동일하게 반복되는 진짜 공통 패턴이라 재사용 컴포넌트로 뺐다.
-// "Tool" 슬롯(세그먼트 토글 등)은 화면마다 값·동작이 달라서(대여/반납 vs 행사/신청내역)
-// 여기 포함하지 않고 각 화면이 자기 본문에서 직접 그린다.
-//
-// 이 Top Navigation은 WDS Top Navigation/Resource/Contents가 아니라 Stream 로컬
-// 컴포넌트다 — 세로 패딩 12px + Title 3/Bold(32px)로 총 56px인데, WDS display variant는
-// 세로 패딩이 16px 고정이라 64px이 된다. 그래서 레이아웃만 직접 구현하고, 아이콘 버튼
-// (TopNavigationButton)은 그대로 재사용한다.
-function ScreenHeader({ title }: ScreenHeaderProps) {
+type ScreenHeaderTitle = string | ScreenHeaderToggleTitle;
+
+function isToggleTitle(
+  title: ScreenHeaderTitle,
+): title is ScreenHeaderToggleTitle {
+  return typeof title !== "string";
+}
+
+// Figma: 게시판류 화면의 "공지 | 열린피드백" 같은 2단 탭 타이틀(nodeId 1256:81792 "Board Title").
+// 활성 옵션은 Label/Strong(검정), 비활성은 Label/Disable(흐림) — 둘 다 같은 Title 3/Bold(24px).
+function ScreenHeaderToggleTitle({
+  options,
+  activeIndex,
+  onChange,
+}: ScreenHeaderToggleTitle) {
   return (
-    <div className="flex w-full items-center justify-between px-5 py-3">
-      <Typography
-        as="h2"
-        color="semantic.label.strong"
-        variant="title3"
-        weight="bold"
-      >
-        {title}
-      </Typography>
-      <div className="flex shrink-0 items-center gap-4">
-        <TopNavigationButton aria-label="검색" variant="icon">
-          <IconSearch />
-        </TopNavigationButton>
-        <TopNavigationButton aria-label="알림" variant="icon">
-          <IconBell />
-        </TopNavigationButton>
-      </div>
+    <div className="flex items-center gap-2">
+      {options.map((option, index) => {
+        const active = index === activeIndex;
+        return (
+          <button key={option} onClick={() => onChange?.(index)} type="button">
+            <Typography
+              color={
+                active ? "semantic.label.strong" : "semantic.label.disable"
+              }
+              variant="title3"
+              weight="bold"
+            >
+              {option}
+            </Typography>
+          </button>
+        );
+      })}
     </div>
+  );
+}
+
+type ScreenHeaderProps =
+  | {
+      variant?: "display";
+      title?: ScreenHeaderTitle;
+      trailing?: ReactNode;
+    }
+  | {
+      variant: "normal";
+      title?: ScreenHeaderTitle;
+      leading?: ReactNode;
+      trailing?: ReactNode;
+    };
+
+// Figma: Top Navigation/Resource/Contents — 화면마다 따로 조립하던 헤더를 여기 하나로 모았다.
+// WDS `TopNavigation`을 감싸는 얇은 조합 레이어일 뿐, 내부 스타일은 오버라이드하지 않는다
+// (component-convention.md "WDS 컴포넌트 내부를 임의로 오버라이드하지 않는다").
+//
+// variant="display"(기본값)에서는 leading을 받지 않는다 — WDS 쪽 스타일 자체가 display일 때
+// leading/trailing 포지셔닝(topNavigationLeftIconStyle/RightIconStyle)을 안 줘서 레이아웃이
+// 깨진다. leading이 필요한 화면(뒤로가기·닫기 버튼 등)은 variant="normal"을 쓴다.
+//
+// title이 문자열이면 그대로 렌더링하고, { options, activeIndex } 형태(활성 상태가 있는 경우)면
+// 게시판류의 토글형 2단 타이틀로 렌더링한다.
+//
+// search variant(타이틀 자리가 검색 필드로 바뀌는 패턴)는 이번 범위에서 뺐다 —
+// docs/plans/unified-screen-header.md 참고. 화면이 실제로 생기면 그때 추가한다.
+function ScreenHeader(props: ScreenHeaderProps) {
+  const { title, trailing } = props;
+  const leading = props.variant === "normal" ? props.leading : undefined;
+
+  return (
+    <TopNavigation
+      background={false}
+      leadingContent={leading}
+      trailingContent={trailing}
+      variant={props.variant ?? "display"}
+    >
+      {title !== undefined &&
+        (isToggleTitle(title) ? <ScreenHeaderToggleTitle {...title} /> : title)}
+    </TopNavigation>
   );
 }
 
