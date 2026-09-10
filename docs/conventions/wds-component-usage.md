@@ -66,6 +66,12 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 
 코드에서는 `@wanteddev/wds-icon`의 `IconSearch`/`IconBell`/`IconHome`/`IconTicket`/`IconList`로 대응된다(각각 default export를 `index.d.ts`에서 named export로 재노출). `Segmented Control`은 `@wanteddev/wds`의 `SegmentedControl`/`SegmentedControlItem`으로 대응된다.
 
+### `Typography` — 텍스트 스타일은 Figma 인스턴스 스캔에 안 잡혀서 뒤늦게 확인됨
+
+위 표들은 Figma의 인스턴스(컴포넌트) 이름을 스캔해서 만든 거라, Figma에서 텍스트 스타일(Text Style)로만 적용되고 별도 컴포넌트 인스턴스가 아닌 타이포그래피는 이 방식으로는 안 잡힌다. 그래서 지금까지 `text-xs`/`text-[17px]` 같은 Tailwind 값을 화면마다 손으로 맞춰왔는데, `@wanteddev/wds`에 Figma의 이름 있는 타입 스타일(Headline 2/Bold 등)과 정확히 대응하는 `Typography` 컴포넌트가 있다는 걸 뒤늦게 확인했다(`node_modules/@wanteddev/wds/dist/components/typography/style.js`). Bottom Nav 탭 라벨을 `text-xs`(12px)로 잘못 만들었던 것도 실제 Figma 값(Caption 2/Medium, 11px)과 어긋난 채로 남아있다가 이번에 확인됐다.
+
+`variant`+`weight` 조합과 색상 `color` prop 사용법은 `docs/conventions/component-convention.md`의 "타이포그래피" 절 참고. 이후 새 화면을 만들 때는 텍스트 크기를 짐작하지 말고 이 컴포넌트부터 확인한다.
+
 ### 반례 — 빌릴게 필터 Chip은 WDS `Chip/Chip`이 아니었다
 
 위 "WDS 컴포넌트로 확인됨" 표에 `Chip/Chip`이 파일 전체 기준 24개 인스턴스로 확정돼 있다고 해서, **다른 화면의 비슷하게 생긴 칩도 자동으로 WDS라고 가정하면 안 된다.** 빌릴게 화면의 카테고리 필터(전체/전자기기/생활잡화/상비약/위생용품)를 처음 구현할 때 이 표만 보고 재조사 없이 WDS `Chip`을 그대로 썼는데, 실제 Figma 스타일(활성 = 연한 파랑 배경 + 파랑 outline, 비활성 = 회색 outline)이 WDS Chip의 기본 활성 스타일(검정 배경)과 달랐다 — Stream이 로컬로 새로 만든 칩이었다. **스타일이 눈에 띄게 다르면, 이름이 같아 보여도 그 인스턴스는 따로 `get_design_context`로 열어 확인한다.** 코드는 `src/features/rental/components/RentalCategoryFilter.tsx` 참고 (plain `<button>` 기반, WDS import 없음).

@@ -1,5 +1,5 @@
 // Figma: Rental Item Card (nodeId 1041:61407)
-import { Button } from "@wanteddev/wds";
+import { Button, Typography } from "@wanteddev/wds";
 
 import circleMinusFill from "@/assets/icons/circle-minus-fill.svg";
 import circlePlusFill from "@/assets/icons/circle-plus-fill.svg";
@@ -39,10 +39,22 @@ function BililgeItemCard({
         <div className="flex items-center gap-3">
           <img alt="" className="size-[42px]" src={icon} />
           <div className="flex flex-col gap-0.5">
-            <p className="font-semibold text-label-normal text-sm">
+            <Typography
+              as="p"
+              color="semantic.label.normal"
+              variant="label1"
+              weight="bold"
+            >
               {itemName}
-            </p>
-            <p className="text-label-alternative text-xs">수량 {quantity}</p>
+            </Typography>
+            <Typography
+              as="p"
+              color="semantic.label.alternative"
+              variant="caption1"
+              weight="regular"
+            >
+              수량 {quantity}
+            </Typography>
           </div>
         </div>
 
@@ -70,9 +82,16 @@ function BililgeItemCard({
             >
               <img alt="" className="size-6" src={circleMinusFill} />
             </button>
-            <span className="w-5 text-center font-semibold text-label-normal text-lg tabular-nums">
+            <Typography
+              align="center"
+              className="w-5 tabular-nums"
+              color="semantic.label.normal"
+              display="inline-block"
+              variant="headline1"
+              weight="bold"
+            >
               {stepperValue}
-            </span>
+            </Typography>
             <button
               aria-label="수량 증가"
               onClick={onStepperIncrease}

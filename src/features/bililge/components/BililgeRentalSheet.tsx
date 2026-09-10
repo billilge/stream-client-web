@@ -4,7 +4,7 @@ import {
   type WheelPickerOption,
   WheelPickerWrapper,
 } from "@ncdai/react-wheel-picker";
-import { ActionArea, ActionAreaButton } from "@wanteddev/wds";
+import { ActionArea, ActionAreaButton, Typography } from "@wanteddev/wds";
 import { IconCircleInfo } from "@wanteddev/wds-icon";
 import { useEffect, useState } from "react";
 
@@ -37,6 +37,8 @@ const MINUTE_OPTIONS: WheelPickerOption<number>[] = Array.from(
 
 // 선택되지 않은 칸은 옅게, 가운데 선택된 칸만 진하게 — 배경 하이라이트 바는 Time Picker 쪽에서
 // 3개 컬럼 공통으로 하나 깔아주기 때문에 여기서는 텍스트 스타일만 다룬다.
+// 여기는 @ncdai/react-wheel-picker가 className 문자열만 받아서 자기 DOM에 그대로 꽂는 자리라
+// <Typography>로 감쌀 수 없다 — Headline2/Medium(17px)·Headline1/Bold(18px)를 그대로 옮긴 값이다.
 const WHEEL_CLASS_NAMES: WheelPickerClassNames = {
   highlightItem: "font-semibold text-label-normal text-lg tabular-nums",
   // 뒤쪽 옵션 리스트(회색)가 하이라이트 리스트(진한 글자)에 그대로 비쳐서 겹쳐 보이는 문제 —
@@ -78,9 +80,14 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
       {item && (
         <div className="flex flex-col gap-7 px-5">
           <div className="flex flex-col gap-3">
-            <p className="font-semibold text-[17px] text-label-normal">
+            <Typography
+              as="p"
+              color="semantic.label.normal"
+              variant="headline2"
+              weight="bold"
+            >
               대여할 물품
-            </p>
+            </Typography>
             <BililgeItemCard
               icon={item.icon}
               itemName={item.name}
@@ -97,9 +104,14 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
           </div>
 
           <div className="flex flex-col gap-2">
-            <p className="font-semibold text-[17px] text-label-normal">
+            <Typography
+              as="p"
+              color="semantic.label.normal"
+              variant="headline2"
+              weight="bold"
+            >
               대여 시작 시간
-            </p>
+            </Typography>
             <div className="relative">
               <div className="absolute inset-x-0 top-1/2 h-[38px] -translate-y-1/2 rounded-xl bg-background-alternative" />
               <WheelPickerWrapper className="relative justify-center gap-7">
@@ -145,9 +157,14 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
 
           <div className="flex items-center gap-2">
             <IconCircleInfo className="size-5 shrink-0 text-primary" />
-            <p className="font-medium text-primary text-xs">
+            <Typography
+              as="p"
+              color="semantic.primary.normal"
+              variant="caption1"
+              weight="medium"
+            >
               대여 시작 시간은 최소 5분 뒤부터 선택할 수 있어요
-            </p>
+            </Typography>
           </div>
         </div>
       )}

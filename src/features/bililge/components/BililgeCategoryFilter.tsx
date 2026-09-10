@@ -1,3 +1,5 @@
+import { Typography } from "@wanteddev/wds";
+
 const BILILGE_CATEGORIES = [
   "전체",
   "전자기기",
@@ -25,14 +27,24 @@ function BililgeCategoryFilter({
           <button
             className={
               active
-                ? "shrink-0 whitespace-nowrap rounded-[20px] border border-primary bg-primary-subtle px-3 py-2 font-semibold text-primary text-xs"
-                : "shrink-0 whitespace-nowrap rounded-[20px] border border-line-normal-neutral px-3 py-2 font-medium text-label-alternative text-xs"
+                ? "shrink-0 whitespace-nowrap rounded-[20px] border border-primary bg-primary-subtle px-3 py-2"
+                : "shrink-0 whitespace-nowrap rounded-[20px] border border-line-normal-neutral px-3 py-2"
             }
             key={category}
             onClick={() => onChange(category)}
             type="button"
           >
-            {category}
+            <Typography
+              color={
+                active
+                  ? "semantic.primary.normal"
+                  : "semantic.label.alternative"
+              }
+              variant="caption1"
+              weight={active ? "bold" : "medium"}
+            >
+              {category}
+            </Typography>
           </button>
         );
       })}

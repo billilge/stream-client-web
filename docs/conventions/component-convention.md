@@ -50,6 +50,26 @@ interface RentalItemCardProps {
 - 색은 `text-[#171719]`처럼 hex를 직접 박지 않는다. `src/index.css`의 `@theme` 블록에 있는 시맨틱 토큰(`text-label-normal`, `bg-background-alternative`, `border-line-solid-neutral`, `text-primary`, `bg-primary-subtle` 등)을 쓴다. 이 토큰들은 `@wanteddev/wds/global.css`가 심어둔 `--semantic-*`/`--atomic-*` CSS 변수를 그대로 별칭 연결한 것이라 다크 테마 전환도 자동으로 따라간다.
 - 필요한 색이 아직 토큰으로 없으면, hex를 추측해서 쓰지 말고 `get_variable_defs(fileKey, nodeId)`로 해당 노드의 실제 Figma 변수명·값을 확인한 뒤 `index.css`의 `@theme`에 새 토큰을 추가한다. `Line/Normal/Neutral`(반투명 `#70737c29`)과 `Line/Solid/Neutral`(불투명 `#eaebec`)처럼 이름이 비슷해도 값이 다른 토큰이 있으니 이름만 보고 넘겨짚지 않는다.
 - 컴포넌트 인스턴스가 없는 화면 배경/외곽선처럼 Figma 값이 실제로는 안 보이는 경우(예: Bottom Nav 상단 border가 바로 위 배경과 같은 색이라 안 보였던 사례)도 있다 — 이럴 땐 왜 다른 토큰으로 바꿨는지 주석으로 남긴다.
+### 타이포그래피
+
+- 글자 크기·굵기를 `text-xs`/`text-[17px]`/`font-semibold`처럼 Tailwind로 직접 짓지 않는다. `@wanteddev/wds`의 `Typography` 컴포넌트를 쓴다 — Figma의 이름 있는 타입 스타일(Headline 2/Bold 등)과 `variant`+`weight` 조합이 1:1로 대응한다(`node_modules/@wanteddev/wds/dist/components/typography/style.js`에서 실측 확인 가능).
+- Tailwind에는 11px(Caption 2) 같은 값이 기본 스케일에 없어서, 대충 가까운 `text-xs`(12px)를 썼다가 실제로 다른 크기가 되는 사고가 실제로 있었다(Bottom Nav 탭 라벨). `Typography`를 쓰면 이 스케일 자체가 WDS 값이라 이런 어긋남이 구조적으로 없어진다.
+- 색은 `className`의 Tailwind 색상 토큰이 아니라 `Typography`의 `color` prop(예: `color="semantic.label.normal"`)으로 준다. `Typography`가 `color` 미지정 시 `color: inherit`을 자체 CSS-in-JS로 주입하는데, 이 스타일이 Tailwind 유틸리티 레이어보다 우선순위가 높아서(`@wanteddev/wds/global.css`를 `layer(base)`로 감싸야 했던 것과 같은 이유) `className="text-label-normal"`을 같이 줘도 씹힐 수 있다.
+- `variant`/`weight` → Figma 이름 대응표(자주 쓰는 것만):
+
+  | `variant` | `weight` | 실제 크기 | Figma 이름 |
+  |---|---|---|---|
+  | `headline1` | `bold` | 18px / SemiBold | Headline 1/Bold |
+  | `headline2` | `bold` | 17px / SemiBold | Headline 2/Bold |
+  | `headline2` | `medium` | 17px / Medium | Headline 2/Medium |
+  | `label1` | `bold` | 14px / SemiBold | Label 1/Normal - Bold |
+  | `caption1` | `bold` | 12px / SemiBold | Caption 1/Bold |
+  | `caption1` | `medium` | 12px / Medium | Caption 1/Medium |
+  | `caption1` | `regular` | 12px / Regular | Caption 1/Regular |
+  | `caption2` | `medium` | 11px / Medium | Caption 2/Medium |
+
+- **예외**: 서드파티 라이브러리가 `className` 문자열만 받아서 자기 DOM에 그대로 꽂는 자리(예: `@ncdai/react-wheel-picker`의 `classNames` prop)는 `Typography`로 감쌀 수 없다 — 이럴 땐 Tailwind `text-[17px]` 같은 값을 그대로 쓰되, 어느 Figma 타입 스타일을 옮긴 값인지 주석을 남긴다(`BililgeRentalSheet.tsx`의 `WHEEL_CLASS_NAMES` 참고).
+
 - Stream 자체 이미지·아이콘(일러스트, 물품 아이콘 등)은 `download_assets`로 받아 `src/assets/`에 커밋한다. Figma asset URL은 **7일 후 만료**되므로 절대 코드에 그대로 참조하지 않는다.
 - `data-node-id` 같은 Figma 추적용 속성은 컴포넌트 마크업에 남기지 않는다. 대신 파일 최상단에 원본 Figma 노드를 알 수 있는 주석 한 줄만 남긴다 — 나중에 디자인이 바뀌었을 때 다시 대조할 수 있도록:
 
@@ -60,6 +80,7 @@ interface RentalItemCardProps {
 ## 5. 완료 기준 체크리스트
 
 - [ ] WDS로 확인된 요소는 전부 import로 대체했다 (raw JSX 없음)
+- [ ] 텍스트는 `Typography`(`variant`+`weight`)로 썼다 — 서드파티가 className만 받는 자리가 아닌 이상 `text-xs`/`text-[Npx]` 직접 사용 없음
 - [ ] Stream 고유 요소만 새 컴포넌트로 작성했다
 - [ ] Props가 Figma variant를 유니온 타입으로 반영한다
 - [ ] 이미지/아이콘 asset을 다운로드해 커밋했다 (만료되는 Figma URL 미참조)

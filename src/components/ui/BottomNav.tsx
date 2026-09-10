@@ -1,3 +1,4 @@
+import { Typography } from "@wanteddev/wds";
 import {
   IconHome,
   IconList,
@@ -75,11 +76,17 @@ function BottomNav({ value, onValueChange }: BottomNavProps) {
               ) : (
                 <NormalIcon className="size-6 text-label-assistive" />
               )}
-              <span
-                className={`font-medium text-xs ${isSelected ? "text-primary" : "text-label-assistive"}`}
+              <Typography
+                color={
+                  isSelected
+                    ? "semantic.primary.normal"
+                    : "semantic.label.assistive"
+                }
+                variant="caption2"
+                weight="medium"
               >
                 {label}
-              </span>
+              </Typography>
             </button>
           );
         })}
