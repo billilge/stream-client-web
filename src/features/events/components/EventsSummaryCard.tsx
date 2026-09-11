@@ -21,7 +21,7 @@ function EventsSummaryCard({
       {/* Figma처럼 카드 오른쪽 위에 비스듬히 걸쳐 두고 카드 밖으로 나간 부분은 잘라낸다 */}
       <img
         alt=""
-        className="absolute top-[11px] left-[219px] size-[105px] rotate-[17.35deg]"
+        className="absolute top-[11px] right-[11px] size-[105px] rotate-[17.35deg]"
         src={illustration}
       />
       <div className="relative flex flex-col gap-2">
