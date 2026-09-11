@@ -78,7 +78,9 @@ function EventsApplicationScreen() {
       <div className="shrink-0">
         {/* background: 버튼 위로 스크롤 내용이 자연스럽게 사라지는 그라데이션(Figma Gradient/Solid) */}
         <ActionArea background>
-          <ActionAreaButton disabled={!canSubmit}>
+          {/* WDS ActionAreaButton은 항상 Button size="large"(padding 12px 28px → 48px)로 그리는데,
+              Figma Main Action은 padding 16px 28px(56px)이라 세로 padding만 sx로 맞춘다. */}
+          <ActionAreaButton disabled={!canSubmit} sx={{ paddingBlock: "16px" }}>
             신청서 제출하기
           </ActionAreaButton>
         </ActionArea>
