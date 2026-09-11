@@ -110,6 +110,24 @@ hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참�
   - 이 라이브러리의 CSS(`@ncdai/react-wheel-picker/style.css`)도 `@wanteddev/wds/global.css`와 같은 이유로 **반드시 `layer(base)`로 import해야 한다**(`src/index.css`) — 안 그러면 Tailwind 유틸리티가 라이브러리의 unlayered CSS한테 밀려서 `justify-center` 같은 오버라이드가 안 먹는다.
   - 새 토큰 `--color-label-disable`(`--semantic-label-disable` 별칭)을 이때 추가했다. `get_variable_defs`로 확인한 실제 값은 `rgba(55,56,60,0.16)`.
 
+### 행사 신청 폼 — `Control/Checkbox`, `Control/Radio`, `Textinput/Textarea`, `Action Area`, 그리고 문항 제목은 WDS `Label`이 아님
+
+`/component`로 행사 신청서 작성 화면(Figma nodeId `1133:42457`, #25)을 구현하며 확인된 내용. 코드는 `src/features/events/` 참고.
+
+- **`Control/Checkbox` → `Checkbox`, `Control/Radio` → `RadioGroup` + `RadioGroupItem`**: Figma 인스턴스는 `Size=Small`이라 `size="small"`로 쓴다. 둘 다 label prop이 없고 `<button role="checkbox|radio">`로 렌더링되며 `id`를 그대로 넘겨주므로, 옆에 `<label htmlFor={id}>`를 두면 텍스트를 눌러도 선택된다(`Checkbox`의 `bold` prop도 `~ label` 형제 요소를 대상으로 동작하는 구조). `RadioGroup` 루트 스타일에 기대지 않도록 선택지 간격(12px)은 안쪽 wrapper div에서 준다.
+- **`Textinput/Textarea` → `TextArea` + `TextAreaContent variant="characterCounter"`**: 카운터는 `children`으로 준 숫자를 최대값으로 쓰고 현재 길이는 TextArea context에서 읽는다(`<TextAreaContent variant="characterCounter">{500}</TextAreaContent>` → `0/500`). `maxLength`는 네이티브 textarea로 그대로 전달돼 실제 입력이 막힌다. 주의할 기본값 두 가지:
+  - `minRows` 기본값이 2라 Figma 기본 높이(한 줄, 76px)와 맞추려면 `minRows={1}`. 입력이 늘면 자동으로 칸이 커진다(디자이너 메모 "자동으로 칸이 늘어남"과 일치).
+  - `width` 기본값이 부모 폭을 채우지 않는다 — 안 주면 카드 폭의 절반 정도로 렌더링돼서 `width="100%"`를 줬다.
+  - 높이 계산용 숨김 textarea(`readonly`, `aria-hidden`)를 하나 더 렌더링한다 — 테스트·자동화에서 `textarea` 셀렉터를 쓸 때 제외해야 한다.
+  - 단답형(50자)도 같은 `TextArea`를 쓴다(Figma 텍스트 입력 예시 `1133:43105`의 디자이너 메모).
+- **`Action Area/Action Area` → `ActionArea background` + `ActionAreaButton`**: `background`를 켜면 `::before`가 영역 위로 `margin-y`(20px)만큼 더 올라가 그라데이션 마스크로 스크롤 내용을 흐리게 덮는다(Figma `Gradient/Solid`와 일치). `divider`는 기본값이 `true`지만 `extra` 모드에서만 선을 그려서 일반 모드에는 영향 없다. Figma Action Area(110px = 위 20 + 버튼 56 + 아래 34)는 버튼 아래가 iOS **Bottom Safe Area까지 합쳐 34px**인데 WDS `ActionArea`는 아래 padding 20px만 줘서, 모자란 **14px**을 `bg-background-elevated-normal` div로 따로 붙였다(`BottomSheet`에서 14px을 더한 것과 같은 이유). 처음엔 Safe Area 34px을 통째로 더해서 버튼 아래가 54px로 벌어졌었다 — ActionArea 자체 padding과 겹치는지 먼저 확인한다. 이때 `--color-background-elevated-normal`(`--semantic-background-elevated-normal` 별칭) 토큰을 추가했다.
+- **Top Navigation 뒤로가기**: `TopNavigationButton`에는 back 전용 variant가 없어서(`'text' | 'icon'`) `variant="icon"` + `IconChevronLeft`를 `ScreenHeader variant="normal"`의 `leading`에 넣는다.
+- **`Icon/Normal/Clock`, `Icon/Normal/Location`**: 위 표의 기존 매핑 재사용(`IconClock`, `IconLocation`). 색은 `get_variable_defs`로 확인한 `Label/Assistive`(`text-label-assistive`) — 옆 텍스트(`Label/Alternative`)보다 옅다.
+
+#### 반례 — 문항 제목의 필수 `*`는 WDS `Label required`로 대체하지 않았다
+
+WDS `Label`의 `required`는 `*`를 `semantic.status.negative`로 그려서 **색은 Figma(`Status/Negative`, #FF4242)와 같지만**, `*` 크기가 `label1`/medium(14px)으로 고정돼 있어 Figma의 `*`(Body 1/Bold, 16px)와 다르다. 또 Figma의 `Field Label`은 WDS 인스턴스가 아니라 로컬 텍스트 프레임이다. 그래서 문항 제목은 `Typography`(body2/bold) + `*`(`Typography` body1/bold, `color="semantic.status.negative"`)로 직접 조립했다. **색만 보고 WDS 컴포넌트로 판단하지 말고 크기·굵기까지 대조한다.**
+
 ## 제외됨 — Stream 자체 로컬 컴포넌트 (WDS 아님)
 
 이름은 비슷해 보여도 WDS 검색 결과에 없거나, `component` 섹션(985:36615)에서 로컬 심볼로 직접 정의된 것들:
