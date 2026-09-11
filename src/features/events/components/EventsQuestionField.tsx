@@ -43,6 +43,9 @@ function EventsQuestionField({
           weight="bold"
         >
           {question.title}
+          {/* 입력들이 이 제목을 aria-labelledby로 참조하므로, 필수 여부는 보이는 "*"(aria-hidden) 대신
+              여기 숨김 텍스트로 스크린리더에 전달한다 */}
+          {question.isRequired && <span className="sr-only"> (필수)</span>}
         </Typography>
         {question.isRequired && (
           <Typography
@@ -78,7 +81,6 @@ function EventsQuestionField({
                         : selected.filter((value) => value !== option),
                     )
                   }
-                  required={question.isRequired}
                   size="small"
                 />
                 <label className="flex-1" htmlFor={optionId}>
