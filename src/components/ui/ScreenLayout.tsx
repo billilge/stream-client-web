@@ -21,12 +21,18 @@ function getBottomNavValueFromPath(pathname: string): BottomNavValue {
   return matched?.[0] ?? "home";
 }
 
-// 홈/행사/게시판/빌릴게 등 Bottom Nav가 있는 화면 전용 라우트 레이아웃 — App.tsx에서 부모
-// route로 두고 화면들을 자식 route(Outlet)로 넣는다. 화면이 직접 이 컴포넌트를 임포트해서
-// 감쌀 필요가 없어서, "일부 화면만 감싸는 걸 깜빡"하는 불일치가 구조적으로 불가능해진다.
+interface ScreenLayoutProps {
+  hasBottomNav?: boolean;
+}
+
+// 모든 화면이 공유하는 375×812 라우트 레이아웃 — App.tsx에서 부모 route로 두고 화면들을
+// 자식 route(Outlet)로 넣는다. 화면이 직접 이 컴포넌트를 임포트해서 감쌀 필요가 없어서,
+// "일부 화면만 감싸는 걸 깜빡"하는 불일치가 구조적으로 불가능해진다.
 // 화면마다 다른 헤더(Top Navigation 등)는 useScreenHeader 훅으로 이 레이아웃에 등록한다.
 // Bottom Nav의 활성 탭도 화면 state가 아니라 현재 라우트에서 파생시킨다.
-function ScreenLayout() {
+// 신청 폼처럼 Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면은 hasBottomNav={false}
+// 그룹에 넣는다 — 본문 스크롤을 화면이 정하므로 Action Area는 화면이 자기 영역 하단에 직접 둔다.
+function ScreenLayout({ hasBottomNav = true }: ScreenLayoutProps) {
   const [header, setHeader] = useState<ReactNode>(null);
   const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(
     null,
@@ -44,12 +50,14 @@ function ScreenLayout() {
           <div className="flex-1 overflow-hidden">
             <Outlet />
           </div>
-          <div className="shrink-0">
-            <BottomNav
-              onValueChange={(value) => navigate(BOTTOM_NAV_PATHS[value])}
-              value={bottomNavValue}
-            />
-          </div>
+          {hasBottomNav && (
+            <div className="shrink-0">
+              <BottomNav
+                onValueChange={(value) => navigate(BOTTOM_NAV_PATHS[value])}
+                value={bottomNavValue}
+              />
+            </div>
+          )}
           {/* BottomSheet 포털 대상 — 헤더/본문/Bottom Nav보다 위(z-50)에 겹쳐서, 화면 하나가
               열어도 375×812 프레임 전체를 딤 처리할 수 있다. 시트가 닫혀있을 때는 빈 오버레이가
               클릭을 가로채지 않도록 pointer-events-none — BottomSheet가 열릴 때 자기 자신에만
