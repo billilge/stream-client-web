@@ -14,7 +14,7 @@
 
   --color-background-normal: var(--semantic-background-normal-normal);
   --color-background-alternative: var(--semantic-background-normal-alternative);
-  /* Figma "Background/Elevated/Normal" — Action Area 배경·하단 안전 영역(행사 신청, nodeId 1133:42495) */
+  /* Figma "Background/Elevated/Normal" — Action Area 아래 하단 안전 영역 여백(행사 신청, nodeId 1133:42495) */
   --color-background-elevated-normal: var(
     --semantic-background-elevated-normal
   );
