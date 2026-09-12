@@ -13,6 +13,8 @@ function HomeScreen() {
     setBottomNavValue(value);
     if (value === "rental") {
       navigate("/rental");
+    } else if (value === "board") {
+      navigate("/notice");
     }
   };
 

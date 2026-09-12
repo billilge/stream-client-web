@@ -26,6 +26,8 @@ function RentalListScreen() {
     setBottomNavValue(value);
     if (value === "home") {
       navigate("/");
+    } else if (value === "board") {
+      navigate("/notice");
     }
   };
 

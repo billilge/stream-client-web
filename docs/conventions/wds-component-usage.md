@@ -63,6 +63,11 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 | `Icon/Normal/Home` | Bottom Nav "홈" 탭(Normal 상태) | `980:35475` |
 | `Icon/Normal/Ticket` | Bottom Nav "행사" 탭(Normal 상태) | `980:35529` |
 | `Icon/Normal/List` | Bottom Nav "게시판" 탭(Normal 상태) | `980:35703` |
+| `Tab/Tab` | 게시판-공지 화면(`1256:81776`) 상단 전체/일반 공지/제휴 공지 탭 | `440:7593` — [문서](https://montage.wanted.co.kr/docs/components/navigations/tab/design). 코드 export는 `Tab`(컨텍스트)+`TabList`+`TabListItem` 3개 조합(`TabItem` 같은 단일 export 아님) — `node_modules/@wanteddev/wds/dist/components/tab/`에서 확인 |
+
+### 반례 — 게시판-공지 고정 핀 아이콘은 `Icon/Normal/Pin`(WDS)이 아니었다
+
+`search_design_system`으로 "Icon/Normal/Pin" 이름이 WDS 라이브러리에 있는 걸 확인하고 한 번은 위 표에 WDS로 기록했었다. 그런데 `/figma-check`로 재검증하며 해당 인스턴스(`1256:76326`)의 실제 SVG 에셋을 직접 열어보니, `wds-icon`의 `IconPin`/`IconPinFill`(둘 다 똑바로 선 압정 모양, `currentColor` 상속)과 달리 **기울어진 압정 모양 + `#0066FF` 고정 fill**이 박힌 별개의 도형이었다 — `get_design_context` 응답의 "Component descriptions"에도 이 아이콘 항목이 아예 없었는데(있었다면 처음부터 알아챘을 것) 그때는 놓치고 이름 매칭만 믿었다. **이름이 WDS 컴포넌트와 같아도, `search_design_system` 이름 매칭만으로 확정하지 말고 이 문서의 "완전 확정 방법"(실제 SVG/컴포넌트 설명 대조)까지 거쳐야 한다.** 코드는 실제 Figma SVG를 그대로 받아 `src/assets/icons/pin.svg` + `src/features/notice/components/NoticeCard.tsx` 참고.
 
 코드에서는 `@wanteddev/wds-icon`의 `IconSearch`/`IconBell`/`IconHome`/`IconTicket`/`IconList`로 대응된다(각각 default export를 `index.d.ts`에서 named export로 재노출). `Segmented Control`은 `@wanteddev/wds`의 `SegmentedControl`/`SegmentedControlItem`으로 대응된다.
 
