@@ -1,4 +1,4 @@
-// Figma: Event Summary (nodeId 1133:42464)
+// Figma: Event Summary (nodeId 1658:183393)
 import { Typography } from "@wanteddev/wds";
 import { IconClock, IconLocation } from "@wanteddev/wds-icon";
 
