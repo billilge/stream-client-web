@@ -23,6 +23,11 @@
 
   /* WDS 시맨틱 세트에 없는 값(Figma "Sky/Base") — Native / Bottom Sheet Indicator(드래그 핸들) 전용 */
   --color-sheet-indicator: #cdcfd0;
+
+  /* 행사 카드 썸네일 자리(Figma Event-card의 112x112 회색 박스). Figma에서도 변수가 아니라
+     raw #d9d9d9로 그려진 "이미지 슬롯" placeholder라 대응하는 WDS 시맨틱 토큰이 없다.
+     실제 행사 이미지 API가 붙으면 이 토큰과 함께 사라질 자리다. */
+  --color-thumbnail-placeholder: #d9d9d9;
 }
 
 /* 무한 스크롤 목록 등 스크롤은 동작하되 스크롤바는 안 보이게 할 때 쓰는 재사용 유틸리티 */

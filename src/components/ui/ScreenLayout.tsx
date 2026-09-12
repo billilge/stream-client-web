@@ -10,7 +10,9 @@ import { ScreenSheetPortalContext } from "@/components/ui/screenSheetPortalConte
 const BOTTOM_NAV_PATHS: Record<BottomNavValue, string> = {
   bililge: "/bililge",
   board: "/board",
-  event: "/event",
+  // 경로는 용어 사전(terminology.md)의 코드 용어 `events`를 따른다 — BottomNavValue 쪽 "event"는
+  // 탭 식별자라 그대로 둔다.
+  event: "/events",
   home: "/",
 };
 
