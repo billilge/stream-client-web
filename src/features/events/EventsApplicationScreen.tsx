@@ -16,14 +16,15 @@ import {
   type EventsAnswer,
 } from "@/features/events/constants/eventsApplication";
 
+// 복수 선택은 하나라도 골랐으면 충족 — 기타를 골랐을 때 입력 내용까지 요구하지는 않는다
 function isAnswered(answer: EventsAnswer | undefined): boolean {
-  if (Array.isArray(answer)) {
-    return answer.length > 0;
+  if (typeof answer === "object") {
+    return answer.selected.length > 0;
   }
   return (answer ?? "").trim().length > 0;
 }
 
-// Figma: 행사 신청하기 상세 (nodeId 1133:42457)
+// Figma: 행사 신청하기 상세 (nodeId 1658:183386)
 // 행사 정보·문항은 API 연동 전까지 라우트의 eventId와 무관하게 목업 하나를 보여준다.
 // 제출 버튼 클릭 동작(신청 확인 모달)과 뒤로가기 시 작성 중단 모달은 다음 이슈 범위라 아직 없다.
 function EventsApplicationScreen() {

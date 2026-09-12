@@ -9,6 +9,8 @@ interface EventsQuestionBase {
 export interface EventsChoiceQuestion extends EventsQuestionBase {
   type: "multipleChoice" | "singleChoice";
   options: string[];
+  // 기타(직접 입력) 선택지를 마지막에 붙일지 — 디자인상 복수 선택에만 있다
+  hasOtherOption?: boolean;
 }
 
 export interface EventsTextQuestion extends EventsQuestionBase {
@@ -18,8 +20,14 @@ export interface EventsTextQuestion extends EventsQuestionBase {
 // type 값 이름은 임시 — 백엔드 스펙이 나오면 거기에 맞춘다
 export type EventsQuestion = EventsChoiceQuestion | EventsTextQuestion;
 
-// 복수 선택은 string[], 단일 선택·텍스트형은 string
-export type EventsAnswer = string | string[];
+// 복수 선택은 고른 선택지 목록과 기타 입력 내용을 함께 들고 있는다.
+// 단일 선택·텍스트형은 문자열 하나.
+export interface EventsChoiceAnswer {
+  selected: string[];
+  otherText: string;
+}
+
+export type EventsAnswer = string | EventsChoiceAnswer;
 
 export interface EventsApplication {
   eventName: string;
@@ -38,7 +46,13 @@ export const EVENTS_TEXT_MAX_LENGTH: Record<
   shortAnswer: 50,
 };
 
-// Figma: 행사 신청하기 상세 (nodeId 1133:42457) 문구를 옮긴 목데이터 — 실 API 연동 전까지 사용.
+// 기타 입력칸은 Figma(Other Option, nodeId 1658:183954)에 글자 수 카운터가 없어서 카운터는 안 보이지만,
+// 단답형과 같은 50자로 입력을 막는다.
+export const EVENTS_OTHER_MAX_LENGTH = 50;
+
+export const EVENTS_OTHER_OPTION_LABEL = "기타";
+
+// Figma: 행사 신청하기 상세 (nodeId 1658:183386) 문구를 옮긴 목데이터 — 실 API 연동 전까지 사용.
 // Figma 선택지는 전부 "텍스트" 플레이스홀더라 선택지 문구는 임의로 채웠고, 단답형 문항은 Figma에
 // 없어서 유형 확인용으로 하나 추가했다.
 export const EVENTS_APPLICATION: EventsApplication = {
@@ -48,6 +62,7 @@ export const EVENTS_APPLICATION: EventsApplication = {
   location: "미래관 419호",
   questions: [
     {
+      hasOtherOption: true,
       id: "interest",
       isRequired: true,
       options: ["개발", "디자인", "기획"],

@@ -1,4 +1,5 @@
-// Figma: 행사 신청 문항 카드 — Interest Field / Attendance Field / Question Field (nodeId 1133:42478, 1133:42485, 1133:42491)
+// Figma: 행사 신청 문항 카드 — Interest Field / Attendance Field / Question Field
+// (nodeId 1658:183407, 1658:183418, 1658:183424), 기타 입력칸은 Other Option (nodeId 1658:183954)
 import {
   Checkbox,
   RadioGroup,
@@ -10,8 +11,11 @@ import {
 import { useId } from "react";
 
 import {
+  EVENTS_OTHER_MAX_LENGTH,
+  EVENTS_OTHER_OPTION_LABEL,
   EVENTS_TEXT_MAX_LENGTH,
   type EventsAnswer,
+  type EventsChoiceAnswer,
   type EventsQuestion,
 } from "@/features/events/constants/eventsApplication";
 
@@ -19,6 +23,12 @@ interface EventsQuestionFieldProps {
   question: EventsQuestion;
   answer: EventsAnswer | undefined;
   onAnswerChange: (answer: EventsAnswer) => void;
+}
+
+const EMPTY_CHOICE_ANSWER: EventsChoiceAnswer = { otherText: "", selected: [] };
+
+function toChoiceAnswer(answer: EventsAnswer | undefined): EventsChoiceAnswer {
+  return typeof answer === "object" ? answer : EMPTY_CHOICE_ANSWER;
 }
 
 // 문항 유형(question.type)별로 컴포넌트를 나누지 않고 이 컴포넌트 하나가 유형에 맞는 입력을 그린다.
@@ -31,6 +41,23 @@ function EventsQuestionField({
 }: EventsQuestionFieldProps) {
   const id = useId();
   const titleId = `${id}-title`;
+  const otherId = `${id}-other`;
+  const choiceAnswer = toChoiceAnswer(answer);
+  const isOtherChecked = choiceAnswer.selected.includes(
+    EVENTS_OTHER_OPTION_LABEL,
+  );
+
+  const toggleOption = (option: string, checked: boolean) => {
+    const selected = checked
+      ? [...choiceAnswer.selected, option]
+      : choiceAnswer.selected.filter((value) => value !== option);
+    // 기타를 해제하면 입력해둔 내용도 같이 비운다
+    const otherText =
+      option === EVENTS_OTHER_OPTION_LABEL && !checked
+        ? ""
+        : choiceAnswer.otherText;
+    return onAnswerChange({ otherText, selected });
+  };
 
   return (
     <div className="flex flex-col gap-3 rounded-xl bg-background-normal p-4">
@@ -67,20 +94,13 @@ function EventsQuestionField({
           className="flex min-w-0 flex-col gap-3"
         >
           {question.options.map((option, index) => {
-            const selected = Array.isArray(answer) ? answer : [];
             const optionId = `${id}-option-${index}`;
             return (
               <div className="flex items-start gap-2" key={option}>
                 <Checkbox
-                  checked={selected.includes(option)}
+                  checked={choiceAnswer.selected.includes(option)}
                   id={optionId}
-                  onCheckedChange={(checked) =>
-                    onAnswerChange(
-                      checked
-                        ? [...selected, option]
-                        : selected.filter((value) => value !== option),
-                    )
-                  }
+                  onCheckedChange={(checked) => toggleOption(option, checked)}
                   size="small"
                 />
                 <label className="flex-1" htmlFor={optionId}>
@@ -96,6 +116,49 @@ function EventsQuestionField({
               </div>
             );
           })}
+
+          {question.hasOtherOption && (
+            // Figma Other Option: 체크박스와 입력칸 사이 4px, 입력 글자와 밑줄 사이 2px
+            <div className="flex flex-col gap-1">
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  checked={isOtherChecked}
+                  id={otherId}
+                  onCheckedChange={(checked) =>
+                    toggleOption(EVENTS_OTHER_OPTION_LABEL, checked)
+                  }
+                  size="small"
+                />
+                <label className="flex-1" htmlFor={otherId}>
+                  <Typography
+                    as="span"
+                    color="semantic.label.normal"
+                    variant="label1"
+                    weight="regular"
+                  >
+                    {EVENTS_OTHER_OPTION_LABEL}
+                  </Typography>
+                </label>
+              </div>
+              {isOtherChecked && (
+                // <input>이라 Typography로 감쌀 수 없는 자리 — Figma "Label 1/Normal - Regular"(14px)와
+                // 밑줄(Primary/Normal 0.7px)을 그대로 옮긴 값이다.
+                <input
+                  aria-label={`${question.title} 기타 내용`}
+                  className="w-full border-primary border-b-[0.7px] pb-0.5 text-[14px] text-label-normal leading-[1.571] outline-none placeholder:text-label-assistive"
+                  maxLength={EVENTS_OTHER_MAX_LENGTH}
+                  onChange={(event) =>
+                    onAnswerChange({
+                      otherText: event.target.value,
+                      selected: choiceAnswer.selected,
+                    })
+                  }
+                  placeholder="기타 내용을 입력해 주세요."
+                  value={choiceAnswer.otherText}
+                />
+              )}
+            </div>
+          )}
         </fieldset>
       )}
 
