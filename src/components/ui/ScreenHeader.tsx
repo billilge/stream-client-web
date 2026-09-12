@@ -49,12 +49,14 @@ type ScreenHeaderProps =
       variant?: "display";
       title?: ScreenHeaderTitle;
       trailing?: ReactNode;
+      toolbar?: ReactNode;
     }
   | {
       variant: "normal";
       title?: ScreenHeaderTitle;
       leading?: ReactNode;
       trailing?: ReactNode;
+      toolbar?: ReactNode;
     };
 
 // Figma: Top Navigation/Resource/Contents — 화면마다 따로 조립하던 헤더를 여기 하나로 모았다.
@@ -70,14 +72,20 @@ type ScreenHeaderProps =
 //
 // search variant(타이틀 자리가 검색 필드로 바뀌는 패턴)는 이번 범위에서 뺐다 —
 // docs/plans/unified-screen-header.md 참고. 화면이 실제로 생기면 그때 추가한다.
+//
+// toolbar는 WDS `TopNavigation`의 "Area attached below the navigation" 슬롯을 그대로 노출한 것이다.
+// Figma의 Top Navigation/Resource/Contents 인스턴스가 타이틀 행 아래에 세그먼트 토글(행사/신청내역 등)을
+// 품고 높이 88px이 되는 패턴이 여기 대응한다 — 화면 본문에 토글을 두면 헤더 고정 영역 밖이라
+// 스크롤 경계가 화면마다 달라진다.
 function ScreenHeader(props: ScreenHeaderProps) {
-  const { title, trailing } = props;
+  const { title, toolbar, trailing } = props;
   const leading = props.variant === "normal" ? props.leading : undefined;
 
   return (
     <TopNavigation
       background={false}
       leadingContent={leading}
+      toolbar={toolbar}
       trailingContent={trailing}
       variant={props.variant ?? "display"}
     >
