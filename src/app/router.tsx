@@ -1,6 +1,7 @@
 import { createBrowserRouter, type RouteObject } from "react-router-dom";
 
 import App from "@/app/App";
+import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
@@ -24,6 +25,8 @@ const routes = [
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/events/:eventId/apply",
           },
+          // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
+          { element: <ComingSoonScreen />, path: "*" },
         ],
         element: <ScreenLayoutRoute />,
       },
