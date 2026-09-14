@@ -1,10 +1,10 @@
 // Figma: Rental Item Card (nodeId 1041:61407)
-import { Button } from "@wanteddev/wds";
+import { Button, Typography } from "@wanteddev/wds";
 
 import circleMinusFill from "@/assets/icons/circle-minus-fill.svg";
 import circlePlusFill from "@/assets/icons/circle-plus-fill.svg";
 
-interface RentalItemCardProps {
+interface BililgeItemCardProps {
   icon: string;
   itemName: string;
   quantity: number;
@@ -19,7 +19,7 @@ interface RentalItemCardProps {
 // 그 이름과 1:1 대응하는 코드 export는 없다 — 대신 WDS `Button`(size="small")이 padding(7px/14px)·
 // radius(8px)·타이포(label2)까지 정확히 일치해서 그걸 쓰고, Button 공개 variant엔 없는 "연한 파랑 배경
 // + 파랑 텍스트" 조합만 sx로 보정했다. 스테퍼 +/- 아이콘은 여전히 WDS 미확정이라 하드코딩 — docs/plans 참고.
-function RentalItemCard({
+function BililgeItemCard({
   icon,
   itemName,
   quantity,
@@ -28,7 +28,7 @@ function RentalItemCard({
   stepperValue = 1,
   onStepperDecrease,
   onStepperIncrease,
-}: RentalItemCardProps) {
+}: BililgeItemCardProps) {
   const isStepper = trailingControl === "stepper";
 
   return (
@@ -39,10 +39,22 @@ function RentalItemCard({
         <div className="flex items-center gap-3">
           <img alt="" className="size-[42px]" src={icon} />
           <div className="flex flex-col gap-0.5">
-            <p className="font-semibold text-label-normal text-sm">
+            <Typography
+              as="p"
+              color="semantic.label.normal"
+              variant="label1"
+              weight="bold"
+            >
               {itemName}
-            </p>
-            <p className="text-label-alternative text-xs">수량 {quantity}</p>
+            </Typography>
+            <Typography
+              as="p"
+              color="semantic.label.alternative"
+              variant="caption1"
+              weight="regular"
+            >
+              수량 {quantity}
+            </Typography>
           </div>
         </div>
 
@@ -70,9 +82,16 @@ function RentalItemCard({
             >
               <img alt="" className="size-6" src={circleMinusFill} />
             </button>
-            <span className="font-semibold text-label-normal text-lg">
+            <Typography
+              align="center"
+              className="w-5 tabular-nums"
+              color="semantic.label.normal"
+              display="inline-block"
+              variant="headline1"
+              weight="bold"
+            >
               {stepperValue}
-            </span>
+            </Typography>
             <button
               aria-label="수량 증가"
               onClick={onStepperIncrease}
@@ -87,4 +106,4 @@ function RentalItemCard({
   );
 }
 
-export default RentalItemCard;
+export default BililgeItemCard;

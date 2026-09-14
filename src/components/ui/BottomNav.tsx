@@ -1,3 +1,4 @@
+import { Typography } from "@wanteddev/wds";
 import {
   IconHome,
   IconList,
@@ -5,12 +6,12 @@ import {
   IconTicket,
 } from "@wanteddev/wds-icon";
 
+import bililgeSelected from "@/assets/icons/bottom-nav/bililge-selected.svg";
 import boardSelected from "@/assets/icons/bottom-nav/board-selected.svg";
 import eventSelected from "@/assets/icons/bottom-nav/event-selected.svg";
 import homeSelected from "@/assets/icons/bottom-nav/home-selected.svg";
-import rentalSelected from "@/assets/icons/bottom-nav/rental-selected.svg";
 
-export type BottomNavValue = "home" | "event" | "board" | "rental";
+export type BottomNavValue = "home" | "event" | "board" | "bililge";
 
 interface BottomNavProps {
   value: BottomNavValue;
@@ -47,8 +48,8 @@ const TABS: BottomNavTab[] = [
   {
     NormalIcon: IconStorage,
     label: "빌릴게",
-    selectedIcon: rentalSelected,
-    value: "rental",
+    selectedIcon: bililgeSelected,
+    value: "bililge",
   },
 ];
 
@@ -75,18 +76,22 @@ function BottomNav({ value, onValueChange }: BottomNavProps) {
               ) : (
                 <NormalIcon className="size-6 text-label-assistive" />
               )}
-              <span
-                className={`font-medium text-xs ${isSelected ? "text-primary" : "text-label-assistive"}`}
+              <Typography
+                color={
+                  isSelected
+                    ? "semantic.primary.normal"
+                    : "semantic.label.assistive"
+                }
+                variant="caption2"
+                weight="medium"
               >
                 {label}
-              </span>
+              </Typography>
             </button>
           );
         })}
       </div>
-      <div className="relative h-[34px] w-full">
-        <div className="absolute bottom-2 left-1/2 h-[5px] w-[134px] -translate-x-1/2 rounded-full bg-icons-primary" />
-      </div>
+      <div className="h-[34px] w-full" />
     </div>
   );
 }

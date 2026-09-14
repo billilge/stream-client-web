@@ -66,6 +66,12 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 
 코드에서는 `@wanteddev/wds-icon`의 `IconSearch`/`IconBell`/`IconHome`/`IconTicket`/`IconList`로 대응된다(각각 default export를 `index.d.ts`에서 named export로 재노출). `Segmented Control`은 `@wanteddev/wds`의 `SegmentedControl`/`SegmentedControlItem`으로 대응된다.
 
+### `Typography` — 텍스트 스타일은 Figma 인스턴스 스캔에 안 잡혀서 뒤늦게 확인됨
+
+위 표들은 Figma의 인스턴스(컴포넌트) 이름을 스캔해서 만든 거라, Figma에서 텍스트 스타일(Text Style)로만 적용되고 별도 컴포넌트 인스턴스가 아닌 타이포그래피는 이 방식으로는 안 잡힌다. 그래서 지금까지 `text-xs`/`text-[17px]` 같은 Tailwind 값을 화면마다 손으로 맞춰왔는데, `@wanteddev/wds`에 Figma의 이름 있는 타입 스타일(Headline 2/Bold 등)과 정확히 대응하는 `Typography` 컴포넌트가 있다는 걸 뒤늦게 확인했다(`node_modules/@wanteddev/wds/dist/components/typography/style.js`). Bottom Nav 탭 라벨을 `text-xs`(12px)로 잘못 만들었던 것도 실제 Figma 값(Caption 2/Medium, 11px)과 어긋난 채로 남아있다가 이번에 확인됐다.
+
+`variant`+`weight` 조합과 색상 `color` prop 사용법은 `docs/conventions/component-convention.md`의 "타이포그래피" 절 참고. 이후 새 화면을 만들 때는 텍스트 크기를 짐작하지 말고 이 컴포넌트부터 확인한다.
+
 ### 반례 — 빌릴게 필터 Chip은 WDS `Chip/Chip`이 아니었다
 
 위 "WDS 컴포넌트로 확인됨" 표에 `Chip/Chip`이 파일 전체 기준 24개 인스턴스로 확정돼 있다고 해서, **다른 화면의 비슷하게 생긴 칩도 자동으로 WDS라고 가정하면 안 된다.** 빌릴게 화면의 카테고리 필터(전체/전자기기/생활잡화/상비약/위생용품)를 처음 구현할 때 이 표만 보고 재조사 없이 WDS `Chip`을 그대로 썼는데, 실제 Figma 스타일(활성 = 연한 파랑 배경 + 파랑 outline, 비활성 = 회색 outline)이 WDS Chip의 기본 활성 스타일(검정 배경)과 달랐다 — Stream이 로컬로 새로 만든 칩이었다. **스타일이 눈에 띄게 다르면, 이름이 같아 보여도 그 인스턴스는 따로 `get_design_context`로 열어 확인한다.** 코드는 `src/features/rental/components/RentalCategoryFilter.tsx` 참고 (plain `<button>` 기반, WDS import 없음).
@@ -91,7 +97,18 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 </Button>
 ```
 
-hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참조했고, `Button` 자체(접근성 속성, `disabled`/`loading` 상태 처리 등)는 그대로 재사용한다. `src/features/rental/components/RentalItemCard.tsx` 참고.
+hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참조했고, `Button` 자체(접근성 속성, `disabled`/`loading` 상태 처리 등)는 그대로 재사용한다. `src/features/bililge/components/BililgeItemCard.tsx` 참고.
+
+### 빌릴게 대여 바텀시트 — `Action Area/Action Area`, `Icon/Normal/Circle Info`, 그리고 Time Picker는 의도적으로 WDS를 안 씀
+
+`/component`로 빌릴게 대여 바텀시트(Figma nodeId `1422:57155`, 실제 시트 콘텐츠는 `1422:57176`)를 구현하며 확인된 내용.
+
+- **`Action Area/Action Area` + `ActionAreaButton`**: 버튼 하나(대여 신청하기)만 있는 액션 영역도 `@wanteddev/wds`의 `ActionArea`(기본 `variant="strong"`) + `ActionAreaButton`(기본 `variant="main"`)으로 그대로 재현된다. `ActionAreaButton`의 `main` variant가 내부적으로 `Button`을 `size="large"` `fullWidth` `variant="solid"` `color="primary"`로 렌더링해서 Figma의 파란 통 너비 버튼과 정확히 일치했다(`node_modules/@wanteddev/wds/dist/components/action-area/index.js` 확인). `src/features/bililge/components/BililgeRentalSheet.tsx` 참고.
+- **`Icon/Normal/Circle Info`**: 안내 문구("대여 시작 시간은 최소 5분 뒤부터...") 앞 아이콘. 위 표에서 이미 확정된 매핑 재사용(`@wanteddev/wds-icon`의 `IconCircleInfo`).
+- **Time Picker(휠 피커)는 예외적으로 WDS를 쓰지 않기로 결정했다.** `@wanteddev/wds`에 `time-picker` 컴포넌트가 실제로 존재하지만(`node_modules/@wanteddev/wds/dist/components/time-picker/`), 이건 `<input>` 기반 텍스트 필드형 컴포넌트라 Figma가 그리는 iOS 스타일 휠 스크롤 피커(오전/오후·시·분 3열, 가운데 값만 진하게)와는 UI 패턴 자체가 다르다. 사용자가 명시적으로 지정한 [`@ncdai/react-wheel-picker`](https://react-wheel-picker.chanhdai.com)(unstyled core, `WheelPicker`/`WheelPickerWrapper`)로 구현했다:
+  - `optionItem`/`highlightItem`/`highlightWrapper` classNames로 텍스트 스타일만 입히고(선택 안 됨: `text-label-disable` 17px medium, 선택됨: `text-label-normal` 18px semibold), Figma의 "Selection Highlight"(3열을 가로지르는 pill 배경, `bg-background-alternative`)는 라이브러리 밖에서 별도 `absolute` div로 얹었다 — 각 컬럼마다 하이라이트 배경을 따로 안 그리기 위해서다.
+  - 이 라이브러리의 CSS(`@ncdai/react-wheel-picker/style.css`)도 `@wanteddev/wds/global.css`와 같은 이유로 **반드시 `layer(base)`로 import해야 한다**(`src/index.css`) — 안 그러면 Tailwind 유틸리티가 라이브러리의 unlayered CSS한테 밀려서 `justify-center` 같은 오버라이드가 안 먹는다.
+  - 새 토큰 `--color-label-disable`(`--semantic-label-disable` 별칭)을 이때 추가했다. `get_variable_defs`로 확인한 실제 값은 `rgba(55,56,60,0.16)`.
 
 ## 제외됨 — Stream 자체 로컬 컴포넌트 (WDS 아님)
 

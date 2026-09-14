@@ -13,6 +13,7 @@
     "check:fix": "biome check --write ."
   },
   "dependencies": {
+    "@ncdai/react-wheel-picker": "^1.2.3",
     "@wanteddev/wds": "^3.12.0",
     "@wanteddev/wds-icon": "^3.12.0",
     "react": "^19.2.8",
