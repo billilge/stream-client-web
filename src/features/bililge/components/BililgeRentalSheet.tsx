@@ -170,7 +170,12 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
       )}
 
       <ActionArea>
-        <ActionAreaButton onClick={onClose}>대여 신청하기</ActionAreaButton>
+        {/* Figma Main Action(1422:...;16215:35710)은 56px인데 ActionAreaButton의 size="large"
+            Button은 padding(12px×2)+body1 line-height(24px)라 48px이 된다. WDS Button엔 large보다
+            큰 사이즈가 없어 sx로 높이만 보정한다. */}
+        <ActionAreaButton onClick={onClose} sx={{ height: "56px" }}>
+          대여 신청하기
+        </ActionAreaButton>
       </ActionArea>
     </BottomSheet>
   );
