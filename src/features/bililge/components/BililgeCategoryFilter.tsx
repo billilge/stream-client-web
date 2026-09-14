@@ -27,8 +27,8 @@ function BililgeCategoryFilter({
           <button
             className={
               active
-                ? "shrink-0 whitespace-nowrap rounded-[20px] border border-primary bg-primary-subtle px-3 py-2"
-                : "shrink-0 whitespace-nowrap rounded-[20px] border border-line-normal-neutral px-3 py-2"
+                ? "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-[20px] border border-primary bg-primary-subtle px-3"
+                : "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-[20px] border border-line-normal-neutral px-3"
             }
             key={category}
             onClick={() => onChange(category)}
