@@ -1,13 +1,16 @@
 import { createBrowserRouter, type RouteObject } from "react-router-dom";
 
 import App from "@/app/App";
-import ScreenLayout from "@/components/ui/ScreenLayout";
+import ScreenLayoutRoute, {
+  type ScreenRouteHandle,
+} from "@/app/ScreenLayoutRoute";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
 // satisfies로 선언 시점에 RouteObject 형태를 검사한다.
+// 화면별 레이아웃 옵션(하단 탭 숨김 등)은 레이아웃 라우트를 따로 두지 않고 각 라우트의 handle로 지정한다.
 const routes = [
   {
     children: [
@@ -15,18 +18,14 @@ const routes = [
         children: [
           { element: <HomeScreen />, path: "/" },
           { element: <BililgeListScreen />, path: "/bililge" },
-        ],
-        element: <ScreenLayout />,
-      },
-      {
-        // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
-        children: [
           {
             element: <EventsApplicationScreen />,
+            // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/events/:eventId/apply",
           },
         ],
-        element: <ScreenLayout hasBottomNav={false} />,
+        element: <ScreenLayoutRoute />,
       },
     ],
     element: <App />,
