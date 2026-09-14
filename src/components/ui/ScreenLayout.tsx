@@ -40,9 +40,13 @@ function ScreenLayout() {
       <ScreenSheetPortalContext.Provider value={sheetPortalEl}>
         <div className="relative flex h-[812px] w-[375px] flex-col overflow-hidden bg-background-alternative">
           <div className="shrink-0">{header}</div>
-          {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤) */}
+          {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤).
+              overflow-y-auto가 동작하려면 자식 높이가 명확해야 해서, 화면마다 h-full을 직접
+              챙기지 않아도 되도록 여기서 기본으로 보장한다. */}
           <div className="flex-1 overflow-hidden">
-            <Outlet />
+            <div className="flex h-full flex-col">
+              <Outlet />
+            </div>
           </div>
           <div className="shrink-0">
             <BottomNav
