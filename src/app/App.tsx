@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
+import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import RentalListScreen from "@/features/rental/RentalListScreen";
 
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route element={<HomeScreen />} path="/" />
         <Route element={<RentalListScreen />} path="/rental" />
+        <Route element={<ArchivesListScreen />} path="/archives" />
       </Routes>
     </div>
   );
