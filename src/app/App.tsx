@@ -1,21 +1,11 @@
-import { Route, Routes } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
-import ScreenLayout from "@/components/ui/ScreenLayout";
-import BililgeListScreen from "@/features/bililge/BililgeListScreen";
-import EventListScreen from "@/features/events/EventListScreen";
-import HomeScreen from "@/features/home/HomeScreen";
-
-// 데스크톱에서 보기 좋게 아이폰 화면 크기로 가운데 정렬만 해준다.
+// 모든 화면의 루트 레이아웃 — 데스크톱에서 보기 좋게 아이폰 화면 크기로 가운데 정렬만 해준다.
+// 라우트 정의는 router.tsx에 있다.
 function App() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#e5e5e5] py-6">
-      <Routes>
-        <Route element={<ScreenLayout />}>
-          <Route element={<HomeScreen />} path="/" />
-          <Route element={<BililgeListScreen />} path="/bililge" />
-          <Route element={<EventListScreen />} path="/events" />
-        </Route>
-      </Routes>
+      <Outlet />
     </div>
   );
 }

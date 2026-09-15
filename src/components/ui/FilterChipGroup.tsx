@@ -20,15 +20,15 @@ interface FilterChipGroupProps {
 // 가로 스크롤되는 단일 선택 행이 재사용 단위라 칩 하나가 아니라 행 전체를 컴포넌트로 둔다.
 function FilterChipGroup({ options, value, onChange }: FilterChipGroupProps) {
   return (
-    <div className="scrollbar-hidden flex gap-1.5 overflow-x-auto">
+    <div className="flex gap-1.5 overflow-x-auto">
       {options.map((option) => {
         const active = option.value === value;
         return (
           <button
             className={
               active
-                ? "shrink-0 whitespace-nowrap rounded-[20px] border border-primary bg-primary-subtle px-3 py-2"
-                : "shrink-0 whitespace-nowrap rounded-[20px] border border-line-normal-neutral px-3 py-2"
+                ? "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-[20px] border border-primary bg-primary-subtle px-3"
+                : "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-[20px] border border-line-normal-neutral px-3"
             }
             key={option.value}
             onClick={() => onChange(option.value)}

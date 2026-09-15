@@ -2,7 +2,7 @@ import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 
 import type { EventStatus } from "@/features/events/constants/events";
 
-interface EventCardProps {
+interface EventsCardProps {
   title: string;
   /** 이미 포맷된 표시용 문자열 (예: "행사일 2026.06.04") */
   eventDate: string;
@@ -31,14 +31,14 @@ const STATUS_BADGE = {
 // 색 보정이 필요 없다 — WDS Button의 size="small"이 padding 7/14·radius 8·label2로 Figma와 맞고,
 // disabled 상태 색(label.assistive + interaction.disable)도 모집예정/모집종료 스펙과 그대로 일치한다
 // (button/style.js의 &[aria-disabled='true'] 블록 확인). 그래서 sx 없이 disabled prop만 쓴다.
-function EventCard({
+function EventsCard({
   title,
   eventDate,
   status,
   statusLabel,
   actionLabel,
   onApply,
-}: EventCardProps) {
+}: EventsCardProps) {
   const badge = STATUS_BADGE[status];
   const isOpen = status === "open";
 
@@ -92,4 +92,4 @@ function EventCard({
   );
 }
 
-export default EventCard;
+export default EventsCard;

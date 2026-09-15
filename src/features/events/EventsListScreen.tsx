@@ -11,14 +11,14 @@ import { Fragment, useState } from "react";
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import EventCard from "@/features/events/components/EventCard";
+import EventsCard from "@/features/events/components/EventsCard";
 import {
   EVENT_STATUS_FILTERS,
   EVENTS,
 } from "@/features/events/constants/events";
 
 // Figma: 행사 (nodeId 1243:70854)
-function EventListScreen() {
+function EventsListScreen() {
   const [tab, setTab] = useState("event");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -58,7 +58,7 @@ function EventListScreen() {
       : EVENTS.filter((event) => event.status === statusFilter);
 
   return (
-    <div className="flex h-full flex-col">
+    <>
       {/* 필터는 고정하고 목록만 스크롤된다 */}
       <div className="shrink-0 px-5 pt-4 pb-6">
         <FilterChipGroup
@@ -78,7 +78,7 @@ function EventListScreen() {
                     <Divider color="semantic.line.normal.alternative" />
                   </div>
                 )}
-                <EventCard
+                <EventsCard
                   actionLabel={event.actionLabel}
                   eventDate={event.eventDate}
                   status={event.status}
@@ -111,8 +111,8 @@ function EventListScreen() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
 
-export default EventListScreen;
+export default EventsListScreen;

@@ -25,6 +25,24 @@
 - import는 절대경로 `@/`(`./src/*`)를 쓴다. 상대경로는 같은 기능 폴더 내부에서만.
 - 그룹 순서: ① 외부 라이브러리 → ② `@/` → ③ 상대경로. 저장 시 Biome의 `organizeImports`가 자동 정렬한다.
 
+## 라우팅
+
+- 라우트는 `src/app/router.tsx`의 **객체 배열 한곳**에서 `createBrowserRouter`로 정의하고, `satisfies RouteObject[]`로 형태를 검사한다. JSX `<Routes>`/`<Route>`로 선언하지 않는다 — 화면별 옵션(`handle`)을 선언 시점에 타입 검사하기 위해서다.
+- 새 화면은 `ScreenLayoutRoute` 레이아웃 라우트의 `children`에 추가한다. 옵션이 다른 화면이 생겨도 **레이아웃 라우트를 따로 선언하지 않는다**(따로 두면 화면을 오갈 때 레이아웃이 다시 마운트된다).
+- 화면별 레이아웃 옵션은 라우트 `handle`에 `satisfies ScreenRouteHandle`로 지정한다. 오타(`hasBottomnav` 등)는 타입 검사에서 걸린다.
+
+  ```tsx
+  {
+    element: <EventsApplicationScreen />,
+    handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+    path: "/events/:eventId/apply",
+  }
+  ```
+
+  새 옵션이 필요하면 `src/app/ScreenLayoutRoute.tsx`의 `ScreenRouteHandle`에 필드를 추가하고, 그 값을 `ScreenLayout` prop으로 넘긴다.
+- `ScreenLayout`은 **라우터를 모르는 prop 기반 컴포넌트**로 유지한다. 라우트 정보(`useMatches`)는 `ScreenLayoutRoute`만 읽는다.
+- 라우트가 없는 경로는 레이아웃 안의 `path: "*"` 라우트(`ComingSoonScreen`)가 받는다. 하단 탭이 유지돼서 다른 화면으로 돌아갈 수 있다. 구체적인 경로가 `*`보다 항상 우선하므로 배열 순서는 신경 쓰지 않아도 된다.
+
 ## 에러 / 비동기
 
 - async는 try/catch 또는 서버 상태 라이브러리(도입 시)의 에러 상태로 다룬다. **빈 catch 금지**.
