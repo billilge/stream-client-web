@@ -152,3 +152,47 @@ WDS `Label`의 `required`는 `*`를 `semantic.status.negative`로 그려서 **�
 ## 완전 확정 방법 (필요 시)
 
 이름 대조가 아니라 100% 확정하려면, 확인하고 싶은 인스턴스의 `nodeId`를 알아낸 뒤 `get_design_context(fileKey, nodeId)`를 호출해 응답에 포함된 componentKey를 위 표의 WDS componentKey와 직접 비교하면 된다. 또는 Figma 앱에서 인스턴스 선택 → 우측 패널 "Instance of" → 라이브러리 아이콘 클릭으로도 즉시 확인 가능하다.
+
+## 행사 목록 화면(`1243:70854`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 코드 export | 확인 내용 |
+|---|---|---|
+| `Content Badge/Content Badge` | `ContentBadge` | 메인 컴포넌트 Node ID `445:5656` — [문서](https://montage.wanted.co.kr/docs/components/contents/content-badge/design) |
+| `Divider/Divider` | `Divider` | `color`에 토큰 문자열을 넘긴다(`color="semantic.line.normal.alternative"`). Figma의 `divider(new)`가 이 값(`rgba(112,115,124,0.08)`, 1px)이라 로컬로 선을 그리지 않고 WDS를 쓴다 |
+
+### `ContentBadge`의 accent/neutral 분기가 Figma 구조와 1:1로 맞는다
+
+Figma의 Content Badge는 상태에 따라 배경 처리 방식이 두 가지다 — "accent 색을 8% 오퍼시티 레이어로 깐 것"(모집중·모집예정)과 "이미 알파가 포함된 `Fill/Normal`을 그대로 쓴 것"(모집종료). 한 가지 방식으로 뭉뚱그리면 색이 틀어지는데, `ContentBadge`의 `color` prop이 정확히 이 둘로 갈린다(`content-badge/style.js`의 `contentBadgeColorStyle`):
+
+- `color="accent"` + `accentColor` → `background: addOpacity(accentColor, opacity[8])`, 글자는 `accentColor` 원색
+- `color="neutral"` + `neutralColor` → `background: theme.semantic.fill.normal`, 글자는 `neutralColor`
+
+`size="small"`도 Figma 스펙(`padding: 4px 6px`, `caption1/medium`)과 그대로 일치한다. 실제로 쓴 토큰:
+
+| 상태 | props | 실측 결과 |
+|---|---|---|
+| 모집중 | `color="accent" accentColor="semantic.accent.foreground.redOrange"` | `rgba(245,90,0,0.08)` / `#F55A00` |
+| 모집예정 | `color="accent" accentColor="semantic.accent.foreground.cyan"` | `rgba(0,152,178,0.08)` / `#0098B2` |
+| 모집종료 | `color="neutral" neutralColor="semantic.label.alternative"` | `rgba(112,115,124,0.08)` / `rgba(55,56,60,0.61)` |
+
+### `Button`의 `size="small"` 타이포는 버튼이 아니라 `& > span`에 걸린다
+
+`button/style.js`의 `small` 분기는 `& > span { typographyStyle("label2", fontWeight) }` 형태라, `getComputedStyle(button).fontSize`를 재면 상속값 16px이 나오고 실제 글자는 안쪽 span의 13px이다. 검증할 때 버튼 엘리먼트를 재면 틀린 결론이 난다.
+
+또한 행사 카드 CTA는 빌릴게 카드와 달리 `sx` 보정이 필요 없다. Figma의 비활성 상태 색(`Interaction/Disable #F4F4F5` + `Label/Assistive`)이 WDS `Button`의 `&[aria-disabled='true']` 블록과 그대로 같아서 `disabled` prop만 주면 된다.
+
+### 헤더 아래 세그먼트 토글은 `ScreenHeader`의 `toolbar`로 넘긴다
+
+행사 화면 헤더(`1765:70732`)는 **로컬 `Top Navigation`(`1765:70665`, 0~56)** 과 **형제 노드인 `Segmented Control`(`1765:70708`, y=56 x=20 w=335 h=32)** 로 나뉜다. 예전에는 WDS `Top Navigation/Resource/Contents` 하나가 내부 `Tool` 슬롯까지 품은 높이 88짜리 인스턴스였는데, 디자인이 바뀌면서 둘로 분리됐다(`ScreenHeader`의 display variant가 WDS를 떠나 로컬 마크업이 된 것과 같은 변경).
+
+그래서 코드도 WDS `TopNavigation`의 `toolbar` prop에 기대지 않고, `ScreenHeader`가 타이틀 행 아래에 `toolbar`를 그대로 이어 붙인다. 화면 본문에 토글을 두지 않는 이유는 그대로다 — 본문에 두면 헤더 고정 영역 밖이라 스크롤 경계가 화면마다 달라진다.
+
+Tool 영역은 `88 - 56 - 32 = 0`, 즉 **아래 여백이 없다.** 세로 패딩을 주면 헤더가 그만큼 길어진다. 가로는 x=20이라 `px-5`로 맞춘다.
+
+### 필터 칩 반례가 행사 화면에서도 확인됐다
+
+위 "빌릴게 필터 Chip은 WDS `Chip/Chip`이 아니었다" 항목과 같은 결론이다. 행사 화면의 상태 필터 칩(전체/모집중/모집예정/모집종료, `1243:70862`)도 `get_design_context`로 열어보니 원본이 Stream 로컬 컴포넌트 `1016:55355`였고, 스타일도 빌릴게 카테고리 필터와 완전히 동일했다(활성 = `Blue/95` 배경 + `Primary/Normal` 외곽선·글자). 두 화면이 같은 칩을 쓰는 게 확인돼 `src/components/ui/FilterChipGroup.tsx`로 공용화했다.
+
+### 미해결: WDS Navigation 행이 Figma보다 8px 높다
+
+Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 텍스트(32px)가 24px짜리 `Section` 위로 오버플로우되도록 배치돼 있다. WDS `TopNavigation`은 이 32px을 행 높이에 그대로 더해서 64px이 된다. 그 결과 헤더 아래 모든 요소가 8px씩 내려간다. **홈·빌릴게를 포함한 모든 화면에 공통으로 해당**하며(빌릴게 헤더도 실측 64px), 특정 화면에서 고칠 문제가 아니라 `ScreenHeader` 차원에서 판단할 사안이라 별도로 남겨둔다.
