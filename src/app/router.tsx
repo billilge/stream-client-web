@@ -9,6 +9,7 @@ import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
+import NoticesListScreen from "@/features/notices/NoticesListScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
 // satisfies로 선언 시점에 RouteObject 형태를 검사한다.
@@ -21,6 +22,7 @@ const routes = [
           { element: <HomeScreen />, path: "/" },
           { element: <BililgeListScreen />, path: "/bililge" },
           { element: <EventsListScreen />, path: "/events" },
+          { element: <NoticesListScreen />, path: "/notices" },
           {
             element: <EventsApplicationScreen />,
             // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면

@@ -9,7 +9,8 @@ import { ScreenSheetPortalContext } from "@/components/ui/screenSheetPortalConte
 // Bottom Nav 탭 ↔ 라우트 경로 매핑. 화면이 늘어나면 여기에 추가한다.
 const BOTTOM_NAV_PATHS: Record<BottomNavValue, string> = {
   bililge: "/bililge",
-  board: "/board",
+  // 게시판(공지) 목록 라우트 경로. 용어 사전(terminology.md)의 코드 용어가 `notices`라 그대로 맞춘다.
+  board: "/notices",
   // 행사 목록 라우트 경로. 용어 사전(terminology.md)의 코드 용어가 `events`이고
   // 신청 폼 라우트도 `/events/:eventId/apply`라 여기도 복수형으로 맞춘다.
   event: "/events",
