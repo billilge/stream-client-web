@@ -196,3 +196,19 @@ Tool 영역은 `88 - 56 - 32 = 0`, 즉 **아래 여백이 없다.** 세로 패�
 ### 미해결: WDS Navigation 행이 Figma보다 8px 높다
 
 Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 텍스트(32px)가 24px짜리 `Section` 위로 오버플로우되도록 배치돼 있다. WDS `TopNavigation`은 이 32px을 행 높이에 그대로 더해서 64px이 된다. 그 결과 헤더 아래 모든 요소가 8px씩 내려간다. **홈·빌릴게를 포함한 모든 화면에 공통으로 해당**하며(빌릴게 헤더도 실측 64px), 특정 화면에서 고칠 문제가 아니라 `ScreenHeader` 차원에서 판단할 사안이라 별도로 남겨둔다.
+
+## 게시판 - 공지 화면(`1256:81776`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | WDS 메인 컴포넌트 Node ID / 문서 |
+|---|---|---|
+| `Tab/Tab` | 게시판-공지 화면 상단 전체/일반 공지/제휴 공지 탭 | `440:7593` — [문서](https://montage.wanted.co.kr/docs/components/navigations/tab/design). 코드 export는 `Tab`(컨텍스트)+`TabList`+`TabListItem` 3개 조합(`TabItem` 같은 단일 export 아님) — `node_modules/@wanteddev/wds/dist/components/tab/`에서 확인 |
+
+"공지"/"열린피드백" 2단 타이틀(Figma `Board Title`, nodeId `1256:81792`)은 새로 컴포넌트를 만들지 않고 `ScreenHeader`의 `ScreenHeaderToggleTitle`(`title={{ options, activeIndex }}`)을 그대로 썼다 — 정확히 이 패턴을 위해 만들어진 슬롯이다.
+
+### 반례 — 고정 핀 아이콘은 `Icon/Normal/Pin`(WDS)이 아니었다
+
+`search_design_system`으로 "Icon/Normal/Pin" 이름이 WDS 라이브러리에 있는 걸 확인하고 한 번은 WDS로 판단했었다. 그런데 `/figma-check`로 재검증하며 해당 인스턴스(`1256:76326`)의 실제 SVG 에셋을 직접 열어보니, `wds-icon`의 `IconPin`/`IconPinFill`(둘 다 똑바로 선 압정 모양, `currentColor` 상속)과 달리 **기울어진 압정 모양 + `#0066FF` 고정 fill**이 박힌 별개의 도형이었다 — `get_design_context` 응답의 "Component descriptions"에도 이 아이콘 항목이 아예 없었는데(있었다면 처음부터 알아챘을 것) 그때는 놓치고 이름 매칭만 믿었다. **이름이 WDS 컴포넌트와 같아도, `search_design_system` 이름 매칭만으로 확정하지 말고 이 문서의 "완전 확정 방법"(실제 SVG/컴포넌트 설명 대조)까지 거쳐야 한다.** 코드는 실제 Figma SVG를 그대로 받아 `src/assets/icons/pin.svg` + `src/features/notices/components/NoticesCard.tsx` 참고.
+
+### 참고 — Notice-card 사이 구분선은 `divider(new)`가 아니라 WDS `Divider`를 쓴다
+
+133번째 줄 아래 "제외됨" 표에는 `divider(new)`가 Stream 로컬로 남아있지만, 161번째 줄 "행사 목록 화면" 절에서 이미 확인했듯 이 값(`rgba(112,115,124,0.08)`, 1px)은 WDS `Divider`의 `color="semantic.line.normal.alternative"`와 정확히 같다. 게시판-공지 화면도 같은 값이라 로컬 div 대신 `Divider`를 그대로 썼다(`src/features/notices/NoticesListScreen.tsx`). "제외됨" 표의 `divider(new)` 항목은 이름 기준 분류일 뿐 실제 코드 구현은 이 절을 따른다.
