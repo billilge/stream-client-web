@@ -212,3 +212,26 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 ### 참고 — Notice-card 사이 구분선은 `divider(new)`가 아니라 WDS `Divider`를 쓴다
 
 133번째 줄 아래 "제외됨" 표에는 `divider(new)`가 Stream 로컬로 남아있지만, 161번째 줄 "행사 목록 화면" 절에서 이미 확인했듯 이 값(`rgba(112,115,124,0.08)`, 1px)은 WDS `Divider`의 `color="semantic.line.normal.alternative"`와 정확히 같다. 게시판-공지 화면도 같은 값이라 로컬 div 대신 `Divider`를 그대로 썼다(`src/features/notices/NoticesListScreen.tsx`). "제외됨" 표의 `divider(new)` 항목은 이름 기준 분류일 뿐 실제 코드 구현은 이 절을 따른다.
+
+## 행사 신청 제출 실패 토스트(`1450:93026`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 코드 export | 확인 내용 |
+|---|---|---|
+| `Toast/Toast` | `Toast` + `ToastContainer` + `ToastIcon` + `ToastContent` | 메인 컴포넌트 Node ID `516:23034` — [문서](https://montage.wanted.co.kr/docs/components/feedback/toast/design). Figma 인스턴스 내부 구조(Background 2겹 / Container / Content / Icon / Message)가 WDS 구현(`toast/style.js`)과 1:1로 대응한다 |
+
+스타일은 손댈 게 없었다. Figma와 WDS 기본값이 그대로 같다 — `padding: 11px 16px`, `border-radius: 12px`, `backdrop-filter: blur(32px)`, 배경 `Inverse/Background @52%` + `Primary/Normal @5%` 2겹, 본문 `Body 2 Bold`(15px SemiBold) `Static/White @88%`, 아이콘-문구 간격 8px. 실측도 Figma와 같은 335×54였다.
+
+대신 **아이콘과 배치 두 가지는 우리가 넘겨야 했다.**
+
+### 1. `variant="negative"`의 기본 아이콘은 Figma와 다르다 (X ≠ 느낌표)
+
+`toast/constants.js`의 `toastIconComponent.negative`는 `IconCircleCloseFill`(X 표시)인데 Figma는 `Icon/Normal/Circle Exclamation`(느낌표)다. 색은 둘 다 `Atomic/Red/60`(#FF6363)으로 같다. 그래서 `ToastIcon`에 children으로 `IconCircleExclamationFill`을 직접 넘긴다.
+
+이때 **흰 바탕을 같이 깔아야 한다.** WDS `*Fill` 아이콘의 안쪽 기호는 칠한 게 아니라 뚫린 자리(`fill-rule: evenodd`)라, 반투명한 토스트 배경 위에서는 느낌표가 하얗게 보이지 않고 배경이 그대로 비친다. WDS 기본 아이콘도 같은 이유로 `toastCircleIconWrapperStyle`에서 `::before`로 8×10 흰 pill을 뒤에 깐다 — 직접 넘길 때는 그 처리가 빠지므로 우리가 같은 걸 넣는다. Figma도 아이콘 안에 `Filler`(Static/White) 레이어를 같은 목적으로 두고 있다.
+
+### 2. 기본 배치·최소 폭이 375 프레임 밖을 전제로 한다
+
+- `container` 기본값이 `#wds-region-manager-bottom`이라, 그대로 쓰면 앱 프레임이 아니라 브라우저 화면 하단에 붙는다 → `disablePortal`로 끄고 화면 포털(`useScreenSheetPortal`)에 직접 그린다.
+- 폭에 `min-width: 356px`(`breakpoint.sm` 이상)이 걸려 있는데, 그 기준이 앱 프레임이 아니라 **브라우저 창**이다. 데스크톱에서 보면 375px 프레임(좌우 20px 여백 기준 335px)을 넘친다 → 같은 미디어 쿼리 안에서 `minWidth: 0`으로 되돌린다. 평평한 `sx={{ minWidth: 0 }}`는 안 먹는다(emotion이 중첩 미디어 쿼리 블록을 평 선언보다 뒤에 붙여서 `min-width: 356px`가 이긴다).
+
+코드는 `src/components/ui/ScreenToast.tsx`. 화면 위에 토스트를 띄우는 자리는 앞으로도 같을 것이라 공용으로 뒀다.

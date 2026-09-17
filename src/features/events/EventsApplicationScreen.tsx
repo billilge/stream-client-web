@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
 import EventsSubmittingOverlay from "@/features/events/components/EventsSubmittingOverlay";
@@ -36,12 +37,13 @@ function isAnswered(answer: EventsAnswer | undefined): boolean {
 
 // Figma: 행사 신청하기 상세 (nodeId 1658:183386), 신청 확인 모달 (1133:43407), 작성 중단 모달 (1133:43371)
 // 행사 정보·문항은 API 연동 전까지 라우트의 eventId와 무관하게 목업 하나를 보여준다.
-// 제출은 목업 함수로 동작한다 — 제출 중 로딩까지 연결했고, 결과 화면(완료·마감)과 실패 토스트는 아직 없다.
+// 제출은 목업 함수로 동작한다 — 제출 중 로딩과 실패 토스트까지 연결했고, 결과 화면(완료·마감)은 아직 없다.
 function EventsApplicationScreen() {
   const [answers, setAnswers] = useState<Record<string, EventsAnswer>>({});
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFailureToastOpen, setIsFailureToastOpen] = useState(false);
   const navigate = useNavigate();
   const { eventName, dateTime, location, illustration, questions } =
     EVENTS_APPLICATION;
@@ -55,9 +57,14 @@ function EventsApplicationScreen() {
   const handleSubmit = async () => {
     setIsConfirmOpen(false);
     setIsSubmitting(true);
-    await submitEventsApplication();
+    const result = await submitEventsApplication();
     setIsSubmitting(false);
-    // TODO: 결과에 따라 완료·마감 화면으로 이동하고 실패 시 토스트를 띄운다(아직 화면이 없다)
+
+    if (result === "failure") {
+      setIsFailureToastOpen(true);
+      return;
+    }
+    // TODO: 성공·마감 결과에 따라 완료·마감 화면으로 이동한다(아직 화면이 없다)
   };
 
   useScreenHeader(
@@ -141,6 +148,12 @@ function EventsApplicationScreen() {
       />
 
       <EventsSubmittingOverlay open={isSubmitting} />
+
+      <ScreenToast
+        message="제출에 실패했어요. 다시 시도해 주세요."
+        onOpenChange={setIsFailureToastOpen}
+        open={isFailureToastOpen}
+      />
     </div>
   );
 }

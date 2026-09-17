@@ -26,6 +26,10 @@
   --color-submitting-line: var(--atomic-blue-90);
   --color-submitting-checkbox: #dfecff;
 
+  /* 제출 실패 토스트의 느낌표 아이콘(Figma Atomic/Red/60)과 그 뒤에 까는 흰 바탕(Figma Static/White) */
+  --color-toast-negative: var(--atomic-red-60);
+  --color-static-white: var(--semantic-static-white);
+
   /* 경고 모달의 느낌표 아이콘(Figma Fill/Strong)과 위험 버튼 배경(Figma Status/Negative) */
   --color-fill-strong: var(--semantic-fill-strong);
   --color-status-negative: var(--semantic-status-negative);
