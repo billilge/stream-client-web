@@ -1,6 +1,6 @@
 import { IconButton, Typography } from "@wanteddev/wds";
 import { IconChevronLeft, IconShare } from "@wanteddev/wds-icon";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ArchivesDetailSection from "@/features/archives/components/ArchivesDetailSection";
@@ -12,6 +12,7 @@ import { ARCHIVES_DETAIL } from "@/features/archives/constants/archivesDetail";
 // 공유 버튼·관련 페이지 링크는 연결할 동작/URL이 아직 없어 표시만 한다.
 function ArchivesDetailScreen() {
   const navigate = useNavigate();
+  const { archiveId } = useParams();
   const { title, image, date, location, department, activity, photos, links } =
     ARCHIVES_DETAIL;
 
@@ -107,7 +108,10 @@ function ArchivesDetailScreen() {
         </ArchivesDetailSection>
 
         <ArchivesDetailSection icon="camera" title="현장 사진">
-          <ArchivesPhotoGrid photos={photos} />
+          <ArchivesPhotoGrid
+            onMoreClick={() => navigate(`/archives/${archiveId}/photos`)}
+            photos={photos}
+          />
         </ArchivesDetailSection>
 
         <ArchivesDetailSection icon="link" title="관련 페이지">

@@ -2,14 +2,15 @@ import { Typography } from "@wanteddev/wds";
 
 interface ArchivesPhotoGridProps {
   photos: string[];
+  onMoreClick: () => void;
 }
 
 const VISIBLE_PHOTO_COUNT = 3;
 
 // Figma: 아카이빙 상세 Photo Grid (nodeId 1526:171246)
 // 3장까지 보여주고, 더 있으면 마지막 칸을 어둡게 덮고 "N장 더보기"를 띄운다(N = 칸에 안 보이는 장수).
-// 더보기 클릭 동작(전체 사진 화면)은 아직 디자인이 없어 표시만 한다.
-function ArchivesPhotoGrid({ photos }: ArchivesPhotoGridProps) {
+// 더보기 칸을 누르면 전체 사진 화면으로 간다(onMoreClick).
+function ArchivesPhotoGrid({ photos, onMoreClick }: ArchivesPhotoGridProps) {
   const visiblePhotos = photos.slice(0, VISIBLE_PHOTO_COUNT);
   const hiddenCount = photos.length - (VISIBLE_PHOTO_COUNT - 1);
   const hasMore = photos.length > VISIBLE_PHOTO_COUNT;
@@ -29,18 +30,20 @@ function ArchivesPhotoGrid({ photos }: ArchivesPhotoGridProps) {
             src={photo}
           />
           {hasMore && index === VISIBLE_PHOTO_COUNT - 1 && (
-            <>
-              <div className="absolute inset-0 bg-gradient-overlay/80" />
+            <button
+              className="absolute inset-0 flex items-center justify-center bg-gradient-overlay/80"
+              onClick={onMoreClick}
+              type="button"
+            >
               <Typography
-                as="p"
+                as="span"
                 color="semantic.static.white"
-                sx={{ position: "relative" }}
                 variant="caption1"
                 weight="medium"
               >
                 {hiddenCount}장 더보기
               </Typography>
-            </>
+            </button>
           )}
         </div>
       ))}
