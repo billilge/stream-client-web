@@ -60,7 +60,7 @@ const TABS: BottomNavTab[] = [
 // 같은 색이라 실제로는 안 보여서, 눈에 보이는 구분선이 되도록 Line/Solid/Neutral로 바꿨다.
 function BottomNav({ value, onValueChange }: BottomNavProps) {
   return (
-    <div className="flex w-[375px] flex-col items-center rounded-t-3xl border-line-solid-neutral border-t bg-background-normal px-2 pt-2">
+    <div className="flex w-full flex-col items-center rounded-t-3xl border-line-solid-neutral border-t bg-background-normal px-2 pt-2">
       <div className="flex w-full items-center justify-center">
         {TABS.map(({ value: tabValue, label, NormalIcon, selectedIcon }) => {
           const isSelected = tabValue === value;

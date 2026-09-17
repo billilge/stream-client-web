@@ -28,7 +28,7 @@ interface ScreenLayoutProps {
   hasBottomNav?: boolean;
 }
 
-// 모든 화면이 공유하는 375×812 라우트 레이아웃 — router.tsx에서 부모 route로 두고 화면들을
+// 모든 화면이 공유하는 라우트 레이아웃 — router.tsx에서 부모 route로 두고 화면들을
 // 자식 route(Outlet)로 넣는다. 화면이 직접 이 컴포넌트를 임포트해서 감쌀 필요가 없어서,
 // "일부 화면만 감싸는 걸 깜빡"하는 불일치가 구조적으로 불가능해진다.
 // 화면마다 다른 헤더(Top Navigation 등)는 useScreenHeader 훅으로 이 레이아웃에 등록한다.
@@ -36,6 +36,9 @@ interface ScreenLayoutProps {
 // 신청 폼처럼 Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면은 라우트 handle에
 // hasBottomNav: false를 지정하면 ScreenLayoutRoute가 이 prop으로 넘겨준다 — 이 컴포넌트는 라우터를 모른다.
 // 본문 스크롤을 화면이 정하므로 Action Area는 화면이 자기 영역 하단에 직접 둔다.
+// 크기는 뷰포트를 꽉 채우는 것이 기본이고(실사용자는 전부 앱 WebView 안에서 본다),
+// 375×812 아이폰 프레임은 데스크톱 뷰포트(sm 이상) 전용이다 — App.tsx의 회색 배경과 같은 브레이크포인트.
+// 세이프에어리어는 앱 셸이 담당하므로 여기서 env(safe-area-inset-*)를 더하지 않는다(중복 여백이 된다).
 function ScreenLayout({ hasBottomNav = true }: ScreenLayoutProps) {
   const [header, setHeader] = useState<ReactNode>(null);
   const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(
@@ -48,7 +51,7 @@ function ScreenLayout({ hasBottomNav = true }: ScreenLayoutProps) {
   return (
     <ScreenHeaderContext.Provider value={setHeader}>
       <ScreenSheetPortalContext.Provider value={sheetPortalEl}>
-        <div className="relative flex h-[812px] w-[375px] flex-col overflow-hidden bg-background-alternative">
+        <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-background-alternative sm:h-[812px] sm:w-[375px]">
           <div className="shrink-0">{header}</div>
           {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤).
               overflow-y-auto가 동작하려면 자식 높이가 명확해야 해서, 화면마다 h-full을 직접
@@ -67,7 +70,7 @@ function ScreenLayout({ hasBottomNav = true }: ScreenLayoutProps) {
             </div>
           )}
           {/* BottomSheet 포털 대상 — 헤더/본문/Bottom Nav보다 위(z-50)에 겹쳐서, 화면 하나가
-              열어도 375×812 프레임 전체를 딤 처리할 수 있다. 시트가 닫혀있을 때는 빈 오버레이가
+              열어도 화면 프레임 전체를 딤 처리할 수 있다. 시트가 닫혀있을 때는 빈 오버레이가
               클릭을 가로채지 않도록 pointer-events-none — BottomSheet가 열릴 때 자기 자신에만
               pointer-events-auto를 되돌려준다. */}
           <div
