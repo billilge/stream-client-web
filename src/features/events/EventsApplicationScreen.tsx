@@ -94,8 +94,9 @@ function EventsApplicationScreen() {
         </ActionArea>
         {/* Figma Action Area(110px)는 버튼 아래가 iOS Home Bar 여백(Bottom Safe Area)까지 합쳐 34px인데,
             WDS ActionArea는 아래 padding 20px만 준다 — 모자란 14px을 여기서 더한다(BottomSheet와 같은 이유).
-            Bottom Nav가 있는 화면은 BottomNav가 이 여백을 준다. */}
-        <div className="h-[14px] bg-background-elevated-normal" />
+            Bottom Nav가 있는 화면은 BottomNav가 이 여백을 준다.
+            앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다(BottomNav와 같은 규칙). */}
+        <div className="hidden h-[14px] bg-background-elevated-normal sm:block" />
       </div>
     </div>
   );

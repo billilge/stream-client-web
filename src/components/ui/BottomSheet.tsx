@@ -46,7 +46,8 @@ function BottomSheet({ open, onClose, children }: BottomSheetProps) {
             padding으로 이미 확보됨) 다음에 iOS 홈 인디케이터용 "Gesture" 여백(pt-3.5=14px)이
             하나 더 붙는데, 실제 @wanteddev/wds의 ActionArea 컴포넌트에는 이 14px이 없어서
             여기서 더해준다. */}
-        <div className="h-[14px] shrink-0" />
+        {/* 앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다(BottomNav와 같은 규칙). */}
+        <div className="hidden h-[14px] shrink-0 sm:block" />
       </div>
     </div>,
     portalEl,
