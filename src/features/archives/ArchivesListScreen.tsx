@@ -1,9 +1,10 @@
-import { TopNavigation, TopNavigationButton } from "@wanteddev/wds";
+import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft, IconSearch } from "@wanteddev/wds-icon";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import ScreenLayout from "@/components/ui/ScreenLayout";
+import ScreenHeader from "@/components/ui/ScreenHeader";
+import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import ArchivesPhotoCard, {
   type ArchivesPhotoCardSize,
 } from "@/features/archives/components/ArchivesPhotoCard";
@@ -41,43 +42,41 @@ function ArchivesListScreen() {
   const leftItems = ARCHIVES_ITEMS.filter((_, index) => index % 2 === 0);
   const rightItems = ARCHIVES_ITEMS.filter((_, index) => index % 2 === 1);
 
-  return (
-    <ScreenLayout
-      hasBottomNav={false}
-      header={
-        // ScreenLayout 기본 배경은 alternative(회색)라, Figma의 흰 배경(Background/Normal/Normal)을 화면이 직접 깐다.
-        <div className="bg-background-normal">
-          <TopNavigation
-            background={false}
-            leadingContent={
-              <TopNavigationButton
-                aria-label="뒤로 가기"
-                onClick={() => navigate(-1)}
-                variant="icon"
-              >
-                <IconChevronLeft />
-              </TopNavigationButton>
-            }
-            trailingContent={
-              <TopNavigationButton aria-label="검색" variant="icon">
-                <IconSearch />
-              </TopNavigationButton>
-            }
+  useScreenHeader(
+    // ScreenLayout 기본 배경은 alternative(회색)라, Figma의 흰 배경(Background/Normal/Normal)을 화면이 직접 깐다.
+    <div className="bg-background-normal">
+      <ScreenHeader
+        leading={
+          <TopNavigationButton
+            aria-label="뒤로 가기"
+            onClick={() => navigate(-1)}
+            variant="icon"
           >
-            아카이빙
-          </TopNavigation>
-        </div>
-      }
-    >
-      {/* pb-[34px]: 본문 위에 겹쳐 뜨는 홈 인디케이터에 마지막 카드가 가리지 않도록 */}
-      <div className="flex min-h-full flex-col gap-4 bg-background-normal px-5 pb-[34px]">
+            <IconChevronLeft />
+          </TopNavigationButton>
+        }
+        title="아카이빙"
+        trailing={
+          <TopNavigationButton aria-label="검색" variant="icon">
+            <IconSearch />
+          </TopNavigationButton>
+        }
+        variant="normal"
+      />
+    </div>,
+  );
+
+  return (
+    <div className="scrollbar-hidden flex-1 overflow-y-auto bg-background-normal">
+      {/* sm:pb-[34px]: Figma 하단 Home Bar 여백 — 앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 둔다 */}
+      <div className="flex flex-col gap-4 px-5 pb-4 sm:pb-[34px]">
         <ArchivesYearFilter onChange={setYear} value={year} />
         <div className="flex gap-2">
           {renderColumn(leftItems, LEFT_COLUMN_SIZES)}
           {renderColumn(rightItems, RIGHT_COLUMN_SIZES)}
         </div>
       </div>
-    </ScreenLayout>
+    </div>
   );
 }
 

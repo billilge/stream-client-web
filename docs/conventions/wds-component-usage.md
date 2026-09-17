@@ -74,6 +74,12 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 
 아카이빙 상세 화면의 연도 필터 칩(`Chip`, `1276:95404`)과 사진 카드(`Left-Large`/`Left-Medium`/`Right-Small`/`Right-Large`)는 WDS 컴포넌트 설명이 붙어 있지 않은 Stream 로컬 요소다 — 칩 스타일은 아래 "빌릴게 필터 Chip" 반례와 같다. 코드는 `src/features/archives/components/` 참고.
 
+### `Typography` — 텍스트 스타일은 Figma 인스턴스 스캔에 안 잡혀서 뒤늦게 확인됨
+
+위 표들은 Figma의 인스턴스(컴포넌트) 이름을 스캔해서 만든 거라, Figma에서 텍스트 스타일(Text Style)로만 적용되고 별도 컴포넌트 인스턴스가 아닌 타이포그래피는 이 방식으로는 안 잡힌다. 그래서 지금까지 `text-xs`/`text-[17px]` 같은 Tailwind 값을 화면마다 손으로 맞춰왔는데, `@wanteddev/wds`에 Figma의 이름 있는 타입 스타일(Headline 2/Bold 등)과 정확히 대응하는 `Typography` 컴포넌트가 있다는 걸 뒤늦게 확인했다(`node_modules/@wanteddev/wds/dist/components/typography/style.js`). Bottom Nav 탭 라벨을 `text-xs`(12px)로 잘못 만들었던 것도 실제 Figma 값(Caption 2/Medium, 11px)과 어긋난 채로 남아있다가 이번에 확인됐다.
+
+`variant`+`weight` 조합과 색상 `color` prop 사용법은 `docs/conventions/component-convention.md`의 "타이포그래피" 절 참고. 이후 새 화면을 만들 때는 텍스트 크기를 짐작하지 말고 이 컴포넌트부터 확인한다.
+
 ### 반례 — 빌릴게 필터 Chip은 WDS `Chip/Chip`이 아니었다
 
 위 "WDS 컴포넌트로 확인됨" 표에 `Chip/Chip`이 파일 전체 기준 24개 인스턴스로 확정돼 있다고 해서, **다른 화면의 비슷하게 생긴 칩도 자동으로 WDS라고 가정하면 안 된다.** 빌릴게 화면의 카테고리 필터(전체/전자기기/생활잡화/상비약/위생용품)를 처음 구현할 때 이 표만 보고 재조사 없이 WDS `Chip`을 그대로 썼는데, 실제 Figma 스타일(활성 = 연한 파랑 배경 + 파랑 outline, 비활성 = 회색 outline)이 WDS Chip의 기본 활성 스타일(검정 배경)과 달랐다 — Stream이 로컬로 새로 만든 칩이었다. **스타일이 눈에 띄게 다르면, 이름이 같아 보여도 그 인스턴스는 따로 `get_design_context`로 열어 확인한다.** 코드는 `src/features/rental/components/RentalCategoryFilter.tsx` 참고 (plain `<button>` 기반, WDS import 없음).
@@ -99,7 +105,38 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 </Button>
 ```
 
-hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참조했고, `Button` 자체(접근성 속성, `disabled`/`loading` 상태 처리 등)는 그대로 재사용한다. `src/features/rental/components/RentalItemCard.tsx` 참고.
+hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참조했고, `Button` 자체(접근성 속성, `disabled`/`loading` 상태 처리 등)는 그대로 재사용한다. `src/features/bililge/components/BililgeItemCard.tsx` 참고.
+
+### 빌릴게 대여 바텀시트 — `Action Area/Action Area`, `Icon/Normal/Circle Info`, 그리고 Time Picker는 의도적으로 WDS를 안 씀
+
+`/component`로 빌릴게 대여 바텀시트(Figma nodeId `1422:57155`, 실제 시트 콘텐츠는 `1422:57176`)를 구현하며 확인된 내용.
+
+- **`Action Area/Action Area` + `ActionAreaButton`**: 버튼 하나(대여 신청하기)만 있는 액션 영역도 `@wanteddev/wds`의 `ActionArea`(기본 `variant="strong"`) + `ActionAreaButton`(기본 `variant="main"`)으로 그대로 재현된다. `ActionAreaButton`의 `main` variant가 내부적으로 `Button`을 `size="large"` `fullWidth` `variant="solid"` `color="primary"`로 렌더링해서 Figma의 파란 통 너비 버튼과 정확히 일치했다(`node_modules/@wanteddev/wds/dist/components/action-area/index.js` 확인). `src/features/bililge/components/BililgeRentalSheet.tsx` 참고.
+- **`Icon/Normal/Circle Info`**: 안내 문구("대여 시작 시간은 최소 5분 뒤부터...") 앞 아이콘. 위 표에서 이미 확정된 매핑 재사용(`@wanteddev/wds-icon`의 `IconCircleInfo`).
+- **Time Picker(휠 피커)는 예외적으로 WDS를 쓰지 않기로 결정했다.** `@wanteddev/wds`에 `time-picker` 컴포넌트가 실제로 존재하지만(`node_modules/@wanteddev/wds/dist/components/time-picker/`), 이건 `<input>` 기반 텍스트 필드형 컴포넌트라 Figma가 그리는 iOS 스타일 휠 스크롤 피커(오전/오후·시·분 3열, 가운데 값만 진하게)와는 UI 패턴 자체가 다르다. 사용자가 명시적으로 지정한 [`@ncdai/react-wheel-picker`](https://react-wheel-picker.chanhdai.com)(unstyled core, `WheelPicker`/`WheelPickerWrapper`)로 구현했다:
+  - `optionItem`/`highlightItem`/`highlightWrapper` classNames로 텍스트 스타일만 입히고(선택 안 됨: `text-label-disable` 17px medium, 선택됨: `text-label-normal` 18px semibold), Figma의 "Selection Highlight"(3열을 가로지르는 pill 배경, `bg-background-alternative`)는 라이브러리 밖에서 별도 `absolute` div로 얹었다 — 각 컬럼마다 하이라이트 배경을 따로 안 그리기 위해서다.
+  - 이 라이브러리의 CSS(`@ncdai/react-wheel-picker/style.css`)도 `@wanteddev/wds/global.css`와 같은 이유로 **반드시 `layer(base)`로 import해야 한다**(`src/index.css`) — 안 그러면 Tailwind 유틸리티가 라이브러리의 unlayered CSS한테 밀려서 `justify-center` 같은 오버라이드가 안 먹는다.
+  - 새 토큰 `--color-label-disable`(`--semantic-label-disable` 별칭)을 이때 추가했다. `get_variable_defs`로 확인한 실제 값은 `rgba(55,56,60,0.16)`.
+
+### 행사 신청 폼 — `Control/Checkbox`, `Control/Radio`, `Textinput/Textarea`, `Action Area`, 그리고 문항 제목은 WDS `Label`이 아님
+
+`/component`로 행사 신청서 작성 화면(Figma nodeId `1133:42457`, #25)을 구현하며 확인된 내용. 코드는 `src/features/events/` 참고.
+
+- **`Control/Checkbox` → `Checkbox`, `Control/Radio` → `RadioGroup` + `RadioGroupItem`**: Figma 인스턴스는 `Size=Small`이라 `size="small"`로 쓴다. 둘 다 label prop이 없고 `<button role="checkbox|radio">`로 렌더링되며 `id`를 그대로 넘겨주므로, 옆에 `<label htmlFor={id}>`를 두면 텍스트를 눌러도 선택된다(`Checkbox`의 `bold` prop도 `~ label` 형제 요소를 대상으로 동작하는 구조). `RadioGroup` 루트 스타일에 기대지 않도록 선택지 간격(12px)은 안쪽 wrapper div에서 준다.
+- **`Textinput/Textarea` → `TextArea` + `TextAreaContent variant="characterCounter"`**: 카운터는 `children`으로 준 숫자를 최대값으로 쓰고 현재 길이는 TextArea context에서 읽는다(`<TextAreaContent variant="characterCounter">{500}</TextAreaContent>` → `0/500`). `maxLength`는 네이티브 textarea로 그대로 전달돼 실제 입력이 막힌다. 주의할 기본값 두 가지:
+  - `minRows` 기본값이 2라 Figma 기본 높이(한 줄, 76px)와 맞추려면 `minRows={1}`. 입력이 늘면 자동으로 칸이 커진다(디자이너 메모 "자동으로 칸이 늘어남"과 일치).
+  - `width` 기본값이 부모 폭을 채우지 않는다 — 안 주면 카드 폭의 절반 정도로 렌더링돼서 `width="100%"`를 줬다.
+  - 높이 계산용 숨김 textarea(`readonly`, `aria-hidden`)를 하나 더 렌더링한다 — 테스트·자동화에서 `textarea` 셀렉터를 쓸 때 제외해야 한다.
+  - 단답형(50자)도 같은 `TextArea`를 쓴다(Figma 텍스트 입력 예시 `1133:43105`의 디자이너 메모).
+- **`Action Area/Action Area` → `ActionArea background` + `ActionAreaButton`**: `background`를 켜면 `::before`가 영역 위로 `margin-y`(20px)만큼 더 올라가 그라데이션 마스크로 스크롤 내용을 흐리게 덮는다(Figma `Gradient/Solid`와 일치). `divider`는 기본값이 `true`지만 `extra` 모드에서만 선을 그려서 일반 모드에는 영향 없다. Figma Action Area(110px = 위 20 + 버튼 56 + 아래 34)는 버튼 아래가 iOS **Bottom Safe Area까지 합쳐 34px**인데 WDS `ActionArea`는 아래 padding 20px만 줘서, 모자란 **14px**을 `bg-background-elevated-normal` div로 따로 붙였다(`BottomSheet`에서 14px을 더한 것과 같은 이유). 처음엔 Safe Area 34px을 통째로 더해서 버튼 아래가 54px로 벌어졌었다 — ActionArea 자체 padding과 겹치는지 먼저 확인한다. 이때 `--color-background-elevated-normal`(`--semantic-background-elevated-normal` 별칭) 토큰을 추가했다.
+- **Action Area 메인 버튼 높이**: `ActionAreaButton`(`main`)은 항상 `Button size="large"`(padding `12px 28px` → **48px**)로 그리는데, Figma `┗ Main Action`은 padding `16px 28px`(**56px**)이다. WDS에 56px 크기가 없어서 `sx={{ paddingBlock: "16px" }}`로 세로 padding만 맞췄다(`ActionAreaButton`은 `props.sx`를 내부 `Button` 스타일 맨 뒤에 붙여서 덮어쓰기가 된다). 빌릴게 대여 바텀시트 Figma(`1422:57205`)의 "대여 신청하기" 버튼도 같은 56px 스펙이지만, `BililgeRentalSheet.tsx`는 아직 `sx` 없이 48px로 렌더링된다(위 "빌릴게 대여 바텀시트" 절의 "정확히 일치" 기록은 높이까지는 대조하지 않은 것으로 보인다).
+- **기타(직접 입력) 입력칸은 WDS가 아니라 plain `<input>`**: Figma `Other Option`(`1658:183954`)은 체크박스 아래에 밑줄만 있는 입력칸이라, WDS `TextField`(배경·테두리·12px radius가 있는 박스형)와 생김새가 다르다. 밑줄은 `Primary/Normal` 0.7px(에셋 SVG의 stroke로 확인, `get_variable_defs`만으로는 선 색이 안 나온다). `<input>`은 `Typography`로 감쌀 수 없는 자리라 Figma `Label 1/Normal - Regular`(14px) 값을 className에 직접 쓰고 주석을 남겼다(휠 피커와 같은 예외).
+- **Top Navigation 뒤로가기**: `TopNavigationButton`에는 back 전용 variant가 없어서(`'text' | 'icon'`) `variant="icon"` + `IconChevronLeft`를 `ScreenHeader variant="normal"`의 `leading`에 넣는다.
+- **`Icon/Normal/Clock`, `Icon/Normal/Location`**: 위 표의 기존 매핑 재사용(`IconClock`, `IconLocation`). 색은 `get_variable_defs`로 확인한 `Label/Assistive`(`text-label-assistive`) — 옆 텍스트(`Label/Alternative`)보다 옅다.
+
+#### 반례 — 문항 제목의 필수 `*`는 WDS `Label required`로 대체하지 않았다
+
+WDS `Label`의 `required`는 `*`를 `semantic.status.negative`로 그려서 **색은 Figma(`Status/Negative`, #FF4242)와 같지만**, `*` 크기가 `label1`/medium(14px)으로 고정돼 있어 Figma의 `*`(Body 1/Bold, 16px)와 다르다. 또 Figma의 `Field Label`은 WDS 인스턴스가 아니라 로컬 텍스트 프레임이다. 그래서 문항 제목은 `Typography`(body2/bold) + `*`(`Typography` body1/bold, `color="semantic.status.negative"`)로 직접 조립했다. **색만 보고 WDS 컴포넌트로 판단하지 말고 크기·굵기까지 대조한다.**
 
 ## 제외됨 — Stream 자체 로컬 컴포넌트 (WDS 아님)
 
@@ -123,3 +160,63 @@ hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참�
 ## 완전 확정 방법 (필요 시)
 
 이름 대조가 아니라 100% 확정하려면, 확인하고 싶은 인스턴스의 `nodeId`를 알아낸 뒤 `get_design_context(fileKey, nodeId)`를 호출해 응답에 포함된 componentKey를 위 표의 WDS componentKey와 직접 비교하면 된다. 또는 Figma 앱에서 인스턴스 선택 → 우측 패널 "Instance of" → 라이브러리 아이콘 클릭으로도 즉시 확인 가능하다.
+
+## 행사 목록 화면(`1243:70854`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 코드 export | 확인 내용 |
+|---|---|---|
+| `Content Badge/Content Badge` | `ContentBadge` | 메인 컴포넌트 Node ID `445:5656` — [문서](https://montage.wanted.co.kr/docs/components/contents/content-badge/design) |
+| `Divider/Divider` | `Divider` | `color`에 토큰 문자열을 넘긴다(`color="semantic.line.normal.alternative"`). Figma의 `divider(new)`가 이 값(`rgba(112,115,124,0.08)`, 1px)이라 로컬로 선을 그리지 않고 WDS를 쓴다 |
+
+### `ContentBadge`의 accent/neutral 분기가 Figma 구조와 1:1로 맞는다
+
+Figma의 Content Badge는 상태에 따라 배경 처리 방식이 두 가지다 — "accent 색을 8% 오퍼시티 레이어로 깐 것"(모집중·모집예정)과 "이미 알파가 포함된 `Fill/Normal`을 그대로 쓴 것"(모집종료). 한 가지 방식으로 뭉뚱그리면 색이 틀어지는데, `ContentBadge`의 `color` prop이 정확히 이 둘로 갈린다(`content-badge/style.js`의 `contentBadgeColorStyle`):
+
+- `color="accent"` + `accentColor` → `background: addOpacity(accentColor, opacity[8])`, 글자는 `accentColor` 원색
+- `color="neutral"` + `neutralColor` → `background: theme.semantic.fill.normal`, 글자는 `neutralColor`
+
+`size="small"`도 Figma 스펙(`padding: 4px 6px`, `caption1/medium`)과 그대로 일치한다. 실제로 쓴 토큰:
+
+| 상태 | props | 실측 결과 |
+|---|---|---|
+| 모집중 | `color="accent" accentColor="semantic.accent.foreground.redOrange"` | `rgba(245,90,0,0.08)` / `#F55A00` |
+| 모집예정 | `color="accent" accentColor="semantic.accent.foreground.cyan"` | `rgba(0,152,178,0.08)` / `#0098B2` |
+| 모집종료 | `color="neutral" neutralColor="semantic.label.alternative"` | `rgba(112,115,124,0.08)` / `rgba(55,56,60,0.61)` |
+
+### `Button`의 `size="small"` 타이포는 버튼이 아니라 `& > span`에 걸린다
+
+`button/style.js`의 `small` 분기는 `& > span { typographyStyle("label2", fontWeight) }` 형태라, `getComputedStyle(button).fontSize`를 재면 상속값 16px이 나오고 실제 글자는 안쪽 span의 13px이다. 검증할 때 버튼 엘리먼트를 재면 틀린 결론이 난다.
+
+또한 행사 카드 CTA는 빌릴게 카드와 달리 `sx` 보정이 필요 없다. Figma의 비활성 상태 색(`Interaction/Disable #F4F4F5` + `Label/Assistive`)이 WDS `Button`의 `&[aria-disabled='true']` 블록과 그대로 같아서 `disabled` prop만 주면 된다.
+
+### 헤더 아래 세그먼트 토글은 `ScreenHeader`의 `toolbar`로 넘긴다
+
+행사 화면 헤더(`1765:70732`)는 **로컬 `Top Navigation`(`1765:70665`, 0~56)** 과 **형제 노드인 `Segmented Control`(`1765:70708`, y=56 x=20 w=335 h=32)** 로 나뉜다. 예전에는 WDS `Top Navigation/Resource/Contents` 하나가 내부 `Tool` 슬롯까지 품은 높이 88짜리 인스턴스였는데, 디자인이 바뀌면서 둘로 분리됐다(`ScreenHeader`의 display variant가 WDS를 떠나 로컬 마크업이 된 것과 같은 변경).
+
+그래서 코드도 WDS `TopNavigation`의 `toolbar` prop에 기대지 않고, `ScreenHeader`가 타이틀 행 아래에 `toolbar`를 그대로 이어 붙인다. 화면 본문에 토글을 두지 않는 이유는 그대로다 — 본문에 두면 헤더 고정 영역 밖이라 스크롤 경계가 화면마다 달라진다.
+
+Tool 영역은 `88 - 56 - 32 = 0`, 즉 **아래 여백이 없다.** 세로 패딩을 주면 헤더가 그만큼 길어진다. 가로는 x=20이라 `px-5`로 맞춘다.
+
+### 필터 칩 반례가 행사 화면에서도 확인됐다
+
+위 "빌릴게 필터 Chip은 WDS `Chip/Chip`이 아니었다" 항목과 같은 결론이다. 행사 화면의 상태 필터 칩(전체/모집중/모집예정/모집종료, `1243:70862`)도 `get_design_context`로 열어보니 원본이 Stream 로컬 컴포넌트 `1016:55355`였고, 스타일도 빌릴게 카테고리 필터와 완전히 동일했다(활성 = `Blue/95` 배경 + `Primary/Normal` 외곽선·글자). 두 화면이 같은 칩을 쓰는 게 확인돼 `src/components/ui/FilterChipGroup.tsx`로 공용화했다.
+
+### 미해결: WDS Navigation 행이 Figma보다 8px 높다
+
+Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 텍스트(32px)가 24px짜리 `Section` 위로 오버플로우되도록 배치돼 있다. WDS `TopNavigation`은 이 32px을 행 높이에 그대로 더해서 64px이 된다. 그 결과 헤더 아래 모든 요소가 8px씩 내려간다. **홈·빌릴게를 포함한 모든 화면에 공통으로 해당**하며(빌릴게 헤더도 실측 64px), 특정 화면에서 고칠 문제가 아니라 `ScreenHeader` 차원에서 판단할 사안이라 별도로 남겨둔다.
+
+## 게시판 - 공지 화면(`1256:81776`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | WDS 메인 컴포넌트 Node ID / 문서 |
+|---|---|---|
+| `Tab/Tab` | 게시판-공지 화면 상단 전체/일반 공지/제휴 공지 탭 | `440:7593` — [문서](https://montage.wanted.co.kr/docs/components/navigations/tab/design). 코드 export는 `Tab`(컨텍스트)+`TabList`+`TabListItem` 3개 조합(`TabItem` 같은 단일 export 아님) — `node_modules/@wanteddev/wds/dist/components/tab/`에서 확인 |
+
+"공지"/"열린피드백" 2단 타이틀(Figma `Board Title`, nodeId `1256:81792`)은 새로 컴포넌트를 만들지 않고 `ScreenHeader`의 `ScreenHeaderToggleTitle`(`title={{ options, activeIndex }}`)을 그대로 썼다 — 정확히 이 패턴을 위해 만들어진 슬롯이다.
+
+### 반례 — 고정 핀 아이콘은 `Icon/Normal/Pin`(WDS)이 아니었다
+
+`search_design_system`으로 "Icon/Normal/Pin" 이름이 WDS 라이브러리에 있는 걸 확인하고 한 번은 WDS로 판단했었다. 그런데 `/figma-check`로 재검증하며 해당 인스턴스(`1256:76326`)의 실제 SVG 에셋을 직접 열어보니, `wds-icon`의 `IconPin`/`IconPinFill`(둘 다 똑바로 선 압정 모양, `currentColor` 상속)과 달리 **기울어진 압정 모양 + `#0066FF` 고정 fill**이 박힌 별개의 도형이었다 — `get_design_context` 응답의 "Component descriptions"에도 이 아이콘 항목이 아예 없었는데(있었다면 처음부터 알아챘을 것) 그때는 놓치고 이름 매칭만 믿었다. **이름이 WDS 컴포넌트와 같아도, `search_design_system` 이름 매칭만으로 확정하지 말고 이 문서의 "완전 확정 방법"(실제 SVG/컴포넌트 설명 대조)까지 거쳐야 한다.** 코드는 실제 Figma SVG를 그대로 받아 `src/assets/icons/pin.svg` + `src/features/notices/components/NoticesCard.tsx` 참고.
+
+### 참고 — Notice-card 사이 구분선은 `divider(new)`가 아니라 WDS `Divider`를 쓴다
+
+133번째 줄 아래 "제외됨" 표에는 `divider(new)`가 Stream 로컬로 남아있지만, 161번째 줄 "행사 목록 화면" 절에서 이미 확인했듯 이 값(`rgba(112,115,124,0.08)`, 1px)은 WDS `Divider`의 `color="semantic.line.normal.alternative"`와 정확히 같다. 게시판-공지 화면도 같은 값이라 로컬 div 대신 `Divider`를 그대로 썼다(`src/features/notices/NoticesListScreen.tsx`). "제외됨" 표의 `divider(new)` 항목은 이름 기준 분류일 뿐 실제 코드 구현은 이 절을 따른다.

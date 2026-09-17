@@ -1,3 +1,4 @@
+import { Typography } from "@wanteddev/wds";
 import {
   IconHome,
   IconList,
@@ -5,12 +6,12 @@ import {
   IconTicket,
 } from "@wanteddev/wds-icon";
 
+import bililgeSelected from "@/assets/icons/bottom-nav/bililge-selected.svg";
 import boardSelected from "@/assets/icons/bottom-nav/board-selected.svg";
 import eventSelected from "@/assets/icons/bottom-nav/event-selected.svg";
 import homeSelected from "@/assets/icons/bottom-nav/home-selected.svg";
-import rentalSelected from "@/assets/icons/bottom-nav/rental-selected.svg";
 
-export type BottomNavValue = "home" | "event" | "board" | "rental";
+export type BottomNavValue = "home" | "event" | "board" | "bililge";
 
 interface BottomNavProps {
   value: BottomNavValue;
@@ -47,8 +48,8 @@ const TABS: BottomNavTab[] = [
   {
     NormalIcon: IconStorage,
     label: "빌릴게",
-    selectedIcon: rentalSelected,
-    value: "rental",
+    selectedIcon: bililgeSelected,
+    value: "bililge",
   },
 ];
 
@@ -59,7 +60,7 @@ const TABS: BottomNavTab[] = [
 // 같은 색이라 실제로는 안 보여서, 눈에 보이는 구분선이 되도록 Line/Solid/Neutral로 바꿨다.
 function BottomNav({ value, onValueChange }: BottomNavProps) {
   return (
-    <div className="flex w-[375px] flex-col items-center rounded-t-3xl border-line-solid-neutral border-t bg-background-normal px-2 pt-2">
+    <div className="flex w-full flex-col items-center rounded-t-3xl border-line-solid-neutral border-t bg-background-normal px-2 pt-2">
       <div className="flex w-full items-center justify-center">
         {TABS.map(({ value: tabValue, label, NormalIcon, selectedIcon }) => {
           const isSelected = tabValue === value;
@@ -75,18 +76,25 @@ function BottomNav({ value, onValueChange }: BottomNavProps) {
               ) : (
                 <NormalIcon className="size-6 text-label-assistive" />
               )}
-              <span
-                className={`font-medium text-xs ${isSelected ? "text-primary" : "text-label-assistive"}`}
+              <Typography
+                color={
+                  isSelected
+                    ? "semantic.primary.normal"
+                    : "semantic.label.assistive"
+                }
+                variant="caption2"
+                weight="medium"
               >
                 {label}
-              </span>
+              </Typography>
             </button>
           );
         })}
       </div>
-      <div className="relative h-[34px] w-full">
-        <div className="absolute bottom-2 left-1/2 h-[5px] w-[134px] -translate-x-1/2 rounded-full bg-icons-primary" />
-      </div>
+      {/* iOS 홈 인디케이터 자리(Figma 812 프레임이 포함하는 34px). 앱 WebView에서는 네이티브
+          세이프에어리어가 이미 확보해 줘서 여기서 또 주면 여백이 두 번 들어간다.
+          홈 인디케이터가 없는 데스크톱 프레임에서만 Figma 스펙대로 남긴다. */}
+      <div className="hidden h-[34px] w-full sm:block" />
     </div>
   );
 }
