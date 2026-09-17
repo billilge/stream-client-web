@@ -11,12 +11,14 @@ import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
+import EventsSubmittingOverlay from "@/features/events/components/EventsSubmittingOverlay";
 import EventsSummaryCard from "@/features/events/components/EventsSummaryCard";
 import {
   EVENTS_APPLICATION,
   EVENTS_OTHER_OPTION_LABEL,
   type EventsAnswer,
 } from "@/features/events/constants/eventsApplication";
+import { submitEventsApplication } from "@/features/events/constants/eventsApplicationSubmit";
 
 // 복수 선택은 하나라도 골라야 하고, 기타를 골랐으면 입력 내용까지 있어야 충족으로 본다
 function isAnswered(answer: EventsAnswer | undefined): boolean {
@@ -34,11 +36,12 @@ function isAnswered(answer: EventsAnswer | undefined): boolean {
 
 // Figma: 행사 신청하기 상세 (nodeId 1658:183386), 신청 확인 모달 (1133:43407), 작성 중단 모달 (1133:43371)
 // 행사 정보·문항은 API 연동 전까지 라우트의 eventId와 무관하게 목업 하나를 보여준다.
-// 제출 확인과 작성 중단 확인까지 연결했고, 실제 제출(로딩 → 완료/실패/마감)은 아직 없다.
+// 제출은 목업 함수로 동작한다 — 제출 중 로딩까지 연결했고, 결과 화면(완료·마감)과 실패 토스트는 아직 없다.
 function EventsApplicationScreen() {
   const [answers, setAnswers] = useState<Record<string, EventsAnswer>>({});
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { eventName, dateTime, location, illustration, questions } =
     EVENTS_APPLICATION;
@@ -48,6 +51,14 @@ function EventsApplicationScreen() {
   );
   // 한 글자라도 쓴 게 있으면 그냥 나갔을 때 잃는 내용이 있다는 뜻이라 확인부터 받는다
   const hasAnyAnswer = Object.values(answers).some(isAnswered);
+
+  const handleSubmit = async () => {
+    setIsConfirmOpen(false);
+    setIsSubmitting(true);
+    await submitEventsApplication();
+    setIsSubmitting(false);
+    // TODO: 결과에 따라 완료·마감 화면으로 이동하고 실패 시 토스트를 띄운다(아직 화면이 없다)
+  };
 
   useScreenHeader(
     <ScreenHeader
@@ -113,8 +124,7 @@ function EventsApplicationScreen() {
         description="신청 후에는 변경이 어려워요."
         highlight={eventName}
         onCancel={() => setIsConfirmOpen(false)}
-        // 실제 제출(로딩 → 완료/실패/마감)은 아직 없다 — 지금은 모달만 닫는다
-        onConfirm={() => setIsConfirmOpen(false)}
+        onConfirm={handleSubmit}
         open={isConfirmOpen}
         title="행사를 신청할까요?"
       />
@@ -129,6 +139,8 @@ function EventsApplicationScreen() {
         title="작성을 그만둘까요?"
         tone="negative"
       />
+
+      <EventsSubmittingOverlay open={isSubmitting} />
     </div>
   );
 }
