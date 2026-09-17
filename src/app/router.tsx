@@ -8,6 +8,7 @@ import ScreenLayoutRoute, {
 import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
 import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
+import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
@@ -46,6 +47,11 @@ const routes = [
             element: <ArchivesPhotosScreen />,
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/archives/:archiveId/photos",
+          },
+          {
+            element: <ArchivesPhotoViewerScreen />,
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/archives/:archiveId/photos/:photoIndex",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },
