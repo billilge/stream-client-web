@@ -56,6 +56,11 @@ type ScreenHeaderProps =
       title?: ScreenHeaderTitle;
       leading?: ReactNode;
       trailing?: ReactNode;
+    }
+  | {
+      variant: "floating";
+      leading?: ReactNode;
+      trailing?: ReactNode;
     };
 
 // variant="display"(기본값, 빌릴게/홈)는 더 이상 WDS `Top Navigation/Resource/Contents`가 아니다 —
@@ -76,7 +81,22 @@ type ScreenHeaderProps =
 // toolbar는 Figma에서 타이틀 행 바로 아래에 붙는 "Tool" 영역(행사/신청내역 같은 세그먼트 토글)이다.
 // 화면 본문에 두면 헤더 고정 영역 밖이라 스크롤 경계가 화면마다 달라져서, 헤더가 같이 들고 있는다.
 // display variant에만 있다 — normal(모달형)에서 쓰는 화면이 아직 없다.
+//
+// variant="floating"(아카이빙 상세)은 타이틀 없이 대표 사진 위에 투명하게 겹치는 WDS `TopNavigation`
+// floating variant다. 사진과 같이 스크롤돼야 해서 useScreenHeader(고정 헤더 슬롯)로 등록하지 않고,
+// 화면이 사진 컨테이너(relative) 안에 직접 둔다 — 버튼 영역은 WDS가 absolute로 띄우므로 높이를 차지하지 않는다.
 function ScreenHeader(props: ScreenHeaderProps) {
+  if (props.variant === "floating") {
+    return (
+      <TopNavigation
+        background={false}
+        leadingContent={props.leading}
+        trailingContent={props.trailing}
+        variant="floating"
+      />
+    );
+  }
+
   const { title, trailing } = props;
   const toolbar = props.variant === "normal" ? undefined : props.toolbar;
 
