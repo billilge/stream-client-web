@@ -235,3 +235,30 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 - 폭에 `min-width: 356px`(`breakpoint.sm` 이상)이 걸려 있는데, 그 기준이 앱 프레임이 아니라 **브라우저 창**이다. 데스크톱에서 보면 375px 프레임(좌우 20px 여백 기준 335px)을 넘친다 → 같은 미디어 쿼리 안에서 `minWidth: 0`으로 되돌린다. 평평한 `sx={{ minWidth: 0 }}`는 안 먹는다(emotion이 중첩 미디어 쿼리 블록을 평 선언보다 뒤에 붙여서 `min-width: 356px`가 이긴다).
 
 코드는 `src/components/ui/ScreenToast.tsx`. 화면 위에 토스트를 띄우는 자리는 앞으로도 같을 것이라 공용으로 뒀다.
+
+## 행사 신청 완료 화면(`1712:192283`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 코드 export | 확인 내용 |
+|---|---|---|
+| `Action Area/Action Area` (버튼 2개 가로) | `ActionArea variant="neutral"` + `ActionAreaButton` | 버튼 둘을 가로로 12px 간격, `flex: 1 1 0`으로 반반 나누는 게 WDS 기본 동작이라 감싸는 레이아웃이 필요 없다(`action-area/style.js`의 `actionButtonCancel`) |
+
+### 왼쪽 "신청내역 보기"는 `variant="alternative"` 기본값(outlined)이 아니다
+
+`ActionAreaButton variant="alternative"`는 `Button variant="outlined" color="primary"`(파란 테두리)로 그려지는데, Figma는 `Fill/Normal`(rgba(112,115,124,0.08)) 배경에 `Label/Neutral` 글자인 **solid assistive**다. WDS가 이런 경우를 위해 열어둔 `buttonVariant`/`buttonColor` prop으로 넘겼다 — 컴포넌트 내부를 건드리지 않는 방법이다. 세로 padding은 WDS가 12px(48px)인데 Figma Main Action이 16px(56px)이라 신청 폼과 같은 이유로 `sx`에서 맞춘다.
+
+### 같은 "Event Summary" 카드인데 화면마다 타이포·배경·간격이 다르다
+
+신청 폼(`1658:183393`)과 완료 화면(`1712:192310`)은 이름도 구조도 같은 카드지만 값이 다르다.
+
+| | 신청 폼 | 완료 화면 |
+|---|---|---|
+| 배경 | `Background/Normal/Normal`(흰색) | `Background/Normal/Alternative`(#F7F7F8) |
+| 행사명 | Heading 2/Bold 20px (`variant="heading2"`) | Headline 2/Bold 17px (`variant="headline2"`) |
+| 메타 줄 간격 | 6px | 4px |
+| 일러스트 | 있음 | 없음 |
+
+화면 배경이 서로 반대라 카드 배경도 뒤집힌 것이다. 한 컴포넌트(`EventsSummaryCard`)에 `tone="normal" | "alternative"`로 묶었다 — 세 가지가 항상 같이 움직이는 한 벌이라 prop 하나로 충분하다. **WDS Typography에 17px은 `headline2`다**(`heading2`는 20px) — 이름이 비슷해서 헷갈리기 쉬운데, 처음엔 완료 화면에도 `heading2`를 써서 카드가 Figma보다 4px 높았다(실측 108px, Figma 104px).
+
+### Circle Check(`1712:192849`)는 WDS 아이콘이 아니라 모션이 붙은 로컬 도형
+
+`IconCircleCheckFill` 같은 WDS 아이콘이 아니다 — 72px 프레임 안에 60px `Primary/Normal` 원과 흰 체크 선이 따로 있고, 진입할 때 원이 튀어오르며 커지고(back-out) 체크 선이 그려진다(path trim). 체크는 선을 그려 나가는 모션이라 `<img>`로 두면 안 되고 SVG path를 인라인해야 한다. 코드는 `src/features/events/components/EventsCompleteCheck.tsx`, 값은 `get_motion_context`가 준 그대로다.

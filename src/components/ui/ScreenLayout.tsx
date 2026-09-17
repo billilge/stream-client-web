@@ -26,6 +26,7 @@ function getBottomNavValueFromPath(pathname: string): BottomNavValue {
 
 interface ScreenLayoutProps {
   hasBottomNav?: boolean;
+  background?: "normal" | "alternative";
 }
 
 // 모든 화면이 공유하는 375×812 라우트 레이아웃 — router.tsx에서 부모 route로 두고 화면들을
@@ -36,7 +37,10 @@ interface ScreenLayoutProps {
 // 신청 폼처럼 Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면은 라우트 handle에
 // hasBottomNav: false를 지정하면 ScreenLayoutRoute가 이 prop으로 넘겨준다 — 이 컴포넌트는 라우터를 모른다.
 // 본문 스크롤을 화면이 정하므로 Action Area는 화면이 자기 영역 하단에 직접 둔다.
-function ScreenLayout({ hasBottomNav = true }: ScreenLayoutProps) {
+function ScreenLayout({
+  hasBottomNav = true,
+  background = "alternative",
+}: ScreenLayoutProps) {
   const [header, setHeader] = useState<ReactNode>(null);
   const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(
     null,
@@ -48,7 +52,13 @@ function ScreenLayout({ hasBottomNav = true }: ScreenLayoutProps) {
   return (
     <ScreenHeaderContext.Provider value={setHeader}>
       <ScreenSheetPortalContext.Provider value={sheetPortalEl}>
-        <div className="relative flex h-[812px] w-[375px] flex-col overflow-hidden bg-background-alternative">
+        <div
+          className={`relative flex h-[812px] w-[375px] flex-col overflow-hidden ${
+            background === "normal"
+              ? "bg-background-normal"
+              : "bg-background-alternative"
+          }`}
+        >
           <div className="shrink-0">{header}</div>
           {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤).
               overflow-y-auto가 동작하려면 자식 높이가 명확해야 해서, 화면마다 h-full을 직접

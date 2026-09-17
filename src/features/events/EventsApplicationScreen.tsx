@@ -5,7 +5,7 @@ import {
 } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -37,7 +37,7 @@ function isAnswered(answer: EventsAnswer | undefined): boolean {
 
 // Figma: 행사 신청하기 상세 (nodeId 1658:183386), 신청 확인 모달 (1133:43407), 작성 중단 모달 (1133:43371)
 // 행사 정보·문항은 API 연동 전까지 라우트의 eventId와 무관하게 목업 하나를 보여준다.
-// 제출은 목업 함수로 동작한다 — 제출 중 로딩과 실패 토스트까지 연결했고, 결과 화면(완료·마감)은 아직 없다.
+// 제출은 목업 함수로 동작한다 — 성공하면 완료 화면으로 보내고, 실패하면 토스트를 띄운다. 마감은 아직.
 function EventsApplicationScreen() {
   const [answers, setAnswers] = useState<Record<string, EventsAnswer>>({});
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -45,6 +45,7 @@ function EventsApplicationScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFailureToastOpen, setIsFailureToastOpen] = useState(false);
   const navigate = useNavigate();
+  const { eventId } = useParams();
   const { eventName, dateTime, location, illustration, questions } =
     EVENTS_APPLICATION;
 
@@ -64,7 +65,9 @@ function EventsApplicationScreen() {
       setIsFailureToastOpen(true);
       return;
     }
-    // TODO: 성공·마감 결과에 따라 완료·마감 화면으로 이동한다(아직 화면이 없다)
+    // 제출이 끝난 폼으로는 돌아갈 수 없어야 해서 히스토리를 남기지 않고 바꿔치운다
+    navigate(`/events/${eventId}/apply/complete`, { replace: true });
+    // TODO: 마감 결과면 마감 화면으로 보낸다(아직 화면이 없다)
   };
 
   useScreenHeader(
