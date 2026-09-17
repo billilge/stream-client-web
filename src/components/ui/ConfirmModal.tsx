@@ -55,9 +55,10 @@ function ConfirmModal({
           : "pointer-events-none opacity-0"
       }`}
     >
+      {/* 딤은 Figma "딤드"(nodeId 1133:43406) 그대로 검정 70% */}
       <button
         aria-label="모달 닫기"
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-black/70"
         onClick={onCancel}
         type="button"
       />
