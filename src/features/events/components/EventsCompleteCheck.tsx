@@ -35,10 +35,15 @@ const CIRCLE_TRANSITION: Transition = {
   },
 };
 
-// 체크는 선을 그려 나가는 모션(path trim)이라 <img>가 아니라 path를 직접 그린다
-const CHECK_INITIAL: TargetAndTransition = { strokeDasharray: "0 1" };
+// 체크는 선을 그려 나가는 모션(path trim)이라 <img>가 아니라 path를 직접 그린다.
+// 그려지기 전까지는 visibility로 숨긴다 — 선 끝이 둥글어서 길이 0인 선이 점으로 찍힌다(Figma도 같다).
+const CHECK_INITIAL: TargetAndTransition = {
+  strokeDasharray: "0 1",
+  visibility: "hidden",
+};
 const CHECK_ANIMATE: TargetAndTransition = {
   strokeDasharray: ["0 1", "0 1", "1 1", "1 1"],
+  visibility: ["hidden", "hidden", "visible", "visible"],
 };
 const CHECK_TRANSITION: Transition = {
   duration: DURATION,

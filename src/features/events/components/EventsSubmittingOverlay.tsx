@@ -27,8 +27,11 @@ const FADE_OUT_TRANSITION: Transition = {
 };
 
 // 선이 그려지는 구간만 요소마다 다르다(start~end). strokeDasharray는 pathLength=1 기준이다.
+// visibility도 같이 껐다 켠다 — 선 끝이 둥글어서(strokeLinecap) 길이 0인 선이 점으로 찍히는데,
+// Figma도 같은 이유로 그려지기 전까지 hidden으로 둔다.
 const DRAW_KEYFRAMES: TargetAndTransition = {
   strokeDasharray: ["0 1", "0 1", "1 1", "1 1", "0 1"],
+  visibility: ["hidden", "hidden", "visible", "visible", "hidden"],
 };
 const DRAW_EASE: Easing[] = ["easeInOut", "easeInOut", "easeInOut", "linear"];
 
@@ -142,7 +145,7 @@ function DrawnShape({
       <motion.path
         animate={DRAW_KEYFRAMES}
         d={d}
-        initial={{ strokeDasharray: "0 1" }}
+        initial={{ strokeDasharray: "0 1", visibility: "hidden" }}
         pathLength={1}
         stroke={stroke}
         strokeLinecap="round"
