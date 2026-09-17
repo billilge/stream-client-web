@@ -1,4 +1,5 @@
 import { Button, Typography } from "@wanteddev/wds";
+import { IconCircleExclamationFill } from "@wanteddev/wds-icon";
 import { createPortal } from "react-dom";
 
 import { useScreenSheetPortal } from "@/components/ui/useScreenSheetPortal";
@@ -13,6 +14,11 @@ interface ConfirmModalProps {
   confirmLabel: string;
   onCancel: () => void;
   onConfirm: () => void;
+  /**
+   * negative: 되돌릴 수 없는 행동을 확인할 때(Figma Modal의 `Circle Exclamation=on` + `Style=Negative`).
+   * 느낌표 아이콘이 붙고 확인 버튼이 빨강이 된다.
+   */
+  tone?: "default" | "negative";
 }
 
 // Figma: Modal (nodeId 995:34701 — 신청 확인 모달 1133:43407에서 사용). Stream 로컬 컴포넌트다.
@@ -30,7 +36,9 @@ function ConfirmModal({
   confirmLabel,
   onCancel,
   onConfirm,
+  tone = "default",
 }: ConfirmModalProps) {
+  const isNegative = tone === "negative";
   const portalEl = useScreenSheetPortal();
 
   if (!portalEl) {
@@ -39,6 +47,8 @@ function ConfirmModal({
 
   return createPortal(
     <div
+      // 닫혀 있어도 사라지는 애니메이션 때문에 DOM에는 남는다 — inert로 보조기기·키보드 양쪽에서 제외한다
+      inert={!open}
       className={`absolute inset-0 transition-opacity duration-200 ease-out ${
         open
           ? "pointer-events-auto opacity-100"
@@ -53,40 +63,51 @@ function ConfirmModal({
       />
       <div
         aria-modal="true"
-        className="absolute top-1/2 left-1/2 flex w-[311px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-3xl bg-background-normal px-5 pt-6 pb-5"
+        className={`absolute top-1/2 left-1/2 flex w-[311px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-6 rounded-3xl bg-background-normal ${
+          // 아이콘이 붙는 경우 Figma 여백이 위 24px이 아니라 사방 20px이다
+          isNegative ? "p-5" : "px-5 pt-6 pb-5"
+        }`}
         role="dialog"
       >
-        {/* opacity-80은 Figma Message 프레임에 걸려 있는 값을 그대로 옮긴 것이다 */}
-        <div className="flex w-full flex-col gap-1 text-center opacity-80">
-          <Typography
-            as="p"
-            color="semantic.label.normal"
-            variant="heading2"
-            weight="bold"
-          >
-            {/* 강조 부분만 파란색 — 색을 섞는 규칙을 화면이 아니라 여기서 갖는다 */}
-            {highlight && (
-              <Typography
-                as="span"
-                color="semantic.primary.normal"
-                variant="heading2"
-                weight="bold"
-              >
-                {highlight}{" "}
-              </Typography>
-            )}
-            {title}
-          </Typography>
-          {description && (
+        {/* 아이콘과 문구 사이는 12px — 카드 자체 간격(24px)과 달라서 한 번 더 감싼다 */}
+        <div
+          className={`flex w-full flex-col items-center ${isNegative ? "gap-3" : ""}`}
+        >
+          {isNegative && (
+            <IconCircleExclamationFill className="size-[63px] text-fill-strong" />
+          )}
+          {/* opacity-80은 Figma Message 프레임에 걸려 있는 값을 그대로 옮긴 것이다 */}
+          <div className="flex w-full flex-col gap-1 text-center opacity-80">
             <Typography
               as="p"
-              color="semantic.label.alternative"
-              variant="label1-reading"
-              weight="regular"
+              color="semantic.label.normal"
+              variant="heading2"
+              weight="bold"
             >
-              {description}
+              {/* 강조 부분만 파란색 — 색을 섞는 규칙을 화면이 아니라 여기서 갖는다 */}
+              {highlight && (
+                <Typography
+                  as="span"
+                  color="semantic.primary.normal"
+                  variant="heading2"
+                  weight="bold"
+                >
+                  {highlight}{" "}
+                </Typography>
+              )}
+              {title}
             </Typography>
-          )}
+            {description && (
+              <Typography
+                as="p"
+                color="semantic.label.alternative"
+                variant="label1-reading"
+                weight="regular"
+              >
+                {description}
+              </Typography>
+            )}
+          </div>
         </div>
         <div className="flex w-full gap-2">
           <Button
@@ -104,7 +125,13 @@ function ConfirmModal({
             fullWidth
             onClick={onConfirm}
             size="medium"
-            sx={{ paddingBlock: "12px" }}
+            // WDS Button 색상은 primary/assistive뿐이라 위험 버튼은 배경색만 토큰으로 덮어쓴다
+            sx={{
+              backgroundColor: isNegative
+                ? "var(--color-status-negative)"
+                : undefined,
+              paddingBlock: "12px",
+            }}
             variant="solid"
           >
             {confirmLabel}

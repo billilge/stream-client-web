@@ -32,12 +32,13 @@ function isAnswered(answer: EventsAnswer | undefined): boolean {
   return (answer ?? "").trim().length > 0;
 }
 
-// Figma: 행사 신청하기 상세 (nodeId 1658:183386), 신청 확인 모달 (nodeId 1133:43407)
+// Figma: 행사 신청하기 상세 (nodeId 1658:183386), 신청 확인 모달 (1133:43407), 작성 중단 모달 (1133:43371)
 // 행사 정보·문항은 API 연동 전까지 라우트의 eventId와 무관하게 목업 하나를 보여준다.
-// 제출 확인까지는 연결했고, 실제 제출(로딩 → 완료/실패/마감)과 뒤로가기 시 작성 중단 모달은 아직 없다.
+// 제출 확인과 작성 중단 확인까지 연결했고, 실제 제출(로딩 → 완료/실패/마감)은 아직 없다.
 function EventsApplicationScreen() {
   const [answers, setAnswers] = useState<Record<string, EventsAnswer>>({});
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isLeaveOpen, setIsLeaveOpen] = useState(false);
   const navigate = useNavigate();
   const { eventName, dateTime, location, illustration, questions } =
     EVENTS_APPLICATION;
@@ -45,13 +46,15 @@ function EventsApplicationScreen() {
   const canSubmit = questions.every(
     (question) => !question.isRequired || isAnswered(answers[question.id]),
   );
+  // 한 글자라도 쓴 게 있으면 그냥 나갔을 때 잃는 내용이 있다는 뜻이라 확인부터 받는다
+  const hasAnyAnswer = Object.values(answers).some(isAnswered);
 
   useScreenHeader(
     <ScreenHeader
       leading={
         <TopNavigationButton
           aria-label="뒤로가기"
-          onClick={() => navigate(-1)}
+          onClick={() => (hasAnyAnswer ? setIsLeaveOpen(true) : navigate(-1))}
           variant="icon"
         >
           <IconChevronLeft />
@@ -114,6 +117,17 @@ function EventsApplicationScreen() {
         onConfirm={() => setIsConfirmOpen(false)}
         open={isConfirmOpen}
         title="행사를 신청할까요?"
+      />
+
+      <ConfirmModal
+        cancelLabel="취소"
+        confirmLabel="나가기"
+        description="지금 나가면 작성한 내용이 사라져요."
+        onCancel={() => setIsLeaveOpen(false)}
+        onConfirm={() => navigate(-1)}
+        open={isLeaveOpen}
+        title="작성을 그만둘까요?"
+        tone="negative"
       />
     </div>
   );

@@ -22,6 +22,10 @@
   --color-line-solid-neutral: var(--semantic-line-solid-neutral);
   --color-line-normal-neutral: var(--semantic-line-normal-neutral);
 
+  /* 경고 모달의 느낌표 아이콘(Figma Fill/Strong)과 위험 버튼 배경(Figma Status/Negative) */
+  --color-fill-strong: var(--semantic-fill-strong);
+  --color-status-negative: var(--semantic-status-negative);
+
   --color-primary: var(--semantic-primary-normal);
   --color-primary-subtle: var(--atomic-blue-95);
 
