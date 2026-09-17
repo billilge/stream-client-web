@@ -7,6 +7,7 @@ import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
@@ -31,11 +32,12 @@ function isAnswered(answer: EventsAnswer | undefined): boolean {
   return (answer ?? "").trim().length > 0;
 }
 
-// Figma: 행사 신청하기 상세 (nodeId 1658:183386)
+// Figma: 행사 신청하기 상세 (nodeId 1658:183386), 신청 확인 모달 (nodeId 1133:43407)
 // 행사 정보·문항은 API 연동 전까지 라우트의 eventId와 무관하게 목업 하나를 보여준다.
-// 제출 버튼 클릭 동작(신청 확인 모달)과 뒤로가기 시 작성 중단 모달은 다음 이슈 범위라 아직 없다.
+// 제출 확인까지는 연결했고, 실제 제출(로딩 → 완료/실패/마감)과 뒤로가기 시 작성 중단 모달은 아직 없다.
 function EventsApplicationScreen() {
   const [answers, setAnswers] = useState<Record<string, EventsAnswer>>({});
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const navigate = useNavigate();
   const { eventName, dateTime, location, illustration, questions } =
     EVENTS_APPLICATION;
@@ -88,7 +90,11 @@ function EventsApplicationScreen() {
         <ActionArea background>
           {/* WDS ActionAreaButton은 항상 Button size="large"(padding 12px 28px → 48px)로 그리는데,
               Figma Main Action은 padding 16px 28px(56px)이라 세로 padding만 sx로 맞춘다. */}
-          <ActionAreaButton disabled={!canSubmit} sx={{ paddingBlock: "16px" }}>
+          <ActionAreaButton
+            disabled={!canSubmit}
+            onClick={() => setIsConfirmOpen(true)}
+            sx={{ paddingBlock: "16px" }}
+          >
             신청서 제출하기
           </ActionAreaButton>
         </ActionArea>
@@ -97,6 +103,18 @@ function EventsApplicationScreen() {
             Bottom Nav가 있는 화면은 BottomNav가 이 여백을 준다. */}
         <div className="h-[14px] bg-background-elevated-normal" />
       </div>
+
+      <ConfirmModal
+        cancelLabel="수정"
+        confirmLabel="신청하기"
+        description="신청 후에는 변경이 어려워요."
+        highlight={eventName}
+        onCancel={() => setIsConfirmOpen(false)}
+        // 실제 제출(로딩 → 완료/실패/마감)은 아직 없다 — 지금은 모달만 닫는다
+        onConfirm={() => setIsConfirmOpen(false)}
+        open={isConfirmOpen}
+        title="행사를 신청할까요?"
+      />
     </div>
   );
 }
