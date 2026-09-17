@@ -266,3 +266,7 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 ### 행사 신청 중 마감 화면(`1133:43431`)도 같은 뼈대다
 
 완료 화면과 구조가 같다 — 닫기(X)만 있는 `TopNavigation`, 그 아래 104px 간격, 가운데 일러스트 + 2줄 문구, 하단 Action Area. 다른 점은 버튼이 하나라서 `ActionArea`를 기본값(`variant="strong"`, 세로 배치)으로 쓰고 신청 폼과 같은 `sx={{ paddingBlock: "16px" }}` 보정만 한다는 것뿐이다. 자물쇠 일러스트(`1133:43439`)는 WDS 아이콘이 아니라 Figma 로컬 도형이라 SVG를 그대로 받아 `src/assets/icons/events/application-closed.svg`로 커밋했다(62.963×72.317).
+
+### 제출 중 로딩 화면(`1133:43453`)에서 WDS는 `Typography`뿐이다
+
+문서 일러스트와 체크 항목 3줄은 전부 Figma 로컬 도형이고(WDS 아이콘 아님), 3.4초 루프 모션이 붙어 있다(`Loading / Document Review`, 1133:44260). 체크·긴 줄·짧은 줄은 그려지는(path trim) 모션이라 SVG path를 인라인하고, 문서 본체만 `src/assets/icons/events/submitting-document.svg`로 받아 쓴다. 문구 2줄만 WDS `Typography`(`heading1` 22px / `label1` 14px)다. 코드는 `src/features/events/components/EventsSubmittingOverlay.tsx`.
