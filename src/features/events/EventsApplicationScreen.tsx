@@ -37,7 +37,7 @@ function isAnswered(answer: EventsAnswer | undefined): boolean {
 
 // Figma: 행사 신청하기 상세 (nodeId 1658:183386), 신청 확인 모달 (1133:43407), 작성 중단 모달 (1133:43371)
 // 행사 정보·문항은 API 연동 전까지 라우트의 eventId와 무관하게 목업 하나를 보여준다.
-// 제출은 목업 함수로 동작한다 — 성공하면 완료 화면으로 보내고, 실패하면 토스트를 띄운다. 마감은 아직.
+// 제출은 목업 함수로 동작한다 — 결과에 따라 완료·마감 화면으로 보내고, 실패하면 토스트를 띄운다.
 function EventsApplicationScreen() {
   const [answers, setAnswers] = useState<Record<string, EventsAnswer>>({});
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -66,8 +66,8 @@ function EventsApplicationScreen() {
       return;
     }
     // 제출이 끝난 폼으로는 돌아갈 수 없어야 해서 히스토리를 남기지 않고 바꿔치운다
-    navigate(`/events/${eventId}/apply/complete`, { replace: true });
-    // TODO: 마감 결과면 마감 화면으로 보낸다(아직 화면이 없다)
+    const resultPath = result === "closed" ? "closed" : "complete";
+    navigate(`/events/${eventId}/apply/${resultPath}`, { replace: true });
   };
 
   useScreenHeader(

@@ -6,6 +6,7 @@ import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
+import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
 import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
@@ -38,6 +39,15 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/events/:eventId/apply/complete",
+          },
+          {
+            element: <EventsApplicationClosedScreen />,
+            // 신청 결과 화면 — 하단 탭 없이 흰 배경 전체 화면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/events/:eventId/apply/closed",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },

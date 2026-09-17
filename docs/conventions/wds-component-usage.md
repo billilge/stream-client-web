@@ -262,3 +262,7 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 ### Circle Check(`1712:192849`)는 WDS 아이콘이 아니라 모션이 붙은 로컬 도형
 
 `IconCircleCheckFill` 같은 WDS 아이콘이 아니다 — 72px 프레임 안에 60px `Primary/Normal` 원과 흰 체크 선이 따로 있고, 진입할 때 원이 튀어오르며 커지고(back-out) 체크 선이 그려진다(path trim). 체크는 선을 그려 나가는 모션이라 `<img>`로 두면 안 되고 SVG path를 인라인해야 한다. 코드는 `src/features/events/components/EventsCompleteCheck.tsx`, 값은 `get_motion_context`가 준 그대로다.
+
+### 행사 신청 중 마감 화면(`1133:43431`)도 같은 뼈대다
+
+완료 화면과 구조가 같다 — 닫기(X)만 있는 `TopNavigation`, 그 아래 104px 간격, 가운데 일러스트 + 2줄 문구, 하단 Action Area. 다른 점은 버튼이 하나라서 `ActionArea`를 기본값(`variant="strong"`, 세로 배치)으로 쓰고 신청 폼과 같은 `sx={{ paddingBlock: "16px" }}` 보정만 한다는 것뿐이다. 자물쇠 일러스트(`1133:43439`)는 WDS 아이콘이 아니라 Figma 로컬 도형이라 SVG를 그대로 받아 `src/assets/icons/events/application-closed.svg`로 커밋했다(62.963×72.317).
