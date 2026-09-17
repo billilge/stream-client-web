@@ -25,6 +25,15 @@
   --color-primary: var(--semantic-primary-normal);
   --color-primary-subtle: var(--atomic-blue-95);
 
+  /* 아카이빙 사진 카드(nodeId 1276:95411) 기준 — 사진 위 글자는 테마와 무관하게 흰색이어야 해서 static 토큰을 쓴다 */
+  --color-static-white: var(--semantic-static-white);
+  --color-cool-neutral-80: var(--atomic-coolNeutral-80);
+
+  /* WDS 시맨틱 세트에 없는 값(Figma 변수 없이 raw #111) — 아카이빙 사진 카드 하단 그라데이션 전용 */
+  --color-gradient-overlay: #111111;
+  /* WDS 시맨틱 세트에 없는 값(Figma 변수 없이 raw #6e6e6e) — 아카이빙 상세 대표 사진 상단 그라데이션 전용(흰 버튼 가독성) */
+  --color-hero-overlay: #6e6e6e;
+
   /* WDS 시맨틱 세트에 없는 값(Figma "Sky/Base") — Native / Bottom Sheet Indicator(드래그 핸들) 전용 */
   --color-sheet-indicator: #cdcfd0;
 
