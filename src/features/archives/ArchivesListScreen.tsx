@@ -18,7 +18,11 @@ import {
 const LEFT_COLUMN_SIZES: ArchivesPhotoCardSize[] = ["large", "medium"];
 const RIGHT_COLUMN_SIZES: ArchivesPhotoCardSize[] = ["small", "large"];
 
-function renderColumn(items: ArchivesItem[], sizes: ArchivesPhotoCardSize[]) {
+function renderColumn(
+  items: ArchivesItem[],
+  sizes: ArchivesPhotoCardSize[],
+  onItemClick: (item: ArchivesItem) => void,
+) {
   return (
     <div className="flex flex-1 flex-col gap-2">
       {items.map((item, index) => (
@@ -26,6 +30,7 @@ function renderColumn(items: ArchivesItem[], sizes: ArchivesPhotoCardSize[]) {
           date={item.date}
           image={item.image}
           key={item.id}
+          onClick={() => onItemClick(item)}
           size={sizes[index % sizes.length]}
           title={item.title}
         />
@@ -41,6 +46,10 @@ function ArchivesListScreen() {
 
   const leftItems = ARCHIVES_ITEMS.filter((_, index) => index % 2 === 0);
   const rightItems = ARCHIVES_ITEMS.filter((_, index) => index % 2 === 1);
+
+  const handleItemClick = (item: ArchivesItem) => {
+    navigate(`/archives/${item.id}`);
+  };
 
   useScreenHeader(
     // ScreenLayout 기본 배경은 alternative(회색)라, Figma의 흰 배경(Background/Normal/Normal)을 화면이 직접 깐다.
@@ -72,8 +81,8 @@ function ArchivesListScreen() {
       <div className="flex flex-col gap-4 px-5 pb-4 sm:pb-[34px]">
         <ArchivesYearFilter onChange={setYear} value={year} />
         <div className="flex gap-2">
-          {renderColumn(leftItems, LEFT_COLUMN_SIZES)}
-          {renderColumn(rightItems, RIGHT_COLUMN_SIZES)}
+          {renderColumn(leftItems, LEFT_COLUMN_SIZES, handleItemClick)}
+          {renderColumn(rightItems, RIGHT_COLUMN_SIZES, handleItemClick)}
         </div>
       </div>
     </div>

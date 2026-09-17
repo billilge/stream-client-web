@@ -5,6 +5,7 @@ import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
+import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
 import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
@@ -34,6 +35,11 @@ const routes = [
             element: <ArchivesListScreen />,
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/archives",
+          },
+          {
+            element: <ArchivesDetailScreen />,
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/archives/:archiveId",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },

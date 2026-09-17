@@ -6,6 +6,7 @@ interface ArchivesPhotoCardProps {
   title: string;
   date: string;
   size: ArchivesPhotoCardSize;
+  onClick: () => void;
 }
 
 const HEIGHT_CLASS_NAMES: Record<ArchivesPhotoCardSize, string> = {
@@ -21,10 +22,13 @@ function ArchivesPhotoCard({
   title,
   date,
   size,
+  onClick,
 }: ArchivesPhotoCardProps) {
   return (
-    <div
-      className={`relative flex w-full flex-col justify-end overflow-hidden rounded-xl px-3 py-4 ${HEIGHT_CLASS_NAMES[size]}`}
+    <button
+      className={`relative flex w-full flex-col justify-end overflow-hidden rounded-xl px-3 py-4 text-left ${HEIGHT_CLASS_NAMES[size]}`}
+      onClick={onClick}
+      type="button"
     >
       <img
         alt=""
@@ -38,7 +42,7 @@ function ArchivesPhotoCard({
           {date}
         </p>
       </div>
-    </div>
+    </button>
   );
 }
 
