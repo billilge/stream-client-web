@@ -60,7 +60,7 @@ const TABS: BottomNavTab[] = [
 // 같은 색이라 실제로는 안 보여서, 눈에 보이는 구분선이 되도록 Line/Solid/Neutral로 바꿨다.
 function BottomNav({ value, onValueChange }: BottomNavProps) {
   return (
-    <div className="flex w-[375px] flex-col items-center rounded-t-3xl border-line-solid-neutral border-t bg-background-normal px-2 pt-2">
+    <div className="flex w-full flex-col items-center rounded-t-3xl border-line-solid-neutral border-t bg-background-normal px-2 pt-2">
       <div className="flex w-full items-center justify-center">
         {TABS.map(({ value: tabValue, label, NormalIcon, selectedIcon }) => {
           const isSelected = tabValue === value;
@@ -91,7 +91,10 @@ function BottomNav({ value, onValueChange }: BottomNavProps) {
           );
         })}
       </div>
-      <div className="h-[34px] w-full" />
+      {/* iOS 홈 인디케이터 자리(Figma 812 프레임이 포함하는 34px). 앱 WebView에서는 네이티브
+          세이프에어리어가 이미 확보해 줘서 여기서 또 주면 여백이 두 번 들어간다.
+          홈 인디케이터가 없는 데스크톱 프레임에서만 Figma 스펙대로 남긴다. */}
+      <div className="hidden h-[34px] w-full sm:block" />
     </div>
   );
 }
