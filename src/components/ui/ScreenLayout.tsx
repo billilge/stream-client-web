@@ -26,6 +26,7 @@ function getBottomNavValueFromPath(pathname: string): BottomNavValue {
 
 interface ScreenLayoutProps {
   hasBottomNav?: boolean;
+  background?: "normal" | "alternative";
 }
 
 // 모든 화면이 공유하는 라우트 레이아웃 — router.tsx에서 부모 route로 두고 화면들을
@@ -39,7 +40,10 @@ interface ScreenLayoutProps {
 // 크기는 뷰포트를 꽉 채우는 것이 기본이고(실사용자는 전부 앱 WebView 안에서 본다),
 // 375×812 아이폰 프레임은 데스크톱 뷰포트(sm 이상) 전용이다 — App.tsx의 회색 배경과 같은 브레이크포인트.
 // 세이프에어리어는 앱 셸이 담당하므로 여기서 env(safe-area-inset-*)를 더하지 않는다(중복 여백이 된다).
-function ScreenLayout({ hasBottomNav = true }: ScreenLayoutProps) {
+function ScreenLayout({
+  hasBottomNav = true,
+  background = "alternative",
+}: ScreenLayoutProps) {
   const [header, setHeader] = useState<ReactNode>(null);
   const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(
     null,
@@ -51,7 +55,13 @@ function ScreenLayout({ hasBottomNav = true }: ScreenLayoutProps) {
   return (
     <ScreenHeaderContext.Provider value={setHeader}>
       <ScreenSheetPortalContext.Provider value={sheetPortalEl}>
-        <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-background-alternative sm:h-[812px] sm:w-[375px]">
+        <div
+          className={`relative flex h-dvh w-full flex-col overflow-hidden sm:h-[812px] sm:w-[375px] ${
+            background === "normal"
+              ? "bg-background-normal"
+              : "bg-background-alternative"
+          }`}
+        >
           <div className="shrink-0">{header}</div>
           {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤).
               overflow-y-auto가 동작하려면 자식 높이가 명확해야 해서, 화면마다 h-full을 직접
