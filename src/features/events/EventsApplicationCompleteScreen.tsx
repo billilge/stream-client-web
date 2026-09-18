@@ -90,8 +90,9 @@ function EventsApplicationCompleteScreen() {
             홈으로 가기
           </ActionAreaButton>
         </ActionArea>
-        {/* 신청 폼과 같은 이유의 14px — WDS ActionArea의 아래 padding 20px에 iOS Home Bar 여백을 더해 34px */}
-        <div className="h-[14px] bg-background-normal" />
+        {/* 신청 폼과 같은 이유의 14px — WDS ActionArea의 아래 padding 20px에 iOS Home Bar 여백을 더해 34px.
+            앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다. */}
+        <div className="hidden h-[14px] bg-background-normal sm:block" />
       </div>
     </div>
   );

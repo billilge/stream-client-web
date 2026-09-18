@@ -12,7 +12,7 @@ interface ScreenToastProps {
 
 // Figma: Toast/Toast (nodeId 1450:93026). 배경·흐림·여백·모서리·글자가 모두 WDS Toast 기본값이라
 // 그대로 쓰고, 두 가지만 우리가 맡는다.
-// 1. 위치 — WDS 기본 배치는 자체 영역(#wds-region-manager-bottom)이라 375×812 프레임을 벗어난다.
+// 1. 위치 — WDS 기본 배치는 자체 영역(#wds-region-manager-bottom)이라 화면 프레임을 벗어난다.
 //    화면 포털에 직접 그려서 Figma 좌표(좌우 20px, 아래에서 100px)에 놓는다.
 // 2. 아이콘 — negative variant의 기본 아이콘은 X(Circle Close)인데 Figma는 느낌표라 직접 넘긴다.
 function ScreenToast({ open, message, onOpenChange }: ScreenToastProps) {

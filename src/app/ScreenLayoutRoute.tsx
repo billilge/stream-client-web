@@ -6,7 +6,7 @@ import ScreenLayout from "@/components/ui/ScreenLayout";
 // 모든 필드는 선택이고, 지정하지 않은 필드는 바깥 라우트의 값이나 기본값을 따른다.
 export interface ScreenRouteHandle {
   hasBottomNav?: boolean;
-  // 375×812 프레임 자체의 배경 — 헤더 뒤까지 포함이라 화면 본문에서 칠할 수 없다.
+  // 화면 프레임 자체의 배경 — 헤더 뒤까지 포함이라 화면 본문에서 칠할 수 없다.
   // 기본은 회색(alternative)이고, 완료 화면처럼 Figma가 흰 배경으로 그린 화면만 normal을 지정한다.
   background?: "normal" | "alternative";
 }
