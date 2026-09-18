@@ -7,6 +7,7 @@ import ScreenLayoutRoute, {
 } from "@/app/ScreenLayoutRoute";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
+import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
@@ -23,6 +24,12 @@ const routes = [
           { element: <BililgeListScreen />, path: "/bililge" },
           { element: <EventsListScreen />, path: "/events" },
           { element: <NoticesListScreen />, path: "/notices" },
+          {
+            element: <EventsDetailScreen />,
+            // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/events/:eventId",
+          },
           {
             element: <EventsApplicationScreen />,
             // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
