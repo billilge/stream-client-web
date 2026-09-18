@@ -65,8 +65,14 @@ function EventsDetailScreen() {
   };
 
   return (
-    <>
-      <div className="scrollbar-hidden flex-1 overflow-y-auto">
+    // Figma 상세 루트 배경은 Background/Normal/Normal(#FFFFFF)이다 — ScreenLayout 기본
+    // 배경(Background/Normal/Alternative, #F7F7F8)과 다르다. 흰 배경이어야 Action Area의
+    // 흰 그라데이션이 본문으로 자연스럽게 사라진다(회색 위에 깔면 경계선으로 보인다).
+    //
+    // Action Area는 Figma처럼 absolute로 본문을 덮는다. 아래 형제로 두면 스크롤 영역이
+    // Action Area 위에서 끝나 버려서, 글이 그 아래로 흘러 들어가며 사라지는 효과가 안 난다.
+    <div className="relative flex-1 overflow-hidden bg-background-normal">
+      <div className="scrollbar-hidden h-full overflow-y-auto">
         {/* Hero — 실제 행사 이미지 API 전까지 Figma와 같은 단색 placeholder.
             Figma는 375×375 정사각이라 폭이 유동인 지금 레이아웃에서는 aspect-square로 둔다.
             이미지가 여러 장이면 가로 스크롤 스냅으로 한 장씩 넘긴다(브라우저 기본 스크롤이라
@@ -183,9 +189,14 @@ function EventsDetailScreen() {
             {event.description}
           </Typography>
         </div>
+
+        {/* Action Area가 본문을 덮으므로 끝부분이 영구히 가리지 않도록 같은 높이를 비워둔다.
+            96px = Action Area 위아래 padding 20+20 + 버튼 56. 데스크톱 프레임에서는
+            홈 인디케이터 여백 14px이 더 붙는다(아래 filler와 같은 규칙). */}
+        <div className="h-24 sm:h-[110px]" />
       </div>
 
-      <div className="shrink-0">
+      <div className="absolute inset-x-0 bottom-0">
         <ActionArea background>
           {/* WDS ActionAreaButton은 항상 Button size="large"(padding 12px 28px → 48px)로 그리는데,
               Figma Main Action은 padding 16px 28px(56px)이라 세로 padding만 sx로 맞춘다. */}
@@ -202,7 +213,7 @@ function EventsDetailScreen() {
             앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다(BottomNav와 같은 규칙). */}
         <div className="hidden h-[14px] bg-background-elevated-normal sm:block" />
       </div>
-    </>
+    </div>
   );
 }
 
