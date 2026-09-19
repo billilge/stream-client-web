@@ -7,6 +7,7 @@ import {
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { Fragment, useState } from "react";
+import { Link } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
@@ -77,13 +78,15 @@ function NoticesListScreen() {
                 <Divider color="semantic.line.normal.alternative" />
               </div>
             )}
-            <NoticesCard
-              category={notice.category}
-              date={notice.date}
-              hasThumbnail={notice.hasThumbnail}
-              isPinned={notice.isPinned}
-              title={notice.title}
-            />
+            <Link className="block" to={`/notices/${notice.id}`}>
+              <NoticesCard
+                category={notice.category}
+                date={notice.date}
+                hasThumbnail={notice.hasThumbnail}
+                isPinned={notice.isPinned}
+                title={notice.title}
+              />
+            </Link>
           </Fragment>
         ))}
       </div>
