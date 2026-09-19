@@ -11,6 +11,7 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import BililgeCategoryFilter from "@/features/bililge/components/BililgeCategoryFilter";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
 import BililgeRentalSheet from "@/features/bililge/components/BililgeRentalSheet";
+import BililgeReturnSection from "@/features/bililge/components/BililgeReturnSection";
 import {
   BILILGE_ITEMS,
   type BililgeItem,
@@ -50,9 +51,12 @@ function BililgeListScreen() {
         </SegmentedControl>
       </div>
 
-      <div className="shrink-0 px-5 py-4">
-        <BililgeCategoryFilter onChange={setCategory} value={category} />
-      </div>
+      {/* 카테고리 필터는 대여 탭 전용이다 — Figma 반납 화면(1133:49973)에는 필터 행이 없다. */}
+      {tab === "rent" && (
+        <div className="shrink-0 px-5 py-4">
+          <BililgeCategoryFilter onChange={setCategory} value={category} />
+        </div>
+      )}
 
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
         {tab === "rent" ? (
@@ -72,14 +76,12 @@ function BililgeListScreen() {
                     setRentalItem(item);
                   });
                 }}
-                quantity={item.quantity}
+                subtitle={`수량 ${item.quantity}`}
               />
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center py-20 text-label-alternative text-sm">
-            반납 화면은 아직 준비 중이에요
-          </div>
+          <BililgeReturnSection onBrowseRentals={() => setTab("rent")} />
         )}
       </div>
 
