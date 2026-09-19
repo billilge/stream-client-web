@@ -5,7 +5,7 @@ import {
   Typography,
 } from "@wanteddev/wds";
 import { IconBell, IconPlus, IconSearch } from "@wanteddev/wds-icon";
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
@@ -18,10 +18,32 @@ import {
   FEEDBACKS,
 } from "@/features/feedbacks/constants/feedbacks";
 
+// FeedbacksQaCard의 w-[286px] + 캐러셀 gap-2(8px)와 맞춘 값. 카드 크기가 바뀌면 같이 바꿔야 한다.
+const CAROUSEL_ITEM_WIDTH = 286 + 8;
+
 // Figma: 게시판 - 열린피드백 (nodeId 1410:50011)
 function FeedbacksListScreen() {
   const navigate = useNavigate();
   const [roundFilter, setRoundFilter] = useState("all");
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [carouselPage, setCarouselPage] = useState(1);
+
+  // 캐러셀은 가로 스크롤이라 PaginationDots.currentPage를 고정값으로 두면 스크롤해도 첫 점만
+  // 활성으로 보인다(/pr-check 리뷰 지적) — 스크롤 위치로 현재 카드를 계산해 동기화한다.
+  const handleCarouselScroll = () => {
+    const el = carouselRef.current;
+    if (!el) {
+      return;
+    }
+    setCarouselPage(Math.round(el.scrollLeft / CAROUSEL_ITEM_WIDTH) + 1);
+  };
+
+  const scrollCarouselToPage = (page: number) => {
+    carouselRef.current?.scrollTo({
+      behavior: "smooth",
+      left: (page - 1) * CAROUSEL_ITEM_WIDTH,
+    });
+  };
 
   // "공지"/"열린피드백" 토글은 게시판-공지 화면과 같은 ScreenHeaderToggleTitle을 쓴다. 이제
   // 두 화면이 다 있어서 클릭하면 실제로 이동하도록 onChange를 연결한다(공지 쪽도 함께 연결).
@@ -62,7 +84,11 @@ function FeedbacksListScreen() {
             최근 피드백
           </Typography>
           <div className="flex flex-col items-center gap-4">
-            <div className="scrollbar-hidden flex w-full gap-2 overflow-x-auto">
+            <div
+              className="scrollbar-hidden flex w-full gap-2 overflow-x-auto"
+              onScroll={handleCarouselScroll}
+              ref={carouselRef}
+            >
               {answeredFeedbacks.map((feedback) => (
                 <FeedbacksQaCard
                   answer={feedback.answer ?? ""}
@@ -72,7 +98,8 @@ function FeedbacksListScreen() {
               ))}
             </div>
             <PaginationDots
-              currentPage={1}
+              currentPage={carouselPage}
+              onClickDot={scrollCarouselToPage}
               size="small"
               totalPages={answeredFeedbacks.length}
             />
