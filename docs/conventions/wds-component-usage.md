@@ -212,3 +212,17 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 ### 참고 — Notice-card 사이 구분선은 `divider(new)`가 아니라 WDS `Divider`를 쓴다
 
 133번째 줄 아래 "제외됨" 표에는 `divider(new)`가 Stream 로컬로 남아있지만, 161번째 줄 "행사 목록 화면" 절에서 이미 확인했듯 이 값(`rgba(112,115,124,0.08)`, 1px)은 WDS `Divider`의 `color="semantic.line.normal.alternative"`와 정확히 같다. 게시판-공지 화면도 같은 값이라 로컬 div 대신 `Divider`를 그대로 썼다(`src/features/notices/NoticesListScreen.tsx`). "제외됨" 표의 `divider(new)` 항목은 이름 기준 분류일 뿐 실제 코드 구현은 이 절을 따른다.
+
+## 공지 상세 화면(`1256:81842`, `1256:81856`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | WDS 메인 컴포넌트 Node ID / 문서 |
+|---|---|---|
+| `Page Indicator/Counter` | 공지 상세 이미지 갤러리 우하단 "1/7" 카운터 | `471:13818` — [문서](https://montage.wanted.co.kr/docs/components/navigations/page-counter/design). 코드 export는 `PageCounter`(`totalPages`/`currentPage`/`size`/`alternative` props, `node_modules/@wanteddev/wds/dist/components/page-counter/`에서 확인) |
+
+- `Content Badge`의 accent 색 분기(일반=`semantic.accent.foreground.blue`, 제휴=`semantic.accent.foreground.redOrange`)는 행사 화면의 `ContentBadge` accent 판단(163번째 줄)과 같은 구조라 재조사 없이 그대로 적용했다.
+- 뒤로가기는 행사 신청 화면과 동일하게 `ScreenHeader variant="normal"`의 `leading`에 `TopNavigationButton`+`IconChevronLeft`를 넣는다(126번째 줄 "Top Navigation 뒤로가기" 참고). 공지 상세는 타이틀이 헤더가 아니라 본문(Title Details)에 있어서 `title` prop은 생략한다.
+- 이미지 갤러리 배경은 실제 공지 사진 API 전까지 `bg-thumbnail-placeholder`(행사 카드와 동일 토큰)를 그대로 재사용했다.
+
+### 반례 — `Content Badge`의 `size`는 화면마다 실측해야 한다(행사 카드의 `size="small"`을 그대로 베끼면 안 됨)
+
+처음엔 행사 카드(`EventsCard`)가 `size="small"`을 쓰길래 재측정 없이 그대로 가져다 썼는데, `/figma-check`로 실측하니 이 화면의 뱃지는 padding `8px 5px`+`Label 2/Medium`(13px)로 WDS `size="medium"`(`content-badge/style.js`: `medium`=`padding: 5px 8px`+`label2`, `small`=`padding: 4px 6px`+`caption1`)과 일치했다 — Figma 인스턴스 자체의 radius만 8px로 `medium`의 10px과 다른데(`small`의 radius와 우연히 같음), padding·타이포가 다수 일치하는 쪽을 기준으로 `medium`으로 정정했다(radius 2px 차이는 WDS 내부 오버라이드 금지 원칙상 그대로 둔다). **같은 컴포넌트라도 화면마다 실측 없이 옆 화면의 prop 값을 그대로 베끼면 안 된다** — "빌릴게 필터 Chip" 반례와 같은 종류의 실수.
