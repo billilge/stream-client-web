@@ -1,4 +1,5 @@
 import { Button, Typography } from "@wanteddev/wds";
+import { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
 
 import { useScreenSheetPortal } from "@/components/ui/useScreenSheetPortal";
@@ -16,12 +17,70 @@ interface BililgeReturnConfirmModalProps {
 // `Button`(size="medium")이 radius(10px)·타이포(Body 2/Medium·Bold)까지 정확히 일치해서
 // 재사용하고, 세로 패딩만(9px→12px) sx로 보정했다.
 // BottomSheet와 같은 방식으로 ScreenLayout의 포털 슬롯에 그려서 375×812 프레임 전체를 덮는다.
+//
+// 다이얼로그 접근성(코드리뷰 지적 반영): role="dialog"/aria-modal, 열릴 때 기본 액션으로 포커스
+// 이동, Tab이 두 버튼 밖으로 안 나가게 트랩, Esc로 닫기, 닫힐 때 이전 포커스 복원, 닫혀있을 땐
+// inert로 포커스/접근성 트리에서 제외.
 function BililgeReturnConfirmModal({
   open,
   onCancel,
   onConfirm,
 }: BililgeReturnConfirmModalProps) {
   const portalEl = useScreenSheetPortal();
+  const titleId = useId();
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const confirmButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  // 열릴 때: 이전 포커스를 기억해두고 기본 액션(신청하기)으로 포커스를 옮긴다. StrictMode에서
+  // 이 이펙트가 두 번 실행되면 두 번째 실행 시점엔 activeElement가 이미 신청하기 버튼(직전에
+  // 우리가 옮긴 포커스)이라, 그대로 덮어쓰면 원래 포커스를 영영 잃는다 — 이미 우리 버튼에 가
+  // 있으면 갱신하지 않는다.
+  // 닫힐 때: 모달을 열었던 요소로 포커스를 되돌린다.
+  useEffect(() => {
+    if (open) {
+      const active = document.activeElement as HTMLElement | null;
+      if (
+        active !== confirmButtonRef.current &&
+        active !== cancelButtonRef.current
+      ) {
+        previousFocusRef.current = active;
+      }
+      confirmButtonRef.current?.focus();
+      return;
+    }
+    previousFocusRef.current?.focus();
+  }, [open]);
+
+  // Esc로 닫기 + Tab이 두 버튼 밖으로 나가지 않도록 트랩(딤드 버튼은 tabIndex=-1이라 순환 대상 아님).
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onCancel();
+        return;
+      }
+      if (event.key !== "Tab") {
+        return;
+      }
+      const first = cancelButtonRef.current;
+      const last = confirmButtonRef.current;
+      if (!first || !last) {
+        return;
+      }
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, onCancel]);
 
   if (!portalEl) {
     return null;
@@ -34,18 +93,28 @@ function BililgeReturnConfirmModal({
           ? "pointer-events-auto opacity-100"
           : "pointer-events-none opacity-0"
       }`}
+      // 닫혀있을 때 포커스/접근성 트리에서 완전히 제외한다 — opacity·pointer-events만으로는
+      // 탭 키가 숨겨진 버튼으로 계속 들어가는 문제(CodeRabbit 지적)를 못 막는다.
+      inert={!open}
     >
       <button
         aria-label="모달 닫기"
         className="absolute inset-0 bg-black/70"
         onClick={onCancel}
+        tabIndex={-1}
         type="button"
       />
-      <div className="relative flex w-[311px] flex-col items-center gap-6 rounded-3xl bg-background-normal px-5 pt-6 pb-5">
+      <div
+        aria-labelledby={titleId}
+        aria-modal="true"
+        className="relative flex w-[311px] flex-col items-center gap-6 rounded-3xl bg-background-normal px-5 pt-6 pb-5"
+        role="dialog"
+      >
         <div className="flex flex-col gap-1 text-center">
           <Typography
             as="p"
             color="semantic.label.normal"
+            id={titleId}
             variant="heading2"
             weight="bold"
           >
@@ -63,6 +132,7 @@ function BililgeReturnConfirmModal({
           <Button
             color="assistive"
             onClick={onCancel}
+            ref={cancelButtonRef}
             size="medium"
             sx={{ flex: 1, padding: "12px 20px" }}
             variant="solid"
@@ -72,6 +142,7 @@ function BililgeReturnConfirmModal({
           <Button
             color="primary"
             onClick={onConfirm}
+            ref={confirmButtonRef}
             size="medium"
             sx={{ flex: 1, padding: "12px 20px" }}
             variant="solid"

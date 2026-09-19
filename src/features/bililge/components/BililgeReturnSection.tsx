@@ -1,5 +1,5 @@
 import { Button, Divider, Typography } from "@wanteddev/wds";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 import rentalHistoryEmptyIllustration from "@/assets/icons/bililge-empty/rental-history.svg";
 import returnItemsEmptyIllustration from "@/assets/icons/bililge-empty/return-items.svg";
@@ -35,18 +35,32 @@ interface BililgeReturnSectionProps {
 function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
+  // 토스트가 떠 있는 동안 다시 확인해도 스크린리더가 재안내하도록, 확인마다 값을 바꿔 메시지
+  // 텍스트를 새로 마운트한다(BililgeReturnToast의 messageKey로 전달).
+  const [toastToken, setToastToken] = useState(0);
+  // 타이머를 이펙트가 아니라 ref로 직접 관리한다 — 토스트가 이미 떠 있는 채로 다시 확인하면
+  // "새 확인 시점부터 3초"가 되도록, 기존 타이머를 지우고 새로 시작해야 하기 때문이다.
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!toastOpen) {
-      return;
-    }
-    const timer = setTimeout(() => setToastOpen(false), TOAST_DURATION_MS);
-    return () => clearTimeout(timer);
-  }, [toastOpen]);
+    return () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleConfirm = () => {
     setConfirmOpen(false);
     setToastOpen(true);
+    setToastToken((token) => token + 1);
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+    toastTimerRef.current = setTimeout(
+      () => setToastOpen(false),
+      TOAST_DURATION_MS,
+    );
   };
 
   return (
@@ -131,7 +145,7 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
         onConfirm={handleConfirm}
         open={confirmOpen}
       />
-      <BililgeReturnToast open={toastOpen} />
+      <BililgeReturnToast messageKey={toastToken} open={toastOpen} />
     </div>
   );
 }
