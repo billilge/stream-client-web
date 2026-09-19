@@ -8,6 +8,7 @@ import ScreenLayoutRoute, {
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
+import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
 
@@ -23,6 +24,7 @@ const routes = [
           { element: <BililgeListScreen />, path: "/bililge" },
           { element: <EventsListScreen />, path: "/events" },
           { element: <NoticesListScreen />, path: "/notices" },
+          { element: <FeedbacksListScreen />, path: "/feedbacks" },
           {
             element: <EventsApplicationScreen />,
             // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면

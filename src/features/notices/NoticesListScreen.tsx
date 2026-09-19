@@ -7,6 +7,7 @@ import {
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { Fragment, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
@@ -26,14 +27,19 @@ const TAB_CATEGORY: Record<NoticeTab, NoticeCategory | "all"> = {
 
 // Figma: 게시판 - 공지 (nodeId 1256:81776), 탭 선택 시 (nodeId 1256:81812)
 function NoticesListScreen() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<NoticeTab>("all");
 
   // "공지"/"열린피드백" 2단 타이틀(Figma "Board Title")은 ScreenHeader의 토글 타이틀로 표현한다.
-  // 열린피드백 게시판(코드 용어 feedbacks, terminology.md)은 이번 범위 밖이라 onChange 없이
-  // 비활성 텍스트로만 둔다.
+  // 열린피드백 게시판(코드 용어 feedbacks, terminology.md) 화면이 생겨서 이제 클릭하면 실제로
+  // 이동한다(게시판-열린피드백 화면 쪽도 동일하게 연결).
   useScreenHeader(
     <ScreenHeader
-      title={{ activeIndex: 0, options: ["공지", "열린피드백"] }}
+      title={{
+        activeIndex: 0,
+        onChange: (index) => navigate(index === 0 ? "/notices" : "/feedbacks"),
+        options: ["공지", "열린피드백"],
+      }}
       toolbar={
         // 탭 전체/일반 공지/제휴 공지는 Figma에서 Top Navigation 인스턴스 안(타이틀 행 아래)에
         // 있어서 ScreenHeader의 toolbar 슬롯으로 넘긴다(행사 화면 세그먼트 토글과 같은 이유).
