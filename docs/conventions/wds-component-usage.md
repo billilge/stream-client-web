@@ -76,7 +76,7 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 
 코드에서는 `@wanteddev/wds-icon`의 `IconSearch`/`IconBell`/`IconHome`/`IconTicket`/`IconList`/`IconChevronLeft`/`IconChevronDown`으로 대응된다(각각 default export를 `index.d.ts`에서 named export로 재노출). `Segmented Control`은 `@wanteddev/wds`의 `SegmentedControl`/`SegmentedControlItem`으로 대응된다. `Menu/Menu`는 `Menu`/`MenuTrigger`/`MenuContent`/`MenuList`/`MenuItem`으로 대응된다(`MenuItem`이 내부에서 `ListCell`을 렌더링하므로 `List Cell`을 따로 import하지 않는다). `Menu`는 항목을 골라도 자동으로 닫히지 않아 `open`/`onOpenChange`로 직접 닫아야 하고, `MenuContent` 기본 너비가 320px라 Figma 너비와 다르면 `sx`로 맞춘다. Top Navigation의 Leading(뒤로가기)·Trailing 아이콘 버튼은 `TopNavigation`의 `leadingContent`/`trailingContent`에 `TopNavigationButton variant="icon"`으로 넣는다. 단, 아카이빙 상세처럼 사진 위 흰 아이콘 버튼은 `TopNavigationButton`의 `color`가 `primary`/`assistive`만 받아서, 내부에서 렌더링되는 `IconButton`(`variant="normal"`, `size={24}`, `color="semantic.static.white"`)을 직접 쓴다. `Icon/Normal/Share`는 `IconShare`로 대응된다.
 
-아카이빙 상세 화면의 연도 필터 칩(`Chip`, `1276:95404`)과 사진 카드(`Left-Large`/`Left-Medium`/`Right-Small`/`Right-Large`)는 WDS 컴포넌트 설명이 붙어 있지 않은 Stream 로컬 요소다 — 칩 스타일은 아래 "빌릴게 필터 Chip" 반례와 같다. 코드는 `src/features/archives/components/` 참고.
+아카이빙 상세 화면의 연도 필터 칩(`Chip`, `1276:95404`)과 사진 카드(`Left-Large`/`Left-Medium`/`Right-Small`/`Right-Large`)는 WDS 컴포넌트 설명이 붙어 있지 않은 Stream 로컬 요소다 — 칩 스타일은 아래 "빌릴게 필터 Chip" 반례와 같아서, 최근 연도 칩은 빌릴게·행사와 공용인 `components/ui/FilterChipGroup.tsx`를 그대로 쓴다(이전 연도 드롭다운 트리거만 같은 칩 모양의 로컬 버튼이라 `getFilterChipClassName`을 가져다 쓴다). 코드는 `src/features/archives/components/` 참고.
 
 ### `Typography` — 텍스트 스타일은 Figma 인스턴스 스캔에 안 잡혀서 뒤늦게 확인됨
 

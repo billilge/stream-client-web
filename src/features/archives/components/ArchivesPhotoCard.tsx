@@ -1,3 +1,5 @@
+import { Typography } from "@wanteddev/wds";
+
 // Figma: Archives Photo Card (Left-Large 1276:95411, Left-Medium 1276:95412, Right-Small 1276:95416)
 export type ArchivesPhotoCardSize = "small" | "medium" | "large";
 
@@ -37,10 +39,22 @@ function ArchivesPhotoCard({
       />
       <div className="absolute inset-0 bg-linear-to-t from-gradient-overlay to-40% to-transparent" />
       <div className="relative flex flex-col">
-        <p className="font-medium text-sm text-static-white">{title}</p>
-        <p className="text-[11px] text-cool-neutral-80 leading-[14px]">
+        <Typography
+          as="p"
+          color="semantic.static.white"
+          variant="label1"
+          weight="medium"
+        >
+          {title}
+        </Typography>
+        <Typography
+          as="p"
+          color="atomic.coolNeutral.80"
+          variant="caption2"
+          weight="regular"
+        >
           {date}
-        </p>
+        </Typography>
       </div>
     </button>
   );

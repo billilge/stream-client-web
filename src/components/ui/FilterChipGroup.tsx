@@ -5,6 +5,14 @@ export interface FilterChipOption {
   label: string;
 }
 
+// 칩 하나의 스타일 — 이 행에 끼어드는 다른 칩(아카이빙 연도 필터의 드롭다운 트리거처럼 칩 모양이지만
+// 클릭 동작이 다른 것)도 같은 모양으로 그릴 수 있도록 내보낸다. 라벨은 Typography로 감싸 쓴다.
+export function getFilterChipClassName(isActive: boolean) {
+  return isActive
+    ? "inline-flex h-8 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-[20px] border border-primary bg-primary-subtle px-3"
+    : "inline-flex h-8 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-[20px] border border-line-normal-neutral px-3";
+}
+
 interface FilterChipGroupProps {
   options: readonly FilterChipOption[];
   value: string;
@@ -25,11 +33,7 @@ function FilterChipGroup({ options, value, onChange }: FilterChipGroupProps) {
         const active = option.value === value;
         return (
           <button
-            className={
-              active
-                ? "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-[20px] border border-primary bg-primary-subtle px-3"
-                : "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-[20px] border border-line-normal-neutral px-3"
-            }
+            className={getFilterChipClassName(active)}
             key={option.value}
             onClick={() => onChange(option.value)}
             type="button"
