@@ -34,22 +34,6 @@ function NoticesListScreen() {
   useScreenHeader(
     <ScreenHeader
       title={{ activeIndex: 0, options: ["공지", "열린피드백"] }}
-      toolbar={
-        // 탭 전체/일반 공지/제휴 공지는 Figma에서 Top Navigation 인스턴스 안(타이틀 행 아래)에
-        // 있어서 ScreenHeader의 toolbar 슬롯으로 넘긴다(행사 화면 세그먼트 토글과 같은 이유).
-        <div className="px-5">
-          <Tab
-            onValueChange={(value) => setTab(value as NoticeTab)}
-            value={tab}
-          >
-            <TabList>
-              <TabListItem value="all">전체</TabListItem>
-              <TabListItem value="general">일반 공지</TabListItem>
-              <TabListItem value="partnership">제휴 공지</TabListItem>
-            </TabList>
-          </Tab>
-        </div>
-      }
       trailing={
         <>
           <TopNavigationButton aria-label="검색" variant="icon">
@@ -68,26 +52,41 @@ function NoticesListScreen() {
   );
 
   return (
-    <div className="scrollbar-hidden flex-1 overflow-y-auto">
-      <div className="flex flex-col gap-4 py-4">
-        {notices.map((notice, index) => (
-          <Fragment key={notice.id}>
-            {index > 0 && (
-              <div className="px-5">
-                <Divider color="semantic.line.normal.alternative" />
-              </div>
-            )}
-            <NoticesCard
-              category={notice.category}
-              date={notice.date}
-              hasThumbnail={notice.hasThumbnail}
-              isPinned={notice.isPinned}
-              title={notice.title}
-            />
-          </Fragment>
-        ))}
+    <>
+      {/* 전체/일반 공지/제휴 공지 탭은 Figma에서 타이틀 행 아래("Tool" 영역)에 붙지만,
+          헤더가 아니라 화면이 직접 본문 최상단에 그린다(행사·빌릴게 화면과 같은 구조).
+          목록만 스크롤되도록 여기는 고정(shrink-0)하고, Tool 영역은 위아래 여백이 없다. */}
+      <div className="shrink-0 px-5">
+        <Tab onValueChange={(value) => setTab(value as NoticeTab)} value={tab}>
+          <TabList>
+            <TabListItem value="all">전체</TabListItem>
+            <TabListItem value="general">일반 공지</TabListItem>
+            <TabListItem value="partnership">제휴 공지</TabListItem>
+          </TabList>
+        </Tab>
       </div>
-    </div>
+
+      <div className="scrollbar-hidden flex-1 overflow-y-auto">
+        <div className="flex flex-col gap-4 py-4">
+          {notices.map((notice, index) => (
+            <Fragment key={notice.id}>
+              {index > 0 && (
+                <div className="px-5">
+                  <Divider color="semantic.line.normal.alternative" />
+                </div>
+              )}
+              <NoticesCard
+                category={notice.category}
+                date={notice.date}
+                hasThumbnail={notice.hasThumbnail}
+                isPinned={notice.isPinned}
+                title={notice.title}
+              />
+            </Fragment>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 

@@ -11,6 +11,7 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import BililgeCategoryFilter from "@/features/bililge/components/BililgeCategoryFilter";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
 import BililgeRentalSheet from "@/features/bililge/components/BililgeRentalSheet";
+import BililgeReturnSection from "@/features/bililge/components/BililgeReturnSection";
 import {
   BILILGE_ITEMS,
   type BililgeItem,
@@ -42,17 +43,22 @@ function BililgeListScreen() {
   return (
     <div className="flex h-full flex-col">
       {/* 대여/반납 토글 + 카테고리 필터는 화면마다 값·동작이 달라 헤더가 아니라 화면이 직접 그린다.
-          목록만 스크롤되도록 여기는 고정(shrink-0)한다. */}
-      <div className="shrink-0 px-5 pt-4">
+          목록만 스크롤되도록 여기는 고정(shrink-0)한다.
+          Figma Tool 프레임(56~88)은 높이 32에 위아래 여백이 없다 — 세로 패딩을 주면
+          토글과 그 아래 필터 행이 함께 밀린다(행사·게시판 화면과 같은 규칙). */}
+      <div className="shrink-0 px-5">
         <SegmentedControl onValueChange={setTab} size="small" value={tab}>
           <SegmentedControlItem value="rent">대여</SegmentedControlItem>
           <SegmentedControlItem value="return">반납</SegmentedControlItem>
         </SegmentedControl>
       </div>
 
-      <div className="shrink-0 px-5 py-4">
-        <BililgeCategoryFilter onChange={setCategory} value={category} />
-      </div>
+      {/* 카테고리 필터는 대여 탭 전용이다 — Figma 반납 화면(1133:49973)에는 필터 행이 없다. */}
+      {tab === "rent" && (
+        <div className="shrink-0 px-5 py-4">
+          <BililgeCategoryFilter onChange={setCategory} value={category} />
+        </div>
+      )}
 
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
         {tab === "rent" ? (
@@ -72,14 +78,12 @@ function BililgeListScreen() {
                     setRentalItem(item);
                   });
                 }}
-                quantity={item.quantity}
+                subtitle={`수량 ${item.quantity}`}
               />
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center py-20 text-label-alternative text-sm">
-            반납 화면은 아직 준비 중이에요
-          </div>
+          <BililgeReturnSection onBrowseRentals={() => setTab("rent")} />
         )}
       </div>
 

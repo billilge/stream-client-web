@@ -181,13 +181,18 @@ Figma의 Content Badge는 상태에 따라 배경 처리 방식이 두 가지다
 
 또한 행사 카드 CTA는 빌릴게 카드와 달리 `sx` 보정이 필요 없다. Figma의 비활성 상태 색(`Interaction/Disable #F4F4F5` + `Label/Assistive`)이 WDS `Button`의 `&[aria-disabled='true']` 블록과 그대로 같아서 `disabled` prop만 주면 된다.
 
-### 헤더 아래 세그먼트 토글은 `ScreenHeader`의 `toolbar`로 넘긴다
+### 헤더 아래 "Tool" 영역은 화면이 직접 그린다 — `ScreenHeader`는 받지 않는다
 
-행사 화면 헤더(`1765:70732`)는 **로컬 `Top Navigation`(`1765:70665`, 0~56)** 과 **형제 노드인 `Segmented Control`(`1765:70708`, y=56 x=20 w=335 h=32)** 로 나뉜다. 예전에는 WDS `Top Navigation/Resource/Contents` 하나가 내부 `Tool` 슬롯까지 품은 높이 88짜리 인스턴스였는데, 디자인이 바뀌면서 둘로 분리됐다(`ScreenHeader`의 display variant가 WDS를 떠나 로컬 마크업이 된 것과 같은 변경).
+행사 화면 헤더(`1765:70732`)는 **로컬 `Top Navigation`(`1765:70665`, 0~56)** 과 **형제 노드인 `Segmented Control`(`1765:70708`, y=56 x=20 w=335 h=32)** 로 나뉜다. 예전에는 WDS `Top Navigation/Resource/Contents` 하나가 내부 `Tool` 슬롯까지 품은 높이 88짜리 인스턴스였는데, 디자인이 바뀌면서 둘로 분리됐다(`ScreenHeader`의 display variant가 WDS를 떠나 로컬 마크업이 된 것과 같은 변경). 빌릴게(`1765:71192`)도 프레임 이름까지 같은 동일 구조다.
 
-그래서 코드도 WDS `TopNavigation`의 `toolbar` prop에 기대지 않고, `ScreenHeader`가 타이틀 행 아래에 `toolbar`를 그대로 이어 붙인다. 화면 본문에 토글을 두지 않는 이유는 그대로다 — 본문에 두면 헤더 고정 영역 밖이라 스크롤 경계가 화면마다 달라진다.
+Tool 영역은 `88 - 56 - 32 = 0`, 즉 **위아래 여백이 없다.** 세로 패딩을 주면 토글과 그 아래 필터 행이 함께 밀린다. 가로는 x=20이라 `px-5`로 맞춘다.
 
-Tool 영역은 `88 - 56 - 32 = 0`, 즉 **아래 여백이 없다.** 세로 패딩을 주면 헤더가 그만큼 길어진다. 가로는 x=20이라 `px-5`로 맞춘다.
+**배치는 화면 본문 최상단에 `shrink-0`으로 한다.** 한때 `ScreenHeader`에 `toolbar` prop을 두고 헤더가 같이 들고 있었는데 제거했다. 근거가 두 가지였고 둘 다 성립하지 않았다:
+
+1. *"WDS API를 쓰는 것이다"* — WDS `TopNavigation`에 `toolbar?: ReactNode`("Area attached below the navigation")가 실제로 있다. 그런데 `ScreenHeader`의 `display` variant는 로컬 마크업으로 바뀌면서 WDS `TopNavigation`을 안 쓰게 됐고, `normal` variant는 WDS를 쓰지만 `toolbar`를 넘기지 않았다. 즉 **WDS의 그 prop은 한 번도 안 쓰였고**, 남은 건 우리가 만든 슬롯뿐이었다.
+2. *"본문에 두면 스크롤 경계가 화면마다 달라진다"* — 측정으로 반박됐다. 헤더 슬롯이든 본문이든 양쪽 다 `shrink-0`이고 실제 스크롤은 그 아래 `overflow-y-auto` 목록에서만 일어난다. 뷰포트를 줄여 끝까지 스크롤(빌릴게 1365px / 행사 80px)해도 타이틀·툴·필터 top이 1px도 움직이지 않았다.
+
+임의의 `ReactNode`를 받는 슬롯은 `ScreenHeader`가 내용을 판단할 수 없어 패스스루 컨테이너가 되고, 화면마다 존재 여부가 달라지면서 책임 범위가 타이틀 + 트레일링 아이콘을 넘어 계속 넓어진다(제거 시점에 이미 행사·게시판 2개 화면이 쓰고 있었다). 세 화면(행사·게시판·빌릴게)을 본문 배치로 통일했고, 이동 전후 렌더 결과는 세 화면 모두 픽셀 단위로 동일했다.
 
 ### 필터 칩 반례가 행사 화면에서도 확인됐다
 
@@ -270,3 +275,18 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 ### 제출 중 로딩 화면(`1133:43453`)에서 WDS는 `Typography`뿐이다
 
 문서 일러스트와 체크 항목 3줄은 전부 Figma 로컬 도형이고(WDS 아이콘 아님), 3.4초 루프 모션이 붙어 있다(`Loading / Document Review`, 1133:44260). 체크·긴 줄·짧은 줄은 그려지는(path trim) 모션이라 SVG path를 인라인하고, 문서 본체만 `src/assets/icons/events/submitting-document.svg`로 받아 쓴다. 문구 2줄만 WDS `Typography`(`heading1` 22px / `label1` 14px)다. 코드는 `src/features/events/components/EventsSubmittingOverlay.tsx`.
+
+## 빌릴게 반납 화면(`1133:49973`) 구현 중 확정된 매핑
+
+- **`RentalHistory Card` 사이 구분선도 위 절과 같은 값**이라 `Divider`(`color="semantic.line.normal.alternative"`)를 재사용했다. `/figma-check`에서 처음엔 raw `<div className="bg-line-normal-alternative">`로 만들어져 있던 걸 잡아냄 — 시각적 차이는 없지만(1px, 같은 색) 이미 문서화된 선례를 놓친 경우였다.
+- **`Icon/Normal/Circle Check`(Fill) + `ContentBadge`류 아이콘**: 완료 토스트의 체크 아이콘은 `wds-icon`의 `IconCircleCheckFill`(Figma 이름 `circleCheckFill`과 정확히 매칭)을 그대로 썼다.
+
+### 반례 — 반납 신청 확인 모달은 WDS `Alert`가 아니다
+
+Figma 모달(nodeId `1133:50014`)이 WDS `Alert`(코드 컴포넌트로 존재)와 같은 "제목+설명+버튼 2개" 패턴이라 처음엔 `Alert`/`AlertContainer`/`AlertContent`를 검토했다. 그런데 `node_modules/@wanteddev/wds/dist/components/alert/style.js`를 직접 열어보니 `alertContainerStyle`이 `border-radius: 12px`, `min-width: 320px`(뷰포트 360px 미만에선 100%)로 고정돼 있어서, 이 모달의 실제 스펙(`border-radius: 24px`, 고정폭 `311px`, `padding: 24px 20px 20px`, 메시지-버튼 사이 `gap: 24px`)과 전혀 안 맞았다. `Alert`를 오버라이드하면 컨테이너 치수를 거의 다 갈아엎어야 해서, `component-convention.md`의 "WDS 컴포넌트 내부를 임의로 오버라이드하지 않는다" 원칙에 따라 컨테이너는 Stream 로컬로 새로 짰다. 다만 버튼은 WDS `Button`(`size="medium"`)이 `border-radius`(10px)·타이포(Body 2/Medium·Bold)까지 정확히 일치해서 그대로 재사용하고, 세로 패딩만(9px→12px) `sx`로 보정했다. 코드는 `src/features/bililge/components/BililgeReturnConfirmModal.tsx` 참고.
+
+### 반례 — 반납 신청 완료 토스트는 WDS `useToast`/`Toast`를 안 쓴다
+
+WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하고 있지만, 내부적으로 `#wds-region-manager-bottom`이라는 전역 포털 컨테이너(실제 브라우저 뷰포트 기준)에 렌더링된다. 이 앱은 375×812 고정 프레임을 데스크톱 화면 가운데 띄우는 구조(`App.tsx`)라, WDS 토스트를 그대로 쓰면 프레임 밖 실제 뷰포트 하단에 떠버린다 — **Bottom Nav를 WDS `BottomNavigation` 대신 로컬로 다시 만든 것과 정확히 같은 이유**(위 "Bottom Nav — 구현 시점 판단 결과" 절 참고)다. `BottomSheet`가 쓰는 것과 같은 화면 전용 포털(`useScreenSheetPortal`)에 직접 그리는 Stream 로컬 컴포넌트로 만들었다. 아이콘(`IconCircleCheckFill`)·타이포(`Typography` body2)는 WDS를 그대로 재사용했고, 배경(두 겹 반투명 레이어 + `backdrop-blur-[32px]`)만 Figma 값 그대로 옮겼다. 코드는 `src/features/bililge/components/BililgeReturnToast.tsx` 참고.
+
+**앞으로 화면 전용 포털에 뭔가 띄워야 하는데(모달·토스트·바텀시트) WDS 컴포넌트가 있는 걸 발견하면, 먼저 그 컴포넌트가 어디에 렌더링되는지(`document.querySelector`/포털 대상)부터 확인한다** — 전역 뷰포트 기준이면 이 앱 구조상 항상 로컬로 다시 만들어야 한다.

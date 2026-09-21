@@ -22,22 +22,9 @@ function EventsListScreen() {
   const [tab, setTab] = useState("event");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  // 행사/신청내역 토글은 Figma에서 Top Navigation 인스턴스 안(타이틀 행 아래)에 있어서
-  // ScreenHeader의 toolbar 슬롯으로 넘긴다 — WDS TopNavigation이 원래 갖고 있는 슬롯이다.
   useScreenHeader(
     <ScreenHeader
       title="행사"
-      toolbar={
-        // Figma Tool 프레임(56~88)은 높이 32에 아래 여백이 없다 — 세로 패딩을 주면 헤더가 그만큼 길어진다
-        <div className="px-5">
-          <SegmentedControl onValueChange={setTab} size="small" value={tab}>
-            <SegmentedControlItem value="event">행사</SegmentedControlItem>
-            <SegmentedControlItem value="application">
-              신청내역
-            </SegmentedControlItem>
-          </SegmentedControl>
-        </div>
-      }
       trailing={
         <>
           <TopNavigationButton aria-label="검색" variant="icon">
@@ -59,6 +46,19 @@ function EventsListScreen() {
 
   return (
     <>
+      {/* 행사/신청내역 토글 + 필터는 화면마다 값·동작이 달라 헤더가 아니라 화면이 직접 그린다.
+          목록만 스크롤되도록 여기는 고정(shrink-0)한다(빌릴게 화면과 같은 구조).
+          Figma Tool 프레임(56~88)은 높이 32에 위아래 여백이 없다 — 세로 패딩을 주면
+          토글과 그 아래 필터 행이 함께 밀린다. */}
+      <div className="shrink-0 px-5">
+        <SegmentedControl onValueChange={setTab} size="small" value={tab}>
+          <SegmentedControlItem value="event">행사</SegmentedControlItem>
+          <SegmentedControlItem value="application">
+            신청내역
+          </SegmentedControlItem>
+        </SegmentedControl>
+      </div>
+
       {/* 필터는 고정하고 목록만 스크롤된다 */}
       <div className="shrink-0 px-5 pt-4 pb-6">
         <FilterChipGroup
