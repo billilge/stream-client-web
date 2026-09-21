@@ -25,6 +25,10 @@
   --color-primary: var(--semantic-primary-normal);
   --color-primary-subtle: var(--atomic-blue-95);
 
+  --color-static-white: var(--semantic-static-white);
+  --color-status-positive: var(--semantic-status-positive);
+  --color-inverse-background: var(--semantic-inverse-background);
+
   /* WDS 시맨틱 세트에 없는 값(Figma 변수 없이 raw #111) — 아카이빙 사진 카드 하단 그라데이션 전용 */
   --color-gradient-overlay: #111111;
   /* WDS 시맨틱 세트에 없는 값(Figma 변수 없이 raw #6e6e6e) — 아카이빙 상세 대표 사진 상단 그라데이션 전용(흰 버튼 가독성) */

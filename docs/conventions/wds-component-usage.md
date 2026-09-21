@@ -224,3 +224,18 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 ### 참고 — Notice-card 사이 구분선은 `divider(new)`가 아니라 WDS `Divider`를 쓴다
 
 133번째 줄 아래 "제외됨" 표에는 `divider(new)`가 Stream 로컬로 남아있지만, 161번째 줄 "행사 목록 화면" 절에서 이미 확인했듯 이 값(`rgba(112,115,124,0.08)`, 1px)은 WDS `Divider`의 `color="semantic.line.normal.alternative"`와 정확히 같다. 게시판-공지 화면도 같은 값이라 로컬 div 대신 `Divider`를 그대로 썼다(`src/features/notices/NoticesListScreen.tsx`). "제외됨" 표의 `divider(new)` 항목은 이름 기준 분류일 뿐 실제 코드 구현은 이 절을 따른다.
+
+## 빌릴게 반납 화면(`1133:49973`) 구현 중 확정된 매핑
+
+- **`RentalHistory Card` 사이 구분선도 위 절과 같은 값**이라 `Divider`(`color="semantic.line.normal.alternative"`)를 재사용했다. `/figma-check`에서 처음엔 raw `<div className="bg-line-normal-alternative">`로 만들어져 있던 걸 잡아냄 — 시각적 차이는 없지만(1px, 같은 색) 이미 문서화된 선례를 놓친 경우였다.
+- **`Icon/Normal/Circle Check`(Fill) + `ContentBadge`류 아이콘**: 완료 토스트의 체크 아이콘은 `wds-icon`의 `IconCircleCheckFill`(Figma 이름 `circleCheckFill`과 정확히 매칭)을 그대로 썼다.
+
+### 반례 — 반납 신청 확인 모달은 WDS `Alert`가 아니다
+
+Figma 모달(nodeId `1133:50014`)이 WDS `Alert`(코드 컴포넌트로 존재)와 같은 "제목+설명+버튼 2개" 패턴이라 처음엔 `Alert`/`AlertContainer`/`AlertContent`를 검토했다. 그런데 `node_modules/@wanteddev/wds/dist/components/alert/style.js`를 직접 열어보니 `alertContainerStyle`이 `border-radius: 12px`, `min-width: 320px`(뷰포트 360px 미만에선 100%)로 고정돼 있어서, 이 모달의 실제 스펙(`border-radius: 24px`, 고정폭 `311px`, `padding: 24px 20px 20px`, 메시지-버튼 사이 `gap: 24px`)과 전혀 안 맞았다. `Alert`를 오버라이드하면 컨테이너 치수를 거의 다 갈아엎어야 해서, `component-convention.md`의 "WDS 컴포넌트 내부를 임의로 오버라이드하지 않는다" 원칙에 따라 컨테이너는 Stream 로컬로 새로 짰다. 다만 버튼은 WDS `Button`(`size="medium"`)이 `border-radius`(10px)·타이포(Body 2/Medium·Bold)까지 정확히 일치해서 그대로 재사용하고, 세로 패딩만(9px→12px) `sx`로 보정했다. 코드는 `src/features/bililge/components/BililgeReturnConfirmModal.tsx` 참고.
+
+### 반례 — 반납 신청 완료 토스트는 WDS `useToast`/`Toast`를 안 쓴다
+
+WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하고 있지만, 내부적으로 `#wds-region-manager-bottom`이라는 전역 포털 컨테이너(실제 브라우저 뷰포트 기준)에 렌더링된다. 이 앱은 375×812 고정 프레임을 데스크톱 화면 가운데 띄우는 구조(`App.tsx`)라, WDS 토스트를 그대로 쓰면 프레임 밖 실제 뷰포트 하단에 떠버린다 — **Bottom Nav를 WDS `BottomNavigation` 대신 로컬로 다시 만든 것과 정확히 같은 이유**(위 "Bottom Nav — 구현 시점 판단 결과" 절 참고)다. `BottomSheet`가 쓰는 것과 같은 화면 전용 포털(`useScreenSheetPortal`)에 직접 그리는 Stream 로컬 컴포넌트로 만들었다. 아이콘(`IconCircleCheckFill`)·타이포(`Typography` body2)는 WDS를 그대로 재사용했고, 배경(두 겹 반투명 레이어 + `backdrop-blur-[32px]`)만 Figma 값 그대로 옮겼다. 코드는 `src/features/bililge/components/BililgeReturnToast.tsx` 참고.
+
+**앞으로 화면 전용 포털에 뭔가 띄워야 하는데(모달·토스트·바텀시트) WDS 컴포넌트가 있는 걸 발견하면, 먼저 그 컴포넌트가 어디에 렌더링되는지(`document.querySelector`/포털 대상)부터 확인한다** — 전역 뷰포트 기준이면 이 앱 구조상 항상 로컬로 다시 만들어야 한다.
