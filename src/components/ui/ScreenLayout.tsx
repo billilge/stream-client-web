@@ -24,8 +24,18 @@ function getBottomNavValueFromPath(pathname: string): BottomNavValue {
   return matched?.[0] ?? "home";
 }
 
+// 화면 전체 배경. 카드형 화면(빌릴게·신청서)은 흰 카드가 뜨도록 회색 여백(alternative)이 필요하고,
+// 구분선으로만 나뉘는 목록 화면(행사·공지)은 화면 전체가 흰 면(normal)이다.
+export type ScreenBackground = "normal" | "alternative";
+
+const BACKGROUND_CLASS_NAMES: Record<ScreenBackground, string> = {
+  alternative: "bg-background-alternative",
+  normal: "bg-background-normal",
+};
+
 interface ScreenLayoutProps {
   hasBottomNav?: boolean;
+  background?: ScreenBackground;
 }
 
 // 모든 화면이 공유하는 라우트 레이아웃 — router.tsx에서 부모 route로 두고 화면들을
@@ -39,7 +49,12 @@ interface ScreenLayoutProps {
 // 크기는 뷰포트를 꽉 채우는 것이 기본이고(실사용자는 전부 앱 WebView 안에서 본다),
 // 375×812 아이폰 프레임은 데스크톱 뷰포트(sm 이상) 전용이다 — App.tsx의 회색 배경과 같은 브레이크포인트.
 // 세이프에어리어는 앱 셸이 담당하므로 여기서 env(safe-area-inset-*)를 더하지 않는다(중복 여백이 된다).
-function ScreenLayout({ hasBottomNav = true }: ScreenLayoutProps) {
+// 배경도 같은 방식으로 라우트 handle에서 받는다 — 헤더 슬롯까지 이 루트 div가 덮기 때문에,
+// 화면이 헤더와 본문에 따로 배경을 깔 필요가 없다.
+function ScreenLayout({
+  hasBottomNav = true,
+  background = "alternative",
+}: ScreenLayoutProps) {
   const [header, setHeader] = useState<ReactNode>(null);
   const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(
     null,
@@ -51,7 +66,9 @@ function ScreenLayout({ hasBottomNav = true }: ScreenLayoutProps) {
   return (
     <ScreenHeaderContext.Provider value={setHeader}>
       <ScreenSheetPortalContext.Provider value={sheetPortalEl}>
-        <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-background-alternative sm:h-[812px] sm:w-[375px]">
+        <div
+          className={`relative flex h-dvh w-full flex-col overflow-hidden sm:h-[812px] sm:w-[375px] ${BACKGROUND_CLASS_NAMES[background]}`}
+        >
           <div className="shrink-0">{header}</div>
           {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤).
               overflow-y-auto가 동작하려면 자식 높이가 명확해야 해서, 화면마다 h-full을 직접
