@@ -1,11 +1,14 @@
 import { useMatches } from "react-router-dom";
 
-import ScreenLayout from "@/components/ui/ScreenLayout";
+import ScreenLayout, {
+  type ScreenBackground,
+} from "@/components/ui/ScreenLayout";
 
 // 화면별 레이아웃 옵션 — router.tsx의 각 라우트에 `handle: { ... } satisfies ScreenRouteHandle`로 지정한다.
 // 모든 필드는 선택이고, 지정하지 않은 필드는 바깥 라우트의 값이나 기본값을 따른다.
 export interface ScreenRouteHandle {
   hasBottomNav?: boolean;
+  background?: ScreenBackground;
 }
 
 // useMatches()는 handle을 unknown으로 준다. ScreenRouteHandle은 필드가 전부 선택이라 객체면 이 타입으로 본다.
@@ -37,6 +40,9 @@ function ScreenLayoutRoute() {
 
   return (
     <ScreenLayout
+      background={
+        resolveScreenRouteOption(handles, "background") ?? "alternative"
+      }
       hasBottomNav={resolveScreenRouteOption(handles, "hasBottomNav") ?? true}
     />
   );
