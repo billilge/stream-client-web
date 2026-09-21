@@ -22,10 +22,6 @@
   --color-line-solid-neutral: var(--semantic-line-solid-neutral);
   --color-line-normal-neutral: var(--semantic-line-normal-neutral);
 
-  /* 제출 중 화면 일러스트 — 줄은 Figma Blue/90, 체크박스 배경은 Figma에서도 변수 없이 raw로 그려진 값 */
-  --color-submitting-line: var(--atomic-blue-90);
-  --color-submitting-checkbox: #dfecff;
-
   /* 제출 실패 토스트의 느낌표 아이콘(Figma Atomic/Red/60)과 그 뒤에 까는 흰 바탕(Figma Static/White) */
   --color-toast-negative: var(--atomic-red-60);
   --color-static-white: var(--semantic-static-white);
@@ -37,7 +33,6 @@
   --color-primary: var(--semantic-primary-normal);
   --color-primary-subtle: var(--atomic-blue-95);
 
-  --color-static-white: var(--semantic-static-white);
   --color-status-positive: var(--semantic-status-positive);
   --color-inverse-background: var(--semantic-inverse-background);
 
