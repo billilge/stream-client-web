@@ -266,7 +266,9 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 
 ### Circle Check(`1712:192849`)는 WDS 아이콘이 아니라 모션이 붙은 로컬 도형
 
-`IconCircleCheckFill` 같은 WDS 아이콘이 아니다 — 72px 프레임 안에 60px `Primary/Normal` 원과 흰 체크 선이 따로 있고, 진입할 때 원이 튀어오르며 커지고(back-out) 체크 선이 그려진다(path trim). 체크는 선을 그려 나가는 모션이라 `<img>`로 두면 안 되고 SVG path를 인라인해야 한다. 코드는 `src/features/events/components/EventsCompleteCheck.tsx`, 값은 `get_motion_context`가 준 그대로다.
+`IconCircleCheckFill` 같은 WDS 아이콘이 아니다 — 72px 프레임 안에 60px `Primary/Normal` 원과 흰 체크 선이 따로 있고, 진입할 때 원이 튀어오르며 커지고(back-out) 체크 선이 그려진다(path trim). `get_design_context`의 Component description도 "System Check"뿐이고 montage 문서 링크가 없어서 WDS가 아닌 게 확정된다.
+
+모션은 `src/assets/lottie/events/complete-check.json`(LottieFiles 플러그인 export)을 `LottieLight`로 재생한다 — 처음엔 `get_motion_context` 값을 보고 SVG path와 키프레임을 손으로 옮겼지만, 디자이너가 모션을 고칠 때마다 같은 노동이 반복돼서 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고). 코드는 `src/features/events/components/EventsCompleteCheck.tsx`.
 
 ### 행사 신청 중 마감 화면(`1133:43431`)도 같은 뼈대다
 
@@ -274,7 +276,9 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 
 ### 제출 중 로딩 화면(`1133:43453`)에서 WDS는 `Typography`뿐이다
 
-문서 일러스트와 체크 항목 3줄은 전부 Figma 로컬 도형이고(WDS 아이콘 아님), 3.4초 루프 모션이 붙어 있다(`Loading / Document Review`, 1133:44260). 체크·긴 줄·짧은 줄은 그려지는(path trim) 모션이라 SVG path를 인라인하고, 문서 본체만 `src/assets/icons/events/submitting-document.svg`로 받아 쓴다. 문구 2줄만 WDS `Typography`(`heading1` 22px / `label1` 14px)다. 코드는 `src/features/events/components/EventsSubmittingOverlay.tsx`.
+문서 일러스트와 체크 항목 3줄은 전부 Figma 로컬 도형이고(WDS 아이콘 아님), 3.4초 루프 모션이 붙어 있다(`Loading / Document Review`, 1133:44260). 이 일러스트 전체를 `src/assets/lottie/events/submitting.json`으로 받아 `LottieLight`로 재생한다 — 처음엔 path trim을 SVG로 인라인하고 문서 본체만 svg로 받았지만 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고).
+
+LottieFiles export 원본(`Loading Content`)에는 문구 2줄도 벡터 도형으로 들어 있는데 그 레이어는 빼고 쓴다 — 문구 2줄은 WDS `Typography`(`heading1` 22px / `label1` 14px)로 그려야 스크린리더가 읽고 타이포 토큰도 따라간다. 코드는 `src/features/events/components/EventsSubmittingOverlay.tsx`.
 
 ## 빌릴게 반납 화면(`1133:49973`) 구현 중 확정된 매핑
 
