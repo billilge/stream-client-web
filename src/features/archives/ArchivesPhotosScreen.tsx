@@ -11,7 +11,7 @@ import { ARCHIVES_DETAIL } from "@/features/archives/constants/archivesDetail";
 function ArchivesPhotosScreen() {
   const navigate = useNavigate();
   const { archiveId } = useParams();
-  const { photos } = ARCHIVES_DETAIL;
+  const { title, photos } = ARCHIVES_DETAIL;
 
   useScreenHeader(
     // ScreenLayout 기본 배경은 alternative(회색)라, Figma의 흰 배경(Background/Normal/Normal)을 화면이 직접 깐다.
@@ -45,8 +45,9 @@ function ArchivesPhotosScreen() {
             onClick={() => navigate(`/archives/${archiveId}/photos/${index}`)}
             type="button"
           >
+            {/* 버튼 안에 글자가 없어서 이 alt가 곧 버튼 이름이다(아카이빙 목록 카드는 제목·날짜가 그 역할을 한다) */}
             <img
-              alt=""
+              alt={`${title} 현장 사진 ${index + 1}`}
               className="aspect-square w-full object-cover"
               src={photo}
             />

@@ -8,7 +8,8 @@ import ArchivesPhotoGrid from "@/features/archives/components/ArchivesPhotoGrid"
 import { ARCHIVES_DETAIL } from "@/features/archives/constants/archivesDetail";
 
 // Figma: 아카이빙 상세 (nodeId 1526:171215)
-// 내용은 API 연동 전까지 라우트의 archiveId와 무관하게 목업 하나를 보여준다.
+// 내용은 API 연동 전까지 라우트의 archiveId와 무관하게 목업 하나를 보여준다 —
+// 그래서 목록에서 어떤 카드를 눌러도 같은 내용이 뜬다. archiveId로 조회하는 건 API 연동 때 함께 한다.
 // 공유 버튼·관련 페이지 링크는 연결할 동작/URL이 아직 없어 표시만 한다.
 function ArchivesDetailScreen() {
   const navigate = useNavigate();

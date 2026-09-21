@@ -13,7 +13,7 @@ import { ARCHIVES_DETAIL } from "@/features/archives/constants/archivesDetail";
 function ArchivesPhotoViewerScreen() {
   const navigate = useNavigate();
   const { photoIndex } = useParams();
-  const { photos } = ARCHIVES_DETAIL;
+  const { title, photos } = ARCHIVES_DETAIL;
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   // 주소의 photoIndex가 숫자가 아니거나 범위를 벗어나면 첫 장/마지막 장으로 맞춘다
@@ -40,7 +40,8 @@ function ArchivesPhotoViewerScreen() {
 
   return (
     <div className="relative flex-1 overflow-hidden bg-background-normal">
-      {/* Figma Background blur — 현재 사진을 크게 흐리게 깔아 위아래 빈 공간을 채운다 */}
+      {/* Figma Background blur — 현재 사진을 크게 흐리게 깔아 위아래 빈 공간을 채운다.
+          아래 캐러셀의 같은 사진이 이름을 가지므로 여기는 장식으로 둔다(alt=""). */}
       <img
         alt=""
         className="absolute top-1/2 left-1/2 h-[877px] w-[711px] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover blur-[21.55px]"
@@ -60,7 +61,7 @@ function ArchivesPhotoViewerScreen() {
           >
             {/* Figma Image 375×463 */}
             <img
-              alt=""
+              alt={`${title} 현장 사진 ${index + 1}`}
               className="aspect-[375/463] w-full object-cover"
               src={photo}
             />
