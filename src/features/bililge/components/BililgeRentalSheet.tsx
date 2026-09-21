@@ -97,8 +97,8 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
               onStepperIncrease={() =>
                 setStepperValue((value) => Math.min(item.quantity, value + 1))
               }
-              quantity={item.quantity}
               stepperValue={stepperValue}
+              subtitle={`수량 ${item.quantity}`}
               trailingControl="stepper"
             />
           </div>
