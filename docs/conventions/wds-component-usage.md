@@ -181,13 +181,18 @@ Figma의 Content Badge는 상태에 따라 배경 처리 방식이 두 가지다
 
 또한 행사 카드 CTA는 빌릴게 카드와 달리 `sx` 보정이 필요 없다. Figma의 비활성 상태 색(`Interaction/Disable #F4F4F5` + `Label/Assistive`)이 WDS `Button`의 `&[aria-disabled='true']` 블록과 그대로 같아서 `disabled` prop만 주면 된다.
 
-### 헤더 아래 세그먼트 토글은 `ScreenHeader`의 `toolbar`로 넘긴다
+### 헤더 아래 "Tool" 영역은 화면이 직접 그린다 — `ScreenHeader`는 받지 않는다
 
-행사 화면 헤더(`1765:70732`)는 **로컬 `Top Navigation`(`1765:70665`, 0~56)** 과 **형제 노드인 `Segmented Control`(`1765:70708`, y=56 x=20 w=335 h=32)** 로 나뉜다. 예전에는 WDS `Top Navigation/Resource/Contents` 하나가 내부 `Tool` 슬롯까지 품은 높이 88짜리 인스턴스였는데, 디자인이 바뀌면서 둘로 분리됐다(`ScreenHeader`의 display variant가 WDS를 떠나 로컬 마크업이 된 것과 같은 변경).
+행사 화면 헤더(`1765:70732`)는 **로컬 `Top Navigation`(`1765:70665`, 0~56)** 과 **형제 노드인 `Segmented Control`(`1765:70708`, y=56 x=20 w=335 h=32)** 로 나뉜다. 예전에는 WDS `Top Navigation/Resource/Contents` 하나가 내부 `Tool` 슬롯까지 품은 높이 88짜리 인스턴스였는데, 디자인이 바뀌면서 둘로 분리됐다(`ScreenHeader`의 display variant가 WDS를 떠나 로컬 마크업이 된 것과 같은 변경). 빌릴게(`1765:71192`)도 프레임 이름까지 같은 동일 구조다.
 
-그래서 코드도 WDS `TopNavigation`의 `toolbar` prop에 기대지 않고, `ScreenHeader`가 타이틀 행 아래에 `toolbar`를 그대로 이어 붙인다. 화면 본문에 토글을 두지 않는 이유는 그대로다 — 본문에 두면 헤더 고정 영역 밖이라 스크롤 경계가 화면마다 달라진다.
+Tool 영역은 `88 - 56 - 32 = 0`, 즉 **위아래 여백이 없다.** 세로 패딩을 주면 토글과 그 아래 필터 행이 함께 밀린다. 가로는 x=20이라 `px-5`로 맞춘다.
 
-Tool 영역은 `88 - 56 - 32 = 0`, 즉 **아래 여백이 없다.** 세로 패딩을 주면 헤더가 그만큼 길어진다. 가로는 x=20이라 `px-5`로 맞춘다.
+**배치는 화면 본문 최상단에 `shrink-0`으로 한다.** 한때 `ScreenHeader`에 `toolbar` prop을 두고 헤더가 같이 들고 있었는데 제거했다. 근거가 두 가지였고 둘 다 성립하지 않았다:
+
+1. *"WDS API를 쓰는 것이다"* — WDS `TopNavigation`에 `toolbar?: ReactNode`("Area attached below the navigation")가 실제로 있다. 그런데 `ScreenHeader`의 `display` variant는 로컬 마크업으로 바뀌면서 WDS `TopNavigation`을 안 쓰게 됐고, `normal` variant는 WDS를 쓰지만 `toolbar`를 넘기지 않았다. 즉 **WDS의 그 prop은 한 번도 안 쓰였고**, 남은 건 우리가 만든 슬롯뿐이었다.
+2. *"본문에 두면 스크롤 경계가 화면마다 달라진다"* — 측정으로 반박됐다. 헤더 슬롯이든 본문이든 양쪽 다 `shrink-0`이고 실제 스크롤은 그 아래 `overflow-y-auto` 목록에서만 일어난다. 뷰포트를 줄여 끝까지 스크롤(빌릴게 1365px / 행사 80px)해도 타이틀·툴·필터 top이 1px도 움직이지 않았다.
+
+임의의 `ReactNode`를 받는 슬롯은 `ScreenHeader`가 내용을 판단할 수 없어 패스스루 컨테이너가 되고, 화면마다 존재 여부가 달라지면서 책임 범위가 타이틀 + 트레일링 아이콘을 넘어 계속 넓어진다(제거 시점에 이미 행사·게시판 2개 화면이 쓰고 있었다). 세 화면(행사·게시판·빌릴게)을 본문 배치로 통일했고, 이동 전후 렌더 결과는 세 화면 모두 픽셀 단위로 동일했다.
 
 ### 필터 칩 반례가 행사 화면에서도 확인됐다
 

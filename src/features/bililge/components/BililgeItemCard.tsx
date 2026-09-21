@@ -40,7 +40,7 @@ function BililgeItemCard({
 
   return (
     <div
-      className={`flex w-[335px] items-center rounded-xl bg-background-normal p-4 ${isStepper ? "border border-line-solid-neutral" : ""}`}
+      className={`flex w-full items-center rounded-xl bg-background-normal p-4 ${isStepper ? "border border-line-solid-neutral" : ""}`}
     >
       <div className="flex h-[42px] w-full items-center justify-between">
         <div className="flex items-center gap-3">
