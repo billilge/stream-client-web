@@ -16,7 +16,7 @@ interface BililgeReturnConfirmModalProps {
 // wds-component-usage.md "반납 신청 확인 모달은 WDS Alert가 아니다" 참고). 버튼은 WDS
 // `Button`(size="medium")이 radius(10px)·타이포(Body 2/Medium·Bold)까지 정확히 일치해서
 // 재사용하고, 세로 패딩만(9px→12px) sx로 보정했다.
-// BottomSheet와 같은 방식으로 ScreenLayout의 포털 슬롯에 그려서 375×812 프레임 전체를 덮는다.
+// BottomSheet와 같은 방식으로 ScreenLayout의 포털 슬롯에 그려서 화면 컬럼 전체를 덮는다.
 //
 // 다이얼로그 접근성(코드리뷰 지적 반영): role="dialog"/aria-modal, 열릴 때 기본 액션으로 포커스
 // 이동, Tab이 두 버튼 밖으로 안 나가게 트랩, Esc로 닫기, 닫힐 때 이전 포커스 복원, 닫혀있을 땐
@@ -107,7 +107,9 @@ function BililgeReturnConfirmModal({
       <div
         aria-labelledby={titleId}
         aria-modal="true"
-        className="relative flex w-[311px] flex-col items-center gap-6 rounded-3xl bg-background-normal px-5 pt-6 pb-5"
+        // 폭은 컬럼 좌우에 32px씩 남긴 값 — 폰은 Figma 그대로 311px(375 기준),
+        // 데스크톱 컬럼(sm 이상, 480px)에서는 416px.
+        className="relative flex w-[311px] flex-col items-center gap-6 rounded-3xl bg-background-normal px-5 pt-6 pb-5 sm:w-[416px]"
         role="dialog"
       >
         <div className="flex flex-col gap-1 text-center">

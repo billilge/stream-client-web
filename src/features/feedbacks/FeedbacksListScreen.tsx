@@ -18,8 +18,17 @@ import {
   FEEDBACKS,
 } from "@/features/feedbacks/constants/feedbacks";
 
-// FeedbacksQaCard의 w-[286px] + 캐러셀 gap-2(8px)와 맞춘 값. 카드 크기가 바뀌면 같이 바꿔야 한다.
-const CAROUSEL_ITEM_WIDTH = 286 + 8;
+// 카드 한 장이 차지하는 가로 길이(카드 폭 + 캐러셀 gap). FeedbacksQaCard의 폭이 폰(286px)과
+// 데스크톱 컬럼(sm 이상 391px)에서 다르기 때문에 상수로 박아두면 한쪽에서 점이 어긋난다
+// — 실제 카드 폭과 gap을 DOM에서 재서 쓴다.
+function getCarouselItemWidth(el: HTMLDivElement): number {
+  const firstCard = el.firstElementChild;
+  if (!firstCard) {
+    return 0;
+  }
+  const gap = Number.parseFloat(getComputedStyle(el).columnGap) || 0;
+  return firstCard.getBoundingClientRect().width + gap;
+}
 
 // Figma: 게시판 - 열린피드백 (nodeId 1410:50011)
 function FeedbacksListScreen() {
@@ -35,13 +44,21 @@ function FeedbacksListScreen() {
     if (!el) {
       return;
     }
-    setCarouselPage(Math.round(el.scrollLeft / CAROUSEL_ITEM_WIDTH) + 1);
+    const itemWidth = getCarouselItemWidth(el);
+    if (!itemWidth) {
+      return;
+    }
+    setCarouselPage(Math.round(el.scrollLeft / itemWidth) + 1);
   };
 
   const scrollCarouselToPage = (page: number) => {
-    carouselRef.current?.scrollTo({
+    const el = carouselRef.current;
+    if (!el) {
+      return;
+    }
+    el.scrollTo({
       behavior: "smooth",
-      left: (page - 1) * CAROUSEL_ITEM_WIDTH,
+      left: (page - 1) * getCarouselItemWidth(el),
     });
   };
 
