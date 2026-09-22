@@ -56,6 +56,8 @@ function EventsApplicationScreen() {
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFailureToastOpen, setIsFailureToastOpen] = useState(false);
+  // 재시도해서 또 실패했을 때 떠 있던 토스트를 다시 띄우려고 센다 — 아래 ScreenToast의 key다
+  const [failureCount, setFailureCount] = useState(0);
   const navigate = useNavigate();
   const { eventId } = useParams();
   const { eventName, dateTime, location, illustration, questions } =
@@ -74,6 +76,9 @@ function EventsApplicationScreen() {
     setIsSubmitting(false);
 
     if (result === "failure") {
+      // 토스트가 이미 떠 있으면 open에 true를 다시 넣어도 아무 일도 일어나지 않고, 먼저 실패에서
+      // 시작된 자동 닫힘 타이머가 그대로 흘러 곧 사라진다. key를 바꿔 새로 띄운다.
+      setFailureCount((count) => count + 1);
       setIsFailureToastOpen(true);
       return;
     }
@@ -166,6 +171,7 @@ function EventsApplicationScreen() {
       <EventsSubmittingOverlay open={isSubmitting} />
 
       <ScreenToast
+        key={failureCount}
         message="제출에 실패했어요. 다시 시도해 주세요."
         onOpenChange={setIsFailureToastOpen}
         open={isFailureToastOpen}
