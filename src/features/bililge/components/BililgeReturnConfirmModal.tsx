@@ -107,7 +107,9 @@ function BililgeReturnConfirmModal({
       <div
         aria-labelledby={titleId}
         aria-modal="true"
-        className="relative flex w-[311px] flex-col items-center gap-6 rounded-3xl bg-background-normal px-5 pt-6 pb-5"
+        // 폭은 컬럼 좌우에 32px씩 남긴 값 — 폰은 Figma 그대로 311px(375 기준),
+        // 데스크톱 컬럼(sm 이상, 480px)에서는 416px.
+        className="relative flex w-[311px] flex-col items-center gap-6 rounded-3xl bg-background-normal px-5 pt-6 pb-5 sm:w-[416px]"
         role="dialog"
       >
         <div className="flex flex-col gap-1 text-center">

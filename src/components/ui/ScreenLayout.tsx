@@ -48,7 +48,9 @@ interface ScreenLayoutProps {
 // 본문 스크롤을 화면이 정하므로 Action Area는 화면이 자기 영역 하단에 직접 둔다.
 // 높이는 폰이든 데스크톱이든 뷰포트를 꽉 채운다(h-dvh) — 데스크톱에서 높이를 고정하면 낮은
 // 뷰포트에서 화면 아래가 잘리고 Bottom Nav가 밀려난다. 폭만 데스크톱 뷰포트(sm 이상)에서
-// Figma 기준 375px로 묶고, 화면과 같은 배경 위에 서는 컬럼이라 그림자로 경계를 표시한다
+// 480px로 묶는다 — Figma는 375 기준이지만 데스크톱에서 그대로 쓰면 너무 좁다. 폭에 맞춰
+// 같이 움직여야 하는 고정 px는 FeedbacksQaCard(캐러셀 카드)와 BililgeReturnConfirmModal
+// 둘뿐이다. 화면과 같은 배경 위에 서는 컬럼이라 그림자로 경계를 표시한다
 // — App.tsx가 같은 브레이크포인트로 이 컬럼을 가운데 세운다.
 // 세이프에어리어는 앱 셸이 담당하므로 여기서 env(safe-area-inset-*)를 더하지 않는다(중복 여백이 된다).
 // 배경도 같은 방식으로 라우트 handle에서 받는다 — 헤더 슬롯까지 이 루트 div가 덮기 때문에,
@@ -69,7 +71,7 @@ function ScreenLayout({
     <ScreenHeaderContext.Provider value={setHeader}>
       <ScreenSheetPortalContext.Provider value={sheetPortalEl}>
         <div
-          className={`relative flex h-dvh w-full flex-col overflow-hidden sm:w-[375px] sm:shadow-[0_0_20px_rgba(0,0,0,0.05)] ${BACKGROUND_CLASS_NAMES[background]}`}
+          className={`relative flex h-dvh w-full flex-col overflow-hidden sm:w-[480px] sm:shadow-[0_0_20px_rgba(0,0,0,0.05)] ${BACKGROUND_CLASS_NAMES[background]}`}
         >
           <div className="shrink-0">{header}</div>
           {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤).
