@@ -218,6 +218,51 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 
 133번째 줄 아래 "제외됨" 표에는 `divider(new)`가 Stream 로컬로 남아있지만, 161번째 줄 "행사 목록 화면" 절에서 이미 확인했듯 이 값(`rgba(112,115,124,0.08)`, 1px)은 WDS `Divider`의 `color="semantic.line.normal.alternative"`와 정확히 같다. 게시판-공지 화면도 같은 값이라 로컬 div 대신 `Divider`를 그대로 썼다(`src/features/notices/NoticesListScreen.tsx`). "제외됨" 표의 `divider(new)` 항목은 이름 기준 분류일 뿐 실제 코드 구현은 이 절을 따른다.
 
+## 행사 상세(`1133:42433` 모집중 / `1156:53992` 모집예정)·행사 목록 empty(`1165:62713`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | 코드 export / 비고 |
+|---|---|---|
+| `Page Indicator/Counter` | 행사 상세 Hero 우하단 `1/7` | `PageCounter` — 폴더명이 `page-counter`라 Figma 이름(`Page Indicator/...`)과 다르다. props는 `totalPages: number`(필수)·`currentPage: number`·`size: 'small' \| 'medium'`로 숫자를 받는다(Figma는 문자열 variant) |
+
+### `ContentBadge`의 `size`는 화면마다 다르다 — 목록 `small`, 상세 `medium`
+
+같은 Content Badge인데 Figma 스펙이 화면별로 갈린다. `content-badge/style.js`의 size 분기와 1:1로 맞는다:
+
+| 화면 | Figma 스펙 | `size` | WDS 실제 값 |
+|---|---|---|---|
+| 목록 카드 | padding 4/6, Caption 1/Medium(12px) | `small` | `padding: 4px 6px` + `caption1/medium` |
+| 상세 | padding 5/8, Label 2/Medium(13px) | `medium` | `padding: 5px 8px` + `label2/medium` |
+
+상태→색 매핑(accent/neutral)은 두 화면이 같아서 `src/features/events/components/EventsStatusBadge.tsx`로 모았다. 매핑을 카드·상세 두 곳에 적지 않기 위한 것이고, 화면별로 다른 건 `size` prop뿐이다.
+
+### Empty State는 여전히 Stream 로컬 — WDS `FallbackView`를 검토했지만 스펙이 다르다
+
+WDS에 `FallbackView`/`FallbackViewImage`/`FallbackViewContent`/`FallbackViewText`/`FallbackViewButton`이 있어 구조(일러스트 + 타이틀·설명 + 버튼)가 Figma `Empty State`와 같다. 그래서 "제외됨" 표의 로컬 분류를 재확인했는데, 실측값이 어긋난다:
+
+| 항목 | WDS `FallbackView` | Figma `1165:62725` |
+|---|---|---|
+| 일러스트 폭 | 128px / 160px | 81px 박스 안 71×70.109 |
+| 상하 패딩 | 80px / 160px (`padding` variant) | 없음(부모가 가운데 정렬) |
+| 컨테이너 폭 | 335 / 400 | 203px |
+| 타이틀 색 | `label.normal` | `label/neutral` |
+
+내부 패딩·폭·색을 오버라이드해야 맞출 수 있어서(`component-convention.md` "WDS 컴포넌트 내부를 임의로 오버라이드하지 않는다") 바깥 레이아웃만 로컬로 짜고 내부 요소(`Typography`, `Button`)는 WDS로 채웠다. `src/features/events/components/EventsEmptyState.tsx` 참고.
+
+### Empty State 버튼은 `Button variant="outlined" color="assistive"`가 정확히 일치한다
+
+Figma 버튼(`1165:62920`)은 투명 배경 + `Line/Normal/Neutral` 1px 보더 + `Label/Normal` 글자 + Label 2(13px)다. `button/style.js`의 `variant === "outlined" && color === "assistive"` 분기가 `background-color: transparent` / `box-shadow: inset 0 0 0 1px line.normal.neutral` / `color: label.normal`로 그대로 같고, `size="small"`이 padding 7/14·radius 8·label2를 준다. `sx` 보정이 필요 없다.
+
+### 본문 긴 글은 `Typography variant="label1-reading"`
+
+Figma의 `Label 1/Reading - Regular`(14px, line-height 1.571)는 `label1`(1.429)과 다른 별개 변형이다. `TypographyVariant`에 `label1-reading`·`body1-reading`·`body2-reading`이 따로 있으니 Figma 이름에 "Reading"이 붙으면 이쪽을 쓴다. `label1`로 쓰면 줄간격이 좁아진다.
+
+### 행사 상세의 오버레이 헤더는 `ScreenHeader`를 쓰지 않는다
+
+Figma 상세는 뒤로가기 버튼이 Hero 이미지 **위에 떠 있는** 오버레이다(`Top Navigation/Resource/Contents`가 `top: 54`에 absolute로 얹혀 있고 Hero는 `top: 0`부터 시작). `ScreenLayout`의 헤더 슬롯은 본문 위에 자리를 차지하는 구조라 이 배치를 만들 수 없다.
+
+`useScreenHeader`를 호출하지 않으면 슬롯이 `null`(0px)로 남으므로(`useScreenHeader`가 unmount 시 `setHeader(null)`을 한다), 상세 화면은 훅을 아예 호출하지 않고 Hero 안에 `absolute`로 `TopNavigationButton variant="icon"` + `IconChevronLeft`를 얹는다. 버튼 자체는 WDS를 그대로 쓴다.
+
+`ScreenHeader`에 `overlay` prop을 추가하는 방안도 검토했지만(슬롯을 `absolute inset-x-0 top-0 z-10`으로 띄우면 가능 — `ScreenLayout` 프레임이 `relative`다) 공용 컴포넌트가 다른 화면에 영향을 주는 변경이라 로컬로 뒀다. 같은 오버레이 패턴이 두 번째 화면에 나오면 그때 `ScreenHeader`로 올린다(`component-convention.md` §1의 "두 번째 화면에서 실제로 재사용될 때" 규칙과 같은 기준).
 ## 행사 신청 제출 실패 토스트(`1450:93026`) 구현 중 확정된 매핑
 
 | WDS 컴포넌트 | 코드 export | 확인 내용 |

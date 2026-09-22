@@ -9,6 +9,7 @@ import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
 import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
+import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
@@ -42,6 +43,12 @@ const routes = [
             // 공지 화면과 같은 이유(카드 없이 구분선으로만 나뉘는 목록)로 흰 면을 쓴다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/feedbacks",
+          },
+          {
+            element: <EventsDetailScreen />,
+            // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/events/:eventId",
           },
           {
             element: <EventsApplicationScreen />,
