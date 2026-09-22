@@ -7,23 +7,30 @@ import circlePlusFill from "@/assets/icons/circle-plus-fill.svg";
 interface BililgeItemCardProps {
   icon: string;
   itemName: string;
-  quantity: number;
+  subtitle: string;
   trailingControl?: "button" | "stepper";
+  actionLabel?: string;
   onRentRequest?: () => void;
   stepperValue?: number;
   onStepperDecrease?: () => void;
   onStepperIncrease?: () => void;
 }
 
-// "대여 신청" 버튼은 Figma상 `Menu/Resource/Action Area/Trailing Content/Button`(WDS) 인스턴스지만,
-// 그 이름과 1:1 대응하는 코드 export는 없다 — 대신 WDS `Button`(size="small")이 padding(7px/14px)·
-// radius(8px)·타이포(label2)까지 정확히 일치해서 그걸 쓰고, Button 공개 variant엔 없는 "연한 파랑 배경
-// + 파랑 텍스트" 조합만 sx로 보정했다. 스테퍼 +/- 아이콘은 여전히 WDS 미확정이라 하드코딩 — docs/plans 참고.
+// "대여 신청"/"반납 신청" 버튼은 Figma상 `Menu/Resource/Action Area/Trailing Content/Button`(WDS)
+// 인스턴스지만, 그 이름과 1:1 대응하는 코드 export는 없다 — 대신 WDS `Button`(size="small")이
+// padding(7px/14px)·radius(8px)·타이포(label2)까지 정확히 일치해서 그걸 쓰고, Button 공개
+// variant엔 없는 "연한 파랑 배경 + 파랑 텍스트" 조합만 sx로 보정했다. 스테퍼 +/- 아이콘은 여전히
+// WDS 미확정이라 하드코딩 — docs/plans 참고.
+//
+// subtitle은 대여 목록의 "수량 N"과 반납 목록의 "반납까지 N시간"이 같은 자리(Caption 1/Regular)를
+// 쓰는 걸 Figma에서 확인해 호출부가 문구를 직접 넘기도록 뺐다. actionLabel도 같은 이유로
+// "대여 신청"/"반납 신청" 둘 다 표현할 수 있게 기본값만 두고 열어뒀다.
 function BililgeItemCard({
   icon,
   itemName,
-  quantity,
+  subtitle,
   trailingControl = "button",
+  actionLabel = "대여 신청",
   onRentRequest,
   stepperValue = 1,
   onStepperDecrease,
@@ -33,7 +40,7 @@ function BililgeItemCard({
 
   return (
     <div
-      className={`flex w-[335px] items-center rounded-xl bg-background-normal p-4 ${isStepper ? "border border-line-solid-neutral" : ""}`}
+      className={`flex w-full items-center rounded-xl bg-background-normal p-4 ${isStepper ? "border border-line-solid-neutral" : ""}`}
     >
       <div className="flex h-[42px] w-full items-center justify-between">
         <div className="flex items-center gap-3">
@@ -53,7 +60,7 @@ function BililgeItemCard({
               variant="caption1"
               weight="regular"
             >
-              수량 {quantity}
+              {subtitle}
             </Typography>
           </div>
         </div>
@@ -69,7 +76,7 @@ function BililgeItemCard({
             }}
             variant="solid"
           >
-            대여 신청
+            {actionLabel}
           </Button>
         )}
 

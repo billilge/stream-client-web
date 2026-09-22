@@ -49,7 +49,6 @@ type ScreenHeaderProps =
       variant?: "display";
       title?: ScreenHeaderTitle;
       trailing?: ReactNode;
-      toolbar?: ReactNode;
     }
   | {
       variant: "normal";
@@ -73,12 +72,13 @@ type ScreenHeaderProps =
 // search variant(타이틀 자리가 검색 필드로 바뀌는 패턴)는 이번 범위에서 뺐다 —
 // docs/plans/unified-screen-header.md 참고. 화면이 실제로 생기면 그때 추가한다.
 //
-// toolbar는 Figma에서 타이틀 행 바로 아래에 붙는 "Tool" 영역(행사/신청내역 같은 세그먼트 토글)이다.
-// 화면 본문에 두면 헤더 고정 영역 밖이라 스크롤 경계가 화면마다 달라져서, 헤더가 같이 들고 있는다.
-// display variant에만 있다 — normal(모달형)에서 쓰는 화면이 아직 없다.
+// 타이틀 행 아래에 붙는 "Tool" 영역(행사/신청내역·대여/반납 같은 세그먼트 토글)은 이 컴포넌트가
+// 받지 않는다. 화면이 직접 본문 최상단에 `shrink-0`으로 그린다 — 이 컴포넌트의 책임을
+// 타이틀 + 트레일링 아이콘으로 묶어두기 위한 것이다. 임의의 ReactNode를 받는 슬롯은
+// 이 컴포넌트가 내용을 판단할 수 없어 패스스루 컨테이너가 되고, 화면마다 존재 여부가 달라지면서
+// 계속 늘어난다.
 function ScreenHeader(props: ScreenHeaderProps) {
   const { title, trailing } = props;
-  const toolbar = props.variant === "normal" ? undefined : props.toolbar;
 
   if (props.variant === "normal") {
     return (
@@ -120,7 +120,6 @@ function ScreenHeader(props: ScreenHeaderProps) {
           <div className="flex shrink-0 items-center gap-4">{trailing}</div>
         )}
       </div>
-      {toolbar}
     </div>
   );
 }

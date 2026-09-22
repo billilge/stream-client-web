@@ -6,10 +6,14 @@ import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
+import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
+import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
+import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
+import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
@@ -22,8 +26,24 @@ const routes = [
         children: [
           { element: <HomeScreen />, path: "/" },
           { element: <BililgeListScreen />, path: "/bililge" },
-          { element: <EventsListScreen />, path: "/events" },
-          { element: <NoticesListScreen />, path: "/notices" },
+          {
+            element: <EventsListScreen />,
+            // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
+            handle: { background: "normal" } satisfies ScreenRouteHandle,
+            path: "/events",
+          },
+          {
+            element: <NoticesListScreen />,
+            // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
+            handle: { background: "normal" } satisfies ScreenRouteHandle,
+            path: "/notices",
+          },
+          {
+            element: <FeedbacksListScreen />,
+            // 공지 화면과 같은 이유(카드 없이 구분선으로만 나뉘는 목록)로 흰 면을 쓴다
+            handle: { background: "normal" } satisfies ScreenRouteHandle,
+            path: "/feedbacks",
+          },
           {
             element: <EventsDetailScreen />,
             // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
@@ -35,6 +55,34 @@ const routes = [
             // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/events/:eventId/apply",
+          },
+          {
+            element: <EventsApplicationCompleteScreen />,
+            // 신청 결과 화면 — 하단 탭 없이 흰 배경 전체 화면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/events/:eventId/apply/complete",
+          },
+          {
+            element: <EventsApplicationClosedScreen />,
+            // 신청 결과 화면 — 하단 탭 없이 흰 배경 전체 화면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/events/:eventId/apply/closed",
+          },
+          {
+            element: <NoticesDetailScreen />,
+            // 상세 화면은 뒤로가기로만 돌아가는 흐름이라 Bottom Nav를 안 보여준다. 카드 없이
+            // 본문이 배경까지 흰 면이라 목록 화면과 같은 background: "normal"을 쓴다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/notices/:noticeId",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },
