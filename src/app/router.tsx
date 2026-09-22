@@ -6,6 +6,8 @@ import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
+import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
+import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
@@ -46,6 +48,24 @@ const routes = [
             // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/events/:eventId/apply",
+          },
+          {
+            element: <EventsApplicationCompleteScreen />,
+            // 신청 결과 화면 — 하단 탭 없이 흰 배경 전체 화면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/events/:eventId/apply/complete",
+          },
+          {
+            element: <EventsApplicationClosedScreen />,
+            // 신청 결과 화면 — 하단 탭 없이 흰 배경 전체 화면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/events/:eventId/apply/closed",
           },
           {
             element: <NoticesDetailScreen />,

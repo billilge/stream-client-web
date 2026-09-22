@@ -17,7 +17,9 @@
       "!**/node_modules",
       "!**/pnpm-lock.yaml",
       "!**/*.d.ts",
-      "!**/public"
+      "!**/public",
+      // Figma에서 export한 Lottie JSON — 사람이 고치는 파일이 아니라 포매팅 대상에서 뺀다
+      "!**/src/assets/lottie"
     ]
   },
 

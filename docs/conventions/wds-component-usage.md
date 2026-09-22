@@ -218,6 +218,68 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 
 133번째 줄 아래 "제외됨" 표에는 `divider(new)`가 Stream 로컬로 남아있지만, 161번째 줄 "행사 목록 화면" 절에서 이미 확인했듯 이 값(`rgba(112,115,124,0.08)`, 1px)은 WDS `Divider`의 `color="semantic.line.normal.alternative"`와 정확히 같다. 게시판-공지 화면도 같은 값이라 로컬 div 대신 `Divider`를 그대로 썼다(`src/features/notices/NoticesListScreen.tsx`). "제외됨" 표의 `divider(new)` 항목은 이름 기준 분류일 뿐 실제 코드 구현은 이 절을 따른다.
 
+## 행사 신청 제출 실패 토스트(`1450:93026`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 코드 export | 확인 내용 |
+|---|---|---|
+| `Toast/Toast` | `Toast` + `ToastContainer` + `ToastIcon` + `ToastContent` | 메인 컴포넌트 Node ID `516:23034` — [문서](https://montage.wanted.co.kr/docs/components/feedback/toast/design). Figma 인스턴스 내부 구조(Background 2겹 / Container / Content / Icon / Message)가 WDS 구현(`toast/style.js`)과 1:1로 대응한다 |
+
+스타일은 손댈 게 없었다. Figma와 WDS 기본값이 그대로 같다 — `padding: 11px 16px`, `border-radius: 12px`, `backdrop-filter: blur(32px)`, 배경 `Inverse/Background @52%` + `Primary/Normal @5%` 2겹, 본문 `Body 2 Bold`(15px SemiBold) `Static/White @88%`, 아이콘-문구 간격 8px. 실측도 Figma와 같은 335×54였다.
+
+대신 **아이콘과 배치 두 가지는 우리가 넘겨야 했다.**
+
+### 1. `variant="negative"`의 기본 아이콘은 Figma와 다르다 (X ≠ 느낌표)
+
+`toast/constants.js`의 `toastIconComponent.negative`는 `IconCircleCloseFill`(X 표시)인데 Figma는 `Icon/Normal/Circle Exclamation`(느낌표)다. 색은 둘 다 `Atomic/Red/60`(#FF6363)으로 같다. 그래서 `ToastIcon`에 children으로 `IconCircleExclamationFill`을 직접 넘긴다.
+
+이때 **흰 바탕을 같이 깔아야 한다.** WDS `*Fill` 아이콘의 안쪽 기호는 칠한 게 아니라 뚫린 자리(`fill-rule: evenodd`)라, 반투명한 토스트 배경 위에서는 느낌표가 하얗게 보이지 않고 배경이 그대로 비친다. WDS 기본 아이콘도 같은 이유로 `toastCircleIconWrapperStyle`에서 `::before`로 8×10 흰 pill을 뒤에 깐다 — 직접 넘길 때는 그 처리가 빠지므로 우리가 같은 걸 넣는다. Figma도 아이콘 안에 `Filler`(Static/White) 레이어를 같은 목적으로 두고 있다.
+
+### 2. 기본 배치·최소 폭이 375 프레임 밖을 전제로 한다
+
+- `container` 기본값이 `#wds-region-manager-bottom`이라, 그대로 쓰면 앱 프레임이 아니라 브라우저 화면 하단에 붙는다 → `disablePortal`로 끄고 화면 포털(`useScreenSheetPortal`)에 직접 그린다.
+- 폭에 `min-width: 356px`(`breakpoint.sm` 이상)이 걸려 있는데, 그 기준이 앱 프레임이 아니라 **브라우저 창**이다. 데스크톱에서 보면 375px 프레임(좌우 20px 여백 기준 335px)을 넘친다 → 같은 미디어 쿼리 안에서 `minWidth: 0`으로 되돌린다. 평평한 `sx={{ minWidth: 0 }}`는 안 먹는다(emotion이 중첩 미디어 쿼리 블록을 평 선언보다 뒤에 붙여서 `min-width: 356px`가 이긴다).
+
+코드는 `src/components/ui/ScreenToast.tsx`. 화면 위에 토스트를 띄우는 자리는 앞으로도 같을 것이라 공용으로 뒀다.
+
+## 행사 신청 완료 화면(`1712:192283`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 코드 export | 확인 내용 |
+|---|---|---|
+| `Action Area/Action Area` (버튼 2개 가로) | `ActionArea variant="neutral"` + `ActionAreaButton` | 버튼 둘을 가로로 12px 간격, `flex: 1 1 0`으로 반반 나누는 게 WDS 기본 동작이라 감싸는 레이아웃이 필요 없다(`action-area/style.js`의 `actionButtonCancel`) |
+
+### 왼쪽 "신청내역 보기"는 `variant="alternative"` 기본값(outlined)이 아니다
+
+`ActionAreaButton variant="alternative"`는 `Button variant="outlined" color="primary"`(파란 테두리)로 그려지는데, Figma는 `Fill/Normal`(rgba(112,115,124,0.08)) 배경에 `Label/Neutral` 글자인 **solid assistive**다. WDS가 이런 경우를 위해 열어둔 `buttonVariant`/`buttonColor` prop으로 넘겼다 — 컴포넌트 내부를 건드리지 않는 방법이다. 세로 padding은 WDS가 12px(48px)인데 Figma Main Action이 16px(56px)이라 신청 폼과 같은 이유로 `sx`에서 맞춘다.
+
+### 같은 "Event Summary" 카드인데 화면마다 타이포·배경·간격이 다르다
+
+신청 폼(`1658:183393`)과 완료 화면(`1712:192310`)은 이름도 구조도 같은 카드지만 값이 다르다.
+
+| | 신청 폼 | 완료 화면 |
+|---|---|---|
+| 배경 | `Background/Normal/Normal`(흰색) | `Background/Normal/Alternative`(#F7F7F8) |
+| 행사명 | Heading 2/Bold 20px (`variant="heading2"`) | Headline 2/Bold 17px (`variant="headline2"`) |
+| 메타 줄 간격 | 6px | 4px |
+| 일러스트 | 있음 | 없음 |
+
+화면 배경이 서로 반대라 카드 배경도 뒤집힌 것이다. 한 컴포넌트(`EventsSummaryCard`)에 `tone="normal" | "alternative"`로 묶었다 — 세 가지가 항상 같이 움직이는 한 벌이라 prop 하나로 충분하다. **WDS Typography에 17px은 `headline2`다**(`heading2`는 20px) — 이름이 비슷해서 헷갈리기 쉬운데, 처음엔 완료 화면에도 `heading2`를 써서 카드가 Figma보다 4px 높았다(실측 108px, Figma 104px).
+
+### Circle Check(`1712:192849`)는 WDS 아이콘이 아니라 모션이 붙은 로컬 도형
+
+`IconCircleCheckFill` 같은 WDS 아이콘이 아니다 — 72px 프레임 안에 60px `Primary/Normal` 원과 흰 체크 선이 따로 있고, 진입할 때 원이 튀어오르며 커지고(back-out) 체크 선이 그려진다(path trim). `get_design_context`의 Component description도 "System Check"뿐이고 montage 문서 링크가 없어서 WDS가 아닌 게 확정된다.
+
+모션은 `src/assets/lottie/events/complete-check.json`(LottieFiles 플러그인 export)을 `LottieLight`로 재생한다 — 처음엔 `get_motion_context` 값을 보고 SVG path와 키프레임을 손으로 옮겼지만, 디자이너가 모션을 고칠 때마다 같은 노동이 반복돼서 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고). 코드는 `src/features/events/components/EventsCompleteCheck.tsx`.
+
+### 행사 신청 중 마감 화면(`1133:43431`)도 같은 뼈대다
+
+완료 화면과 구조가 같다 — 닫기(X)만 있는 `TopNavigation`, 그 아래 104px 간격, 가운데 일러스트 + 2줄 문구, 하단 Action Area. 다른 점은 버튼이 하나라서 `ActionArea`를 기본값(`variant="strong"`, 세로 배치)으로 쓰고 신청 폼과 같은 `sx={{ paddingBlock: "16px" }}` 보정만 한다는 것뿐이다. 자물쇠 일러스트(`1133:43439`)는 WDS 아이콘이 아니라 Figma 로컬 도형이라 SVG를 그대로 받아 `src/assets/icons/events/application-closed.svg`로 커밋했다(62.963×72.317).
+
+### 제출 중 로딩 화면(`1133:43453`)에서 WDS는 `Typography`뿐이다
+
+문서 일러스트와 체크 항목 3줄은 전부 Figma 로컬 도형이고(WDS 아이콘 아님), 3.4초 루프 모션이 붙어 있다(`Loading / Document Review`, 1133:44260). 이 일러스트 전체를 `src/assets/lottie/events/submitting.json`으로 받아 `LottieLight`로 재생한다 — 처음엔 path trim을 SVG로 인라인하고 문서 본체만 svg로 받았지만 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고).
+
+LottieFiles export 원본(`Loading Content`)에는 문구 2줄도 벡터 도형으로 들어 있는데 그 레이어는 빼고 쓴다 — 문구 2줄은 WDS `Typography`(`heading1` 22px / `label1` 14px)로 그려야 스크린리더가 읽고 타이포 토큰도 따라간다. 코드는 `src/features/events/components/EventsSubmittingOverlay.tsx`.
+
 ## 공지 상세 화면(`1256:81842`, `1256:81856`) 구현 중 확정된 매핑
 
 | WDS 컴포넌트 | 확인 경로 | WDS 메인 컴포넌트 Node ID / 문서 |
