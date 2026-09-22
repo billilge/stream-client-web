@@ -136,7 +136,7 @@ WDS `Label`의 `required`는 `*`를 `semantic.status.negative`로 그려서 **�
 
 - `Rental Item Card`, `RentalHistory-card`, `ApplicationHistory-card`, `Item-card` 계열, `Event-card`, `Q&A Card`, `Notice-card` — Stream 도메인 전용 카드
 - `Bottom Nav`, `BottomNav/Icon`, `Locker-button`, `SearchField`, `Floating Button`, `Empty State`, `Modal`, `Modal/ButtonGroup`, `Section-header`, `Top Navigation`(WDS의 `Top Navigation/Resource/Contents`와 다른 별개 로컬 프레임), `divider(new)`, `ProgressBar`, `Native / Home Indicator`, `Native / Bottom Sheet Indicator`
-- `Icon/Feedback`, `Icon/Camera`, `Icon/Link`, `Icon/Answer`, `Icon/Activity`, `Icon/Arrow` 및 고데기·알약·후시딘 등 물품 아이콘 — Stream 전용 아이콘 세트 (WDS의 `Icon/Normal/*` 네이밍과 다름)
+- `Icon/Feedback`, `Icon/Camera`, `Icon/Link`, `Icon/Answer`, `Icon/Question`, `Icon/Activity`, `Icon/Arrow` 및 고데기·알약·후시딘 등 물품 아이콘 — Stream 전용 아이콘 세트 (WDS의 `Icon/Normal/*` 네이밍과 다름)
 - `Status Bar - iPhone`, `Home Bar` — WDS가 아니라 별도로 연결된 **iOS and iPadOS 26 (Community)** 라이브러리 소속으로 추정
 
 ### 재검증: `Bottom Nav` / `Modal` / `Section-header`
@@ -246,3 +246,16 @@ Figma 모달(nodeId `1133:50014`)이 WDS `Alert`(코드 컴포넌트로 존재)�
 WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하고 있지만, 내부적으로 `#wds-region-manager-bottom`이라는 전역 포털 컨테이너(실제 브라우저 뷰포트 기준)에 렌더링된다. 이 앱은 375×812 고정 프레임을 데스크톱 화면 가운데 띄우는 구조(`App.tsx`)라, WDS 토스트를 그대로 쓰면 프레임 밖 실제 뷰포트 하단에 떠버린다 — **Bottom Nav를 WDS `BottomNavigation` 대신 로컬로 다시 만든 것과 정확히 같은 이유**(위 "Bottom Nav — 구현 시점 판단 결과" 절 참고)다. `BottomSheet`가 쓰는 것과 같은 화면 전용 포털(`useScreenSheetPortal`)에 직접 그리는 Stream 로컬 컴포넌트로 만들었다. 아이콘(`IconCircleCheckFill`)·타이포(`Typography` body2)는 WDS를 그대로 재사용했고, 배경(두 겹 반투명 레이어 + `backdrop-blur-[32px]`)만 Figma 값 그대로 옮겼다. 코드는 `src/features/bililge/components/BililgeReturnToast.tsx` 참고.
 
 **앞으로 화면 전용 포털에 뭔가 띄워야 하는데(모달·토스트·바텀시트) WDS 컴포넌트가 있는 걸 발견하면, 먼저 그 컴포넌트가 어디에 렌더링되는지(`document.querySelector`/포털 대상)부터 확인한다** — 전역 뷰포트 기준이면 이 앱 구조상 항상 로컬로 다시 만들어야 한다.
+
+## 게시판 - 열린피드백 목록 화면(`1410:50011`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | WDS 메인 컴포넌트 Node ID / 문서 |
+|---|---|---|
+| `Pagination/Dots` | 최근 피드백 캐러셀 하단 점 | `445:9563` — [문서](https://montage.wanted.co.kr/docs/components/navigations/pagination-dots/design). 코드 export는 `PaginationDots`(`totalPages`/`currentPage`/`size`/`color`/`onClickDot` props) |
+| `Divider/Divider` | Q&A Card 내부 질문/답변 구분선 | `445:4786`. 위 "행사 목록 화면" 절과 같은 이유로 `color="semantic.line.normal.alternative"`로 사용 |
+
+- `Q&A Card`, `Section Header`, `Floating Button`은 전부 기존 "제외됨" 표에 있던 Stream 로컬 컴포넌트라 그대로 새 컴포넌트로 만들었다(`FeedbacksQaCard`, 섹션 제목은 컴포넌트 없이 `Typography` 직접 사용, 작성 FAB는 화면 안에 인라인으로 둠 — 재사용처가 아직 없어서 `component-convention.md` §1 "애매하면 features/ 아래" 원칙대로).
+- **`Icon/Question`도 `Icon/Answer`처럼 Stream 로컬로 확인**: `search_design_system`에 "Icon/Normal/Question"/"Icon/Normal/Circle Question"은 있지만 정확히 `Icon/Question`이라는 이름은 없고, `get_design_context` Component descriptions에도 잡히지 않았다 — Figma 원본 SVG를 그대로 받아 `src/assets/icons/feedbacks/{question,answer}.svg`로 커밋했다. "제외됨" 표에도 추가했다.
+- **`Divider(new)`의 8px 버전은 1px 구분선과 다른 별개 패턴**: 지금까지 쓰던 `divider(new)`는 1px 헤어라인(WDS `Divider`로 대체)이었는데, 이 화면의 섹션 사이 구분선은 같은 이름의 8px 두꺼운 버전(`bg-background-alternative`, `#f7f7f8`)이다. 헤어라인이 아니라 섹션을 통째로 나누는 용도라 `Divider` 컴포넌트로 대체하지 않고 `<div className="h-2 w-full bg-background-alternative" />`로 직접 그렸다 — 이미 있는 토큰이라 새로 추가한 색은 없다.
+- **`PaginationDots`는 부모 flex 컨테이너에 `items-center`가 없으면 왼쪽으로 붙는다**: 이 컴포넌트의 실제 루트(`tabindex` wrapper div)는 `className`/`sx` prop이 그 div까지 전달되지 않아 직접 센터링을 줄 수 없다(내부 tablist는 `width: fit-content`). `flex-col` 부모에 `items-center`를 주고, 형제 요소(캐러셀 스크롤 행)에는 `w-full`을 명시해서 폭을 유지해야 정확히 중앙에 온다 — `/figma-check`로 실측하다 발견된 버그.
+- **`bg-background-alternative`(`#f7f7f8`)는 흰 배경과 3/255밖에 차이가 안 나서 화면에 따라 거의 안 보일 수 있다**: Q&A 카드 배경·8px 섹션 구분선 둘 다 이 값인데, 개별 레이어 단위로 `get_variable_defs`를 다시 떼어봐도 이 값 하나만 바인딩돼 있고 다른 색·테두리는 없었다 — 코드가 Figma 값을 정확히 따르고 있는 게 확인됐다. 그럼에도 시각적 구분이 약하다고 느껴지면, Figma 스펙을 벗어나 더 진한 톤(예: `Line/Normal/Neutral` `#70737c29`)으로 의도적으로 조정할지는 별도 논의 필요 — 이번 PR에서는 Figma 값 그대로 두었다.

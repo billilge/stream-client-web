@@ -8,6 +8,7 @@ import ScreenLayoutRoute, {
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
+import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
@@ -33,6 +34,12 @@ const routes = [
             // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/notices",
+          },
+          {
+            element: <FeedbacksListScreen />,
+            // 공지 화면과 같은 이유(카드 없이 구분선으로만 나뉘는 목록)로 흰 면을 쓴다
+            handle: { background: "normal" } satisfies ScreenRouteHandle,
+            path: "/feedbacks",
           },
           {
             element: <EventsApplicationScreen />,
