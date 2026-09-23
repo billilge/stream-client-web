@@ -5,11 +5,12 @@ import {
   Typography,
 } from "@wanteddev/wds";
 import { IconBell, IconPlus, IconSearch } from "@wanteddev/wds-icon";
-import { Fragment, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
 import FeedbacksQaCard from "@/features/feedbacks/components/FeedbacksQaCard";
@@ -30,12 +31,30 @@ function getCarouselItemWidth(el: HTMLDivElement): number {
   return firstCard.getBoundingClientRect().width + gap;
 }
 
-// Figma: 게시판 - 열린피드백 (nodeId 1410:50011)
+interface FeedbacksListLocationState {
+  feedbackSent?: boolean;
+}
+
+// Figma: 게시판 - 열린피드백 (nodeId 1410:50011), 피드백 전송 완료 토스트 (nodeId 1410:50080)
 function FeedbacksListScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [roundFilter, setRoundFilter] = useState("all");
   const carouselRef = useRef<HTMLDivElement>(null);
   const [carouselPage, setCarouselPage] = useState(1);
+  // 피드백 작성 화면에서 넘어올 때만 history state로 신호를 받는다(navigate state) — 그 외
+  // 진입(바텀 탭 등)에서는 안 뜬다. 새로고침 시 재노출을 막으려고 받자마자 state를 비운다.
+  const [isSentToastOpen, setIsSentToastOpen] = useState(
+    Boolean(
+      (location.state as FeedbacksListLocationState | null)?.feedbackSent,
+    ),
+  );
+
+  useEffect(() => {
+    if ((location.state as FeedbacksListLocationState | null)?.feedbackSent) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.pathname, location.state, navigate]);
 
   // 캐러셀은 가로 스크롤이라 PaginationDots.currentPage를 고정값으로 두면 스크롤해도 첫 점만
   // 활성으로 보인다(/pr-check 리뷰 지적) — 스크롤 위치로 현재 카드를 계산해 동기화한다.
@@ -162,10 +181,10 @@ function FeedbacksListScreen() {
         </div>
       </div>
 
-      {/* 피드백 작성 화면은 이번 범위 밖이라 클릭 동작은 아직 없다 */}
       <button
         aria-label="피드백 작성"
         className="absolute right-5 bottom-5 flex items-center gap-1 rounded-full bg-primary px-4 py-3 shadow-[0px_6px_5px_rgba(23,23,23,0.08),0px_16px_12px_rgba(23,23,23,0.08)]"
+        onClick={() => navigate("/feedbacks/new")}
         type="button"
       >
         <IconPlus className="size-5 text-white" />
@@ -173,6 +192,13 @@ function FeedbacksListScreen() {
           피드백 작성
         </Typography>
       </button>
+
+      <ScreenToast
+        message="피드백을 보냈어요."
+        onOpenChange={setIsSentToastOpen}
+        open={isSentToastOpen}
+        variant="positive"
+      />
     </div>
   );
 }
