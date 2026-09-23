@@ -6,6 +6,7 @@ import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
+import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
 import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
@@ -83,6 +84,16 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/notices/:noticeId",
+          },
+          {
+            element: <ChatEntryScreen />,
+            // Figma 챗봇 진입 화면에는 Bottom Nav가 없다(뒤로가기로 홈에 복귀). 흰 배경 위에
+            // 그라데이션이 얹히는 구조라 다른 흰 배경 화면들과 같은 normal을 쓴다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/chat",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },

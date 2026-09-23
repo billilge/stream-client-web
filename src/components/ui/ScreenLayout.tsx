@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import BottomNav, { type BottomNavValue } from "@/components/ui/BottomNav";
+import { ScreenBackgroundPortalContext } from "@/components/ui/screenBackgroundPortalContext";
 import { ScreenHeaderContext } from "@/components/ui/screenHeaderContext";
 import { ScreenSheetPortalContext } from "@/components/ui/screenSheetPortalContext";
 
@@ -63,6 +64,8 @@ function ScreenLayout({
   const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(
     null,
   );
+  const [backgroundPortalEl, setBackgroundPortalEl] =
+    useState<HTMLDivElement | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const bottomNavValue = getBottomNavValueFromPath(location.pathname);
@@ -70,35 +73,44 @@ function ScreenLayout({
   return (
     <ScreenHeaderContext.Provider value={setHeader}>
       <ScreenSheetPortalContext.Provider value={sheetPortalEl}>
-        <div
-          className={`relative flex h-dvh w-full flex-col overflow-hidden sm:w-[480px] sm:shadow-[0_0_20px_rgba(0,0,0,0.05)] ${BACKGROUND_CLASS_NAMES[background]}`}
-        >
-          <div className="shrink-0">{header}</div>
-          {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤).
-              overflow-y-auto가 동작하려면 자식 높이가 명확해야 해서, 화면마다 h-full을 직접
-              챙기지 않아도 되도록 여기서 기본으로 보장한다. */}
-          <div className="flex-1 overflow-hidden">
-            <div className="flex h-full flex-col">
-              <Outlet />
-            </div>
-          </div>
-          {hasBottomNav && (
-            <div className="shrink-0">
-              <BottomNav
-                onValueChange={(value) => navigate(BOTTOM_NAV_PATHS[value])}
-                value={bottomNavValue}
-              />
-            </div>
-          )}
-          {/* BottomSheet 포털 대상 — 헤더/본문/Bottom Nav보다 위(z-50)에 겹쳐서, 화면 하나가
-              열어도 화면 프레임 전체를 딤 처리할 수 있다. 시트가 닫혀있을 때는 빈 오버레이가
-              클릭을 가로채지 않도록 pointer-events-none — BottomSheet가 열릴 때 자기 자신에만
-              pointer-events-auto를 되돌려준다. */}
+        <ScreenBackgroundPortalContext.Provider value={backgroundPortalEl}>
           <div
-            className="pointer-events-none absolute inset-0 z-50"
-            ref={setSheetPortalEl}
-          />
-        </div>
+            className={`relative flex h-dvh w-full flex-col overflow-hidden sm:w-[480px] sm:shadow-[0_0_20px_rgba(0,0,0,0.05)] ${BACKGROUND_CLASS_NAMES[background]}`}
+          >
+            {/* 화면 전용 배경 포털 대상 — 프레임 안에서 가장 먼저(맨 아래) 그려져서, 투명한
+                헤더(예: 챗봇 진입 화면)까지 자연스럽게 비쳐 보인다. 콘텐츠가 없는 화면에서는
+                빈 채로 있어 다른 화면에 영향이 없다. */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              ref={setBackgroundPortalEl}
+            />
+            <div className="shrink-0">{header}</div>
+            {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤).
+                overflow-y-auto가 동작하려면 자식 높이가 명확해야 해서, 화면마다 h-full을 직접
+                챙기지 않아도 되도록 여기서 기본으로 보장한다. */}
+            <div className="flex-1 overflow-hidden">
+              <div className="flex h-full flex-col">
+                <Outlet />
+              </div>
+            </div>
+            {hasBottomNav && (
+              <div className="shrink-0">
+                <BottomNav
+                  onValueChange={(value) => navigate(BOTTOM_NAV_PATHS[value])}
+                  value={bottomNavValue}
+                />
+              </div>
+            )}
+            {/* BottomSheet 포털 대상 — 헤더/본문/Bottom Nav보다 위(z-50)에 겹쳐서, 화면 하나가
+                열어도 화면 프레임 전체를 딤 처리할 수 있다. 시트가 닫혀있을 때는 빈 오버레이가
+                클릭을 가로채지 않도록 pointer-events-none — BottomSheet가 열릴 때 자기 자신에만
+                pointer-events-auto를 되돌려준다. */}
+            <div
+              className="pointer-events-none absolute inset-0 z-50"
+              ref={setSheetPortalEl}
+            />
+          </div>
+        </ScreenBackgroundPortalContext.Provider>
       </ScreenSheetPortalContext.Provider>
     </ScreenHeaderContext.Provider>
   );
