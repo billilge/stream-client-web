@@ -366,3 +366,32 @@ WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하
 - **`Divider(new)`의 8px 버전은 1px 구분선과 다른 별개 패턴**: 지금까지 쓰던 `divider(new)`는 1px 헤어라인(WDS `Divider`로 대체)이었는데, 이 화면의 섹션 사이 구분선은 같은 이름의 8px 두꺼운 버전(`bg-background-alternative`, `#f7f7f8`)이다. 헤어라인이 아니라 섹션을 통째로 나누는 용도라 `Divider` 컴포넌트로 대체하지 않고 `<div className="h-2 w-full bg-background-alternative" />`로 직접 그렸다 — 이미 있는 토큰이라 새로 추가한 색은 없다.
 - **`PaginationDots`는 부모 flex 컨테이너에 `items-center`가 없으면 왼쪽으로 붙는다**: 이 컴포넌트의 실제 루트(`tabindex` wrapper div)는 `className`/`sx` prop이 그 div까지 전달되지 않아 직접 센터링을 줄 수 없다(내부 tablist는 `width: fit-content`). `flex-col` 부모에 `items-center`를 주고, 형제 요소(캐러셀 스크롤 행)에는 `w-full`을 명시해서 폭을 유지해야 정확히 중앙에 온다 — `/figma-check`로 실측하다 발견된 버그.
 - **`bg-background-alternative`(`#f7f7f8`)는 흰 배경과 3/255밖에 차이가 안 나서 화면에 따라 거의 안 보일 수 있다**: Q&A 카드 배경·8px 섹션 구분선 둘 다 이 값인데, 개별 레이어 단위로 `get_variable_defs`를 다시 떼어봐도 이 값 하나만 바인딩돼 있고 다른 색·테두리는 없었다 — 코드가 Figma 값을 정확히 따르고 있는 게 확인됐다. 그럼에도 시각적 구분이 약하다고 느껴지면, Figma 스펙을 벗어나 더 진한 톤(예: `Line/Normal/Neutral` `#70737c29`)으로 의도적으로 조정할지는 별도 논의 필요 — 이번 PR에서는 Figma 값 그대로 두었다.
+
+## 열린피드백 상세페이지 · 모아보기(`1410:49988`) 구현 중 확정된 매핑
+
+같은 회차(round)의 답변된 피드백들을 가로로 스와이프해서 넘겨보는 화면. Figma는 정적 예시 한 장만 있어서(신청 폼·행사 상세처럼 스크롤 스냅 캐러셀은 화면에 안 잡힌다), 구조는 공지·행사 상세의 가로 스크롤 스냅 패턴을 그대로 가져오고, "스와이프하는 동안 진행 바가 같이 움직인다"는 요구사항은 스크롤 위치를 0~1 연속값으로 추적해서 반영했다.
+
+### 재검증 — `ProgressBar`는 여전히 Stream 로컬이다(WDS `ProgressIndicator`와 다름)
+
+WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외됨` 표에 `ProgressBar`가 예전부터 있었지만 이 화면에서 직접 재확인했다) `node_modules/@wanteddev/wds/dist/components/progress-indicator/style.js`를 열어봤다:
+
+| 항목 | WDS `ProgressIndicator` | Figma `ProgressBar`(`547:35051`) |
+|---|---|---|
+| 트랙 높이 | 2px | 4px |
+| 트랙 배경 | `Fill/Normal` | `Background/Normal/Alternative`(`#f7f7f8`) |
+| 채움 색 | `Primary/Normal`(`#0066FF`) | `#3385FF`(아래 항목 참고) |
+| 동작 | `--wds-progress-indicator-transform`으로 **단일 진행률**(0~100%)을 표현하는 로딩바 | 전체 중 **N개 중 1개 구간의 위치**를 나타내는 스크롤바 성격의 창(thumb) |
+
+색·치수가 다른 데다, 무엇보다 "진행률 1개 값"과 "N등분 중 한 구간의 폭+위치"는 동작 자체가 달라서 `ProgressIndicator`로는 표현이 안 된다(내부를 갈아엎어야 함 — `component-convention.md` 오버라이드 금지 원칙 위반). 트랙+채움 두 div로 직접 그렸다(`src/features/feedbacks/FeedbacksDetailScreen.tsx`).
+
+### 채움 색은 `--primary/normal`이 아니라 `Atomic/Blue/60`이다
+
+`get_design_context`가 내보낸 raw class는 `bg-[var(--primary/normal,#3385ff)]`이지만, 이 파일 다른 곳의 진짜 `Semantic/Primary/Normal`은 항상 `#0066FF`(`#06f`)다 — 변수 이름표를 믿지 않고 실제 hex(`#3385FF`)로 역추적하니 `Atomic/Blue/60`과 정확히 일치했다. `src/index.css`에 `--color-progress-fill: var(--atomic-blue-60)`으로 새 토큰을 추가했다.
+
+### 진행 바 위치는 정수 페이지가 아니라 스크롤 비율로 추적한다
+
+공지·행사 상세의 갤러리는 `Math.round(scrollLeft / offsetWidth)`로 정수 페이지만 구하지만, 이 화면은 "스와이프하는 동안 파란 칸이 같이 움직인다"는 요구사항이 있어서 `scrollLeft / (scrollWidth - clientWidth)`로 0~1 연속값을 추적한다. 칸 폭은 `100 / N`%, 위치는 `progress * (100 - 칸폭)`%로 계산해서 칸이 트랙 밖으로 튀어나가지 않게 한다(표준 스크롤바 thumb 공식과 동일).
+
+### `Icon/Feedback`·`Icon/Answer`는 게시판-열린피드백 목록과 같은 로컬 아이콘
+
+이 화면의 "피드백 내용"/"학생회 답변" 아이콘은 목록 화면의 `Icon/Question`/`Icon/Answer`와 이름만 다를 뿐 같은 자리(질문/답변 구분 아이콘)라 새로 받지 않고 기존 `src/assets/icons/feedbacks/{question,answer}.svg`를 그대로 재사용했다.
