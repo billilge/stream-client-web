@@ -262,7 +262,9 @@ Figma 상세는 뒤로가기 버튼이 Hero 이미지 **위에 떠 있는** 오�
 
 `useScreenHeader`를 호출하지 않으면 슬롯이 `null`(0px)로 남으므로(`useScreenHeader`가 unmount 시 `setHeader(null)`을 한다), 상세 화면은 훅을 아예 호출하지 않고 Hero 안에 `absolute`로 `TopNavigationButton variant="icon"` + `IconChevronLeft`를 얹는다. 버튼 자체는 WDS를 그대로 쓴다.
 
-`ScreenHeader`에 `overlay` prop을 추가하는 방안도 검토했지만(슬롯을 `absolute inset-x-0 top-0 z-10`으로 띄우면 가능 — `ScreenLayout` 프레임이 `relative`다) 공용 컴포넌트가 다른 화면에 영향을 주는 변경이라 로컬로 뒀다. 같은 오버레이 패턴이 두 번째 화면에 나오면 그때 `ScreenHeader`로 올린다(`component-convention.md` §1의 "두 번째 화면에서 실제로 재사용될 때" 규칙과 같은 기준).
+`ScreenHeader`에 `overlay` prop을 추가하는 방안도 검토했지만(슬롯을 `absolute inset-x-0 top-0 z-10`으로 띄우면 가능 — `ScreenLayout` 프레임이 `relative`다) 공용 컴포넌트가 다른 화면에 영향을 주는 변경이라 로컬로 뒀다.
+
+**후기(공지 상세에 같은 패턴이 실제로 생김)**: 이후 공지 상세에도 같은 오버레이 헤더가 필요해졌는데, `ScreenHeader`가 아니라 `PhotoGallery`(아래 "PhotoGallery" 절 참고) 쪽에 `overlay` prop을 둬서 해결했다 — 뒤로가기 버튼이 이미지 영역에 종속된 오버레이라, `ScreenHeader`(헤더 슬롯 전체를 관장) 대신 사진 갤러리 컴포넌트가 자기 위에 뭘 얹을지를 결정하는 게 더 자연스러웠다. 공지 상세는 사진이 있을 때만 이 오버레이를 쓰고(`useScreenHeader(notice?.hasThumbnail ? null : <ScreenHeader ... />)`), 사진이 없으면 기존처럼 `ScreenHeader`로 되돌아간다.
 ## 행사 신청 제출 실패 토스트(`1450:93026`) 구현 중 확정된 매핑
 
 | WDS 컴포넌트 | 코드 export | 확인 내용 |
@@ -334,6 +336,15 @@ LottieFiles export 원본(`Loading Content`)에는 문구 2줄도 벡터 도형�
 - `Content Badge`의 accent 색 분기(일반=`semantic.accent.foreground.blue`, 제휴=`semantic.accent.foreground.redOrange`)는 행사 화면의 `ContentBadge` accent 판단과 같은 구조라 재조사 없이 그대로 적용했다.
 - 뒤로가기는 행사 신청 화면과 동일하게 `ScreenHeader variant="normal"`의 `leading`에 `TopNavigationButton`+`IconChevronLeft`를 넣는다("Top Navigation 뒤로가기" 절 참고). 공지 상세는 타이틀이 헤더가 아니라 본문(Title Details)에 있어서 `title` prop은 생략한다.
 - 이미지 갤러리 배경은 실제 공지 사진 API 전까지 `bg-thumbnail-placeholder`(행사 카드와 동일 토큰)를 그대로 재사용했다.
+
+### PhotoGallery — 공지·행사 상세가 공유하는 사진 갤러리(스와이프+호버 화살표는 WDS에 없는 Stream 자체 구현)
+
+사진이 여러 장일 때 가로 스크롤 스냅으로 넘기는 갤러리를 `src/components/ui/PhotoGallery.tsx`로 공통화해서 공지 상세·행사 상세가 같이 쓴다(도메인 무관 공용 UI라 `features/`가 아니라 `components/ui/`에 둔다 — `coding-style.md` "폴더 구조" 기준).
+
+- **WDS로 확인된 부분**: 우하단 카운터는 `PageCounter`(위 표), 화살표 아이콘은 `wds-icon`의 `IconChevronLeft`/`IconChevronRight`.
+- **Stream 자체 구현(WDS 대응 없음)**: 가로 스크롤 스냅 트랙(`snap-x snap-mandatory`)과 호버 시에만 뜨는 원형 화살표 `<button>`은 Figma 디자인에도, WDS 컴포넌트 목록에도 없다. Figma는 "1/7" 카운터만 정의하고 화살표로 넘기는 인터랙션 자체가 없어서(스와이프만 전제) Stream이 웹 전용으로 새로 추가했다. 화살표는 `[@media(hover:hover)]:flex`로만 보이게 해서 터치 기기(hover 자체가 없음)에서는 항상 `hidden`으로 남고 스와이프로만 넘어간다.
+- **`overlay` prop**: 뒤로가기 버튼처럼 이미지 위에 얹는 오버레이를 화면마다 다르게 넘긴다. 공지 상세는 사진이 있을 때만 오버레이를 쓰고, 행사 상세는 항상 오버레이만 쓴다(위 "행사 상세의 오버레이 헤더는 `ScreenHeader`를 쓰지 않는다" 절 후기 참고).
+- **슬라이드 비율은 Figma 리터럴 값과 다르다**: Figma는 공지·행사 상세 둘 다 `Image Gallery`/`Hero Media` 프레임이 `h-[375px]` **고정 픽셀**이다(375px 폭 프레임 기준값이고 반응형 variant는 없음). 코드는 `slideClassName="aspect-square"`로 폭에 비례하게 만들었다 — 데스크톱 컬럼(480px)에서 고정 375px 높이로 두면 정사각형 사진이 1.28:1로 눌려 보이기 때문에(`/figma-check`로 2026-09-23 확인), 실사진을 담는 영역이라는 이유로 의도적으로 벗어났다. `ScreenLayout.tsx`의 "폭에 맞춰 같이 움직이는 고정 px 예외" 목록에 세 번째로 올라가 있다.
 
 ### 반례 — `Content Badge`의 `size`는 화면마다 실측해야 한다(행사 카드의 `size="small"`을 그대로 베끼면 안 됨)
 
