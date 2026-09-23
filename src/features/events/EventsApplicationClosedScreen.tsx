@@ -71,7 +71,7 @@ function EventsApplicationClosedScreen() {
         </ActionArea>
         {/* WDS ActionArea의 아래 padding 20px + 여기 14px = Figma Bottom Safe Area 34px.
             앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다. */}
-        <div className="hidden h-[14px] bg-background-normal sm:block" />
+        <div className="h-safe-bottom-extra bg-background-normal sm:h-[14px]" />
       </div>
     </div>
   );

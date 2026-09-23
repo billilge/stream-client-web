@@ -3,7 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover: 페이지를 노치·홈 인디케이터 밑까지 펼친다. 이게 없으면 브라우저가
+         알아서 안전 영역 안으로 잘라 넣고, 그 대신 env(safe-area-inset-*)이 항상 0이 된다.
+         펼친 만큼 피하는 건 우리 책임이 되며 index.css의 safe-area 유틸이 담당한다. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>stream-client</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <link
