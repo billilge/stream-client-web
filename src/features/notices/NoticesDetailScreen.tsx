@@ -1,6 +1,5 @@
 import {
   ContentBadge,
-  PageCounter,
   type ThemeColorsToken,
   TopNavigationButton,
   Typography,
@@ -8,6 +7,7 @@ import {
 import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { useNavigate, useParams } from "react-router-dom";
 
+import PhotoGallery from "@/components/ui/PhotoGallery";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import {
@@ -25,20 +25,25 @@ function NoticesDetailScreen() {
   const { noticeId } = useParams();
   const navigate = useNavigate();
   const notice = NOTICES.find((item) => item.id === noticeId);
+  const photoCount = notice?.photoCount ?? 0;
 
+  const backButton = (
+    <TopNavigationButton
+      aria-label="뒤로가기"
+      onClick={() => navigate(-1)}
+      variant="icon"
+    >
+      <IconChevronLeft />
+    </TopNavigationButton>
+  );
+
+  // 사진이 있으면 행사 상세와 같은 방식으로 뒤로가기를 사진 위 오버레이로 그려서 사진이 화면
+  // 최상단부터 시작하게 한다(ScreenLayout 헤더 슬롯을 비우면 0px로 접힌다). 사진이 없으면
+  // 덮을 이미지가 없어서 기존처럼 흰 배경 헤더를 쓴다.
   useScreenHeader(
-    <ScreenHeader
-      leading={
-        <TopNavigationButton
-          aria-label="뒤로가기"
-          onClick={() => navigate(-1)}
-          variant="icon"
-        >
-          <IconChevronLeft />
-        </TopNavigationButton>
-      }
-      variant="normal"
-    />,
+    notice?.hasThumbnail ? null : (
+      <ScreenHeader leading={backButton} variant="normal" />
+    ),
   );
 
   if (!notice) {
@@ -59,13 +64,15 @@ function NoticesDetailScreen() {
   return (
     <div className="scrollbar-hidden flex flex-1 flex-col gap-5 overflow-y-auto">
       {notice.hasThumbnail && (
-        <div className="flex h-[375px] w-full shrink-0 items-end justify-end bg-thumbnail-placeholder p-5">
-          <PageCounter
-            currentPage={1}
-            size="small"
-            totalPages={notice.photoCount ?? 1}
-          />
-        </div>
+        <PhotoGallery
+          idPrefix={notice.id}
+          overlay={
+            <div className="absolute top-4 left-4 z-10">{backButton}</div>
+          }
+          photoCount={photoCount}
+          showCounter
+          slideClassName="aspect-square"
+        />
       )}
 
       <div className="flex flex-col gap-5 px-5 pb-8">
