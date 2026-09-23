@@ -2,14 +2,13 @@ import {
   ActionArea,
   ActionAreaButton,
   Divider,
-  PageCounter,
   TopNavigationButton,
   Typography,
 } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
-import { type UIEvent, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import PhotoGallery from "@/components/ui/PhotoGallery";
 import EventsEmptyState from "@/features/events/components/EventsEmptyState";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
 import { EVENTS } from "@/features/events/constants/events";
@@ -26,19 +25,7 @@ import { EVENTS } from "@/features/events/constants/events";
 function EventsDetailScreen() {
   const navigate = useNavigate();
   const { eventId } = useParams<{ eventId: string }>();
-  const [currentPage, setCurrentPage] = useState(1);
   const event = EVENTS.find((item) => item.id === eventId);
-
-  // 실 이미지 API 전까지는 장수만 알고 URL이 없어서, 슬라이드 key를 미리 만들어 둔다.
-  // map 콜백의 index를 key로 쓰면 noArrayIndexKey에 걸린다.
-  const imageKeys = useMemo(
-    () =>
-      Array.from(
-        { length: event?.imageCount ?? 0 },
-        (_, index) => `${event?.id}-image-${index}`,
-      ),
-    [event?.id, event?.imageCount],
-  );
 
   if (!event) {
     return (
@@ -54,16 +41,6 @@ function EventsDetailScreen() {
   const isOpen = event.status === "open";
   const hasMultipleImages = event.imageCount > 1;
 
-  // 스크롤 위치로 현재 장을 역산한다. 한 장이 뷰포트 폭을 꽉 채우므로 offsetWidth로 나누면 인덱스가 된다.
-  // scroll 이벤트마다 setState가 불리지만, 같은 값이면 React가 리렌더를 건너뛴다.
-  const handleHeroScroll = (scrollEvent: UIEvent<HTMLDivElement>) => {
-    const { scrollLeft, offsetWidth } = scrollEvent.currentTarget;
-    if (offsetWidth === 0) {
-      return;
-    }
-    setCurrentPage(Math.round(scrollLeft / offsetWidth) + 1);
-  };
-
   return (
     // Figma 상세 루트 배경은 Background/Normal/Normal(#FFFFFF)이다 — ScreenLayout 기본
     // 배경(Background/Normal/Alternative, #F7F7F8)과 다르다. 흰 배경이어야 Action Area의
@@ -75,42 +52,26 @@ function EventsDetailScreen() {
       <div className="scrollbar-hidden h-full overflow-y-auto">
         {/* Hero — 실제 행사 이미지 API 전까지 Figma와 같은 단색 placeholder.
             Figma는 375×375 정사각이라 폭이 유동인 지금 레이아웃에서는 aspect-square로 둔다.
-            이미지가 여러 장이면 가로 스크롤 스냅으로 한 장씩 넘긴다(브라우저 기본 스크롤이라
-            터치·트랙패드·키보드가 모두 동작하고, 별도 캐러셀 라이브러리가 필요 없다). */}
-        <div className="relative w-full">
-          <div
-            className="scrollbar-hidden flex w-full snap-x snap-mandatory overflow-x-auto"
-            onScroll={hasMultipleImages ? handleHeroScroll : undefined}
-          >
-            {imageKeys.map((imageKey) => (
-              <div
-                className="aspect-square w-full shrink-0 snap-start bg-thumbnail-placeholder"
-                key={imageKey}
-              />
-            ))}
-          </div>
-
-          {/* 뒤로가기·카운터는 스크롤되지 않게 스크롤 컨테이너 밖에 절대배치한다 */}
-          <div className="absolute top-4 left-4 z-10">
-            <TopNavigationButton
-              aria-label="뒤로가기"
-              onClick={() => navigate(-1)}
-              variant="icon"
-            >
-              <IconChevronLeft />
-            </TopNavigationButton>
-          </div>
-          {/* 한 장뿐이면 셀 게 없어서 카운터를 감춘다 */}
-          {hasMultipleImages && (
-            <div className="absolute right-5 bottom-5 z-10">
-              <PageCounter
-                currentPage={currentPage}
-                size="small"
-                totalPages={event.imageCount}
-              />
+            이미지가 여러 장이면 가로 스크롤 스냅으로 한 장씩 넘긴다(공지 상세와 같은 PhotoGallery). */}
+        <PhotoGallery
+          idPrefix={event.id}
+          overlay={
+            // 뒤로가기는 스크롤되지 않게 스크롤 컨테이너 밖에 절대배치한다. 행사 상세는
+            // ScreenHeader를 안 쓰고 이미지 위 오버레이 버튼이라 슬롯이 아니라 overlay로 넘긴다.
+            <div className="absolute top-4 left-4 z-10">
+              <TopNavigationButton
+                aria-label="뒤로가기"
+                onClick={() => navigate(-1)}
+                variant="icon"
+              >
+                <IconChevronLeft />
+              </TopNavigationButton>
             </div>
-          )}
-        </div>
+          }
+          photoCount={event.imageCount}
+          showCounter={hasMultipleImages}
+          slideClassName="aspect-square"
+        />
 
         <div className="flex flex-col gap-5 px-5 pt-5">
           <div className="flex flex-col gap-3">
