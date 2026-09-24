@@ -11,7 +11,7 @@ interface BottomSheetProps {
 
 // Figma: Views / Bottom Sheets (nodeId 1422:57176) — WDS에는 대응하는 코드 컴포넌트가 없다
 // (component-convention.md 참고: Native / Bottom Sheet Indicator는 Stream/iOS 목업 전용 로컬 요소).
-// 딤+시트를 ScreenLayout의 포털 슬롯(useScreenSheetPortal)에 그려서 375×812 프레임 전체를 덮는다.
+// 딤+시트를 ScreenLayout의 포털 슬롯(useScreenSheetPortal)에 그려서 화면 컬럼 전체를 덮는다.
 function BottomSheet({ open, onClose, children }: BottomSheetProps) {
   const portalEl = useScreenSheetPortal();
 
@@ -46,8 +46,8 @@ function BottomSheet({ open, onClose, children }: BottomSheetProps) {
             padding으로 이미 확보됨) 다음에 iOS 홈 인디케이터용 "Gesture" 여백(pt-3.5=14px)이
             하나 더 붙는데, 실제 @wanteddev/wds의 ActionArea 컴포넌트에는 이 14px이 없어서
             여기서 더해준다. */}
-        {/* 앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다(BottomNav와 같은 규칙). */}
-        <div className="hidden h-[14px] shrink-0 sm:block" />
+        {/* 앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 컬럼에서만 남긴다(BottomNav와 같은 규칙). */}
+        <div className="h-safe-bottom-extra shrink-0 sm:h-[14px]" />
       </div>
     </div>,
     portalEl,

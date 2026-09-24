@@ -148,7 +148,7 @@ WDS `Label`의 `required`는 `*`를 `semantic.status.negative`로 그려서 **�
 
 - `Rental Item Card`, `RentalHistory-card`, `ApplicationHistory-card`, `Item-card` 계열, `Event-card`, `Q&A Card`, `Notice-card` — Stream 도메인 전용 카드
 - `Bottom Nav`, `BottomNav/Icon`, `Locker-button`, `SearchField`, `Floating Button`, `Empty State`, `Modal`, `Modal/ButtonGroup`, `Section-header`, `Top Navigation`(WDS의 `Top Navigation/Resource/Contents`와 다른 별개 로컬 프레임), `divider(new)`, `ProgressBar`, `Native / Home Indicator`, `Native / Bottom Sheet Indicator`
-- `Icon/Feedback`, `Icon/Camera`, `Icon/Link`, `Icon/Answer`, `Icon/Activity`, `Icon/Arrow` 및 고데기·알약·후시딘 등 물품 아이콘 — Stream 전용 아이콘 세트 (WDS의 `Icon/Normal/*` 네이밍과 다름)
+- `Icon/Feedback`, `Icon/Camera`, `Icon/Link`, `Icon/Answer`, `Icon/Question`, `Icon/Activity`, `Icon/Arrow` 및 고데기·알약·후시딘 등 물품 아이콘 — Stream 전용 아이콘 세트 (WDS의 `Icon/Normal/*` 네이밍과 다름)
 - `Status Bar - iPhone`, `Home Bar` — WDS가 아니라 별도로 연결된 **iOS and iPadOS 26 (Community)** 라이브러리 소속으로 추정
 
 ### 재검증: `Bottom Nav` / `Modal` / `Section-header`
@@ -193,13 +193,18 @@ Figma의 Content Badge는 상태에 따라 배경 처리 방식이 두 가지다
 
 또한 행사 카드 CTA는 빌릴게 카드와 달리 `sx` 보정이 필요 없다. Figma의 비활성 상태 색(`Interaction/Disable #F4F4F5` + `Label/Assistive`)이 WDS `Button`의 `&[aria-disabled='true']` 블록과 그대로 같아서 `disabled` prop만 주면 된다.
 
-### 헤더 아래 세그먼트 토글은 `ScreenHeader`의 `toolbar`로 넘긴다
+### 헤더 아래 "Tool" 영역은 화면이 직접 그린다 — `ScreenHeader`는 받지 않는다
 
-행사 화면 헤더(`1765:70732`)는 **로컬 `Top Navigation`(`1765:70665`, 0~56)** 과 **형제 노드인 `Segmented Control`(`1765:70708`, y=56 x=20 w=335 h=32)** 로 나뉜다. 예전에는 WDS `Top Navigation/Resource/Contents` 하나가 내부 `Tool` 슬롯까지 품은 높이 88짜리 인스턴스였는데, 디자인이 바뀌면서 둘로 분리됐다(`ScreenHeader`의 display variant가 WDS를 떠나 로컬 마크업이 된 것과 같은 변경).
+행사 화면 헤더(`1765:70732`)는 **로컬 `Top Navigation`(`1765:70665`, 0~56)** 과 **형제 노드인 `Segmented Control`(`1765:70708`, y=56 x=20 w=335 h=32)** 로 나뉜다. 예전에는 WDS `Top Navigation/Resource/Contents` 하나가 내부 `Tool` 슬롯까지 품은 높이 88짜리 인스턴스였는데, 디자인이 바뀌면서 둘로 분리됐다(`ScreenHeader`의 display variant가 WDS를 떠나 로컬 마크업이 된 것과 같은 변경). 빌릴게(`1765:71192`)도 프레임 이름까지 같은 동일 구조다.
 
-그래서 코드도 WDS `TopNavigation`의 `toolbar` prop에 기대지 않고, `ScreenHeader`가 타이틀 행 아래에 `toolbar`를 그대로 이어 붙인다. 화면 본문에 토글을 두지 않는 이유는 그대로다 — 본문에 두면 헤더 고정 영역 밖이라 스크롤 경계가 화면마다 달라진다.
+Tool 영역은 `88 - 56 - 32 = 0`, 즉 **위아래 여백이 없다.** 세로 패딩을 주면 토글과 그 아래 필터 행이 함께 밀린다. 가로는 x=20이라 `px-5`로 맞춘다.
 
-Tool 영역은 `88 - 56 - 32 = 0`, 즉 **아래 여백이 없다.** 세로 패딩을 주면 헤더가 그만큼 길어진다. 가로는 x=20이라 `px-5`로 맞춘다.
+**배치는 화면 본문 최상단에 `shrink-0`으로 한다.** 한때 `ScreenHeader`에 `toolbar` prop을 두고 헤더가 같이 들고 있었는데 제거했다. 근거가 두 가지였고 둘 다 성립하지 않았다:
+
+1. *"WDS API를 쓰는 것이다"* — WDS `TopNavigation`에 `toolbar?: ReactNode`("Area attached below the navigation")가 실제로 있다. 그런데 `ScreenHeader`의 `display` variant는 로컬 마크업으로 바뀌면서 WDS `TopNavigation`을 안 쓰게 됐고, `normal` variant는 WDS를 쓰지만 `toolbar`를 넘기지 않았다. 즉 **WDS의 그 prop은 한 번도 안 쓰였고**, 남은 건 우리가 만든 슬롯뿐이었다.
+2. *"본문에 두면 스크롤 경계가 화면마다 달라진다"* — 측정으로 반박됐다. 헤더 슬롯이든 본문이든 양쪽 다 `shrink-0`이고 실제 스크롤은 그 아래 `overflow-y-auto` 목록에서만 일어난다. 뷰포트를 줄여 끝까지 스크롤(빌릴게 1365px / 행사 80px)해도 타이틀·툴·필터 top이 1px도 움직이지 않았다.
+
+임의의 `ReactNode`를 받는 슬롯은 `ScreenHeader`가 내용을 판단할 수 없어 패스스루 컨테이너가 되고, 화면마다 존재 여부가 달라지면서 책임 범위가 타이틀 + 트레일링 아이콘을 넘어 계속 넓어진다(제거 시점에 이미 행사·게시판 2개 화면이 쓰고 있었다). 세 화면(행사·게시판·빌릴게)을 본문 배치로 통일했고, 이동 전후 렌더 결과는 세 화면 모두 픽셀 단위로 동일했다.
 
 ### 필터 칩 반례가 행사 화면에서도 확인됐다
 
@@ -225,6 +230,127 @@ Figma의 `Navigation` 프레임은 56px(패딩 16 + 내부 24)인데, 타이틀 
 
 133번째 줄 아래 "제외됨" 표에는 `divider(new)`가 Stream 로컬로 남아있지만, 161번째 줄 "행사 목록 화면" 절에서 이미 확인했듯 이 값(`rgba(112,115,124,0.08)`, 1px)은 WDS `Divider`의 `color="semantic.line.normal.alternative"`와 정확히 같다. 게시판-공지 화면도 같은 값이라 로컬 div 대신 `Divider`를 그대로 썼다(`src/features/notices/NoticesListScreen.tsx`). "제외됨" 표의 `divider(new)` 항목은 이름 기준 분류일 뿐 실제 코드 구현은 이 절을 따른다.
 
+## 행사 상세(`1133:42433` 모집중 / `1156:53992` 모집예정)·행사 목록 empty(`1165:62713`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | 코드 export / 비고 |
+|---|---|---|
+| `Page Indicator/Counter` | 행사 상세 Hero 우하단 `1/7` | `PageCounter` — 폴더명이 `page-counter`라 Figma 이름(`Page Indicator/...`)과 다르다. props는 `totalPages: number`(필수)·`currentPage: number`·`size: 'small' \| 'medium'`로 숫자를 받는다(Figma는 문자열 variant) |
+
+### `ContentBadge`의 `size`는 화면마다 다르다 — 목록 `small`, 상세 `medium`
+
+같은 Content Badge인데 Figma 스펙이 화면별로 갈린다. `content-badge/style.js`의 size 분기와 1:1로 맞는다:
+
+| 화면 | Figma 스펙 | `size` | WDS 실제 값 |
+|---|---|---|---|
+| 목록 카드 | padding 4/6, Caption 1/Medium(12px) | `small` | `padding: 4px 6px` + `caption1/medium` |
+| 상세 | padding 5/8, Label 2/Medium(13px) | `medium` | `padding: 5px 8px` + `label2/medium` |
+
+상태→색 매핑(accent/neutral)은 두 화면이 같아서 `src/features/events/components/EventsStatusBadge.tsx`로 모았다. 매핑을 카드·상세 두 곳에 적지 않기 위한 것이고, 화면별로 다른 건 `size` prop뿐이다.
+
+### Empty State는 여전히 Stream 로컬 — WDS `FallbackView`를 검토했지만 스펙이 다르다
+
+WDS에 `FallbackView`/`FallbackViewImage`/`FallbackViewContent`/`FallbackViewText`/`FallbackViewButton`이 있어 구조(일러스트 + 타이틀·설명 + 버튼)가 Figma `Empty State`와 같다. 그래서 "제외됨" 표의 로컬 분류를 재확인했는데, 실측값이 어긋난다:
+
+| 항목 | WDS `FallbackView` | Figma `1165:62725` |
+|---|---|---|
+| 일러스트 폭 | 128px / 160px | 81px 박스 안 71×70.109 |
+| 상하 패딩 | 80px / 160px (`padding` variant) | 없음(부모가 가운데 정렬) |
+| 컨테이너 폭 | 335 / 400 | 203px |
+| 타이틀 색 | `label.normal` | `label/neutral` |
+
+내부 패딩·폭·색을 오버라이드해야 맞출 수 있어서(`component-convention.md` "WDS 컴포넌트 내부를 임의로 오버라이드하지 않는다") 바깥 레이아웃만 로컬로 짜고 내부 요소(`Typography`, `Button`)는 WDS로 채웠다. `src/features/events/components/EventsEmptyState.tsx` 참고.
+
+### Empty State 버튼은 `Button variant="outlined" color="assistive"`가 정확히 일치한다
+
+Figma 버튼(`1165:62920`)은 투명 배경 + `Line/Normal/Neutral` 1px 보더 + `Label/Normal` 글자 + Label 2(13px)다. `button/style.js`의 `variant === "outlined" && color === "assistive"` 분기가 `background-color: transparent` / `box-shadow: inset 0 0 0 1px line.normal.neutral` / `color: label.normal`로 그대로 같고, `size="small"`이 padding 7/14·radius 8·label2를 준다. `sx` 보정이 필요 없다.
+
+### 본문 긴 글은 `Typography variant="label1-reading"`
+
+Figma의 `Label 1/Reading - Regular`(14px, line-height 1.571)는 `label1`(1.429)과 다른 별개 변형이다. `TypographyVariant`에 `label1-reading`·`body1-reading`·`body2-reading`이 따로 있으니 Figma 이름에 "Reading"이 붙으면 이쪽을 쓴다. `label1`로 쓰면 줄간격이 좁아진다.
+
+### 행사 상세의 오버레이 헤더는 `ScreenHeader`를 쓰지 않는다
+
+Figma 상세는 뒤로가기 버튼이 Hero 이미지 **위에 떠 있는** 오버레이다(`Top Navigation/Resource/Contents`가 `top: 54`에 absolute로 얹혀 있고 Hero는 `top: 0`부터 시작). `ScreenLayout`의 헤더 슬롯은 본문 위에 자리를 차지하는 구조라 이 배치를 만들 수 없다.
+
+`useScreenHeader`를 호출하지 않으면 슬롯이 `null`(0px)로 남으므로(`useScreenHeader`가 unmount 시 `setHeader(null)`을 한다), 상세 화면은 훅을 아예 호출하지 않고 Hero 안에 `absolute`로 `TopNavigationButton variant="icon"` + `IconChevronLeft`를 얹는다. 버튼 자체는 WDS를 그대로 쓴다.
+
+`ScreenHeader`에 `overlay` prop을 추가하는 방안도 검토했지만(슬롯을 `absolute inset-x-0 top-0 z-10`으로 띄우면 가능 — `ScreenLayout` 프레임이 `relative`다) 공용 컴포넌트가 다른 화면에 영향을 주는 변경이라 로컬로 뒀다. 같은 오버레이 패턴이 두 번째 화면에 나오면 그때 `ScreenHeader`로 올린다(`component-convention.md` §1의 "두 번째 화면에서 실제로 재사용될 때" 규칙과 같은 기준).
+## 행사 신청 제출 실패 토스트(`1450:93026`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 코드 export | 확인 내용 |
+|---|---|---|
+| `Toast/Toast` | `Toast` + `ToastContainer` + `ToastIcon` + `ToastContent` | 메인 컴포넌트 Node ID `516:23034` — [문서](https://montage.wanted.co.kr/docs/components/feedback/toast/design). Figma 인스턴스 내부 구조(Background 2겹 / Container / Content / Icon / Message)가 WDS 구현(`toast/style.js`)과 1:1로 대응한다 |
+
+스타일은 손댈 게 없었다. Figma와 WDS 기본값이 그대로 같다 — `padding: 11px 16px`, `border-radius: 12px`, `backdrop-filter: blur(32px)`, 배경 `Inverse/Background @52%` + `Primary/Normal @5%` 2겹, 본문 `Body 2 Bold`(15px SemiBold) `Static/White @88%`, 아이콘-문구 간격 8px. 실측도 Figma와 같은 335×54였다.
+
+대신 **아이콘과 배치 두 가지는 우리가 넘겨야 했다.**
+
+### 1. `variant="negative"`의 기본 아이콘은 Figma와 다르다 (X ≠ 느낌표)
+
+`toast/constants.js`의 `toastIconComponent.negative`는 `IconCircleCloseFill`(X 표시)인데 Figma는 `Icon/Normal/Circle Exclamation`(느낌표)다. 색은 둘 다 `Atomic/Red/60`(#FF6363)으로 같다. 그래서 `ToastIcon`에 children으로 `IconCircleExclamationFill`을 직접 넘긴다.
+
+이때 **흰 바탕을 같이 깔아야 한다.** WDS `*Fill` 아이콘의 안쪽 기호는 칠한 게 아니라 뚫린 자리(`fill-rule: evenodd`)라, 반투명한 토스트 배경 위에서는 느낌표가 하얗게 보이지 않고 배경이 그대로 비친다. WDS 기본 아이콘도 같은 이유로 `toastCircleIconWrapperStyle`에서 `::before`로 8×10 흰 pill을 뒤에 깐다 — 직접 넘길 때는 그 처리가 빠지므로 우리가 같은 걸 넣는다. Figma도 아이콘 안에 `Filler`(Static/White) 레이어를 같은 목적으로 두고 있다.
+
+### 2. 기본 배치·최소 폭이 375 프레임 밖을 전제로 한다
+
+- `container` 기본값이 `#wds-region-manager-bottom`이라, 그대로 쓰면 앱 프레임이 아니라 브라우저 화면 하단에 붙는다 → `disablePortal`로 끄고 화면 포털(`useScreenSheetPortal`)에 직접 그린다.
+- 폭에 `min-width: 356px`(`breakpoint.sm` 이상)이 걸려 있는데, 그 기준이 앱 프레임이 아니라 **브라우저 창**이다. 데스크톱에서 보면 375px 프레임(좌우 20px 여백 기준 335px)을 넘친다 → 같은 미디어 쿼리 안에서 `minWidth: 0`으로 되돌린다. 평평한 `sx={{ minWidth: 0 }}`는 안 먹는다(emotion이 중첩 미디어 쿼리 블록을 평 선언보다 뒤에 붙여서 `min-width: 356px`가 이긴다).
+
+코드는 `src/components/ui/ScreenToast.tsx`. 화면 위에 토스트를 띄우는 자리는 앞으로도 같을 것이라 공용으로 뒀다.
+
+## 행사 신청 완료 화면(`1712:192283`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 코드 export | 확인 내용 |
+|---|---|---|
+| `Action Area/Action Area` (버튼 2개 가로) | `ActionArea variant="neutral"` + `ActionAreaButton` | 버튼 둘을 가로로 12px 간격, `flex: 1 1 0`으로 반반 나누는 게 WDS 기본 동작이라 감싸는 레이아웃이 필요 없다(`action-area/style.js`의 `actionButtonCancel`) |
+
+### 왼쪽 "신청내역 보기"는 `variant="alternative"` 기본값(outlined)이 아니다
+
+`ActionAreaButton variant="alternative"`는 `Button variant="outlined" color="primary"`(파란 테두리)로 그려지는데, Figma는 `Fill/Normal`(rgba(112,115,124,0.08)) 배경에 `Label/Neutral` 글자인 **solid assistive**다. WDS가 이런 경우를 위해 열어둔 `buttonVariant`/`buttonColor` prop으로 넘겼다 — 컴포넌트 내부를 건드리지 않는 방법이다. 세로 padding은 WDS가 12px(48px)인데 Figma Main Action이 16px(56px)이라 신청 폼과 같은 이유로 `sx`에서 맞춘다.
+
+### 같은 "Event Summary" 카드인데 화면마다 타이포·배경·간격이 다르다
+
+신청 폼(`1658:183393`)과 완료 화면(`1712:192310`)은 이름도 구조도 같은 카드지만 값이 다르다.
+
+| | 신청 폼 | 완료 화면 |
+|---|---|---|
+| 배경 | `Background/Normal/Normal`(흰색) | `Background/Normal/Alternative`(#F7F7F8) |
+| 행사명 | Heading 2/Bold 20px (`variant="heading2"`) | Headline 2/Bold 17px (`variant="headline2"`) |
+| 메타 줄 간격 | 6px | 4px |
+| 일러스트 | 있음 | 없음 |
+
+화면 배경이 서로 반대라 카드 배경도 뒤집힌 것이다. 한 컴포넌트(`EventsSummaryCard`)에 `tone="normal" | "alternative"`로 묶었다 — 세 가지가 항상 같이 움직이는 한 벌이라 prop 하나로 충분하다. **WDS Typography에 17px은 `headline2`다**(`heading2`는 20px) — 이름이 비슷해서 헷갈리기 쉬운데, 처음엔 완료 화면에도 `heading2`를 써서 카드가 Figma보다 4px 높았다(실측 108px, Figma 104px).
+
+### Circle Check(`1712:192849`)는 WDS 아이콘이 아니라 모션이 붙은 로컬 도형
+
+`IconCircleCheckFill` 같은 WDS 아이콘이 아니다 — 72px 프레임 안에 60px `Primary/Normal` 원과 흰 체크 선이 따로 있고, 진입할 때 원이 튀어오르며 커지고(back-out) 체크 선이 그려진다(path trim). `get_design_context`의 Component description도 "System Check"뿐이고 montage 문서 링크가 없어서 WDS가 아닌 게 확정된다.
+
+모션은 `src/assets/lottie/events/complete-check.json`(LottieFiles 플러그인 export)을 `LottieLight`로 재생한다 — 처음엔 `get_motion_context` 값을 보고 SVG path와 키프레임을 손으로 옮겼지만, 디자이너가 모션을 고칠 때마다 같은 노동이 반복돼서 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고). 코드는 `src/features/events/components/EventsCompleteCheck.tsx`.
+
+### 행사 신청 중 마감 화면(`1133:43431`)도 같은 뼈대다
+
+완료 화면과 구조가 같다 — 닫기(X)만 있는 `TopNavigation`, 그 아래 104px 간격, 가운데 일러스트 + 2줄 문구, 하단 Action Area. 다른 점은 버튼이 하나라서 `ActionArea`를 기본값(`variant="strong"`, 세로 배치)으로 쓰고 신청 폼과 같은 `sx={{ paddingBlock: "16px" }}` 보정만 한다는 것뿐이다. 자물쇠 일러스트(`1133:43439`)는 WDS 아이콘이 아니라 Figma 로컬 도형이라 SVG를 그대로 받아 `src/assets/icons/events/application-closed.svg`로 커밋했다(62.963×72.317).
+
+### 제출 중 로딩 화면(`1133:43453`)에서 WDS는 `Typography`뿐이다
+
+문서 일러스트와 체크 항목 3줄은 전부 Figma 로컬 도형이고(WDS 아이콘 아님), 3.4초 루프 모션이 붙어 있다(`Loading / Document Review`, 1133:44260). 이 일러스트 전체를 `src/assets/lottie/events/submitting.json`으로 받아 `LottieLight`로 재생한다 — 처음엔 path trim을 SVG로 인라인하고 문서 본체만 svg로 받았지만 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고).
+
+LottieFiles export 원본(`Loading Content`)에는 문구 2줄도 벡터 도형으로 들어 있는데 그 레이어는 빼고 쓴다 — 문구 2줄은 WDS `Typography`(`heading1` 22px / `label1` 14px)로 그려야 스크린리더가 읽고 타이포 토큰도 따라간다. 코드는 `src/features/events/components/EventsSubmittingOverlay.tsx`.
+
+## 공지 상세 화면(`1256:81842`, `1256:81856`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | WDS 메인 컴포넌트 Node ID / 문서 |
+|---|---|---|
+| `Page Indicator/Counter` | 공지 상세 이미지 갤러리 우하단 "1/7" 카운터 | `471:13818` — [문서](https://montage.wanted.co.kr/docs/components/navigations/page-counter/design). 코드 export는 `PageCounter`(`totalPages`/`currentPage`/`size`/`alternative` props, `node_modules/@wanteddev/wds/dist/components/page-counter/`에서 확인) |
+
+- `Content Badge`의 accent 색 분기(일반=`semantic.accent.foreground.blue`, 제휴=`semantic.accent.foreground.redOrange`)는 행사 화면의 `ContentBadge` accent 판단과 같은 구조라 재조사 없이 그대로 적용했다.
+- 뒤로가기는 행사 신청 화면과 동일하게 `ScreenHeader variant="normal"`의 `leading`에 `TopNavigationButton`+`IconChevronLeft`를 넣는다("Top Navigation 뒤로가기" 절 참고). 공지 상세는 타이틀이 헤더가 아니라 본문(Title Details)에 있어서 `title` prop은 생략한다.
+- 이미지 갤러리 배경은 실제 공지 사진 API 전까지 `bg-thumbnail-placeholder`(행사 카드와 동일 토큰)를 그대로 재사용했다.
+
+### 반례 — `Content Badge`의 `size`는 화면마다 실측해야 한다(행사 카드의 `size="small"`을 그대로 베끼면 안 됨)
+
+처음엔 행사 카드(`EventsCard`)가 `size="small"`을 쓰길래 재측정 없이 그대로 가져다 썼는데, `/figma-check`로 실측하니 이 화면의 뱃지는 padding `8px 5px`+`Label 2/Medium`(13px)로 WDS `size="medium"`(`content-badge/style.js`: `medium`=`padding: 5px 8px`+`label2`, `small`=`padding: 4px 6px`+`caption1`)과 일치했다 — Figma 인스턴스 자체의 radius만 8px로 `medium`의 10px과 다른데(`small`의 radius와 우연히 같음), padding·타이포가 다수 일치하는 쪽을 기준으로 `medium`으로 정정했다(radius 2px 차이는 WDS 내부 오버라이드 금지 원칙상 그대로 둔다). **같은 컴포넌트라도 화면마다 실측 없이 옆 화면의 prop 값을 그대로 베끼면 안 된다** — "빌릴게 필터 Chip" 반례와 같은 종류의 실수.
+
 ## 빌릴게 반납 화면(`1133:49973`) 구현 중 확정된 매핑
 
 - **`RentalHistory Card` 사이 구분선도 위 절과 같은 값**이라 `Divider`(`color="semantic.line.normal.alternative"`)를 재사용했다. `/figma-check`에서 처음엔 raw `<div className="bg-line-normal-alternative">`로 만들어져 있던 걸 잡아냄 — 시각적 차이는 없지만(1px, 같은 색) 이미 문서화된 선례를 놓친 경우였다.
@@ -239,3 +365,16 @@ Figma 모달(nodeId `1133:50014`)이 WDS `Alert`(코드 컴포넌트로 존재)�
 WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하고 있지만, 내부적으로 `#wds-region-manager-bottom`이라는 전역 포털 컨테이너(실제 브라우저 뷰포트 기준)에 렌더링된다. 이 앱은 375×812 고정 프레임을 데스크톱 화면 가운데 띄우는 구조(`App.tsx`)라, WDS 토스트를 그대로 쓰면 프레임 밖 실제 뷰포트 하단에 떠버린다 — **Bottom Nav를 WDS `BottomNavigation` 대신 로컬로 다시 만든 것과 정확히 같은 이유**(위 "Bottom Nav — 구현 시점 판단 결과" 절 참고)다. `BottomSheet`가 쓰는 것과 같은 화면 전용 포털(`useScreenSheetPortal`)에 직접 그리는 Stream 로컬 컴포넌트로 만들었다. 아이콘(`IconCircleCheckFill`)·타이포(`Typography` body2)는 WDS를 그대로 재사용했고, 배경(두 겹 반투명 레이어 + `backdrop-blur-[32px]`)만 Figma 값 그대로 옮겼다. 코드는 `src/features/bililge/components/BililgeReturnToast.tsx` 참고.
 
 **앞으로 화면 전용 포털에 뭔가 띄워야 하는데(모달·토스트·바텀시트) WDS 컴포넌트가 있는 걸 발견하면, 먼저 그 컴포넌트가 어디에 렌더링되는지(`document.querySelector`/포털 대상)부터 확인한다** — 전역 뷰포트 기준이면 이 앱 구조상 항상 로컬로 다시 만들어야 한다.
+
+## 게시판 - 열린피드백 목록 화면(`1410:50011`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | WDS 메인 컴포넌트 Node ID / 문서 |
+|---|---|---|
+| `Pagination/Dots` | 최근 피드백 캐러셀 하단 점 | `445:9563` — [문서](https://montage.wanted.co.kr/docs/components/navigations/pagination-dots/design). 코드 export는 `PaginationDots`(`totalPages`/`currentPage`/`size`/`color`/`onClickDot` props) |
+| `Divider/Divider` | Q&A Card 내부 질문/답변 구분선 | `445:4786`. 위 "행사 목록 화면" 절과 같은 이유로 `color="semantic.line.normal.alternative"`로 사용 |
+
+- `Q&A Card`, `Section Header`, `Floating Button`은 전부 기존 "제외됨" 표에 있던 Stream 로컬 컴포넌트라 그대로 새 컴포넌트로 만들었다(`FeedbacksQaCard`, 섹션 제목은 컴포넌트 없이 `Typography` 직접 사용, 작성 FAB는 화면 안에 인라인으로 둠 — 재사용처가 아직 없어서 `component-convention.md` §1 "애매하면 features/ 아래" 원칙대로).
+- **`Icon/Question`도 `Icon/Answer`처럼 Stream 로컬로 확인**: `search_design_system`에 "Icon/Normal/Question"/"Icon/Normal/Circle Question"은 있지만 정확히 `Icon/Question`이라는 이름은 없고, `get_design_context` Component descriptions에도 잡히지 않았다 — Figma 원본 SVG를 그대로 받아 `src/assets/icons/feedbacks/{question,answer}.svg`로 커밋했다. "제외됨" 표에도 추가했다.
+- **`Divider(new)`의 8px 버전은 1px 구분선과 다른 별개 패턴**: 지금까지 쓰던 `divider(new)`는 1px 헤어라인(WDS `Divider`로 대체)이었는데, 이 화면의 섹션 사이 구분선은 같은 이름의 8px 두꺼운 버전(`bg-background-alternative`, `#f7f7f8`)이다. 헤어라인이 아니라 섹션을 통째로 나누는 용도라 `Divider` 컴포넌트로 대체하지 않고 `<div className="h-2 w-full bg-background-alternative" />`로 직접 그렸다 — 이미 있는 토큰이라 새로 추가한 색은 없다.
+- **`PaginationDots`는 부모 flex 컨테이너에 `items-center`가 없으면 왼쪽으로 붙는다**: 이 컴포넌트의 실제 루트(`tabindex` wrapper div)는 `className`/`sx` prop이 그 div까지 전달되지 않아 직접 센터링을 줄 수 없다(내부 tablist는 `width: fit-content`). `flex-col` 부모에 `items-center`를 주고, 형제 요소(캐러셀 스크롤 행)에는 `w-full`을 명시해서 폭을 유지해야 정확히 중앙에 온다 — `/figma-check`로 실측하다 발견된 버그.
+- **`bg-background-alternative`(`#f7f7f8`)는 흰 배경과 3/255밖에 차이가 안 나서 화면에 따라 거의 안 보일 수 있다**: Q&A 카드 배경·8px 섹션 구분선 둘 다 이 값인데, 개별 레이어 단위로 `get_variable_defs`를 다시 떼어봐도 이 값 하나만 바인딩돼 있고 다른 색·테두리는 없었다 — 코드가 Figma 값을 정확히 따르고 있는 게 확인됐다. 그럼에도 시각적 구분이 약하다고 느껴지면, Figma 스펙을 벗어나 더 진한 톤(예: `Line/Normal/Neutral` `#70737c29`)으로 의도적으로 조정할지는 별도 논의 필요 — 이번 PR에서는 Figma 값 그대로 두었다.

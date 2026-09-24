@@ -93,8 +93,8 @@ function BottomNav({ value, onValueChange }: BottomNavProps) {
       </div>
       {/* iOS 홈 인디케이터 자리(Figma 812 프레임이 포함하는 34px). 앱 WebView에서는 네이티브
           세이프에어리어가 이미 확보해 줘서 여기서 또 주면 여백이 두 번 들어간다.
-          홈 인디케이터가 없는 데스크톱 프레임에서만 Figma 스펙대로 남긴다. */}
-      <div className="hidden h-[34px] w-full sm:block" />
+          홈 인디케이터가 없는 데스크톱 컬럼에서만 Figma 스펙대로 남긴다. */}
+      <div className="h-safe-bottom w-full sm:h-[34px]" />
     </div>
   );
 }
