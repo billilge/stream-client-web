@@ -1,4 +1,4 @@
-import { PageCounter, TopNavigationButton } from "@wanteddev/wds";
+import { IconButton, PageCounter } from "@wanteddev/wds";
 import { IconClose } from "@wanteddev/wds-icon";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -39,12 +39,14 @@ function ArchivesPhotoViewerScreen() {
   };
 
   return (
-    <div className="relative flex-1 overflow-hidden bg-background-normal">
+    <div className="relative flex-1 overflow-hidden">
       {/* Figma Background blur — 현재 사진을 크게 흐리게 깔아 위아래 빈 공간을 채운다.
+          Figma의 711×877 고정값 대신 화면을 채우고 확대하는 방식으로 둔다 — 앱 WebView는 높이가
+          제각각이라 고정 픽셀이면 긴 화면에서 위아래에 빈 띠가 남는다(375×812 프레임 기준 값이었다).
           아래 캐러셀의 같은 사진이 이름을 가지므로 여기는 장식으로 둔다(alt=""). */}
       <img
         alt=""
-        className="absolute top-1/2 left-1/2 h-[877px] w-[711px] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover blur-[21.55px]"
+        className="absolute inset-0 size-full scale-150 object-cover blur-[21.55px]"
         src={photos[currentIndex]}
       />
 
@@ -71,13 +73,16 @@ function ArchivesPhotoViewerScreen() {
 
       <ScreenHeader
         trailing={
-          <TopNavigationButton
+          // 어두운 사진이 깔려도 묻히지 않도록 상세 화면의 사진 위 버튼과 같은 흰색으로 맞춘다
+          <IconButton
             aria-label="닫기"
+            color="semantic.static.white"
             onClick={() => navigate(-1)}
-            variant="icon"
+            size={24}
+            variant="normal"
           >
             <IconClose />
-          </TopNavigationButton>
+          </IconButton>
         }
         variant="floating"
       />

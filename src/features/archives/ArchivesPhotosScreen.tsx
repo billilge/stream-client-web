@@ -14,26 +14,23 @@ function ArchivesPhotosScreen() {
   const { title, photos } = ARCHIVES_DETAIL;
 
   useScreenHeader(
-    // ScreenLayout 기본 배경은 alternative(회색)라, Figma의 흰 배경(Background/Normal/Normal)을 화면이 직접 깐다.
-    <div className="bg-background-normal">
-      <ScreenHeader
-        leading={
-          <TopNavigationButton
-            aria-label="뒤로가기"
-            onClick={() => navigate(-1)}
-            variant="icon"
-          >
-            <IconChevronLeft />
-          </TopNavigationButton>
-        }
-        title="현장 사진"
-        variant="normal"
-      />
-    </div>,
+    <ScreenHeader
+      leading={
+        <TopNavigationButton
+          aria-label="뒤로가기"
+          onClick={() => navigate(-1)}
+          variant="icon"
+        >
+          <IconChevronLeft />
+        </TopNavigationButton>
+      }
+      title="현장 사진"
+      variant="normal"
+    />,
   );
 
   return (
-    <div className="scrollbar-hidden flex-1 overflow-y-auto bg-background-normal">
+    <div className="scrollbar-hidden flex-1 overflow-y-auto">
       {/* pt-2: Figma Body gap(Top Navigation ↔ Photo Grid 8px)
           sm:pb-[34px]: Figma 하단 Home Bar 여백 — 앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 둔다 */}
       <div className="grid grid-cols-2 gap-2 px-5 pt-2 pb-4 sm:pb-[34px]">

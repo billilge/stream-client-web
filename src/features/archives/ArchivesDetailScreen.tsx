@@ -24,7 +24,7 @@ function ArchivesDetailScreen() {
   ];
 
   return (
-    <div className="scrollbar-hidden flex-1 overflow-y-auto bg-background-normal">
+    <div className="scrollbar-hidden flex-1 overflow-y-auto">
       {/* sm:pb-[34px]: Figma 하단 Home Bar 여백 — 앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 둔다 */}
       <div className="flex flex-col gap-6 pb-4 sm:pb-[34px]">
         <div className="relative aspect-square w-full shrink-0 overflow-hidden">

@@ -52,31 +52,28 @@ function ArchivesListScreen() {
   };
 
   useScreenHeader(
-    // ScreenLayout 기본 배경은 alternative(회색)라, Figma의 흰 배경(Background/Normal/Normal)을 화면이 직접 깐다.
-    <div className="bg-background-normal">
-      <ScreenHeader
-        leading={
-          <TopNavigationButton
-            aria-label="뒤로 가기"
-            onClick={() => navigate(-1)}
-            variant="icon"
-          >
-            <IconChevronLeft />
-          </TopNavigationButton>
-        }
-        title="아카이빙"
-        trailing={
-          <TopNavigationButton aria-label="검색" variant="icon">
-            <IconSearch />
-          </TopNavigationButton>
-        }
-        variant="normal"
-      />
-    </div>,
+    <ScreenHeader
+      leading={
+        <TopNavigationButton
+          aria-label="뒤로 가기"
+          onClick={() => navigate(-1)}
+          variant="icon"
+        >
+          <IconChevronLeft />
+        </TopNavigationButton>
+      }
+      title="아카이빙"
+      trailing={
+        <TopNavigationButton aria-label="검색" variant="icon">
+          <IconSearch />
+        </TopNavigationButton>
+      }
+      variant="normal"
+    />,
   );
 
   return (
-    <div className="scrollbar-hidden flex-1 overflow-y-auto bg-background-normal">
+    <div className="scrollbar-hidden flex-1 overflow-y-auto">
       {/* sm:pb-[34px]: Figma 하단 Home Bar 여백 — 앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 둔다 */}
       <div className="flex flex-col gap-4 px-5 pb-4 sm:pb-[34px]">
         <ArchivesYearFilter onChange={setYear} value={year} />
