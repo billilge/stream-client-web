@@ -63,7 +63,9 @@ function ChatEntryScreen() {
 
   function sendMessage(text: string) {
     const trimmed = text.trim();
-    if (!trimmed) {
+    // 봇 응답을 기다리는 동안 새 메시지를 보내면 대기 중이던 타이머가 취소돼 그 메시지의
+    // 응답이 영영 안 온다(코드리뷰 지적) — 응답이 올 때까지는 전송 자체를 막는다.
+    if (!trimmed || isBotLoading) {
       return;
     }
     nextMessageIdRef.current += 1;
@@ -74,9 +76,6 @@ function ChatEntryScreen() {
     setInputValue("");
 
     setIsBotLoading(true);
-    if (botTimerRef.current) {
-      clearTimeout(botTimerRef.current);
-    }
     botTimerRef.current = setTimeout(() => {
       nextMessageIdRef.current += 1;
       setMessages((prev) => [
@@ -147,6 +146,7 @@ function ChatEntryScreen() {
       </div>
       <div className="relative px-5 pb-5">
         <ChatInput
+          disabled={isBotLoading}
           onChange={setInputValue}
           onSubmit={() => sendMessage(inputValue)}
           value={inputValue}

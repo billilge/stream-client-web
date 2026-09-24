@@ -43,7 +43,7 @@ function ChatGradientBackground({
       className="pointer-events-none absolute inset-0 overflow-hidden"
     >
       <div
-        className={`chat-gradient-blob absolute flex rotate-[36.29deg] items-center justify-center transition-opacity duration-300 ${
+        className={`chat-gradient-blob absolute flex rotate-[36.29deg] items-center justify-center transition-opacity duration-300 motion-reduce:transition-none ${
           showBlob ? "opacity-100" : "opacity-0"
         }`}
       >

@@ -4,6 +4,7 @@ interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
+  disabled?: boolean;
 }
 
 // Figma: 챗봇 입력창 — state=Default(nodeId 1628:175742, 빈 입력: placeholder 회색 텍스트 +
@@ -12,7 +13,9 @@ interface ChatInputProps {
 // backdrop-blur(32px)가 기본이라 Figma의 flat 배경(그림자 없음)과 달라 재사용하지 않는다.
 // 텍스트 스타일(15px/0.0096em)은 WDS Typography의 body2 값을 그대로 따랐다 — Typography
 // 컴포넌트 자체는 자기 태그를 렌더링해서 네이티브 input에는 못 씌운다.
-function ChatInput({ value, onChange, onSubmit }: ChatInputProps) {
+// disabled(코드리뷰 지적 반영): 봇 응답을 기다리는 동안 또 보내면 앞선 응답 타이머가 취소돼
+// 그 메시지에 대한 응답이 영영 안 온다 — 응답이 올 때까지 입력 자체를 막는다.
+function ChatInput({ value, onChange, onSubmit, disabled }: ChatInputProps) {
   const isActive = value.trim().length > 0;
 
   return (
@@ -25,6 +28,7 @@ function ChatInput({ value, onChange, onSubmit }: ChatInputProps) {
     >
       <input
         className="min-w-0 flex-1 bg-transparent text-[0.9375rem] text-label-normal leading-[1.375rem] tracking-[0.0096em] placeholder:text-label-assistive focus:outline-none"
+        disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
         placeholder="Stream AI에게 무엇이든 물어보세요"
         value={value}
@@ -32,9 +36,9 @@ function ChatInput({ value, onChange, onSubmit }: ChatInputProps) {
       <button
         aria-label="전송"
         className={`flex size-7 shrink-0 items-center justify-center rounded-full ${
-          isActive ? "bg-primary" : "bg-[#e1e2e4]"
+          isActive && !disabled ? "bg-primary" : "bg-[#e1e2e4]"
         }`}
-        disabled={!isActive}
+        disabled={disabled || !isActive}
         type="submit"
       >
         <IconArrowUp className="size-4 text-static-white" />
