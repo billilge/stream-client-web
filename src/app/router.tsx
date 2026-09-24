@@ -5,6 +5,10 @@ import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
+import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
+import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
+import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
+import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
 import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
@@ -83,6 +87,39 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/notices/:noticeId",
+          },
+          {
+            element: <ArchivesListScreen />,
+            // 사진 카드가 흰 면 위에 놓이는 화면이라 background: "normal"
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/archives",
+          },
+          {
+            element: <ArchivesDetailScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/archives/:archiveId",
+          },
+          {
+            element: <ArchivesPhotosScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/archives/:archiveId/photos",
+          },
+          {
+            element: <ArchivesPhotoViewerScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/archives/:archiveId/photos/:photoIndex",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },
