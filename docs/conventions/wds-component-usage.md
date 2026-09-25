@@ -399,3 +399,37 @@ WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하
 ### 신청 기간이 아닐 때의 상태는 Figma에 없다
 
 `신청하기` 버튼을 `disabled`로 두고 문구를 `신청 기간이 아니에요`로 바꾸기로 코드에서 정했다. 유의사항 3줄은 그대로 둔다. 디자인에 없는 상태를 만든 것이라 디자이너 확인이 필요하다 — `docs/plans/#68-lockers-notice-sheet.md` 참고.
+
+## 사물함 구역 선택 화면(`1737:218452`, `1737:218489`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | 비고 |
+|---|---|---|
+| `Content Badge/Content Badge` | 구역 카드의 혼잡도 뱃지 | `445:5656` — [문서](https://montage.wanted.co.kr/docs/components/contents/content-badge/design) |
+| `Icon/Normal/Chevron Up` | 평면도 가운데 열 방향 표시 | `687:24638`, 코드 `IconChevronUp` |
+
+평면도의 구역 카드·호실·화장실·계단은 전부 Stream 로컬이다. 뱃지만 WDS다.
+
+### `ContentBadge`의 `size`는 `xsmall`이다 — 빌릴게의 `small`을 베끼면 틀린다
+
+`style.js` 실측 결과 세 사이즈가 이렇다.
+
+| size | padding | 타이포 |
+|---|---|---|
+| `xsmall` | `3px 6px` | Caption 2 (11px) |
+| `small` | `4px 6px` | Caption 1 (12px) |
+| `medium` | `5px 8px` | Label 2 (14px) |
+
+이 화면의 뱃지는 Figma가 `px-6 py-3` + 11px이라 **`xsmall`**이다. `BililgeRentalHistoryEntry.tsx:52`가 쓰는 `small`과 다르다 — "`Content Badge`의 `size`는 화면마다 실측해야 한다" 절의 사례가 하나 더 늘었다.
+
+혼잡도 3단계는 `color="accent"` + `accentColor`(green/orange/red)로, 배경이 accentColor의 8% 투명도로 깔린다. **마감은 `color="neutral"`**이고 이때 배경은 `semantic.fill.normal`, 글자는 `neutralColor`가 된다(`style.js`의 color 분기 확인) — Figma의 마감 뱃지(`Fill/Normal` 배경 + `Label/Alternative` 글자)와 정확히 맞는다.
+
+### `download_assets`는 노드 모양에 따라 `export`와 `svgAssets` 중 쓸 게 갈린다
+
+- **단일 벡터 레이어**(화장실 `1737:218466`, 계단 `1737:218484`)는 `svgAssets` 항목이 그대로 깨끗한 아이콘이다. `export`를 쓰면 캔버스 배경(`<rect fill="#EFEFEF">`)이 붙는다
+- **여러 레이어 조합**(사물함 유의사항 일러스트)은 `svgAssets`가 레이어별로 쪼개져 나와서 `export`를 써야 하고, 그때 붙는 캔버스 배경을 직접 걷어내야 한다
+
+받은 SVG에 `fill="#EFEFEF"`인 전체 크기 `<rect>`가 맨 앞에 있으면 캔버스 배경이다.
+
+### 구역 카드 배경이 화면 배경과 같은 색이라 라우트에 `background: "normal"`이 필요하다
+
+카드 배경이 `Background/Normal/Alternative`(`#f7f7f8`)인데 `ScreenLayout` 기본 배경도 같은 값이라, handle을 안 주면 카드가 배경에 완전히 묻힌다(실제로 처음 렌더에서 카드가 안 보였다). Figma 화면 배경이 흰 면이라 `handle: { background: "normal" }`을 준다.
