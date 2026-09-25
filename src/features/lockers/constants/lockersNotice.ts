@@ -2,6 +2,10 @@ import applyPeriodIcon from "@/assets/icons/lockers/apply-period.svg";
 import onePerPersonIcon from "@/assets/icons/lockers/one-per-person.svg";
 import usagePeriodIcon from "@/assets/icons/lockers/usage-period.svg";
 
+// 지금이 신청 기간인지. 실제 기간 API가 붙기 전까지 이 값을 바꿔서 두 상태를 확인한다
+// (행사 신청 플로우의 목업 제출 결과와 같은 방식).
+export const IS_LOCKERS_APPLY_PERIOD = true;
+
 export interface LockersNoticeItem {
   icon: string;
   label: string;
