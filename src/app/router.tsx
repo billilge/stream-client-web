@@ -13,6 +13,7 @@ import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
+import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
 
@@ -83,6 +84,11 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/notices/:noticeId",
+          },
+          {
+            element: <LockersApplyScreen />,
+            // 사물함 유의사항 시트 확인용 임시 라우트 — 실제 진입점이 붙으면 화면과 함께 지운다
+            path: "/lockers/apply",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },
