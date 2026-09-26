@@ -16,7 +16,7 @@ function LockersApplyScreen() {
     <LockersNoticeSheet
       isApplyPeriod={IS_LOCKERS_APPLY_PERIOD}
       onClose={() => navigate(-1)}
-      onConfirm={() => navigate("/lockers/apply/zones")}
+      onConfirm={() => navigate("/lockers/apply/sections")}
       open
     />
   );
