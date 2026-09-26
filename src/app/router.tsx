@@ -14,6 +14,7 @@ import EventsListScreen from "@/features/events/EventsListScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
+import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
 
@@ -87,8 +88,19 @@ const routes = [
           },
           {
             element: <LockersApplyScreen />,
-            // 사물함 유의사항 시트 확인용 임시 라우트 — 실제 진입점이 붙으면 화면과 함께 지운다
+            // 시트만 있는 화면이라 뒤에 Bottom Nav가 비쳐도 Figma(홈 위에 뜨는 시트)와 같다
             path: "/lockers/apply",
+          },
+          {
+            element: <LockersSectionSelectScreen />,
+            // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면.
+            // 구역 카드 배경이 Background/Normal/Alternative(#f7f7f8)라 화면까지 같은 색이면
+            // 카드가 배경에 묻힌다 — Figma대로 흰 면을 깐다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/lockers/apply/sections",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },

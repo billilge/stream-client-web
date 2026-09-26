@@ -20,6 +20,9 @@
   );
 
   --color-line-solid-neutral: var(--semantic-line-solid-neutral);
+  /* Figma "Line/Solid/Normal"(#e1e2e4) — 이름이 비슷한 Line/Solid/Neutral(#eaebec)과 값이 다르다.
+     사물함 평면도의 호실·화장실·계단 점선 테두리가 이 값이다. */
+  --color-line-solid-normal: var(--semantic-line-solid-normal);
   --color-line-normal-neutral: var(--semantic-line-normal-neutral);
 
   /* 제출 실패 토스트의 느낌표 아이콘(Figma Atomic/Red/60)과 그 뒤에 까는 흰 바탕(Figma Static/White) */
@@ -32,6 +35,10 @@
 
   --color-primary: var(--semantic-primary-normal);
   --color-primary-subtle: var(--atomic-blue-95);
+
+  /* 사물함 구역 선택의 마감 구역 배경(Figma "Cool Neutral/97") — 회색 계열이지만
+     Background/Normal/Alternative(#f7f7f8)보다 한 단계 진해서 잠긴 걸 드러낸다 */
+  --color-cool-neutral-97: var(--atomic-coolNeutral-97);
 
   --color-status-positive: var(--semantic-status-positive);
   --color-inverse-background: var(--semantic-inverse-background);
