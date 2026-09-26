@@ -406,6 +406,7 @@ WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하
 |---|---|---|
 | `Content Badge/Content Badge` | 구역 카드의 혼잡도 뱃지 | `445:5656` — [문서](https://montage.wanted.co.kr/docs/components/contents/content-badge/design) |
 | `Icon/Normal/Chevron Up` | 평면도 가운데 열 방향 표시 | `687:24638`, 코드 `IconChevronUp` |
+| `Icon/Normal/Reset` | Top Navigation 트레일링 새로고침 | `790:38150` — "초기화를 표현합니다 / 반시계 화살표". **`IconRefresh`가 아니라 `IconReset`이다** — wds-icon에 Refresh·Reset·Rotate가 다 있어서 이름만 보고 고르면 틀린다 |
 
 평면도의 구역 카드·호실·화장실·계단은 전부 Stream 로컬이다. 뱃지만 WDS다.
 
