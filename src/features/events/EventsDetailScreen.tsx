@@ -211,7 +211,7 @@ function EventsDetailScreen() {
         {/* Figma Action Area(110px)는 버튼 아래가 iOS Home Bar 여백까지 합쳐 34px인데,
             WDS ActionArea는 아래 padding 20px만 준다 — 모자란 14px을 여기서 더한다.
             앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다(BottomNav와 같은 규칙). */}
-        <div className="hidden h-[14px] bg-background-elevated-normal sm:block" />
+        <div className="h-safe-bottom-extra bg-background-elevated-normal sm:h-[14px]" />
       </div>
     </div>
   );

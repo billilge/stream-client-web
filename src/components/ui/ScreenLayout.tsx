@@ -55,6 +55,11 @@ interface ScreenLayoutProps {
 // — App.tsx가 같은 브레이크포인트로 이 컬럼을 가운데 세운다.
 // 세이프에어리어 자리는 앱 셸이 담당하므로 여기서 env(safe-area-inset-*)를 더하지 않는다(중복 여백이 된다).
 // 대신 그 자리를 무슨 색으로 칠할지는 이 화면만 알기 때문에 useNativeSafeAreaColors로 앱에 알려준다.
+// 세이프에어리어는 env(safe-area-inset-*)로 확보한다(index.html의 viewport-fit=cover와 한 쌍).
+// 고정 px를 더하면 앱에서 네이티브 인셋과 겹쳐 두 번 들어가지만, env()는 환경이 채우는 값이라
+// 앱 WebView에서는 0이 되어 중복이 생기지 않는다 — 폰 브라우저·PWA(standalone)에서만 실제 인셋이 잡힌다.
+// 상단은 이 루트 div가 배경을 갖고 있어 여기서 패딩으로 받고, 하단은 Bottom Nav·Action Area가
+// 각자 자기 배경을 그 자리까지 연장해야 해서 컴포넌트마다 h-safe-bottom으로 처리한다.
 // 배경도 같은 방식으로 라우트 handle에서 받는다 — 헤더 슬롯까지 이 루트 div가 덮기 때문에,
 // 화면이 헤더와 본문에 따로 배경을 깔 필요가 없다.
 function ScreenLayout({
@@ -75,7 +80,7 @@ function ScreenLayout({
     <ScreenHeaderContext.Provider value={setHeader}>
       <ScreenSheetPortalContext.Provider value={sheetPortalEl}>
         <div
-          className={`relative flex h-dvh w-full flex-col overflow-hidden sm:w-[480px] sm:shadow-[0_0_20px_rgba(0,0,0,0.05)] ${BACKGROUND_CLASS_NAMES[background]}`}
+          className={`relative flex h-dvh w-full flex-col overflow-hidden pt-safe-top sm:w-[480px] sm:pt-0 sm:shadow-[0_0_20px_rgba(0,0,0,0.05)] ${BACKGROUND_CLASS_NAMES[background]}`}
         >
           <div className="shrink-0">{header}</div>
           {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤).

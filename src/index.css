@@ -45,6 +45,25 @@
   --color-thumbnail-placeholder: #d9d9d9;
 }
 
+/* iOS 노치·홈 인디케이터 자리. index.html의 viewport-fit=cover와 한 쌍이다.
+   값은 우리가 정하지 않고 플랫폼이 채운다 — 앱 WebView는 네이티브 SafeAreaView가 이미
+   인셋해서 0, 폰 브라우저·PWA(standalone)는 실제 인셋, 데스크톱·구형 기기는 0이다.
+   그래서 기기·실행 환경 분기를 코드에서 하지 않아도 된다.
+   데스크톱 프레임(sm 이상)에서 Figma 스펙대로 자리를 흉내 내려면 sm: 유틸로 따로 덮는다. */
+@utility pt-safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+@utility h-safe-bottom {
+  height: env(safe-area-inset-bottom, 0px);
+}
+
+/* WDS ActionArea가 이미 아래 padding 20px을 주는 자리 — 모자란 만큼만 더한다.
+   노치 기기(34px)면 14px, 홈 인디케이터가 없는 기기(0)면 0이 된다. */
+@utility h-safe-bottom-extra {
+  height: max(0px, calc(env(safe-area-inset-bottom, 0px) - 20px));
+}
+
 /* 무한 스크롤 목록 등 스크롤은 동작하되 스크롤바는 안 보이게 할 때 쓰는 재사용 유틸리티 */
 @utility scrollbar-hidden {
   scrollbar-width: none;

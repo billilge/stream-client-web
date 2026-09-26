@@ -47,7 +47,7 @@ function BottomSheet({ open, onClose, children }: BottomSheetProps) {
             하나 더 붙는데, 실제 @wanteddev/wds의 ActionArea 컴포넌트에는 이 14px이 없어서
             여기서 더해준다. */}
         {/* 앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 컬럼에서만 남긴다(BottomNav와 같은 규칙). */}
-        <div className="hidden h-[14px] shrink-0 sm:block" />
+        <div className="h-safe-bottom-extra shrink-0 sm:h-[14px]" />
       </div>
     </div>,
     portalEl,
