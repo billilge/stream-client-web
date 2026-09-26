@@ -5,6 +5,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import BottomNav, { type BottomNavValue } from "@/components/ui/BottomNav";
 import { ScreenHeaderContext } from "@/components/ui/screenHeaderContext";
 import { ScreenSheetPortalContext } from "@/components/ui/screenSheetPortalContext";
+import { useNativeSafeAreaColors } from "@/components/ui/useNativeSafeAreaColors";
 
 // Bottom Nav 탭 ↔ 라우트 경로 매핑. 화면이 늘어나면 여기에 추가한다.
 const BOTTOM_NAV_PATHS: Record<BottomNavValue, string> = {
@@ -52,6 +53,8 @@ interface ScreenLayoutProps {
 // 같이 움직여야 하는 고정 px는 FeedbacksQaCard(캐러셀 카드)와 BililgeReturnConfirmModal
 // 둘뿐이다. 화면과 같은 배경 위에 서는 컬럼이라 그림자로 경계를 표시한다
 // — App.tsx가 같은 브레이크포인트로 이 컬럼을 가운데 세운다.
+// 세이프에어리어 자리는 앱 셸이 담당하므로 여기서 env(safe-area-inset-*)를 더하지 않는다(중복 여백이 된다).
+// 대신 그 자리를 무슨 색으로 칠할지는 이 화면만 알기 때문에 useNativeSafeAreaColors로 앱에 알려준다.
 // 세이프에어리어는 env(safe-area-inset-*)로 확보한다(index.html의 viewport-fit=cover와 한 쌍).
 // 고정 px를 더하면 앱에서 네이티브 인셋과 겹쳐 두 번 들어가지만, env()는 환경이 채우는 값이라
 // 앱 WebView에서는 0이 되어 중복이 생기지 않는다 — 폰 브라우저·PWA(standalone)에서만 실제 인셋이 잡힌다.
@@ -70,6 +73,8 @@ function ScreenLayout({
   const location = useLocation();
   const navigate = useNavigate();
   const bottomNavValue = getBottomNavValueFromPath(location.pathname);
+
+  useNativeSafeAreaColors(background, hasBottomNav);
 
   return (
     <ScreenHeaderContext.Provider value={setHeader}>
