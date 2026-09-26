@@ -1,16 +1,8 @@
 import { useEffect } from "react";
 
 import type { ScreenBackground } from "@/components/ui/ScreenLayout";
-
-// stream-client-app(WebView 셸)이 주입하는 전역. 브라우저로 열면 없다.
-declare global {
-  interface Window {
-    ReactNativeWebView?: { postMessage: (message: string) => void };
-  }
-}
-
-// 앱이 자기 메시지인지 가려내는 표식. 바꾸면 stream-client-app의 수신부도 같이 바꿔야 한다.
-const SAFE_AREA_COLORS_MESSAGE_TYPE = "safeAreaColors";
+import { isInAppShell, postBridgeMessage } from "@/lib/bridge/bridge";
+import { SAFE_AREA_COLORS_MESSAGE_TYPE } from "@/lib/bridge/messages/safeAreaColors";
 
 // 화면 배경 ↔ WDS 시맨틱 토큰. index.css가 Tailwind 색으로 별칭 연결해 둔 그 변수들이다.
 const BACKGROUND_CSS_VARIABLES: Record<ScreenBackground, string> = {
@@ -40,8 +32,7 @@ export function useNativeSafeAreaColors(
   hasBottomNav: boolean,
 ) {
   useEffect(() => {
-    const bridge = window.ReactNativeWebView;
-    if (!bridge) {
+    if (!isInAppShell()) {
       return;
     }
 
@@ -56,8 +47,6 @@ export function useNativeSafeAreaColors(
       return;
     }
 
-    bridge.postMessage(
-      JSON.stringify({ bottom, top, type: SAFE_AREA_COLORS_MESSAGE_TYPE }),
-    );
+    postBridgeMessage(SAFE_AREA_COLORS_MESSAGE_TYPE, { bottom, top });
   }, [background, hasBottomNav]);
 }
