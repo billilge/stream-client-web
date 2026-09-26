@@ -1,14 +1,14 @@
 import { ContentBadge, Typography } from "@wanteddev/wds";
 
 import type {
-  LockersZone,
-  LockersZoneStatus,
-} from "@/features/lockers/constants/lockersZones";
+  LockersSection,
+  LockersSectionStatus,
+} from "@/features/lockers/constants/lockersSections";
 
-interface LockersZoneCardProps {
-  zone: LockersZone;
+interface LockersSectionCardProps {
+  section: LockersSection;
   isSelected: boolean;
-  onSelect: (zoneId: string) => void;
+  onSelect: (sectionId: string) => void;
 }
 
 // 마감은 WDS `color="neutral"`(배경 Fill/Normal)이고 나머지 셋은 `color="accent"`로,
@@ -36,31 +36,38 @@ const STATUS_BADGES = {
     label: "여유",
     token: "semantic.accent.foreground.green",
   },
-} as const satisfies Record<LockersZoneStatus, unknown>;
+} as const satisfies Record<LockersSectionStatus, unknown>;
 
+// 선택됐을 때만 테두리가 생기면 콘텐츠 박스가 1px씩 줄어서 가운데 정렬된 내용이 밀린다.
+// 항상 1px 테두리를 두되 평소엔 투명으로 둬서 박스 크기를 고정한다
+// (배경이 테두리 자리까지 깔려서 테두리 없는 것과 똑같이 보인다).
 const CONTAINER_CLASS_NAMES = {
-  full: "bg-cool-neutral-97",
-  normal: "bg-background-alternative",
-  selected: "border border-primary bg-primary-subtle",
+  full: "border-transparent bg-cool-neutral-97",
+  normal: "border-transparent bg-background-alternative",
+  selected: "border-primary bg-primary-subtle",
 } as const;
 
-// Figma: 사물함 구역 선택 Zone Button (nodeId 1737:218476 외) — WDS에 대응 컴포넌트가 없는
+// Figma: 사물함 구역 선택 Zone Button (nodeId 1737:218476 외 — Figma 레이어 이름은 Zone이다) — WDS에 대응 컴포넌트가 없는
 // Stream 로컬 카드다. 안쪽 혼잡도 뱃지만 WDS `ContentBadge`를 쓴다.
 //
 // 마감 구역은 고를 수 없어서 버튼을 잠근다. Figma에 잠금 상태의 선택 모습이 따로 없는 것도
 // 고를 수 없다는 뜻으로 읽었다.
-function LockersZoneCard({ zone, isSelected, onSelect }: LockersZoneCardProps) {
-  const badge = STATUS_BADGES[zone.status];
-  const isFull = zone.status === "full";
+function LockersSectionCard({
+  section,
+  isSelected,
+  onSelect,
+}: LockersSectionCardProps) {
+  const badge = STATUS_BADGES[section.status];
+  const isFull = section.status === "full";
   const containerClassName = isSelected
     ? CONTAINER_CLASS_NAMES.selected
     : CONTAINER_CLASS_NAMES[isFull ? "full" : "normal"];
 
   return (
     <button
-      className={`flex h-[74px] flex-col items-center justify-center gap-1 rounded-lg px-[7px] ${containerClassName}`}
+      className={`flex flex-[74] flex-col items-center justify-center gap-1 rounded-lg border px-[7px] ${containerClassName}`}
       disabled={isFull}
-      onClick={() => onSelect(zone.id)}
+      onClick={() => onSelect(section.id)}
       type="button"
     >
       <ContentBadge
@@ -78,7 +85,7 @@ function LockersZoneCard({ zone, isSelected, onSelect }: LockersZoneCardProps) {
         variant="caption1"
         weight="medium"
       >
-        {zone.name}
+        {section.name}
       </Typography>
       <Typography
         as="p"
@@ -89,11 +96,11 @@ function LockersZoneCard({ zone, isSelected, onSelect }: LockersZoneCardProps) {
         weight="regular"
       >
         {/* Figma가 잔여 숫자에만 SemiBold를 준다 */}
-        잔여 <span className="font-semibold">{zone.remaining}</span>/
-        {zone.total}
+        잔여 <span className="font-semibold">{section.remaining}</span>/
+        {section.total}
       </Typography>
     </button>
   );
 }
 
-export default LockersZoneCard;
+export default LockersSectionCard;

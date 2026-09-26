@@ -14,7 +14,7 @@ import EventsListScreen from "@/features/events/EventsListScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
-import LockersZoneSelectScreen from "@/features/lockers/LockersZoneSelectScreen";
+import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
 
@@ -92,7 +92,7 @@ const routes = [
             path: "/lockers/apply",
           },
           {
-            element: <LockersZoneSelectScreen />,
+            element: <LockersSectionSelectScreen />,
             // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면.
             // 구역 카드 배경이 Background/Normal/Alternative(#f7f7f8)라 화면까지 같은 색이면
             // 카드가 배경에 묻힌다 — Figma대로 흰 면을 깐다.
@@ -100,7 +100,7 @@ const routes = [
               background: "normal",
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
-            path: "/lockers/apply/zones",
+            path: "/lockers/apply/sections",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },
