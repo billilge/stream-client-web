@@ -1,4 +1,4 @@
-import { IconButton } from "@wanteddev/wds";
+import { IconButton, Typography } from "@wanteddev/wds";
 import { IconClose } from "@wanteddev/wds-icon";
 import type { KeyboardEvent } from "react";
 import { useEffect, useRef } from "react";
@@ -25,7 +25,7 @@ const PIN_CLASS_NAMES: Record<LockersPhotoPinTone, string> = {
 };
 
 // Figma: A-1구역 실제사진 Modal (nodeId 2159:110299) — Stream 로컬. 닫기 아이콘 + 구역 사진에
-// 칸 번호 핀을 얹은 카드다. WDS `Modal`은 너비·모서리가 달라서 ConfirmModal과 같은 방식으로
+// 칸 번호 핀을 얹고 아래에 안내 문구를 단 카드다. WDS `Modal`은 너비·모서리가 달라서 ConfirmModal과 같은 방식으로
 // 화면 포털에 직접 그린다. 닫기만 WDS `IconButton` + `IconClose`(Figma "Name=close, Thick=False")다.
 //
 // Figma 카드는 top 229px에 있지만 화면 높이가 기기마다 달라서 세로 가운데에 둔다.
@@ -118,6 +118,16 @@ function LockersSectionPhotoModal({
             </span>
           ))}
         </div>
+        {/* Figma 2159:110379 — 카드 폭 전체에 가운데 정렬 */}
+        <Typography
+          as="p"
+          color="semantic.label.alternative"
+          sx={{ textAlign: "center", width: "100%" }}
+          variant="caption2"
+          weight="regular"
+        >
+          번호가 표시된 실제 배치 사진입니다.
+        </Typography>
       </div>
     </div>,
     portalEl,
