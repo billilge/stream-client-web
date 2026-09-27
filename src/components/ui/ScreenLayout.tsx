@@ -59,6 +59,7 @@ interface ScreenLayoutProps {
 // 각자 자기 배경을 그 자리까지 연장해야 해서 컴포넌트마다 h-safe-bottom으로 처리한다.
 // 배경도 같은 방식으로 라우트 handle에서 받는다 — 헤더 슬롯까지 이 루트 div가 덮기 때문에,
 // 화면이 헤더와 본문에 따로 배경을 깔 필요가 없다.
+// 화면 전환(index.css의 스택 슬라이드)은 이 컬럼만 움직인다 — view-transition-name: screen.
 function ScreenLayout({
   hasBottomNav = true,
   background = "alternative",
@@ -75,7 +76,7 @@ function ScreenLayout({
     <ScreenHeaderContext.Provider value={setHeader}>
       <ScreenSheetPortalContext.Provider value={sheetPortalEl}>
         <div
-          className={`relative flex h-dvh w-full flex-col overflow-hidden pt-safe-top sm:w-[480px] sm:pt-0 sm:shadow-[0_0_20px_rgba(0,0,0,0.05)] ${BACKGROUND_CLASS_NAMES[background]}`}
+          className={`relative flex h-dvh w-full flex-col overflow-hidden pt-safe-top [view-transition-name:screen] sm:w-[480px] sm:pt-0 sm:shadow-[0_0_20px_rgba(0,0,0,0.05)] ${BACKGROUND_CLASS_NAMES[background]}`}
         >
           <div className="shrink-0">{header}</div>
           {/* 스크롤 처리는 각 화면이 스스로 결정한다(예: 상단 토글/필터는 고정하고 목록만 스크롤).

@@ -1,4 +1,5 @@
-import { useMatches } from "react-router-dom";
+import { useLayoutEffect } from "react";
+import { useMatches, useNavigationType } from "react-router-dom";
 
 import ScreenLayout, {
   type ScreenBackground,
@@ -36,6 +37,16 @@ function resolveScreenRouteOption<K extends keyof ScreenRouteHandle>(
 // 읽어 prop으로 넘기기만 한다. 그래서 옵션이 다른 화면이 생겨도 레이아웃 라우트를 따로 선언하지 않고,
 // 화면을 오가도 레이아웃이 다시 마운트되지 않는다.
 function ScreenLayoutRoute() {
+  const navigationType = useNavigationType();
+
+  // 스택 슬라이드 전환(index.css)의 방향. 뒤로가기(POP)면 반대로 빠진다.
+  // 전환 애니메이션은 새 화면이 커밋된 뒤 시작되므로, 페인트 전에 도는 layout effect에서 정해 두면
+  // 이번 전환부터 바로 반영된다.
+  useLayoutEffect(() => {
+    document.documentElement.dataset.navigation =
+      navigationType === "POP" ? "back" : "forward";
+  }, [navigationType]);
+
   const handles = useMatches()
     .map((match) => match.handle)
     .filter(isScreenRouteHandle);
