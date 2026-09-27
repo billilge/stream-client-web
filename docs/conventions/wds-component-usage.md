@@ -474,3 +474,26 @@ WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외
 ### 구역 카드 배경이 화면 배경과 같은 색이라 라우트에 `background: "normal"`이 필요하다
 
 카드 배경이 `Background/Normal/Alternative`(`#f7f7f8`)인데 `ScreenLayout` 기본 배경도 같은 값이라, handle을 안 주면 카드가 배경에 완전히 묻힌다(실제로 처음 렌더에서 카드가 안 보였다). Figma 화면 배경이 흰 면이라 `handle: { background: "normal" }`을 준다.
+
+## 사물함 구역별 칸 선택 화면(`2159:110753` A-1, `2159:109533` A-2, `2159:110174` A-1 실제사진) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | 비고 |
+|---|---|---|
+| `Icon/Normal/Image` | A-1 Top Navigation 트레일링 사진 버튼 | `search_design_system`에서 WDS 라이브러리 `component_set`으로 확인(componentKey `ba5095aab91509506b1380975f260bdb0658567f`), 코드 `IconImage` |
+| `Name=close, Thick=False` (`Icon/Normal/Close`) | 실제사진 모달 닫기 | 코드 `IconClose`를 WDS `IconButton size={24}`로 감쌌다 |
+| `Icon/Normal/Reset` | Top Navigation 트레일링 새로고침 | 구역 선택 화면과 같다 — `IconReset` |
+| `Action Area/Action Area` | 하단 선택 영역 | `ActionAreaButton` + `paddingBlock: "16px"` 보정(위 "Action Area 메인 버튼 높이") |
+
+칸(`Locker Cell`)·칸 묶음(`Zone Area`)·`Shelf Label`·범례·미니맵·`Locker Selector`·실제사진 모달은 전부 Stream 로컬이다. `search_design_system`에서 `Locker Cell`은 결과가 없었다.
+
+### 선택 불가 칸은 범례 SVG 하나로 그린다
+
+Figma 범례의 선택 불가 칸(`2159:110819`)은 `Label/Assistive` 바탕 + `Label/Neutral` 대각선을 합친 15px SVG다. `preserveAspectRatio="none"`이라 28px 칸에 그대로 늘려도 모서리(2.29 → 4.28px)·선 굵기가 본문 칸(radius 4)과 맞아서, 본문 칸도 같은 파일(`locker-unavailable.svg`)을 쓴다.
+
+### 미니맵은 따로 그리지 않고 본문 배치를 `zoom`으로 줄였다
+
+Figma 미니맵은 칸 8px·글자 3.5~4px로 하나하나 다시 그렸지만(값도 칸마다 비율이 제각각), 코드에서는 본문 칸 배치를 `zoom: 0.31`로 줄여 그린다. 칸 배치가 바뀌어도 미니맵을 따로 고칠 일이 없고, 검은 테두리(`Highlight Overlay`)를 가로 스크롤 비율에 그대로 맞출 수 있다. 4px 글자를 직접 쓰면 브라우저 최소 글자 크기에 걸리는 문제도 피한다. A-2처럼 화면에 다 들어오는 구역은 Figma도 미니맵을 `opacity: 0`으로 숨겨서, 코드는 스크롤이 생길 때만 미니맵을 띄우고 128px 자리는 항상 남긴다.
+
+### Figma 아티팩트 — A-1 `Shelf Label` 높이가 1px이다
+
+A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 칸`이 칸 묶음 아래로 흘러내려 보인다. 미니맵(`2159:110761`)과 A-2(`2159:109622`)에서는 칸 묶음 높이에 맞춰 붙어 있어서, 본문도 칸 묶음 줄 높이(122px)에 맞췄다.
