@@ -13,7 +13,6 @@ import LockersFloorMap from "@/features/lockers/components/LockersFloorMap";
 
 // Figma: 사물함 구역 선택 전 (nodeId 1737:218452), 선택완료 (1737:218489)
 // 새로고침(Figma Icon/Normal/Reset)은 잔여 수량 API가 없어 지금은 페이지를 다시 읽는다.
-// 선택 후 이동할 화면은 아직 디자인이 없어서 지금은 아무것도 하지 않는다.
 function LockersSectionSelectScreen() {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     null,
@@ -59,6 +58,9 @@ function LockersSectionSelectScreen() {
         {/* 높이 보정 이유는 wds-component-usage.md "Action Area 메인 버튼 높이" 참고 */}
         <ActionAreaButton
           disabled={selectedSectionId === null}
+          onClick={() =>
+            navigate(`/lockers/apply/sections/${selectedSectionId}`)
+          }
           sx={{ paddingBlock: "16px" }}
         >
           {selectedSectionId === null
