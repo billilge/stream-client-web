@@ -202,7 +202,9 @@ function EventsDetailScreen() {
               Figma Main Action은 padding 16px 28px(56px)이라 세로 padding만 sx로 맞춘다. */}
           <ActionAreaButton
             disabled={!isOpen}
-            onClick={() => navigate(`/events/${event.id}/apply`)}
+            onClick={() =>
+              navigate(`/events/${event.id}/apply`, { viewTransition: true })
+            }
             sx={{ paddingBlock: "16px" }}
           >
             {event.actionLabel}

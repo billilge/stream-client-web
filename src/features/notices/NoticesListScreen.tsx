@@ -81,7 +81,11 @@ function NoticesListScreen() {
                   <Divider color="semantic.line.normal.alternative" />
                 </div>
               )}
-              <Link className="block" to={`/notices/${notice.id}`}>
+              <Link
+                className="block"
+                to={`/notices/${notice.id}`}
+                viewTransition
+              >
                 <NoticesCard
                   category={notice.category}
                   date={notice.date}

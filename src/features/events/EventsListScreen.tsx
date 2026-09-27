@@ -121,8 +121,14 @@ function EventsListScreen() {
                 <EventsCard
                   actionLabel={event.actionLabel}
                   eventDate={event.eventDate}
-                  onApply={() => navigate(`/events/${event.id}/apply`)}
-                  onSelect={() => navigate(`/events/${event.id}`)}
+                  onApply={() =>
+                    navigate(`/events/${event.id}/apply`, {
+                      viewTransition: true,
+                    })
+                  }
+                  onSelect={() =>
+                    navigate(`/events/${event.id}`, { viewTransition: true })
+                  }
                   status={event.status}
                   statusLabel={event.statusLabel}
                   title={event.title}
