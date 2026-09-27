@@ -16,8 +16,8 @@ interface LockersLockerCellProps {
 // 미니맵의 선택 불가 칸(2159:109565)처럼 지운다. 범례 SVG는 `preserveAspectRatio="none"`이라
 // 28px로 늘려도 모서리가 4px로 맞는다.
 //
-// 선택된 칸은 Figma에 없다. 구역 카드(LockersSectionCard)의 선택 표현(Blue/95 배경 +
-// Primary/Normal 1px 테두리)을 그대로 따른다 — 테두리는 평소에도 투명으로 둬서 칸 크기를 고정한다.
+// 선택된 칸은 Figma "사물함 선택 시"(2159:113315)대로 Primary/Normal 배경에 번호를
+// Background/Normal/Normal(흰색) SemiBold로 바꾼다.
 function LockersLockerCell({
   locker,
   isSelected,
@@ -36,19 +36,21 @@ function LockersLockerCell({
   return (
     <button
       aria-pressed={isSelected}
-      className={`flex size-7 items-center justify-center rounded-sm border ${
-        isSelected
-          ? "border-primary bg-primary-subtle"
-          : "border-transparent bg-orange-95"
+      className={`flex size-7 items-center justify-center rounded-sm ${
+        isSelected ? "bg-primary" : "bg-orange-95"
       }`}
       onClick={() => onSelect(locker.number)}
       type="button"
     >
       <Typography
         as="span"
-        color="semantic.label.neutral"
+        color={
+          isSelected
+            ? "semantic.background.normal.normal"
+            : "semantic.label.neutral"
+        }
         variant="caption2"
-        weight="regular"
+        weight={isSelected ? "bold" : "regular"}
       >
         {locker.number}
       </Typography>
