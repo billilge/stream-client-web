@@ -2,7 +2,7 @@ import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft, IconImage, IconReset } from "@wanteddev/wds-icon";
 import type { ComponentType } from "react";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import ComingSoonScreen from "@/app/ComingSoonScreen";
 import sectionA1Photo from "@/assets/images/lockers/section-a-1-photo.jpg";
@@ -68,6 +68,7 @@ function SectionLockerSelect({
   layout: SectionLayout;
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedLockerNumber, setSelectedLockerNumber] = useState<
     number | null
   >(null);
@@ -110,7 +111,13 @@ function SectionLockerSelect({
       leading={
         <TopNavigationButton
           aria-label="뒤로가기"
-          onClick={() => navigate(-1)}
+          // 구역 선택 화면에서 들어왔으면 그 기록으로 돌아간다. 주소로 바로 들어와 앱 안의 이전
+          // 기록이 없으면(location.key === "default") 앱 밖으로 나가지 않게 구역 선택 화면으로 보낸다.
+          onClick={() =>
+            location.key === "default"
+              ? navigate("/lockers/apply/sections", { replace: true })
+              : navigate(-1)
+          }
           variant="icon"
         >
           <IconChevronLeft />
