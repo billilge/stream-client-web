@@ -49,8 +49,10 @@ interface ScreenLayoutProps {
 // 높이는 폰이든 데스크톱이든 뷰포트를 꽉 채운다(h-dvh) — 데스크톱에서 높이를 고정하면 낮은
 // 뷰포트에서 화면 아래가 잘리고 Bottom Nav가 밀려난다. 폭만 데스크톱 뷰포트(sm 이상)에서
 // 480px로 묶는다 — Figma는 375 기준이지만 데스크톱에서 그대로 쓰면 너무 좁다. 폭에 맞춰
-// 같이 움직여야 하는 고정 px는 FeedbacksQaCard(캐러셀 카드)와 BililgeReturnConfirmModal
-// 둘뿐이다. 화면과 같은 배경 위에 서는 컬럼이라 그림자로 경계를 표시한다
+// 같이 움직여야 하는 고정 px는 FeedbacksQaCard(캐러셀 카드), BililgeReturnConfirmModal,
+// PhotoGallery(공지·행사 상세 사진 갤러리) 셋이다. PhotoGallery는 고정 높이 대신
+// aspect-square를 쓴다 — 실사진을 담는 영역이라 폭이 넓어져도 정사각 비율이 깨지면 안 된다.
+// 화면과 같은 배경 위에 서는 컬럼이라 그림자로 경계를 표시한다
 // — App.tsx가 같은 브레이크포인트로 이 컬럼을 가운데 세운다.
 // 세이프에어리어는 env(safe-area-inset-*)로 확보한다(index.html의 viewport-fit=cover와 한 쌍).
 // 고정 px를 더하면 앱에서 네이티브 인셋과 겹쳐 두 번 들어가지만, env()는 환경이 채우는 값이라
