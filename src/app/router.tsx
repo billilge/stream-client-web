@@ -11,6 +11,7 @@ import EventsApplicationCompleteScreen from "@/features/events/EventsApplication
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
+import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
@@ -43,6 +44,15 @@ const routes = [
             // 공지 화면과 같은 이유(카드 없이 구분선으로만 나뉘는 목록)로 흰 면을 쓴다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/feedbacks",
+          },
+          {
+            element: <FeedbacksDetailScreen />,
+            // 상세(모아보기) 화면 — 목록 화면과 같은 흰 배경, Bottom Nav 없이 뒤로가기(닫기)로만 나간다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/feedbacks/:feedbackId",
           },
           {
             element: <EventsDetailScreen />,

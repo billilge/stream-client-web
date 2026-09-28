@@ -43,6 +43,12 @@
      raw #d9d9d9로 그려진 "이미지 슬롯" placeholder라 대응하는 WDS 시맨틱 토큰이 없다.
      실제 행사 이미지 API가 붙으면 이 토큰과 함께 사라질 자리다. */
   --color-thumbnail-placeholder: #d9d9d9;
+
+  /* 열린피드백 상세("N차 피드백 모아보기")의 스와이프 진행 바 채움색. get_design_context가
+     내보낸 CSS 변수 이름은 --primary/normal이지만 실제 값(#3385FF)은 Atomic/Blue/60과
+     정확히 일치한다 — 이름이 아니라 실측 hex를 기준으로 확정했다(Semantic/Primary/Normal은
+     #0066FF로 다른 값). */
+  --color-progress-fill: var(--atomic-blue-60);
 }
 
 /* iOS 노치·홈 인디케이터 자리. index.html의 viewport-fit=cover와 한 쌍이다.
