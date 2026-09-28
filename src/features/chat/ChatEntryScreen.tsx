@@ -151,7 +151,7 @@ function ChatEntryScreen() {
           </div>
         </div>
         <div
-          className={`absolute inset-0 flex flex-col gap-3 overflow-y-auto pt-4 pb-2 transition-opacity duration-300 ${
+          className={`absolute inset-0 flex flex-col gap-3 overflow-y-auto pt-4 pb-4 transition-opacity duration-300 ${
             chatStarted ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
           ref={messageListRef}
