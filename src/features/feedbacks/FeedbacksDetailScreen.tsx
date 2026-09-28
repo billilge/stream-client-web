@@ -84,12 +84,16 @@ function FeedbacksDetailScreen() {
   // 스크롤 위치를 0~1 연속값으로 추적한다 — 정수 페이지 단위로 반올림하지 않아서,
   // 스와이프하는 동안 진행 바가 손가락을 따라 매끄럽게 같이 움직인다.
   // currentIndex는 별도로 반올림해서 추적한다 — 이전/다음 버튼의 비활성화 기준, 다음 이동 위치 계산에 쓴다.
+  // Safari의 탄성 오버스크롤(rubber-band)은 scrollLeft가 범위를 넘어설 수 있어서, 진행 바와
+  // 인덱스 둘 다 유효 범위로 클램프한다(/pr-check 지적).
   const handleTrackScroll = (event: UIEvent<HTMLDivElement>) => {
     const { scrollLeft, scrollWidth, clientWidth } = event.currentTarget;
-    const maxScrollLeft = scrollWidth - clientWidth;
-    setProgress(maxScrollLeft > 0 ? scrollLeft / maxScrollLeft : 0);
+    const maxScrollLeft = Math.max(scrollWidth - clientWidth, 0);
+    const clampedScrollLeft = Math.min(Math.max(scrollLeft, 0), maxScrollLeft);
+    setProgress(maxScrollLeft > 0 ? clampedScrollLeft / maxScrollLeft : 0);
     if (clientWidth > 0) {
-      setCurrentIndex(Math.round(scrollLeft / clientWidth));
+      const index = Math.round(clampedScrollLeft / clientWidth);
+      setCurrentIndex(Math.min(Math.max(index, 0), roundFeedbacks.length - 1));
     }
   };
 
@@ -118,7 +122,9 @@ function FeedbacksDetailScreen() {
     />,
   );
 
-  if (!feedback) {
+  // 답변 없는 피드백 id로 직접 들어오면 이 화면에 그릴 답변 섹션이 없다 — roundFeedbacks도
+  // 빈 배열이 되어 진행 바·버튼 계산이 깨지므로(/pr-check 지적) 답변 유무까지 같이 본다.
+  if (!feedback?.answer) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <Typography
