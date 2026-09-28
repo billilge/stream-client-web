@@ -66,6 +66,7 @@ function NoticesDetailScreen() {
       {notice.hasThumbnail && (
         <PhotoGallery
           idPrefix={notice.id}
+          key={notice.id}
           overlay={
             <div className="absolute top-4 left-4 z-10">{backButton}</div>
           }

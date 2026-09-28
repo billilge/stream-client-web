@@ -55,6 +55,7 @@ function EventsDetailScreen() {
             이미지가 여러 장이면 가로 스크롤 스냅으로 한 장씩 넘긴다(공지 상세와 같은 PhotoGallery). */}
         <PhotoGallery
           idPrefix={event.id}
+          key={event.id}
           overlay={
             // 뒤로가기는 스크롤되지 않게 스크롤 컨테이너 밖에 절대배치한다. 행사 상세는
             // ScreenHeader를 안 쓰고 이미지 위 오버레이 버튼이라 슬롯이 아니라 overlay로 넘긴다.

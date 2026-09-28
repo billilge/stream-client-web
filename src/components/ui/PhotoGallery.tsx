@@ -79,7 +79,7 @@ function PhotoGallery({
           {currentPage > 1 && (
             <button
               aria-label="이전 사진"
-              className="absolute top-1/2 left-4 z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity [@media(hover:hover)]:flex [@media(hover:hover)]:group-hover:opacity-100"
+              className="absolute top-1/2 left-4 z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity focus-visible:opacity-100 [@media(hover:hover)]:flex [@media(hover:hover)]:group-hover:opacity-100"
               onClick={() => scrollToPage(currentPage - 1)}
               type="button"
             >
@@ -89,7 +89,7 @@ function PhotoGallery({
           {currentPage < photoCount && (
             <button
               aria-label="다음 사진"
-              className="absolute top-1/2 right-4 z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity [@media(hover:hover)]:flex [@media(hover:hover)]:group-hover:opacity-100"
+              className="absolute top-1/2 right-4 z-10 hidden size-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity focus-visible:opacity-100 [@media(hover:hover)]:flex [@media(hover:hover)]:group-hover:opacity-100"
               onClick={() => scrollToPage(currentPage + 1)}
               type="button"
             >
