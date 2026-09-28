@@ -27,12 +27,23 @@ function FeedbacksNewScreen() {
 
   const canSubmit = content.trim().length > 0;
 
+  // 이 화면으로 바로 들어오면(딥링크·새로고침) 뒤로 갈 히스토리가 없어서 navigate(-1)이
+  // 아무 일도 하지 않는다 — 행사 신청 화면과 같은 이유로 그럴 땐 목록으로 보낸다.
+  const goBack = () => {
+    const historyIndex = (window.history.state as { idx?: number } | null)?.idx;
+    if (historyIndex !== undefined && historyIndex > 0) {
+      navigate(-1);
+      return;
+    }
+    navigate("/feedbacks", { replace: true });
+  };
+
   useScreenHeader(
     <ScreenHeader
       leading={
         <TopNavigationButton
           aria-label="뒤로가기"
-          onClick={() => navigate(-1)}
+          onClick={goBack}
           variant="icon"
         >
           <IconChevronLeft />
@@ -57,6 +68,7 @@ function FeedbacksNewScreen() {
           </Typography>
           <TextArea
             aria-labelledby={headingId}
+            aria-required="true"
             maxLength={FEEDBACKS_QUESTION_MAX_LENGTH}
             minRows={1}
             onChange={(event) => setContent(event.target.value)}
