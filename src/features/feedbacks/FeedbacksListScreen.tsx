@@ -6,7 +6,7 @@ import {
 } from "@wanteddev/wds";
 import { IconBell, IconPlus, IconSearch } from "@wanteddev/wds-icon";
 import { Fragment, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -107,11 +107,16 @@ function FeedbacksListScreen() {
               ref={carouselRef}
             >
               {answeredFeedbacks.map((feedback) => (
-                <FeedbacksQaCard
-                  answer={feedback.answer ?? ""}
+                <Link
+                  className="block shrink-0"
                   key={feedback.id}
-                  question={feedback.question}
-                />
+                  to={`/feedbacks/${feedback.id}`}
+                >
+                  <FeedbacksQaCard
+                    answer={feedback.answer ?? ""}
+                    question={feedback.question}
+                  />
+                </Link>
               ))}
             </div>
             <PaginationDots
@@ -152,10 +157,19 @@ function FeedbacksListScreen() {
                     <Divider color="semantic.line.normal.alternative" />
                   </div>
                 )}
-                <FeedbacksCard
-                  question={feedback.question}
-                  round={feedback.round}
-                />
+                {feedback.answer ? (
+                  <Link className="block" to={`/feedbacks/${feedback.id}`}>
+                    <FeedbacksCard
+                      question={feedback.question}
+                      round={feedback.round}
+                    />
+                  </Link>
+                ) : (
+                  <FeedbacksCard
+                    question={feedback.question}
+                    round={feedback.round}
+                  />
+                )}
               </Fragment>
             ))}
           </div>
