@@ -14,6 +14,7 @@ import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
 import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
+import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
@@ -45,6 +46,15 @@ const routes = [
             // 공지 화면과 같은 이유(카드 없이 구분선으로만 나뉘는 목록)로 흰 면을 쓴다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/feedbacks",
+          },
+          {
+            element: <FeedbacksNewScreen />,
+            // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면. Figma 루트 배경도 흰 면이다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/feedbacks/new",
           },
           {
             element: <FeedbacksDetailScreen />,
