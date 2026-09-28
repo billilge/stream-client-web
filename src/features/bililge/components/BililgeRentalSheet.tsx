@@ -35,6 +35,14 @@ const MINUTE_OPTIONS: WheelPickerOption<number>[] = Array.from(
   (_, i) => ({ label: String(i).padStart(2, "0"), value: i }),
 );
 
+// 칸 사이 세로 간격(행 간 pitch)이 Figma보다 좁아 보인다는 QA 지적(디자인 QA 페이지
+// nodeId 2849:56598의 "빌릴게 대여 바텀시트" 비교 항목, 구현 스크린샷의 오전-오후 사이에
+// 빨간 화살표로 표시됨) — 기존 24는 선택 안 된 줄의 텍스트 블록 높이(17px 폰트 × line-height
+// 1.412 ≈ 24)를 그대로 가져다 쓴 값이라, 실제 Figma의 줄 간 pitch(선택 줄 높이 26 + gap 6 +
+// 비선택 줄 높이 24를 반씩 걸쳐 계산하면 ≈31px, Time Picker 스크린샷에서 실측해도 31px)보다
+// 작았다. WheelPicker 기본값(30)에 더 가까운 이 값으로 세 컬럼 모두 맞춘다.
+const OPTION_ITEM_HEIGHT = 31;
+
 // 선택되지 않은 칸은 옅게, 가운데 선택된 칸만 진하게 — 배경 하이라이트 바는 Time Picker 쪽에서
 // 3개 컬럼 공통으로 하나 깔아주기 때문에 여기서는 텍스트 스타일만 다룬다.
 // 여기는 @ncdai/react-wheel-picker가 className 문자열만 받아서 자기 DOM에 그대로 꽂는 자리라
@@ -121,7 +129,7 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
                     onValueChange={(period) =>
                       setTime((prev) => ({ ...prev, period }))
                     }
-                    optionItemHeight={24}
+                    optionItemHeight={OPTION_ITEM_HEIGHT}
                     options={PERIOD_OPTIONS}
                     value={time.period}
                     visibleCount={12}
@@ -133,7 +141,7 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
                     onValueChange={(hour) =>
                       setTime((prev) => ({ ...prev, hour }))
                     }
-                    optionItemHeight={24}
+                    optionItemHeight={OPTION_ITEM_HEIGHT}
                     options={HOUR_OPTIONS}
                     value={time.hour}
                     visibleCount={12}
@@ -145,7 +153,7 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
                     onValueChange={(minute) =>
                       setTime((prev) => ({ ...prev, minute }))
                     }
-                    optionItemHeight={24}
+                    optionItemHeight={OPTION_ITEM_HEIGHT}
                     options={MINUTE_OPTIONS}
                     value={time.minute}
                     visibleCount={12}
