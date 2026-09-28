@@ -58,7 +58,7 @@ function PhotoGallery({
   return (
     <div className="group relative w-full shrink-0">
       <div
-        className={`scrollbar-hidden flex w-full snap-x snap-mandatory overflow-x-auto ${slideClassName}`}
+        className="scrollbar-hidden flex w-full snap-x snap-mandatory overflow-x-auto"
         onScroll={hasMultiplePhotos ? handleGalleryScroll : undefined}
         ref={galleryRef}
       >
