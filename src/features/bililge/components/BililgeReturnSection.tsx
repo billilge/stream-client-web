@@ -42,7 +42,7 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
   };
 
   return (
-    <div className="flex flex-col gap-8 px-5 pt-6">
+    <div className="flex flex-col gap-8 px-5 pt-7">
       <div className="flex flex-col gap-3">
         <Typography
           as="p"
@@ -53,7 +53,7 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
           반납이 필요한 물품
         </Typography>
         {BILILGE_RETURN_ITEMS.length > 0 ? (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             {BILILGE_RETURN_ITEMS.map((item) => (
               <BililgeItemCard
                 actionLabel="반납 신청"
