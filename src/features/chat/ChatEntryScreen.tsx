@@ -35,6 +35,8 @@ function ChatEntryScreen() {
   const [isBotLoading, setIsBotLoading] = useState(false);
   const nextMessageIdRef = useRef(0);
   const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const messageListRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const chatStarted = messages.length > 0;
 
   useEffect(() => {
@@ -44,6 +46,25 @@ function ChatEntryScreen() {
       }
     };
   }, []);
+
+  // 메시지가 추가되거나 응답 대기 점이 나타날 때마다 최신 대화가 보이도록 맨 아래로 스크롤한다.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 값을 직접 참조하진 않지만 변경 시점을 감지해 스크롤을 트리거하기 위해 의도적으로 의존성에 둔다
+  useEffect(() => {
+    const messageList = messageListRef.current;
+    if (messageList) {
+      messageList.scrollTop = messageList.scrollHeight;
+    }
+  }, [messages, isBotLoading]);
+
+  // 봇 응답 대기 중에는 입력창이 disabled되며 포커스가 풀린다 — 응답이 오면(대기 종료 시점)
+  // 바로 이어서 타이핑할 수 있도록 입력창에 포커스를 되돌린다.
+  const wasBotLoadingRef = useRef(false);
+  useEffect(() => {
+    if (wasBotLoadingRef.current && !isBotLoading) {
+      inputRef.current?.focus();
+    }
+    wasBotLoadingRef.current = isBotLoading;
+  }, [isBotLoading]);
 
   useScreenHeader(
     <ScreenHeader
@@ -133,6 +154,7 @@ function ChatEntryScreen() {
           className={`absolute inset-0 flex flex-col gap-3 overflow-y-auto pt-4 pb-2 transition-opacity duration-300 ${
             chatStarted ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
+          ref={messageListRef}
         >
           {messages.map((message) =>
             message.sender === "user" ? (
@@ -149,6 +171,7 @@ function ChatEntryScreen() {
           disabled={isBotLoading}
           onChange={setInputValue}
           onSubmit={() => sendMessage(inputValue)}
+          ref={inputRef}
           value={inputValue}
         />
       </div>
