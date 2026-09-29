@@ -98,11 +98,12 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
                 setStepperValue((value) => Math.min(item.quantity, value + 1))
               }
               // Figma: 대여할 물품 카드(nodeId 1422:57184, 3013:114608)에 "수량 28 · 오늘
-              // 17시까지 반납" / "수량 28 · 9/29까지 반납"처럼 수량 뒤에 반납 기한이 붙는다 —
-              // 기한 라벨(returnDeadlineLabel)은 서버가 오늘/내일/날짜를 미리 판단해 내려주는
-              // 완성된 문자열이라 여기서는 이어붙이기만 한다.
+              // 17시까지 반납" / "수량 28 · 9/29까지 반납"처럼 수량 뒤에 반납 기한이 강조
+              // 서체(SemiBold)로 붙는다 — 기한 라벨(returnDeadlineLabel)은 서버가 오늘/내일/
+              // 날짜를 미리 판단해 내려주는 완성된 문자열이라 여기서는 이어붙이기만 한다.
               stepperValue={stepperValue}
-              subtitle={`수량 ${item.quantity} · ${item.returnDeadlineLabel}`}
+              subtitle={`수량 ${item.quantity} · `}
+              subtitleEmphasis={item.returnDeadlineLabel}
               trailingControl="stepper"
             />
           </div>
