@@ -11,7 +11,6 @@ import BililgeReturnToast from "@/features/bililge/components/BililgeReturnToast
 import {
   BILILGE_RENTAL_HISTORY,
   BILILGE_RETURN_ITEMS,
-  formatBililgeReturnDeadline,
 } from "@/features/bililge/constants/bililgeReturns";
 
 // 토스트 자동 닫힘 시간 — Figma엔 지속시간이 없어서 WDS Toast의 duration="short" 기본값과
@@ -84,7 +83,7 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
                 itemName={item.name}
                 key={item.id}
                 onRentRequest={() => setConfirmOpen(true)}
-                subtitle={formatBililgeReturnDeadline(item.dueAt)}
+                subtitle={`반납까지 ${item.hoursUntilDue}시간`}
               />
             ))}
           </div>
