@@ -32,9 +32,10 @@ export interface BililgeItem {
 // 목데이터는 실 서버가 없어 위 필드를 흉내내는 값이다 — 실행 시점 기준으로 오늘/내일/그 이후
 // 라벨을 미리 계산해두되, 컴포넌트 쪽에는 이 계산 로직 자체를 노출하지 않는다(export하지 않음).
 // 실 API가 붙으면 이 함수와 호출부는 통째로 지우고 응답 필드를 그대로 쓰면 된다.
-function mockReturnDeadlineLabel(daysFromNow: number, hour = 17): string {
+// 오늘 마감은 시각이 물품마다 다른 게 아니라 "17시"로 고정된 정책값이라 파라미터로 받지 않는다.
+function mockReturnDeadlineLabel(daysFromNow: number): string {
   if (daysFromNow <= 0) {
-    return `오늘 ${hour}시까지 반납`;
+    return "오늘 17시까지 반납";
   }
   if (daysFromNow === 1) {
     return "내일까지 반납";
@@ -51,7 +52,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     id: "curling-iron",
     name: "고데기",
     quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0, 17),
+    returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
     icon: laptopCharger,
@@ -65,7 +66,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     id: "hair-dryer",
     name: "드라이기",
     quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0, 21),
+    returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
     icon: mask,
@@ -93,14 +94,14 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     id: "sanitary-pad-large",
     name: "생리대(대형)",
     quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0, 22),
+    returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
     icon: sanitaryPad,
     id: "sanitary-pad-small",
     name: "생리대(소형)",
     quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0, 22),
+    returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
     icon: alcoholSwab,
@@ -135,7 +136,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     id: "eye-drops",
     name: "인공눈물",
     quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0, 19),
+    returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
     icon: pill,
@@ -149,7 +150,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     id: "usb-c-cable",
     name: "케이블(C to C)",
     quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0, 20),
+    returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
     icon: pill,
@@ -177,6 +178,6 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     id: "8pin-charger",
     name: "8핀 충전기",
     quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0, 18),
+    returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
 ];
