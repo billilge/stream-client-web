@@ -98,11 +98,33 @@ function FeedbacksListScreen() {
 
   // "최근 피드백" 카드 높이 — 질문·답변 글자 수가 카드마다 달라서 그대로 두면 카드마다
   // 높이가 들쭉날쭉했다. 첫 번째 카드 높이를 재서 나머지 카드에도 min-height로 맞춘다.
+  // 마운트 시 한 번만 재면, 이후 캐러셀 폭이 바뀌어(창 크기 조절, 모바일↔데스크톱 sm:
+  // 브레이크포인트 전환) 텍스트 줄바꿈이 달라져도 값이 갱신되지 않는다(/pr-check 지적)
+  // — 캐러셀 폭을 관찰해서 바뀔 때마다 다시 잰다. 카드 자신의 높이가 아니라 캐러셀 폭을
+  // 관찰 대상으로 삼는 이유는, 카드 높이를 관찰하면 우리가 min-height를 다시 설정할 때마다
+  // 그 변화가 또 리사이즈로 잡혀 무한 루프가 될 수 있어서다.
   const firstQaCardRef = useRef<HTMLAnchorElement>(null);
   const [qaCardMinHeight, setQaCardMinHeight] = useState<number>();
 
   useLayoutEffect(() => {
-    setQaCardMinHeight(firstQaCardRef.current?.getBoundingClientRect().height);
+    const cardEl = firstQaCardRef.current;
+    const viewportEl = carouselRef.current;
+    if (!cardEl || !viewportEl) {
+      return;
+    }
+    const measure = () => {
+      // 이전에 재둔 min-height가 새로 잴 값을 오염시키지 않도록(카드가 이미 min-height로
+      // 커진 상태면 그보다 작게는 절대 측정되지 않는다) 먼저 비우고, 리액트가 반영한 다음
+      // 프레임에 자연스러운 콘텐츠 높이를 다시 잰다.
+      setQaCardMinHeight(undefined);
+      requestAnimationFrame(() => {
+        setQaCardMinHeight(cardEl.getBoundingClientRect().height);
+      });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(viewportEl);
+    return () => observer.disconnect();
   }, []);
   // 피드백 작성 화면에서 넘어올 때만 history state로 신호를 받는다(navigate state) — 그 외
   // 진입(바텀 탭 등)에서는 안 뜬다. 새로고침 시 재노출을 막으려고 받자마자 state를 비운다.
@@ -157,13 +179,18 @@ function FeedbacksListScreen() {
   // 기반 보조 타이머는 일부러 안 둔다 — 있으면 "이 판단이 애매한 극소수 경우"를 잡아주긴
   // 하지만, 스와이프 직후 곧바로 다시 스와이프할 때 그 타이머 시간만큼 다음 스와이프가
   // 못 먹히는 순간이 생겨 오히려 부드럽지 않게 느껴졌다(실사용 확인됨).
+  // "직전 샘플 단 하나"와만 비교하면 노이즈(측정 잡음)나, 한 번의 연속된 스와이프 안에서
+  // 자연스럽게 살짝 가속하는 순간에도 "새 스와이프"로 오탐할 수 있다(/pr-check 지적).
+  // 짧은 이동평균(WHEEL_NOISE_WINDOW개)과 비교하면 이런 일시적인 튐은 평균에 묻혀 걸러지고,
+  // 평균보다 뚜렷하게 큰 힘만 새 스와이프로 잡힌다.
   useEffect(() => {
     const el = carouselRef.current;
     if (!el) {
       return;
     }
+    const WHEEL_NOISE_WINDOW = 3;
     let isLocked = false;
-    let lastAbsDeltaX = 0;
+    let recentAbsDeltas: number[] = [];
     const handleWheel = (event: WheelEvent) => {
       if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) {
         return;
@@ -171,15 +198,21 @@ function FeedbacksListScreen() {
       event.preventDefault();
       const absDeltaX = Math.abs(event.deltaX);
       if (isLocked) {
-        if (absDeltaX <= lastAbsDeltaX) {
-          // 관성 꼬리 — 여전히 같은 스와이프의 연장이라 무시한다.
-          lastAbsDeltaX = absDeltaX;
+        const recentAverage =
+          recentAbsDeltas.reduce((sum, value) => sum + value, 0) /
+          recentAbsDeltas.length;
+        if (absDeltaX <= recentAverage) {
+          // 관성 꼬리(또는 노이즈) — 여전히 같은 스와이프의 연장이라 무시한다.
+          recentAbsDeltas.push(absDeltaX);
+          if (recentAbsDeltas.length > WHEEL_NOISE_WINDOW) {
+            recentAbsDeltas.shift();
+          }
           return;
         }
-        // 힘이 다시 커졌다 = 관성으로는 불가능한 일이니 새 스와이프가 시작된 것이다.
+        // 최근 평균보다 뚜렷하게 커졌다 = 새 스와이프가 시작된 것이다.
         isLocked = false;
       }
-      lastAbsDeltaX = absDeltaX;
+      recentAbsDeltas = [absDeltaX];
       const direction = event.deltaX > 0 ? 1 : -1;
       const nextPage = Math.min(
         Math.max(carouselPageRef.current + direction, 1),
@@ -441,7 +474,7 @@ function FeedbacksListScreen() {
 
       <button
         aria-label="피드백 작성"
-        className={`absolute right-5 bottom-5 flex items-center gap-1 overflow-hidden rounded-full bg-primary shadow-[0px_6px_5px_rgba(23,23,23,0.08),0px_16px_12px_rgba(23,23,23,0.08)] transition-[width,padding] duration-500 ease-in-out ${
+        className={`absolute right-5 bottom-5 flex items-center gap-1 overflow-hidden rounded-full bg-primary shadow-[0px_6px_5px_rgba(23,23,23,0.08),0px_16px_12px_rgba(23,23,23,0.08)] transition-[width,padding] duration-500 ease-in-out motion-reduce:transition-none ${
           isFabExpanded ? "px-4 py-3" : "p-3"
         }`}
         onClick={() => navigate("/feedbacks/new")}
@@ -455,7 +488,7 @@ function FeedbacksListScreen() {
         {/* 텍스트를 마운트/언마운트하지 않고 항상 렌더링한 채 opacity로만 넘겼다 뺐다 한다
             — 그래야 버튼 폭(width) 전환과 같은 타이밍에 자연스럽게 같이 움직인다. */}
         <Typography
-          className={`shrink-0 whitespace-nowrap transition-opacity duration-500 ease-in-out ${
+          className={`shrink-0 whitespace-nowrap transition-opacity duration-500 ease-in-out motion-reduce:transition-none ${
             isFabExpanded ? "opacity-100" : "opacity-0"
           }`}
           color="atomic.common.100"
