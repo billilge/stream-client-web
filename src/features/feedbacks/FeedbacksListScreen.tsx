@@ -214,6 +214,12 @@ function FeedbacksListScreen() {
       startX: number;
       startY: number;
       startScrollLeft: number;
+      // 드래그 중 el.scrollLeft를 직접 옮기면 네이티브 onScroll(handleCarouselScroll)이 그때
+      // 그때 carouselPage를 다시 계산해버린다 — 카드 폭의 50%만 넘겨도 손을 떼기 전에 이미
+      // "다음 페이지"로 갱신된다. 그 상태에서 손을 뗄 때 "현재 페이지 + 1"을 또 계산하면
+      // 두 장이 건너뛰어진다(실기기 재현 확인됨). 그래서 제스처가 시작된 시점의 페이지를
+      // 별도로 고정해 두고, 도착 페이지는 항상 이 값 기준으로만 계산한다.
+      startPage: number;
       lastDeltaX: number;
       isHorizontal: boolean | null;
       // 짧고 빠른 flick도 인정하려고 "가장 최근 구간"의 순간 속도를 별도로 추적한다 —
@@ -235,6 +241,7 @@ function FeedbacksListScreen() {
         lastDeltaX: 0,
         lastMoveTime: now,
         lastMoveX: touch.clientX,
+        startPage: carouselPageRef.current,
         startScrollLeft: el.scrollLeft,
         startX: touch.clientX,
         startY: touch.clientY,
@@ -276,23 +283,25 @@ function FeedbacksListScreen() {
       if (!drag) {
         return;
       }
-      const { lastDeltaX, velocityX } = drag;
+      const { lastDeltaX, velocityX, startPage } = drag;
       drag = null;
       const itemWidth = getCarouselItemWidth(el);
       if (!itemWidth) {
         return;
       }
-      const currentPage = carouselPageRef.current;
       const isFarEnough =
         Math.abs(lastDeltaX) > itemWidth * CAROUSEL_DRAG_COMMIT_RATIO;
       const isFlick = Math.abs(velocityX) > CAROUSEL_FLICK_VELOCITY_PX_MS;
+      // 드래그 도중 라이브 스크롤 위치로 갱신된 carouselPageRef가 아니라, 제스처 시작 시점에
+      // 고정해 둔 startPage를 기준으로 계산한다 — 그래야 카드 폭 절반을 넘게 끌어도 정확히
+      // 한 장만 이동한다.
       const nextPage =
         lastDeltaX !== 0 && (isFarEnough || isFlick)
           ? Math.min(
-              Math.max(currentPage + (lastDeltaX < 0 ? 1 : -1), 1),
+              Math.max(startPage + (lastDeltaX < 0 ? 1 : -1), 1),
               TOTAL_CAROUSEL_PAGES,
             )
-          : currentPage;
+          : startPage;
       // wheel 핸들러와 같은 이유로, 실제 스크롤(onScroll)이 따라오길 기다리지 않고 여기서
       // 바로 "의도한 다음 페이지"를 기록해 둔다 — 그래야 스크롤 애니메이션이 끝나기 전에
       // 바로 이어서 스와이프해도 같은 카드를 다시 목표로 잡지 않는다.
