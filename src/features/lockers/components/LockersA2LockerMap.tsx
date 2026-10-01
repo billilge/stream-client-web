@@ -1,30 +1,13 @@
 import { Typography } from "@wanteddev/wds";
 
 import LockersLockerGrid from "@/features/lockers/components/LockersLockerGrid";
+import LockersMapArea from "@/features/lockers/components/LockersMapArea";
 import LockersShelfLabel from "@/features/lockers/components/LockersShelfLabel";
 import { LOCKERS_A2_GROUP } from "@/features/lockers/constants/lockersLockers";
 
 interface LockersA2LockerMapProps {
   selectedLockerNumber: number | null;
   onSelect: (lockerNumber: number) => void;
-}
-
-// 옆 구역·호실처럼 고를 수 없는 자리. 구역 평면도(LockersFloorMap)의 MapArea와 같은 점선 상자다.
-function MapArea({ label, className }: { label: string; className: string }) {
-  return (
-    <div
-      className={`flex items-center justify-center rounded-lg border border-line-solid-normal border-dashed bg-background-normal py-8 ${className}`}
-    >
-      <Typography
-        as="p"
-        color="semantic.label.assistive"
-        variant="caption1"
-        weight="medium"
-      >
-        {label}
-      </Typography>
-    </div>
-  );
 }
 
 // Figma: A-2구역 Locker Grid Section (nodeId 2159:109622) — 칸 묶음 옆이 B-1구역, 복도 건너편이
@@ -43,7 +26,10 @@ function LockersA2LockerMap({
             onSelect={onSelect}
             selectedLockerNumber={selectedLockerNumber}
           />
-          <MapArea className="w-[169px] self-stretch" label="B-1구역" />
+          <LockersMapArea
+            className="w-[169px] self-stretch py-8"
+            label="B-1구역"
+          />
         </div>
         <Typography
           as="p"
@@ -53,7 +39,7 @@ function LockersA2LockerMap({
         >
           복도
         </Typography>
-        <MapArea className="w-full" label="231호실" />
+        <LockersMapArea className="w-full py-8" label="231호실" />
       </div>
     </div>
   );

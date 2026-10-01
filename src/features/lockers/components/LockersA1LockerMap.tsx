@@ -1,7 +1,7 @@
 import { Typography } from "@wanteddev/wds";
-import type { ReactNode } from "react";
 
 import LockersLockerGrid from "@/features/lockers/components/LockersLockerGrid";
+import LockersMapLabel from "@/features/lockers/components/LockersMapLabel";
 import LockersShelfLabel from "@/features/lockers/components/LockersShelfLabel";
 import {
   LOCKERS_A1_GROUPS,
@@ -11,32 +11,6 @@ import {
 interface LockersA1LockerMapProps {
   selectedLockerNumber: number | null;
   onSelect: (lockerNumber: number) => void;
-}
-
-// 창문·벽면처럼 고를 수 없는 자리 표시. Figma "Direction Label"·"Aisle"
-function MapLabel({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className: string;
-}) {
-  return (
-    <div
-      className={`flex items-center justify-center rounded-sm bg-background-alternative ${className}`}
-    >
-      <Typography
-        as="p"
-        color="semantic.label.alternative"
-        // 벽면 라벨은 Figma가 한 글자씩 줄을 바꾸고 단어 사이에 빈 줄을 둔다
-        sx={{ textAlign: "center", whiteSpace: "pre-line" }}
-        variant="caption2"
-        weight="medium"
-      >
-        {children}
-      </Typography>
-    </div>
-  );
 }
 
 // Figma: Zone Area (nodeId 2159:110831 외) — 칸 묶음을 감싸는 테두리
@@ -73,15 +47,21 @@ function LockersA1LockerMap({
       <div className="flex items-end gap-3">
         <LockersShelfLabel className="h-[122px]" />
         <div className="flex flex-col items-center gap-2">
-          <MapLabel className="w-56 py-1.5">창문</MapLabel>
+          <LockersMapLabel className="w-56" text="창문" />
           <div className="flex h-[122px] items-center gap-3">
-            <MapLabel className="h-full px-1.5">{"왼\n쪽\n\n벽\n면"}</MapLabel>
+            <LockersMapLabel
+              className="h-full"
+              orientation="vertical"
+              text="왼쪽 벽면"
+            />
             <ZoneArea group={LOCKERS_A1_GROUPS.left} {...zoneProps} />
             <ZoneArea group={LOCKERS_A1_GROUPS.middle} {...zoneProps} />
             <ZoneArea group={LOCKERS_A1_GROUPS.right} {...zoneProps} />
-            <MapLabel className="h-full px-1.5">
-              {"오\n른\n쪽\n\n벽\n면"}
-            </MapLabel>
+            <LockersMapLabel
+              className="h-full"
+              orientation="vertical"
+              text="오른쪽 벽면"
+            />
           </div>
         </div>
       </div>
