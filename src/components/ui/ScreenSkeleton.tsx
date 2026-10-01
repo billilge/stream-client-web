@@ -54,54 +54,11 @@ export function useScreenHeaderSkeleton(
   useScreenHeader(<ScreenHeaderSkeleton variant={variant} />);
 }
 
-// 헤더 아래 Tool 영역(대여/반납·행사/신청내역 SegmentedControl, size="small" 32px)
-export function SegmentedControlSkeleton() {
-  const animation = useSkeletonAnimation();
-
-  return (
-    <Skeleton
-      animation={animation}
-      height="32px"
-      radius="10px"
-      variant="rectangle"
-    />
-  );
-}
-
-// FilterChipGroup 한 줄. 칩 폭은 실제 라벨 길이 대략값이다.
-// 순서가 바뀌지 않는 정적 목록이라 key를 미리 붙여 둔다(index key는 noArrayIndexKey에 걸린다).
-const FILTER_CHIPS = [
-  { key: "chip-1", width: "48px" },
-  { key: "chip-2", width: "72px" },
-  { key: "chip-3", width: "72px" },
-  { key: "chip-4", width: "60px" },
-  { key: "chip-5", width: "72px" },
-];
-
 // 목록 스켈레톤의 행 key. 행 수만 필요하고 내용이 없어서 미리 만들어 둔다.
 export const SKELETON_ROW_KEYS = ["row-1", "row-2", "row-3", "row-4", "row-5"];
 
-export function FilterChipsSkeleton() {
-  const animation = useSkeletonAnimation();
-
-  return (
-    <div className="flex gap-2 overflow-hidden">
-      {FILTER_CHIPS.map(({ key, width }) => (
-        <Skeleton
-          animation={animation}
-          height="32px"
-          key={key}
-          radius="9999px"
-          variant="rectangle"
-          width={width}
-        />
-      ))}
-    </div>
-  );
-}
-
-// 전용 스켈레톤이 없는 화면(홈·신청 흐름·준비 중 화면)의 기본 로딩 화면. 본문 모양은 화면마다
-// 달라서 흉내 내지 않고, 헤더 자리만 채운다.
+// 화면 JS를 받는 동안의 기본 로딩 화면(router.tsx의 lazyScreen). 본문 모양은 화면마다 달라서
+// 흉내 내지 않고, 헤더 자리만 채운다 — 데이터 영역의 스켈레톤은 화면이 자기 Suspense로 그린다.
 function ScreenSkeleton() {
   useScreenHeaderSkeleton();
 

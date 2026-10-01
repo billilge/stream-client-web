@@ -6,16 +6,15 @@ import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
 import ScreenSkeleton from "@/components/ui/ScreenSkeleton";
-import BililgeListSkeleton from "@/features/bililge/components/BililgeListSkeleton";
 import EventsDetailSkeleton from "@/features/events/components/EventsDetailSkeleton";
-import EventsListSkeleton from "@/features/events/components/EventsListSkeleton";
 import NoticesDetailSkeleton from "@/features/notices/components/NoticesDetailSkeleton";
-import NoticesListSkeleton from "@/features/notices/components/NoticesListSkeleton";
 
-// 화면은 라우트마다 따로 코드 분할한다. 첫 진입에 받는 JS가 줄고, 화면 JS를 받는 동안에는 그 화면
-// 모양의 스켈레톤(fallback)을 보여준다 — 빈 화면이 잠깐 뜨는 대신 곧 나올 배치가 먼저 보인다.
+// 화면은 라우트마다 따로 코드 분할한다. 첫 진입에 받는 JS가 줄고, 화면 JS를 받는 동안에는
+// 헤더 자리만 채우는 ScreenSkeleton(fallback)을 보여준다. 데이터 로딩 스켈레톤은 각 화면이
+// 자기 Suspense로 직접 그린다.
+// 상세처럼 화면 전체가 데이터 영역인 화면은 화면 안 스켈레톤을 여기 fallback으로도 넘겨서,
+// JS 로딩 → 데이터 로딩이 같은 스켈레톤으로 끊김 없이 이어지게 한다.
 // 스켈레톤은 fallback이라 코드 분할하지 않는다(여기서 바로 import).
-// 전용 스켈레톤이 없는 화면은 헤더 자리만 채우는 ScreenSkeleton을 쓴다.
 function lazyScreen(
   load: () => Promise<{ default: ComponentType }>,
   fallback: ReactNode = <ScreenSkeleton />,
@@ -43,14 +42,12 @@ const routes = [
           {
             element: lazyScreen(
               () => import("@/features/bililge/BililgeListScreen"),
-              <BililgeListSkeleton />,
             ),
             path: "/bililge",
           },
           {
             element: lazyScreen(
               () => import("@/features/events/EventsListScreen"),
-              <EventsListSkeleton />,
             ),
             // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
@@ -59,7 +56,6 @@ const routes = [
           {
             element: lazyScreen(
               () => import("@/features/notices/NoticesListScreen"),
-              <NoticesListSkeleton />,
             ),
             // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
             handle: { background: "normal" } satisfies ScreenRouteHandle,

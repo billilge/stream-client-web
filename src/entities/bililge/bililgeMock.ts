@@ -13,13 +13,7 @@ import powerBank from "@/assets/icons/bililge-items/power-bank.svg";
 import sanitaryPad from "@/assets/icons/bililge-items/sanitary-pad.svg";
 import umbrella from "@/assets/icons/bililge-items/umbrella.svg";
 import usbCCharger from "@/assets/icons/bililge-items/usb-c-charger.svg";
-
-export interface BililgeItem {
-  id: string;
-  name: string;
-  quantity: number;
-  icon: string;
-}
+import type { BililgeItem } from "@/entities/bililge/types";
 
 // Figma: 빌릴게 Item Grid (nodeId 1243:73343) 순서·물품명·수량을 그대로 옮긴 목데이터 — 실 API 연동 전까지 사용
 export const BILILGE_ITEMS: BililgeItem[] = [

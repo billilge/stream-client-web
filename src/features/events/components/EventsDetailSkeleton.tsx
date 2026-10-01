@@ -5,7 +5,7 @@ import {
   useSkeletonAnimation,
 } from "@/components/ui/ScreenSkeleton";
 
-// EventsDetailScreen이 로딩되는 동안의 자리 — 정사각 Hero 이미지, 상태 뱃지·제목, 일시/장소/대상
+// 행사 데이터를 받는 동안 EventsDetailScreen에 보이는 자리 — 정사각 Hero 이미지, 상태 뱃지·제목, 일시/장소/대상
 // 정보 행을 그대로 따른다. 실제 화면처럼 헤더 없이 Hero가 맨 위에서 시작하므로 헤더 슬롯은 비워 둔다.
 function EventsDetailSkeleton() {
   const animation = useSkeletonAnimation();

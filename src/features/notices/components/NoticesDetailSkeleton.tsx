@@ -6,7 +6,7 @@ import {
   useSkeletonAnimation,
 } from "@/components/ui/ScreenSkeleton";
 
-// NoticesDetailScreen이 로딩되는 동안의 자리 — 카테고리 뱃지, 제목, 등록일, 본문 문단을 따른다.
+// 공지 데이터를 받는 동안 NoticesDetailScreen에 보이는 자리 — 카테고리 뱃지, 제목, 등록일, 본문 문단을 따른다.
 // 사진 유무는 공지마다 달라서 사진 자리는 그리지 않는다.
 function NoticesDetailSkeleton() {
   const animation = useSkeletonAnimation();

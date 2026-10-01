@@ -1,21 +1,13 @@
-import {
-  Divider,
-  Tab,
-  TabList,
-  TabListItem,
-  TopNavigationButton,
-} from "@wanteddev/wds";
+import { Tab, TabList, TabListItem, TopNavigationButton } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
-import { Fragment, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Suspense, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import NoticesCard from "@/features/notices/components/NoticesCard";
-import {
-  NOTICES,
-  type NoticeCategory,
-} from "@/features/notices/constants/notices";
+import type { NoticeCategory } from "@/entities/notices/types";
+import NoticesList from "@/features/notices/components/NoticesList";
+import NoticesListSkeleton from "@/features/notices/components/NoticesListSkeleton";
 
 type NoticeTab = "all" | "general" | "partnership";
 
@@ -53,10 +45,6 @@ function NoticesListScreen() {
     />,
   );
 
-  const notices = NOTICES.filter(
-    (notice) => tab === "all" || notice.category === TAB_CATEGORY[tab],
-  );
-
   return (
     <>
       {/* 전체/일반 공지/제휴 공지 탭은 Figma에서 타이틀 행 아래("Tool" 영역)에 붙지만,
@@ -73,30 +61,10 @@ function NoticesListScreen() {
       </div>
 
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
-        <div className="flex flex-col gap-4 py-4">
-          {notices.map((notice, index) => (
-            <Fragment key={notice.id}>
-              {index > 0 && (
-                <div className="px-5">
-                  <Divider color="semantic.line.normal.alternative" />
-                </div>
-              )}
-              <Link
-                className="block"
-                to={`/notices/${notice.id}`}
-                viewTransition
-              >
-                <NoticesCard
-                  category={notice.category}
-                  date={notice.date}
-                  hasThumbnail={notice.hasThumbnail}
-                  isPinned={notice.isPinned}
-                  title={notice.title}
-                />
-              </Link>
-            </Fragment>
-          ))}
-        </div>
+        {/* 헤더·탭은 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다 */}
+        <Suspense fallback={<NoticesListSkeleton />}>
+          <NoticesList category={TAB_CATEGORY[tab]} />
+        </Suspense>
       </div>
     </>
   );
