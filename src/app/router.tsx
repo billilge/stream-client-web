@@ -75,6 +75,28 @@ const routes = [
           },
           {
             element: lazyScreen(
+              () => import("@/features/feedbacks/FeedbacksNewScreen"),
+            ),
+            // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면. Figma 루트 배경도 흰 면이다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/feedbacks/new",
+          },
+          {
+            element: lazyScreen(
+              () => import("@/features/feedbacks/FeedbacksDetailScreen"),
+            ),
+            // 상세(모아보기) 화면 — 목록 화면과 같은 흰 배경, Bottom Nav 없이 뒤로가기(닫기)로만 나간다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/feedbacks/:feedbackId",
+          },
+          {
+            element: lazyScreen(
               () => import("@/features/events/EventsDetailScreen"),
               <EventsDetailSkeleton />,
             ),
@@ -124,6 +146,25 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/notices/:noticeId",
+          },
+          {
+            element: lazyScreen(
+              () => import("@/features/lockers/LockersApplyScreen"),
+            ),
+            // 사물함 유의사항 시트 확인용 임시 라우트 — 실제 진입점이 붙으면 화면과 함께 지운다
+            path: "/lockers/apply",
+          },
+          {
+            element: lazyScreen(
+              () => import("@/features/chat/ChatEntryScreen"),
+            ),
+            // Figma 챗봇 진입 화면에는 Bottom Nav가 없다(뒤로가기로 홈에 복귀). 흰 배경 위에
+            // 그라데이션이 얹히는 구조라 다른 흰 배경 화면들과 같은 normal을 쓴다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/chat",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           {

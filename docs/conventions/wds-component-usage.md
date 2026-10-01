@@ -262,7 +262,9 @@ Figma 상세는 뒤로가기 버튼이 Hero 이미지 **위에 떠 있는** 오�
 
 `useScreenHeader`를 호출하지 않으면 슬롯이 `null`(0px)로 남으므로(`useScreenHeader`가 unmount 시 `setHeader(null)`을 한다), 상세 화면은 훅을 아예 호출하지 않고 Hero 안에 `absolute`로 `TopNavigationButton variant="icon"` + `IconChevronLeft`를 얹는다. 버튼 자체는 WDS를 그대로 쓴다.
 
-`ScreenHeader`에 `overlay` prop을 추가하는 방안도 검토했지만(슬롯을 `absolute inset-x-0 top-0 z-10`으로 띄우면 가능 — `ScreenLayout` 프레임이 `relative`다) 공용 컴포넌트가 다른 화면에 영향을 주는 변경이라 로컬로 뒀다. 같은 오버레이 패턴이 두 번째 화면에 나오면 그때 `ScreenHeader`로 올린다(`component-convention.md` §1의 "두 번째 화면에서 실제로 재사용될 때" 규칙과 같은 기준).
+`ScreenHeader`에 `overlay` prop을 추가하는 방안도 검토했지만(슬롯을 `absolute inset-x-0 top-0 z-10`으로 띄우면 가능 — `ScreenLayout` 프레임이 `relative`다) 공용 컴포넌트가 다른 화면에 영향을 주는 변경이라 로컬로 뒀다.
+
+**후기(공지 상세에 같은 패턴이 실제로 생김)**: 이후 공지 상세에도 같은 오버레이 헤더가 필요해졌는데, `ScreenHeader`가 아니라 `PhotoGallery`(아래 "PhotoGallery" 절 참고) 쪽에 `overlay` prop을 둬서 해결했다 — 뒤로가기 버튼이 이미지 영역에 종속된 오버레이라, `ScreenHeader`(헤더 슬롯 전체를 관장) 대신 사진 갤러리 컴포넌트가 자기 위에 뭘 얹을지를 결정하는 게 더 자연스러웠다. 공지 상세는 사진이 있을 때만 이 오버레이를 쓰고(`useScreenHeader(notice?.hasThumbnail ? null : <ScreenHeader ... />)`), 사진이 없으면 기존처럼 `ScreenHeader`로 되돌아간다.
 ## 행사 신청 제출 실패 토스트(`1450:93026`) 구현 중 확정된 매핑
 
 | WDS 컴포넌트 | 코드 export | 확인 내용 |
@@ -335,6 +337,15 @@ LottieFiles export 원본(`Loading Content`)에는 문구 2줄도 벡터 도형�
 - 뒤로가기는 행사 신청 화면과 동일하게 `ScreenHeader variant="normal"`의 `leading`에 `TopNavigationButton`+`IconChevronLeft`를 넣는다("Top Navigation 뒤로가기" 절 참고). 공지 상세는 타이틀이 헤더가 아니라 본문(Title Details)에 있어서 `title` prop은 생략한다.
 - 이미지 갤러리 배경은 실제 공지 사진 API 전까지 `bg-thumbnail-placeholder`(행사 카드와 동일 토큰)를 그대로 재사용했다.
 
+### PhotoGallery — 공지·행사 상세가 공유하는 사진 갤러리(스와이프+호버 화살표는 WDS에 없는 Stream 자체 구현)
+
+사진이 여러 장일 때 가로 스크롤 스냅으로 넘기는 갤러리를 `src/components/ui/PhotoGallery.tsx`로 공통화해서 공지 상세·행사 상세가 같이 쓴다(도메인 무관 공용 UI라 `features/`가 아니라 `components/ui/`에 둔다 — `coding-style.md` "폴더 구조" 기준).
+
+- **WDS로 확인된 부분**: 우하단 카운터는 `PageCounter`(위 표), 화살표 아이콘은 `wds-icon`의 `IconChevronLeft`/`IconChevronRight`.
+- **Stream 자체 구현(WDS 대응 없음)**: 가로 스크롤 스냅 트랙(`snap-x snap-mandatory`)과 호버 시에만 뜨는 원형 화살표 `<button>`은 Figma 디자인에도, WDS 컴포넌트 목록에도 없다. Figma는 "1/7" 카운터만 정의하고 화살표로 넘기는 인터랙션 자체가 없어서(스와이프만 전제) Stream이 웹 전용으로 새로 추가했다. 화살표는 `[@media(hover:hover)]:flex`로만 보이게 해서 터치 기기(hover 자체가 없음)에서는 항상 `hidden`으로 남고 스와이프로만 넘어간다.
+- **`overlay` prop**: 뒤로가기 버튼처럼 이미지 위에 얹는 오버레이를 화면마다 다르게 넘긴다. 공지 상세는 사진이 있을 때만 오버레이를 쓰고, 행사 상세는 항상 오버레이만 쓴다(위 "행사 상세의 오버레이 헤더는 `ScreenHeader`를 쓰지 않는다" 절 후기 참고).
+- **슬라이드 비율은 Figma 리터럴 값과 다르다**: Figma는 공지·행사 상세 둘 다 `Image Gallery`/`Hero Media` 프레임이 `h-[375px]` **고정 픽셀**이다(375px 폭 프레임 기준값이고 반응형 variant는 없음). 코드는 `slideClassName="aspect-square"`로 폭에 비례하게 만들었다 — 데스크톱 컬럼(480px)에서 고정 375px 높이로 두면 정사각형 사진이 1.28:1로 눌려 보이기 때문에(`/figma-check`로 2026-09-23 확인), 실사진을 담는 영역이라는 이유로 의도적으로 벗어났다. `ScreenLayout.tsx`의 "폭에 맞춰 같이 움직이는 고정 px 예외" 목록에 세 번째로 올라가 있다.
+
 ### 반례 — `Content Badge`의 `size`는 화면마다 실측해야 한다(행사 카드의 `size="small"`을 그대로 베끼면 안 됨)
 
 처음엔 행사 카드(`EventsCard`)가 `size="small"`을 쓰길래 재측정 없이 그대로 가져다 썼는데, `/figma-check`로 실측하니 이 화면의 뱃지는 padding `8px 5px`+`Label 2/Medium`(13px)로 WDS `size="medium"`(`content-badge/style.js`: `medium`=`padding: 5px 8px`+`label2`, `small`=`padding: 4px 6px`+`caption1`)과 일치했다 — Figma 인스턴스 자체의 radius만 8px로 `medium`의 10px과 다른데(`small`의 radius와 우연히 같음), padding·타이포가 다수 일치하는 쪽을 기준으로 `medium`으로 정정했다(radius 2px 차이는 WDS 내부 오버라이드 금지 원칙상 그대로 둔다). **같은 컴포넌트라도 화면마다 실측 없이 옆 화면의 prop 값을 그대로 베끼면 안 된다** — "빌릴게 필터 Chip" 반례와 같은 종류의 실수.
@@ -366,3 +377,65 @@ WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하
 - **`Divider(new)`의 8px 버전은 1px 구분선과 다른 별개 패턴**: 지금까지 쓰던 `divider(new)`는 1px 헤어라인(WDS `Divider`로 대체)이었는데, 이 화면의 섹션 사이 구분선은 같은 이름의 8px 두꺼운 버전(`bg-background-alternative`, `#f7f7f8`)이다. 헤어라인이 아니라 섹션을 통째로 나누는 용도라 `Divider` 컴포넌트로 대체하지 않고 `<div className="h-2 w-full bg-background-alternative" />`로 직접 그렸다 — 이미 있는 토큰이라 새로 추가한 색은 없다.
 - **`PaginationDots`는 부모 flex 컨테이너에 `items-center`가 없으면 왼쪽으로 붙는다**: 이 컴포넌트의 실제 루트(`tabindex` wrapper div)는 `className`/`sx` prop이 그 div까지 전달되지 않아 직접 센터링을 줄 수 없다(내부 tablist는 `width: fit-content`). `flex-col` 부모에 `items-center`를 주고, 형제 요소(캐러셀 스크롤 행)에는 `w-full`을 명시해서 폭을 유지해야 정확히 중앙에 온다 — `/figma-check`로 실측하다 발견된 버그.
 - **`bg-background-alternative`(`#f7f7f8`)는 흰 배경과 3/255밖에 차이가 안 나서 화면에 따라 거의 안 보일 수 있다**: Q&A 카드 배경·8px 섹션 구분선 둘 다 이 값인데, 개별 레이어 단위로 `get_variable_defs`를 다시 떼어봐도 이 값 하나만 바인딩돼 있고 다른 색·테두리는 없었다 — 코드가 Figma 값을 정확히 따르고 있는 게 확인됐다. 그럼에도 시각적 구분이 약하다고 느껴지면, Figma 스펙을 벗어나 더 진한 톤(예: `Line/Normal/Neutral` `#70737c29`)으로 의도적으로 조정할지는 별도 논의 필요 — 이번 PR에서는 Figma 값 그대로 두었다.
+
+## 사물함 신청 전 유의사항 바텀시트(`1737:218213`) 구현 중 확정된 매핑
+
+이 시트에서 WDS는 `ActionArea`/`ActionAreaButton`/`Typography`뿐이다. 제목·유의사항 3줄은 전부 Stream 로컬이다.
+
+- **`Notice Item`(`1417:56435` 계열)은 Stream 로컬**: `get_design_context`의 Component descriptions에 아예 잡히지 않았다. 42px 일러스트 + `[라벨 Label 1/Normal - Regular / 값 Body 2/Normal - Medium]` 두 줄 조합이며, 사물함 전용이 아닐 수 있어 보이지만 재사용처가 아직 없어서 `component-convention.md` §1대로 `features/lockers/`에 뒀다. 두 번째 화면에서 실제로 쓰이면 `components/ui/`로 옮긴다.
+- **유의사항 일러스트 3개(시계 `1417:56488`, 사람 `1417:56599`, 달력 `1417:56600`)도 WDS 아이콘이 아니다**: `download_assets`의 `export`로 받으면 셋 다 42×42 단일 SVG로 떨어진다. 특히 달력은 `get_design_context` 응답에서 배경 SVG + 도형 6개(`#e7f1ff`/`#2c88fe`/`#b3d0f7` 하드코딩) 조합으로 나와서 손으로 그려야 하나 싶지만, **노드 단위 `export`를 쓰면 한 장으로 받아진다** — 도형을 다시 그리지 말 것. `src/assets/icons/lockers/`에 커밋했다.
+- **`download_assets`의 `export`는 캔버스 배경까지 같이 굽는다**: 받은 SVG 맨 앞에 `<rect width="42" height="42" fill="#EFEFEF"/>`(Figma 캔버스 회색)와 뷰박스 밖으로 뻗는 페이지·섹션 배경 path(`<g id="Components">`, `<g id="Icon">`)가 들어 있었다. 그대로 쓰면 동그란 아이콘 뒤에 **회색 네모**가 깔린다. 실제 아이콘은 `<g id="Clock|Person|Calendar">` 하위(배경 원 `Ellipse 11` + 글리프)뿐이라 그 그룹만 남기고 걷어냈다(2.7KB → 1.0KB). **다시 export하면 같은 정리가 필요하다.**
+- **타이포 실측**: 제목은 `heading2`+`bold`(20px/28), 항목 라벨은 `label1`+`regular`(14px/20), 항목 값은 `body2`+`medium`(15px/22)로 Figma와 정확히 일치한다(`typography/style.js` 확인). `heading2`(20px)와 `headline2`(17px)를 혼동하지 않는다.
+
+### 시트 상단 간격은 Figma가 시트마다 다르다 — `BottomSheet`의 `contentGap`
+
+드래그 핸들(24px) 다음 내용이 시작하는 위치가 시트마다 다르다.
+
+| Figma | 내용 시작 y | 간격 |
+|---|---|---|
+| 빌릴게 대여 `1422:57178` | 32 | 8px |
+| 빌릴게 대여(시간 외) `1422:57209` | 32 | 8px |
+| 사물함 유의사항 `1737:218308` | 36 | **12px** |
+
+`BottomSheet`가 빌릴게 기준 8px을 하드코딩하고 있어서 사물함 시트가 4px 짧게 나왔다(시트 상단→제목 실측 37px, Figma 41px). 공용 컴포넌트를 한쪽 값으로 고정할 수 없어 `contentGap?: 8 | 12` prop으로 빼고 기본값을 8(빌릴게 기존 동작)로 뒀다. 사물함 시트만 `contentGap={12}`를 넘긴다 — 수정 후 실측 41px로 일치.
+
+**새 시트를 만들 때 이 값을 Figma에서 먼저 확인한다.** 8/12 외 값이 나오면 `BottomSheetContentGap` 유니온에 추가한다.
+
+### Action Area 메인 버튼 높이 보정은 `paddingBlock`으로 통일한다
+
+같은 56px 보정이 코드에 두 형태로 섞여 있었다 — 행사 화면 3곳은 `sx={{ paddingBlock: "16px" }}`, `BililgeRentalSheet.tsx:176`은 `sx={{ height: "56px" }}`다.
+
+**`paddingBlock` 쪽이 맞다.** Figma 스펙이 `padding: 16px 28px`이라 그대로 옮기는 형태이고, 높이를 고정하면 버튼 문구가 길어져 줄바꿈될 때 잘린다. 이 시트는 신청 기간이 아닐 때 문구가 `신청 기간이 아니에요`로 길어져서 실제로 걸릴 수 있는 자리다. `BililgeRentalSheet`도 정리 대상이다(이번 범위 밖).
+
+### 신청 기간이 아닐 때의 상태는 Figma에 없다
+
+하단 `확인했어요` 버튼을 `disabled`로 두고 문구를 `신청 기간이 아니에요`로 바꾸기로 코드에서 정했다. 유의사항 3줄은 그대로 둔다. 디자인에 없는 상태를 만든 것이라 디자이너 확인이 필요하다 — `docs/plans/#68-lockers-notice-sheet.md` 참고.
+
+## 열린피드백 상세페이지 · 모아보기(`1410:49988`) 구현 중 확정된 매핑
+
+같은 회차(round)의 답변된 피드백들을 가로로 스와이프해서 넘겨보는 화면. Figma는 정적 예시 한 장만 있어서(신청 폼·행사 상세처럼 스크롤 스냅 캐러셀은 화면에 안 잡힌다), 구조는 공지·행사 상세의 가로 스크롤 스냅 패턴을 그대로 가져오고, "스와이프하는 동안 진행 바가 같이 움직인다"는 요구사항은 스크롤 위치를 0~1 연속값으로 추적해서 반영했다.
+
+### 재검증 — `ProgressBar`는 여전히 Stream 로컬이다(WDS `ProgressIndicator`와 다름)
+
+WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외됨` 표에 `ProgressBar`가 예전부터 있었지만 이 화면에서 직접 재확인했다) `node_modules/@wanteddev/wds/dist/components/progress-indicator/style.js`를 열어봤다:
+
+| 항목 | WDS `ProgressIndicator` | Figma `ProgressBar`(`547:35051`) |
+|---|---|---|
+| 트랙 높이 | 2px | 4px |
+| 트랙 배경 | `Fill/Normal` | `Background/Normal/Alternative`(`#f7f7f8`) |
+| 채움 색 | `Primary/Normal`(`#0066FF`) | `#3385FF`(아래 항목 참고) |
+| 동작 | `--wds-progress-indicator-transform`으로 **단일 진행률**(0~100%)을 표현하는 로딩바 | 전체 중 **N개 중 1개 구간의 위치**를 나타내는 스크롤바 성격의 창(thumb) |
+
+색·치수가 다른 데다, 무엇보다 "진행률 1개 값"과 "N등분 중 한 구간의 폭+위치"는 동작 자체가 달라서 `ProgressIndicator`로는 표현이 안 된다(내부를 갈아엎어야 함 — `component-convention.md` 오버라이드 금지 원칙 위반). 트랙+채움 두 div로 직접 그렸다(`src/features/feedbacks/FeedbacksDetailScreen.tsx`).
+
+### 채움 색은 `--primary/normal`이 아니라 `Atomic/Blue/60`이다
+
+`get_design_context`가 내보낸 raw class는 `bg-[var(--primary/normal,#3385ff)]`이지만, 이 파일 다른 곳의 진짜 `Semantic/Primary/Normal`은 항상 `#0066FF`(`#06f`)다 — 변수 이름표를 믿지 않고 실제 hex(`#3385FF`)로 역추적하니 `Atomic/Blue/60`과 정확히 일치했다. `src/index.css`에 `--color-progress-fill: var(--atomic-blue-60)`으로 새 토큰을 추가했다.
+
+### 진행 바 위치는 정수 페이지가 아니라 스크롤 비율로 추적한다
+
+공지·행사 상세의 갤러리는 `Math.round(scrollLeft / offsetWidth)`로 정수 페이지만 구하지만, 이 화면은 "스와이프하는 동안 파란 칸이 같이 움직인다"는 요구사항이 있어서 `scrollLeft / (scrollWidth - clientWidth)`로 0~1 연속값을 추적한다. 칸 폭은 `100 / N`%, 위치는 `progress * (100 - 칸폭)`%로 계산해서 칸이 트랙 밖으로 튀어나가지 않게 한다(표준 스크롤바 thumb 공식과 동일).
+
+### `Icon/Feedback`·`Icon/Answer`는 게시판-열린피드백 목록과 같은 로컬 아이콘
+
+이 화면의 "피드백 내용"/"학생회 답변" 아이콘은 목록 화면의 `Icon/Question`/`Icon/Answer`와 이름만 다를 뿐 같은 자리(질문/답변 구분 아이콘)라 새로 받지 않고 기존 `src/assets/icons/feedbacks/{question,answer}.svg`를 그대로 재사용했다.

@@ -3,16 +3,31 @@ import { createPortal } from "react-dom";
 
 import { useScreenSheetPortal } from "@/components/ui/useScreenSheetPortal";
 
+// 드래그 핸들(24px)과 내용 사이 간격. Figma가 시트마다 다르게 잡아둬서 화면이 고른다 —
+// 빌릴게 대여(`1422:57178`, `1422:57209`)는 8px, 사물함 유의사항(`1737:218308`)은 12px이다.
+type BottomSheetContentGap = 8 | 12;
+
+const CONTENT_GAP_CLASS_NAMES: Record<BottomSheetContentGap, string> = {
+  8: "mb-2",
+  12: "mb-3",
+};
+
 interface BottomSheetProps {
   open: boolean;
   onClose: () => void;
+  contentGap?: BottomSheetContentGap;
   children: ReactNode;
 }
 
 // Figma: Views / Bottom Sheets (nodeId 1422:57176) — WDS에는 대응하는 코드 컴포넌트가 없다
 // (component-convention.md 참고: Native / Bottom Sheet Indicator는 Stream/iOS 목업 전용 로컬 요소).
 // 딤+시트를 ScreenLayout의 포털 슬롯(useScreenSheetPortal)에 그려서 화면 컬럼 전체를 덮는다.
-function BottomSheet({ open, onClose, children }: BottomSheetProps) {
+function BottomSheet({
+  open,
+  onClose,
+  contentGap = 8,
+  children,
+}: BottomSheetProps) {
   const portalEl = useScreenSheetPortal();
 
   if (!portalEl) {
@@ -38,7 +53,9 @@ function BottomSheet({ open, onClose, children }: BottomSheetProps) {
           open ? "translate-y-0" : "translate-y-full"
         }`}
       >
-        <div className="mb-2 flex h-6 shrink-0 items-center justify-center">
+        <div
+          className={`flex h-6 shrink-0 items-center justify-center ${CONTENT_GAP_CLASS_NAMES[contentGap]}`}
+        >
           <div className="h-[5px] w-12 rounded-full bg-sheet-indicator" />
         </div>
         {children}
