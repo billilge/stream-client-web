@@ -2,6 +2,8 @@ import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { useNavigate, useParams } from "react-router-dom";
 
+import LazyImage from "@/components/ui/LazyImage";
+import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import { ARCHIVES_DETAIL } from "@/features/archives/constants/archivesDetail";
@@ -42,17 +44,15 @@ function ArchivesPhotosScreen() {
             type="button"
           >
             {/* 버튼 안에 글자가 없어서 이 alt가 곧 버튼 이름이다(아카이빙 목록 카드는 제목·날짜가 그 역할을 한다) */}
-            <img
+            <LazyImage
               alt={`${title} 현장 사진 ${index + 1}`}
-              className="aspect-square w-full object-cover"
+              className="aspect-square w-full"
               src={photo}
             />
           </button>
         ))}
       </div>
-      {/* 하단 Home Bar 자리 — env()라 앱 WebView(네이티브가 이미 인셋)에서는 0이 된다.
-          데스크톱 프레임에서는 Figma대로 34px을 흉내 낸다(BottomNav와 같은 규칙). */}
-      <div className="h-safe-bottom sm:h-[34px]" />
+      <ScreenBottomSafeArea />
     </div>
   );
 }
