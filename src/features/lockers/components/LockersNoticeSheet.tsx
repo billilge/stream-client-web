@@ -73,7 +73,7 @@ function LockersNoticeSheet({
           onClick={onConfirm}
           sx={{ paddingBlock: "16px" }}
         >
-          {isApplyPeriod ? "신청하기" : "신청 기간이 아니에요"}
+          {isApplyPeriod ? "확인했어요" : "신청 기간이 아니에요"}
         </ActionAreaButton>
       </ActionArea>
     </BottomSheet>
