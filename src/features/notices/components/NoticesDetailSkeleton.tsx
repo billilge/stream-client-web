@@ -10,7 +10,7 @@ import {
 // 사진 유무는 공지마다 달라서 사진 자리는 그리지 않는다.
 function NoticesDetailSkeleton() {
   const animation = useSkeletonAnimation();
-  useScreenHeaderSkeleton("normal");
+  useScreenHeaderSkeleton();
 
   return (
     <div className="flex flex-1 flex-col gap-5 overflow-hidden px-5 pt-5">

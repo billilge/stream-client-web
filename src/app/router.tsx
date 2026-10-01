@@ -1,31 +1,24 @@
-import { type ComponentType, lazy, type ReactNode, Suspense } from "react";
 import { createBrowserRouter, type RouteObject } from "react-router-dom";
 
 import App from "@/app/App";
+import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
-import ScreenSkeleton from "@/components/ui/ScreenSkeleton";
-import EventsDetailSkeleton from "@/features/events/components/EventsDetailSkeleton";
-import NoticesDetailSkeleton from "@/features/notices/components/NoticesDetailSkeleton";
-
-// 화면은 라우트마다 따로 코드 분할한다. 첫 진입에 받는 JS가 줄고, 화면 JS를 받는 동안에는
-// 헤더 자리만 채우는 ScreenSkeleton(fallback)을 보여준다. 데이터 로딩 스켈레톤은 각 화면이
-// 자기 Suspense로 직접 그린다.
-// 상세처럼 화면 전체가 데이터 영역인 화면은 화면 안 스켈레톤을 여기 fallback으로도 넘겨서,
-// JS 로딩 → 데이터 로딩이 같은 스켈레톤으로 끊김 없이 이어지게 한다.
-// 스켈레톤은 fallback이라 코드 분할하지 않는다(여기서 바로 import).
-function lazyScreen(
-  load: () => Promise<{ default: ComponentType }>,
-  fallback: ReactNode = <ScreenSkeleton />,
-) {
-  const Screen = lazy(load);
-  return (
-    <Suspense fallback={fallback}>
-      <Screen />
-    </Suspense>
-  );
-}
+import BililgeListScreen from "@/features/bililge/BililgeListScreen";
+import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
+import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
+import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
+import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
+import EventsDetailScreen from "@/features/events/EventsDetailScreen";
+import EventsListScreen from "@/features/events/EventsListScreen";
+import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
+import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
+import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
+import HomeScreen from "@/features/home/HomeScreen";
+import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
+import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
+import NoticesListScreen from "@/features/notices/NoticesListScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
 // satisfies로 선언 시점에 RouteObject 형태를 검사한다.
@@ -36,43 +29,33 @@ const routes = [
       {
         children: [
           {
-            element: lazyScreen(() => import("@/features/home/HomeScreen")),
+            element: <HomeScreen />,
             path: "/",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/bililge/BililgeListScreen"),
-            ),
+            element: <BililgeListScreen />,
             path: "/bililge",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/events/EventsListScreen"),
-            ),
+            element: <EventsListScreen />,
             // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/events",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/notices/NoticesListScreen"),
-            ),
+            element: <NoticesListScreen />,
             // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/notices",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/feedbacks/FeedbacksListScreen"),
-            ),
+            element: <FeedbacksListScreen />,
             // 공지 화면과 같은 이유(카드 없이 구분선으로만 나뉘는 목록)로 흰 면을 쓴다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/feedbacks",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/feedbacks/FeedbacksNewScreen"),
-            ),
+            element: <FeedbacksNewScreen />,
             // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면. Figma 루트 배경도 흰 면이다.
             handle: {
               background: "normal",
@@ -81,9 +64,7 @@ const routes = [
             path: "/feedbacks/new",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/feedbacks/FeedbacksDetailScreen"),
-            ),
+            element: <FeedbacksDetailScreen />,
             // 상세(모아보기) 화면 — 목록 화면과 같은 흰 배경, Bottom Nav 없이 뒤로가기(닫기)로만 나간다.
             handle: {
               background: "normal",
@@ -92,26 +73,19 @@ const routes = [
             path: "/feedbacks/:feedbackId",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/events/EventsDetailScreen"),
-              <EventsDetailSkeleton />,
-            ),
+            element: <EventsDetailScreen />,
             // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/events/:eventId",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/events/EventsApplicationScreen"),
-            ),
+            element: <EventsApplicationScreen />,
             // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/events/:eventId/apply",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/events/EventsApplicationCompleteScreen"),
-            ),
+            element: <EventsApplicationCompleteScreen />,
             // 신청 결과 화면 — 하단 탭 없이 흰 배경 전체 화면이다
             handle: {
               background: "normal",
@@ -120,9 +94,7 @@ const routes = [
             path: "/events/:eventId/apply/complete",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/events/EventsApplicationClosedScreen"),
-            ),
+            element: <EventsApplicationClosedScreen />,
             // 신청 결과 화면 — 하단 탭 없이 흰 배경 전체 화면이다
             handle: {
               background: "normal",
@@ -131,10 +103,7 @@ const routes = [
             path: "/events/:eventId/apply/closed",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/notices/NoticesDetailScreen"),
-              <NoticesDetailSkeleton />,
-            ),
+            element: <NoticesDetailScreen />,
             // 상세 화면은 뒤로가기로만 돌아가는 흐름이라 Bottom Nav를 안 보여준다. 카드 없이
             // 본문이 배경까지 흰 면이라 목록 화면과 같은 background: "normal"을 쓴다.
             handle: {
@@ -144,16 +113,12 @@ const routes = [
             path: "/notices/:noticeId",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/lockers/LockersApplyScreen"),
-            ),
+            element: <LockersApplyScreen />,
             // 사물함 유의사항 시트 확인용 임시 라우트 — 실제 진입점이 붙으면 화면과 함께 지운다
             path: "/lockers/apply",
           },
           {
-            element: lazyScreen(
-              () => import("@/features/chat/ChatEntryScreen"),
-            ),
+            element: <ChatEntryScreen />,
             // Figma 챗봇 진입 화면에는 Bottom Nav가 없다(뒤로가기로 홈에 복귀). 흰 배경 위에
             // 그라데이션이 얹히는 구조라 다른 흰 배경 화면들과 같은 normal을 쓴다.
             handle: {
@@ -164,7 +129,7 @@ const routes = [
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           {
-            element: lazyScreen(() => import("@/app/ComingSoonScreen")),
+            element: <ComingSoonScreen />,
             path: "*",
           },
         ],
