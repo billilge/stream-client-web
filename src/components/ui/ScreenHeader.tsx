@@ -55,6 +55,11 @@ type ScreenHeaderProps =
       title?: ScreenHeaderTitle;
       leading?: ReactNode;
       trailing?: ReactNode;
+    }
+  | {
+      variant: "floating";
+      leading?: ReactNode;
+      trailing?: ReactNode;
     };
 
 // variant="display"(기본값, 빌릴게/홈)는 더 이상 WDS `Top Navigation/Resource/Contents`가 아니다 —
@@ -77,7 +82,23 @@ type ScreenHeaderProps =
 // 타이틀 + 트레일링 아이콘으로 묶어두기 위한 것이다. 임의의 ReactNode를 받는 슬롯은
 // 이 컴포넌트가 내용을 판단할 수 없어 패스스루 컨테이너가 되고, 화면마다 존재 여부가 달라지면서
 // 계속 늘어난다.
+//
+// variant="floating"(아카이빙 상세·현장 사진 뷰어)은 타이틀 없이 사진 위에 투명하게 겹치는 WDS
+// `TopNavigation` floating variant다. 사진과 같이 스크롤돼야 해서 useScreenHeader(고정 헤더 슬롯)로
+// 등록하지 않고 화면이 사진 컨테이너(relative) 안에 직접 둔다 — 버튼 영역은 WDS가 absolute로 띄우므로
+// 높이를 차지하지 않는다.
 function ScreenHeader(props: ScreenHeaderProps) {
+  if (props.variant === "floating") {
+    return (
+      <TopNavigation
+        background={false}
+        leadingContent={props.leading}
+        trailingContent={props.trailing}
+        variant="floating"
+      />
+    );
+  }
+
   const { title, trailing } = props;
 
   if (props.variant === "normal") {
