@@ -65,6 +65,7 @@ function LockersSectionCard({
 
   return (
     <button
+      aria-pressed={isSelected}
       className={`flex flex-[74] flex-col items-center justify-center gap-1 rounded-lg border px-[7px] ${containerClassName}`}
       disabled={isFull}
       onClick={() => onSelect(section.id)}
@@ -96,8 +97,11 @@ function LockersSectionCard({
         weight="regular"
       >
         {/* Figma가 잔여 숫자에만 SemiBold를 준다 */}
-        잔여 <span className="font-semibold">{section.remaining}</span>/
-        {section.total}
+        잔여{" "}
+        <Typography as="span" variant="caption2" weight="bold">
+          {section.remaining}
+        </Typography>
+        /{section.total}
       </Typography>
     </button>
   );
