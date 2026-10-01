@@ -126,37 +126,26 @@ const routes = [
             path: "/chat",
           },
           {
-            element: <ArchivesListScreen />,
-            // 사진 카드가 흰 면 위에 놓이는 화면이라 background: "normal"
+            // 아카이빙 화면은 모두 하단 탭 없이 흰 배경이라, element 없는 부모 라우트에 옵션을 모은다
+            children: [
+              { element: <ArchivesListScreen />, path: "/archives" },
+              {
+                element: <ArchivesDetailScreen />,
+                path: "/archives/:archiveId",
+              },
+              {
+                element: <ArchivesPhotosScreen />,
+                path: "/archives/:archiveId/photos",
+              },
+              {
+                element: <ArchivesPhotoViewerScreen />,
+                path: "/archives/:archiveId/photos/:photoIndex",
+              },
+            ],
             handle: {
               background: "normal",
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
-            path: "/archives",
-          },
-          {
-            element: <ArchivesDetailScreen />,
-            handle: {
-              background: "normal",
-              hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
-            path: "/archives/:archiveId",
-          },
-          {
-            element: <ArchivesPhotosScreen />,
-            handle: {
-              background: "normal",
-              hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
-            path: "/archives/:archiveId/photos",
-          },
-          {
-            element: <ArchivesPhotoViewerScreen />,
-            handle: {
-              background: "normal",
-              hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
-            path: "/archives/:archiveId/photos/:photoIndex",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },
