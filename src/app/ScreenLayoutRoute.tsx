@@ -1,5 +1,5 @@
-import { useLayoutEffect } from "react";
-import { useMatches, useNavigationType } from "react-router-dom";
+import { useLayoutEffect, useRef } from "react";
+import { useLocation, useMatches, useNavigationType } from "react-router-dom";
 
 import ScreenLayout, {
   type ScreenBackground,
@@ -33,19 +33,46 @@ function resolveScreenRouteOption<K extends keyof ScreenRouteHandle>(
   return undefined;
 }
 
+// createBrowserRouter는 history.state.idx에 히스토리 스택 위치를 적어 둔다(push마다 1씩 증가).
+function getHistoryIndex(): number | null {
+  const state: unknown = window.history.state;
+  if (
+    typeof state === "object" &&
+    state !== null &&
+    "idx" in state &&
+    typeof state.idx === "number"
+  ) {
+    return state.idx;
+  }
+  return null;
+}
+
 // ScreenLayout은 라우터를 모르는 prop 기반 레이아웃으로 두고, 이 컴포넌트가 현재 라우트의 handle을
 // 읽어 prop으로 넘기기만 한다. 그래서 옵션이 다른 화면이 생겨도 레이아웃 라우트를 따로 선언하지 않고,
 // 화면을 오가도 레이아웃이 다시 마운트되지 않는다.
 function ScreenLayoutRoute() {
   const navigationType = useNavigationType();
+  const location = useLocation();
+  const historyIndexRef = useRef<number | null>(null);
 
-  // 스택 슬라이드 전환(index.css)의 방향. 뒤로가기(POP)면 반대로 빠진다.
+  // 스택 슬라이드 전환(index.css)의 방향. 뒤로가기면 반대로 빠진다.
+  // POP은 브라우저 뒤로가기·앞으로가기를 구분하지 않아서, 히스토리 위치가 이전보다 작아졌을 때만 뒤로 본다.
+  // 위치를 알 수 없는 POP은 앱에서 거의 뒤로가기뿐이라 뒤로 처리한다.
   // 전환 애니메이션은 새 화면이 커밋된 뒤 시작되므로, 페인트 전에 도는 layout effect에서 정해 두면
   // 이번 전환부터 바로 반영된다.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 이동마다(location.key) 방향을 다시 정한다
   useLayoutEffect(() => {
+    const historyIndex = getHistoryIndex();
+    const previousHistoryIndex = historyIndexRef.current;
+    historyIndexRef.current = historyIndex;
+
+    const isForwardPop =
+      historyIndex !== null &&
+      previousHistoryIndex !== null &&
+      historyIndex > previousHistoryIndex;
     document.documentElement.dataset.navigation =
-      navigationType === "POP" ? "back" : "forward";
-  }, [navigationType]);
+      navigationType === "POP" && !isForwardPop ? "back" : "forward";
+  }, [navigationType, location.key]);
 
   const handles = useMatches()
     .map((match) => match.handle)
