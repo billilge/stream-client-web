@@ -41,7 +41,6 @@
 
   새 옵션이 필요하면 `src/app/ScreenLayoutRoute.tsx`의 `ScreenRouteHandle`에 필드를 추가하고, 그 값을 `ScreenLayout` prop으로 넘긴다. 현재 필드는 `hasBottomNav`(하단 탭 표시)와 `background`(375×812 프레임 배경 — 헤더 뒤까지 포함이라 화면 본문에서 칠할 수 없다. 신청 완료처럼 Figma가 흰 배경으로 그린 화면만 `"normal"`)다.
 - `ScreenLayout`은 **라우터를 모르는 prop 기반 컴포넌트**로 유지한다. 라우트 정보(`useMatches`)는 `ScreenLayoutRoute`만 읽는다.
-- 화면 컴포넌트는 `lazyScreen(() => import(...))`으로 라우트마다 코드 분할한다. 화면 JS를 받는 동안에는 헤더 자리만 채우는 `ScreenSkeleton`이 보인다. 상세처럼 화면 전체가 데이터 영역인 화면은 그 화면의 데이터 스켈레톤을 두 번째 인자로 넘겨, JS 로딩과 데이터 로딩이 같은 스켈레톤으로 이어지게 한다(아래 "데이터 로딩" 참고).
 - 화면 스택을 쌓는 이동(목록→상세, 상세→신청 등)은 `navigate(to, { viewTransition: true })`·`<Link viewTransition>`으로 슬라이드 전환을 켠다. 뒤로가기는 react-router가 그 이동을 기억해 반대 방향으로 자동 적용하므로 `navigate(-1)`은 그대로 둔다. 브라우저 앞으로가기도 POP이라, `ScreenLayoutRoute`는 히스토리 위치(`history.state.idx`)가 줄어든 POP만 뒤로 방향으로 본다. Bottom Nav·상단 탭처럼 형제 화면을 오가는 이동과 홈으로 돌아가는 이동은 켜지 않는다(즉시 전환). 애니메이션은 `index.css`, 방향은 `ScreenLayoutRoute`가 정한다.
 - 라우트가 없는 경로는 레이아웃 안의 `path: "*"` 라우트(`ComingSoonScreen`)가 받는다. 하단 탭이 유지돼서 다른 화면으로 돌아갈 수 있다. 구체적인 경로가 `*`보다 항상 우선하므로 배열 순서는 신경 쓰지 않아도 된다.
 
