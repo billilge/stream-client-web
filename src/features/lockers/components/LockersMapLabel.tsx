@@ -1,10 +1,13 @@
 import { Typography } from "@wanteddev/wds";
+import type { CSSProperties } from "react";
 
 interface LockersMapLabelProps {
   text: string;
   orientation?: "horizontal" | "vertical";
   /** 크기(창문 폭, 벽면 높이 등) — 화면마다 다르다 */
   className?: string;
+  /** px로 정한 크기(layout의 숫자 width·height) */
+  style?: CSSProperties;
 }
 
 // 세로 라벨은 Figma가 한 글자씩 줄을 바꾸고 단어 사이에 빈 줄을 둔다("왼쪽 벽면" → 왼/쪽/ /벽/면).
@@ -18,6 +21,7 @@ function LockersMapLabel({
   text,
   orientation = "horizontal",
   className = "",
+  style,
 }: LockersMapLabelProps) {
   const isVertical = orientation === "vertical";
 
@@ -26,6 +30,7 @@ function LockersMapLabel({
       className={`flex items-center justify-center rounded-sm bg-background-alternative ${
         isVertical ? "px-1.5" : "py-1.5"
       } ${className}`}
+      style={style}
     >
       <Typography
         as="p"
