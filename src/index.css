@@ -136,6 +136,18 @@
   }
 }
 
+/* 동작 줄이기를 켠 사용자는 슬라이드는 물론 브라우저 기본 크로스페이드도 없이 즉시 바뀐다 */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(screen),
+  ::view-transition-old(screen),
+  ::view-transition-new(screen) {
+    animation: none;
+  }
+}
+
 @keyframes screen-slide-in-from-right {
   from {
     transform: translateX(100%);
