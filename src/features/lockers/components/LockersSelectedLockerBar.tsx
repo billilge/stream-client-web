@@ -1,8 +1,8 @@
 import { ActionArea, ActionAreaButton, Typography } from "@wanteddev/wds";
 
 interface LockersSelectedLockerBarProps {
-  sectionName: string;
-  selectedLockerNumber: number | null;
+  /** 고른 사물함의 이름(서버 lockerLabel, 예: "A-25"). 고르기 전이면 null */
+  lockerLabel: string | null;
   onSubmit: () => void;
 }
 
@@ -11,17 +11,12 @@ interface LockersSelectedLockerBarProps {
 // 그림자는 Figma Shadow/Spread/Small 값 그대로다.
 //
 // 선택 전(State=Empty)은 안내 문구 + 잠긴 버튼, 선택 후(Figma "사물함 선택 시" 2159:113198)는
-// 사물함 번호를 Primary/Normal SemiBold로 보여주고 버튼을 연다.
-//
-// 사물함 번호는 Figma가 B-1구역 25번을 "B-25"로 적는다 — 구역 번호 없이 동 이름(구역 이름의
-// 앞글자)과 칸 번호만 쓴다. 칸 번호가 같은 동 안에서 겹치지 않아서(A-1은 1~36, A-2는 82~90) 이걸로 충분하다.
+// 사물함 이름을 Primary/Normal SemiBold로 보여주고 버튼을 연다. 이름은 서버가 주는 값을 그대로 쓴다.
 function LockersSelectedLockerBar({
-  sectionName,
-  selectedLockerNumber,
+  lockerLabel,
   onSubmit,
 }: LockersSelectedLockerBarProps) {
-  const hasSelection = selectedLockerNumber !== null;
-  const lockerLabel = `${sectionName.split("-")[0]}-${selectedLockerNumber}`;
+  const hasSelection = lockerLabel !== null;
 
   return (
     <div className="shrink-0 rounded-t-3xl bg-background-normal drop-shadow-[0px_0px_30px_rgba(23,23,23,0.1)]">

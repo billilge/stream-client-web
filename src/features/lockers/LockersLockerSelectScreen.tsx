@@ -1,15 +1,13 @@
 import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft, IconImage, IconReset } from "@wanteddev/wds-icon";
-import type { ComponentType } from "react";
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import ComingSoonScreen from "@/app/ComingSoonScreen";
 import sectionA1Photo from "@/assets/images/lockers/section-a-1-photo.jpg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import LockersA1LockerMap from "@/features/lockers/components/LockersA1LockerMap";
-import LockersA2LockerMap from "@/features/lockers/components/LockersA2LockerMap";
+import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
 import LockersLockerLegend from "@/features/lockers/components/LockersLockerLegend";
 import LockersLockerMinimap, {
   type LockersLockerMinimapViewport,
@@ -20,53 +18,32 @@ import {
   LOCKERS_A1_PHOTO_PINS,
   type LockersPhotoPin,
 } from "@/features/lockers/constants/lockersLockers";
+import {
+  LOCKERS_SECTION_DETAILS,
+  type LockersSectionDetail,
+} from "@/features/lockers/constants/lockersSectionDetails";
 
-interface LockerMapProps {
-  selectedLockerNumber: number | null;
-  onSelect: (lockerNumber: number) => void;
-}
-
-interface SectionLayout {
-  LockerMap: ComponentType<LockerMapProps>;
-  photo?: { src: string; pins: LockersPhotoPin[] };
-}
-
-// 구역마다 칸 배치가 실제 공간 구조라 모양이 전부 달라서, 구역별 배치 컴포넌트를 둔다.
-// 아직 Figma에 A-1·A-2만 있다.
-const SECTION_LAYOUTS: Record<string, SectionLayout> = {
-  "A-1": {
-    LockerMap: LockersA1LockerMap,
-    photo: { pins: LOCKERS_A1_PHOTO_PINS, src: sectionA1Photo },
-  },
-  "A-2": { LockerMap: LockersA2LockerMap },
-};
+// 실제 사진 모달은 아직 예전 핀 형식(px 좌표)을 쓴다 — 구역 상세의 photo(비율 좌표)로 바꿀 때 지운다
+const LEGACY_PHOTOS: Record<string, { src: string; pins: LockersPhotoPin[] }> =
+  {
+    "A-1": { pins: LOCKERS_A1_PHOTO_PINS, src: sectionA1Photo },
+  };
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
+// 구역마다 다른 칸 배치는 구역 상세의 layout이 갖고, 이 화면은 그걸 렌더러로 그리기만 한다.
 function LockersLockerSelectScreen() {
   const { sectionId = "" } = useParams();
-  const layout = SECTION_LAYOUTS[sectionId];
+  const detail = LOCKERS_SECTION_DETAILS[sectionId];
 
-  if (layout === undefined) {
+  if (detail === undefined) {
     return <ComingSoonScreen />;
   }
 
   // 구역이 바뀌면 고른 칸·스크롤을 처음부터 다시 잡는다
-  return (
-    <SectionLockerSelect
-      key={sectionId}
-      layout={layout}
-      sectionId={sectionId}
-    />
-  );
+  return <SectionLockerSelect detail={detail} key={sectionId} />;
 }
 
-function SectionLockerSelect({
-  sectionId,
-  layout,
-}: {
-  sectionId: string;
-  layout: SectionLayout;
-}) {
+function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedLockerNumber, setSelectedLockerNumber] = useState<
@@ -77,7 +54,17 @@ function SectionLockerSelect({
     null,
   );
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { LockerMap, photo } = layout;
+  const photo = LEGACY_PHOTOS[detail.section];
+
+  const lockers = useMemo(
+    () =>
+      new Map(detail.lockers.map((locker) => [locker.lockerNumber, locker])),
+    [detail.lockers],
+  );
+  const selectedLocker =
+    selectedLockerNumber === null
+      ? undefined
+      : lockers.get(selectedLockerNumber);
 
   // 칸 배치가 화면보다 넓을 때만 미니맵을 띄운다 — Figma도 화면에 다 들어오는 A-2는
   // 미니맵을 투명하게 숨겨 자리만 남겨뒀다.
@@ -123,7 +110,7 @@ function SectionLockerSelect({
           <IconChevronLeft />
         </TopNavigationButton>
       }
-      title={`${sectionId}구역 사물함 선택`}
+      title={`${detail.section}구역 사물함 선택`}
       trailing={
         <>
           {photo && (
@@ -150,7 +137,9 @@ function SectionLockerSelect({
   );
 
   const map = (
-    <LockerMap
+    <LockersLayoutRenderer
+      layout={detail.layout}
+      lockers={lockers}
       onSelect={setSelectedLockerNumber}
       selectedLockerNumber={selectedLockerNumber}
     />
@@ -170,21 +159,21 @@ function SectionLockerSelect({
           )}
           <LockersLockerLegend />
         </div>
-        {/* 화면 끝까지 스크롤되도록 좌우 여백을 스크롤 영역 안쪽에 둔다 */}
+        {/* 화면 끝까지 스크롤되도록 좌우 여백을 스크롤 영역 안쪽에 둔다.
+            min-w-full: 화면에 다 들어오는 구역에서 layout의 "fill" 상자가 화면 폭까지 늘어나게 한다 */}
         <div
           className="scrollbar-hidden shrink-0 overflow-x-auto pb-5"
           onScroll={updateViewport}
           ref={scrollRef}
         >
-          <div className="w-max px-5">{map}</div>
+          <div className="w-max min-w-full px-5">{map}</div>
         </div>
       </div>
 
       <LockersSelectedLockerBar
         // 신청 API가 아직 없어서 누를 곳만 열어둔다
         onSubmit={() => {}}
-        sectionName={sectionId}
-        selectedLockerNumber={selectedLockerNumber}
+        lockerLabel={selectedLocker?.lockerLabel ?? null}
       />
 
       {photo && (
@@ -193,7 +182,7 @@ function SectionLockerSelect({
           open={isPhotoOpen}
           photo={photo.src}
           pins={photo.pins}
-          sectionName={sectionId}
+          sectionName={detail.section}
         />
       )}
     </div>
