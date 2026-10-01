@@ -1,5 +1,7 @@
 import { Typography } from "@wanteddev/wds";
 
+import LazyImage from "@/components/ui/LazyImage";
+
 interface ArchivesPhotoGridProps {
   photos: string[];
   onMoreClick: () => void;
@@ -24,9 +26,9 @@ function ArchivesPhotoGrid({ photos, onMoreClick }: ArchivesPhotoGridProps) {
           // biome-ignore lint/suspicious/noArrayIndexKey: 사진 목록은 순서가 바뀌지 않는다
           key={index}
         >
-          <img
+          <LazyImage
             alt=""
-            className="absolute inset-0 size-full object-cover"
+            className="absolute inset-0 size-full"
             src={photo}
           />
           {hasMore && index === VISIBLE_PHOTO_COUNT - 1 && (

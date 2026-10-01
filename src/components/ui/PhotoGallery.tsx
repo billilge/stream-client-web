@@ -9,6 +9,8 @@ import {
   useState,
 } from "react";
 
+import LazyImage from "@/components/ui/LazyImage";
+
 export interface PhotoGalleryPhoto {
   src: string;
   alt: string;
@@ -23,7 +25,7 @@ interface PhotoGalleryBaseProps {
   overlay?: ReactNode;
   showCounter: boolean;
   slideClassName: string;
-  /** photos를 줄 때 각 사진 <img>에 줄 클래스 — 기본은 슬라이드를 꽉 채운다 */
+  /** photos를 줄 때 사진 자리(LazyImage 바깥 박스)에 줄 클래스 — 기본은 슬라이드를 꽉 채운다 */
   photoClassName?: string;
   /** 갤러리 루트에 덧붙일 클래스 — 전체 화면을 채우는 뷰어처럼 바깥 배치가 다른 경우에 쓴다 */
   className?: string;
@@ -65,7 +67,7 @@ function PhotoGallery({
   photos,
   showCounter,
   slideClassName,
-  photoClassName = "size-full object-cover",
+  photoClassName = "size-full",
   className = "",
   initialPage = 1,
   onPageChange,
@@ -150,9 +152,12 @@ function PhotoGallery({
               key={photoKey}
             >
               {photo && (
-                <img
+                <LazyImage
                   alt={photo.alt}
                   className={photoClassName}
+                  // 처음 보여줄 장은 바로 받는다(지연시키면 열자마자 빈 화면이 보인다).
+                  // 나머지는 옆으로 넘겨 가까워질 때 받는다.
+                  isEager={index + 1 === initialPage}
                   src={photo.src}
                 />
               )}

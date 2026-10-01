@@ -70,7 +70,7 @@ function ArchivesPhotoViewerScreen() {
         }))}
         showCounter
         /* Figma Image 375×463 — 화면 높이 안에서 세로 가운데에 둔다 */
-        photoClassName="aspect-[375/463] w-full object-cover"
+        photoClassName="aspect-[375/463] w-full"
         slideClassName="flex h-full items-center"
         snapAlign="center"
         snapStop
