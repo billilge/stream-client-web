@@ -9,8 +9,6 @@ import {
   useState,
 } from "react";
 
-import LazyImage from "@/components/ui/LazyImage";
-
 export interface PhotoGalleryPhoto {
   src: string;
   alt: string;
@@ -25,7 +23,7 @@ interface PhotoGalleryBaseProps {
   overlay?: ReactNode;
   showCounter: boolean;
   slideClassName: string;
-  /** photos를 줄 때 사진 자리(LazyImage 바깥 박스)에 줄 클래스 — 기본은 슬라이드를 꽉 채운다 */
+  /** photos를 줄 때 각 사진 <img>에 줄 클래스 — 기본은 슬라이드를 꽉 채운다 */
   photoClassName?: string;
   /** 갤러리 루트에 덧붙일 클래스 — 전체 화면을 채우는 뷰어처럼 바깥 배치가 다른 경우에 쓴다 */
   className?: string;
@@ -67,7 +65,7 @@ function PhotoGallery({
   photos,
   showCounter,
   slideClassName,
-  photoClassName = "size-full",
+  photoClassName = "size-full object-cover",
   className = "",
   initialPage = 1,
   onPageChange,
@@ -102,12 +100,23 @@ function PhotoGallery({
   }, [initialPage]);
 
   // 스크롤 위치로 현재 장을 역산한다.
+  // Safari의 탄성 오버스크롤(rubber-band)은 scrollLeft가 범위를 넘어설 수 있어서 유효 범위로 클램프한다
+  // (같은 처리가 FeedbacksDetailScreen에도 있다 — 안 하면 마지막 장을 세게 밀 때 "27 / 26"이 된다).
   const handleGalleryScroll = (event: UIEvent<HTMLDivElement>) => {
-    const { scrollLeft, offsetWidth } = event.currentTarget;
-    if (offsetWidth === 0) {
+    const { scrollLeft, scrollWidth, clientWidth } = event.currentTarget;
+    if (clientWidth === 0) {
       return;
     }
-    const page = Math.round(scrollLeft / offsetWidth) + 1;
+    const maxScrollLeft = Math.max(scrollWidth - clientWidth, 0);
+    const clampedScrollLeft = Math.min(Math.max(scrollLeft, 0), maxScrollLeft);
+    const page = Math.min(
+      Math.round(clampedScrollLeft / clientWidth) + 1,
+      totalPages,
+    );
+    // 스크롤 이벤트는 손가락을 따라 계속 오지만, 장이 실제로 바뀔 때만 알린다.
+    if (page === currentPage) {
+      return;
+    }
     setCurrentPage(page);
     onPageChange?.(page);
   };
@@ -152,12 +161,9 @@ function PhotoGallery({
               key={photoKey}
             >
               {photo && (
-                <LazyImage
+                <img
                   alt={photo.alt}
                   className={photoClassName}
-                  // 처음 보여줄 장은 바로 받는다(지연시키면 열자마자 빈 화면이 보인다).
-                  // 나머지는 옆으로 넘겨 가까워질 때 받는다.
-                  isEager={index + 1 === initialPage}
                   src={photo.src}
                 />
               )}

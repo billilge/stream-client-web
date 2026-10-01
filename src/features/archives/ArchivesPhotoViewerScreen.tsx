@@ -70,7 +70,9 @@ function ArchivesPhotoViewerScreen() {
         }))}
         showCounter
         /* Figma Image 375×463 — 화면 높이 안에서 세로 가운데에 둔다 */
-        photoClassName="aspect-[375/463] w-full"
+        /* 가로는 화면을 꽉 채우고 세로는 사진 비율대로 둔다 — 자리를 375×463으로 고정하면
+           비율이 다른 사진에 좌우 여백이 생긴다. 아주 긴 사진만 max-h-full로 화면 안에 맞춘다. */
+        photoClassName="max-h-full w-full object-contain"
         slideClassName="flex h-full items-center"
         snapAlign="center"
         snapStop
