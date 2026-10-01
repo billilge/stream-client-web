@@ -1,10 +1,10 @@
 import { Typography } from "@wanteddev/wds";
 
 import lockerUnavailableIcon from "@/assets/icons/lockers/locker-unavailable.svg";
-import type { LockersLocker } from "@/features/lockers/constants/lockersLockers";
+import type { LockersSectionLocker } from "@/features/lockers/constants/lockersSectionDetails";
 
 interface LockersLockerCellProps {
-  locker: LockersLocker;
+  locker: LockersSectionLocker;
   isSelected: boolean;
   onSelect: (lockerNumber: number) => void;
 }
@@ -18,15 +18,37 @@ interface LockersLockerCellProps {
 //
 // 선택된 칸은 Figma "사물함 선택 시"(2159:113315)대로 Primary/Normal 배경에 번호를
 // Background/Normal/Normal(흰색) SemiBold로 바꾼다.
+//
+// 내 사물함(이미 신청한 칸)은 Figma에 상태가 없어서 임시로 초록 테두리(Status/Positive)를 두른다.
+// 이미 신청한 칸이라 다시 고를 수 없다 — 디자인이 나오면 바꾼다.
 function LockersLockerCell({
   locker,
   isSelected,
   onSelect,
 }: LockersLockerCellProps) {
+  if (locker.isMine) {
+    return (
+      <div
+        aria-label={`${locker.lockerLabel} 내 사물함`}
+        className="flex size-7 items-center justify-center rounded-sm bg-orange-95 ring-2 ring-status-positive ring-inset"
+        role="img"
+      >
+        <Typography
+          as="span"
+          color="semantic.label.neutral"
+          variant="caption2"
+          weight="regular"
+        >
+          {locker.lockerNumber}
+        </Typography>
+      </div>
+    );
+  }
+
   if (!locker.isAvailable) {
     return (
       <img
-        alt={`${locker.number}번 선택 불가`}
+        alt={`${locker.lockerLabel} 선택 불가`}
         className="size-7"
         src={lockerUnavailableIcon}
       />
@@ -39,7 +61,7 @@ function LockersLockerCell({
       className={`flex size-7 items-center justify-center rounded-sm ${
         isSelected ? "bg-primary" : "bg-orange-95"
       }`}
-      onClick={() => onSelect(locker.number)}
+      onClick={() => onSelect(locker.lockerNumber)}
       type="button"
     >
       <Typography
@@ -52,7 +74,7 @@ function LockersLockerCell({
         variant="caption2"
         weight={isSelected ? "bold" : "regular"}
       >
-        {locker.number}
+        {locker.lockerNumber}
       </Typography>
     </button>
   );

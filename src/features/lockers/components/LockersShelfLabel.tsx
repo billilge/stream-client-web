@@ -3,8 +3,8 @@ import { Typography } from "@wanteddev/wds";
 import shelfDividerIcon from "@/assets/icons/lockers/shelf-divider.svg";
 
 interface LockersShelfLabelProps {
-  /** 칸 묶음 높이에 맞춘다 — A-1은 테두리 있는 묶음(122px), A-2는 칸만(96px) */
-  className: string;
+  /** 칸 묶음 높이(px)에 맞춘다 — 테두리 있는 3행 묶음은 122, 칸만 있는 3행 묶음은 96 */
+  height: number;
 }
 
 function ShelfText({ children }: { children: string }) {
@@ -24,9 +24,12 @@ function ShelfText({ children }: { children: string }) {
 // Figma: Shelf Label (nodeId 1628:174373) — Stream 로컬. 칸 묶음 왼쪽에서 위아래 방향을 알려준다.
 // 가운데 점선은 Figma가 가로 Divider를 90° 돌려 그린 것이라 같은 방식(컨테이너 단위로 길이를
 // 맞춘 뒤 회전)으로 옮긴다. SVG 원본 크기(120×1.2)는 건드리지 않는다.
-function LockersShelfLabel({ className }: LockersShelfLabelProps) {
+function LockersShelfLabel({ height }: LockersShelfLabelProps) {
   return (
-    <div className={`flex shrink-0 flex-col items-center gap-1.5 ${className}`}>
+    <div
+      className="flex shrink-0 flex-col items-center gap-1.5"
+      style={{ height }}
+    >
       <ShelfText>위쪽 칸</ShelfText>
       <div
         className="flex min-h-px w-full flex-1 items-center justify-center"

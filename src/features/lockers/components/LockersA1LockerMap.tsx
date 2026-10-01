@@ -7,6 +7,14 @@ import {
   LOCKERS_A1_GROUPS,
   type LockersLockerGroup,
 } from "@/features/lockers/constants/lockersLockers";
+import { LOCKERS_SECTION_DETAILS } from "@/features/lockers/constants/lockersSectionDetails";
+
+const A1_LOCKERS = new Map(
+  LOCKERS_SECTION_DETAILS["A-1"].lockers.map((locker) => [
+    locker.lockerNumber,
+    locker,
+  ]),
+);
 
 interface LockersA1LockerMapProps {
   selectedLockerNumber: number | null;
@@ -22,8 +30,9 @@ function ZoneArea({
   return (
     <div className="shrink-0 rounded-lg border border-line-solid-alternative p-3">
       <LockersLockerGrid
-        group={group}
+        lockers={A1_LOCKERS}
         onSelect={onSelect}
+        rows={group.map((row) => row.map((locker) => locker.number))}
         selectedLockerNumber={selectedLockerNumber}
       />
     </div>
@@ -45,7 +54,7 @@ function LockersA1LockerMap({
   return (
     <div className="flex w-max flex-col items-end gap-8">
       <div className="flex items-end gap-3">
-        <LockersShelfLabel className="h-[122px]" />
+        <LockersShelfLabel height={122} />
         <div className="flex flex-col items-center gap-2">
           <LockersMapLabel className="w-56" text="창문" />
           <div className="flex h-[122px] items-center gap-3">

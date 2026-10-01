@@ -4,6 +4,14 @@ import LockersLockerGrid from "@/features/lockers/components/LockersLockerGrid";
 import LockersMapArea from "@/features/lockers/components/LockersMapArea";
 import LockersShelfLabel from "@/features/lockers/components/LockersShelfLabel";
 import { LOCKERS_A2_GROUP } from "@/features/lockers/constants/lockersLockers";
+import { LOCKERS_SECTION_DETAILS } from "@/features/lockers/constants/lockersSectionDetails";
+
+const A2_LOCKERS = new Map(
+  LOCKERS_SECTION_DETAILS["A-2"].lockers.map((locker) => [
+    locker.lockerNumber,
+    locker,
+  ]),
+);
 
 interface LockersA2LockerMapProps {
   selectedLockerNumber: number | null;
@@ -18,11 +26,14 @@ function LockersA2LockerMap({
 }: LockersA2LockerMapProps) {
   return (
     <div className="flex w-max items-start gap-3">
-      <LockersShelfLabel className="h-24" />
+      <LockersShelfLabel height={96} />
       <div className="flex flex-col items-center gap-8">
         <div className="flex items-start justify-center gap-3">
           <LockersLockerGrid
-            group={LOCKERS_A2_GROUP}
+            lockers={A2_LOCKERS}
+            rows={LOCKERS_A2_GROUP.map((row) =>
+              row.map((locker) => locker.number),
+            )}
             onSelect={onSelect}
             selectedLockerNumber={selectedLockerNumber}
           />
