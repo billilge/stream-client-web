@@ -48,7 +48,7 @@ function LockersSectionSelectScreen() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex min-h-0 flex-1 flex-col px-5 pt-1 pb-2">
+      <div className="scrollbar-hidden flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-1 pb-2">
         <LockersFloorMap
           onSelect={setSelectedSectionId}
           selectedSectionId={selectedSectionId}

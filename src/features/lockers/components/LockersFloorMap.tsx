@@ -60,6 +60,8 @@ function AreaLabel({ icon, label }: { icon?: string; label: string }) {
 // 뷰포트로 꽉 채운다. 그래서 치수를 고정하지 않고 **Figma 값을 flex 비율로** 옮겨서
 // 남는 공간을 비례 배분한다 — 열 124:67:124, 왼쪽 열 186:74:186:134, 오른쪽 열 74…34:74.
 // 열 사이 간격(10px)과 카드 사이 간격(왼쪽 4px·오른쪽 6px)만 Figma 값 그대로 고정이다.
+// 루트에 min-h-0을 주지 않아서 카드 내용 높이보다는 줄어들지 않는다 — 320×568처럼 낮은 화면에서는
+// 대신 부모(LockersSectionSelectScreen)가 세로로 스크롤한다.
 function LockersFloorMap({
   selectedSectionId,
   onSelect,
@@ -74,7 +76,7 @@ function LockersFloorMap({
   );
 
   return (
-    <div className="flex min-h-0 flex-1 gap-2.5">
+    <div className="flex flex-1 gap-2.5">
       <div className="flex flex-[124] flex-col gap-1">
         <MapArea className="flex-[186]">
           <AreaLabel label="231호실" />
