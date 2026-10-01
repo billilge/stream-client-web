@@ -5,18 +5,18 @@ import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
-import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
-import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
-import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
-import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
+import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
 import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
+import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
+import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
 import HomeScreen from "@/features/home/HomeScreen";
+import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
 
@@ -47,6 +47,24 @@ const routes = [
             // 공지 화면과 같은 이유(카드 없이 구분선으로만 나뉘는 목록)로 흰 면을 쓴다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/feedbacks",
+          },
+          {
+            element: <FeedbacksNewScreen />,
+            // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면. Figma 루트 배경도 흰 면이다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/feedbacks/new",
+          },
+          {
+            element: <FeedbacksDetailScreen />,
+            // 상세(모아보기) 화면 — 목록 화면과 같은 흰 배경, Bottom Nav 없이 뒤로가기(닫기)로만 나간다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/feedbacks/:feedbackId",
           },
           {
             element: <EventsDetailScreen />,
@@ -89,37 +107,19 @@ const routes = [
             path: "/notices/:noticeId",
           },
           {
-            element: <ArchivesListScreen />,
-            // 사진 카드가 흰 면 위에 놓이는 화면이라 background: "normal"
-            handle: {
-              background: "normal",
-              hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
-            path: "/archives",
+            element: <LockersApplyScreen />,
+            // 사물함 유의사항 시트 확인용 임시 라우트 — 실제 진입점이 붙으면 화면과 함께 지운다
+            path: "/lockers/apply",
           },
           {
-            element: <ArchivesDetailScreen />,
+            element: <ChatEntryScreen />,
+            // Figma 챗봇 진입 화면에는 Bottom Nav가 없다(뒤로가기로 홈에 복귀). 흰 배경 위에
+            // 그라데이션이 얹히는 구조라 다른 흰 배경 화면들과 같은 normal을 쓴다.
             handle: {
               background: "normal",
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
-            path: "/archives/:archiveId",
-          },
-          {
-            element: <ArchivesPhotosScreen />,
-            handle: {
-              background: "normal",
-              hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
-            path: "/archives/:archiveId/photos",
-          },
-          {
-            element: <ArchivesPhotoViewerScreen />,
-            handle: {
-              background: "normal",
-              hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
-            path: "/archives/:archiveId/photos/:photoIndex",
+            path: "/chat",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },
