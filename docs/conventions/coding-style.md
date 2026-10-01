@@ -41,13 +41,20 @@
 
   새 옵션이 필요하면 `src/app/ScreenLayoutRoute.tsx`의 `ScreenRouteHandle`에 필드를 추가하고, 그 값을 `ScreenLayout` prop으로 넘긴다. 현재 필드는 `hasBottomNav`(하단 탭 표시)와 `background`(375×812 프레임 배경 — 헤더 뒤까지 포함이라 화면 본문에서 칠할 수 없다. 신청 완료처럼 Figma가 흰 배경으로 그린 화면만 `"normal"`)다.
 - `ScreenLayout`은 **라우터를 모르는 prop 기반 컴포넌트**로 유지한다. 라우트 정보(`useMatches`)는 `ScreenLayoutRoute`만 읽는다.
-- 화면 컴포넌트는 `lazyScreen(() => import(...), <스켈레톤 />)`으로 라우트마다 코드 분할한다. 화면 JS를 받는 동안 fallback 스켈레톤이 보인다. 전용 스켈레톤은 `features/<기능>/components/<화면>Skeleton.tsx`에 두고 WDS `Skeleton`으로 실제 배치를 따라 그린다(헤더 자리는 `useScreenHeaderSkeleton`). 전용 스켈레톤이 없으면 기본값(헤더 자리만 채우는 `ScreenSkeleton`)을 쓴다.
+- 화면 컴포넌트는 `lazyScreen(() => import(...))`으로 라우트마다 코드 분할한다. 화면 JS를 받는 동안에는 헤더 자리만 채우는 `ScreenSkeleton`이 보인다. 상세처럼 화면 전체가 데이터 영역인 화면은 그 화면의 데이터 스켈레톤을 두 번째 인자로 넘겨, JS 로딩과 데이터 로딩이 같은 스켈레톤으로 이어지게 한다(아래 "데이터 로딩" 참고).
 - 화면 스택을 쌓는 이동(목록→상세, 상세→신청 등)은 `navigate(to, { viewTransition: true })`·`<Link viewTransition>`으로 슬라이드 전환을 켠다. 뒤로가기는 react-router가 그 이동을 기억해 반대 방향으로 자동 적용하므로 `navigate(-1)`은 그대로 둔다. 브라우저 앞으로가기도 POP이라, `ScreenLayoutRoute`는 히스토리 위치(`history.state.idx`)가 줄어든 POP만 뒤로 방향으로 본다. Bottom Nav·상단 탭처럼 형제 화면을 오가는 이동과 홈으로 돌아가는 이동은 켜지 않는다(즉시 전환). 애니메이션은 `index.css`, 방향은 `ScreenLayoutRoute`가 정한다.
 - 라우트가 없는 경로는 레이아웃 안의 `path: "*"` 라우트(`ComingSoonScreen`)가 받는다. 하단 탭이 유지돼서 다른 화면으로 돌아갈 수 있다. 구체적인 경로가 `*`보다 항상 우선하므로 배열 순서는 신경 쓰지 않아도 된다.
 
+## 데이터 로딩
+
+- 서버 데이터는 TanStack Query로 받는다. API 함수·쿼리·타입은 `entities/<도메인>/`에 두고(`<도메인>Api.ts`·`<도메인>Queries.ts`·`types.ts`), 화면은 `useSuspenseQuery(<도메인>Queries.list())`처럼 쿼리 팩토리로만 받는다.
+- 실 API 전까지 API 함수는 `<도메인>Mock.ts`의 목데이터를 `mockResponse`(`lib/mockResponse.ts`)로 돌려준다. 개발 서버에서는 스켈레톤을 확인할 수 있게 500ms 늦게 응답하고, 배포 빌드에서는 바로 응답한다. API가 붙으면 API 함수 안쪽만 바꾼다.
+- 화면(`<화면>Screen.tsx`)은 헤더 등록, UI 상태, 이동 같은 동작을 맡고, 데이터를 받는 영역만 `<Suspense fallback={<전용 스켈레톤 />}>`으로 감싼다. `useSuspenseQuery`를 부르고 데이터를 그리는 부분은 `features/<기능>/components/`의 컴포넌트(`EventsList`, `EventsDetailContent` 등)로 분리하고, 이동 같은 동작은 콜백 prop으로 받는다.
+- 데이터와 무관한 헤더·탭·필터는 Suspense 밖에서 바로 그리고, 스켈레톤은 데이터 영역의 배치만 따라 그린다. 전용 스켈레톤은 `features/<기능>/components/<화면>Skeleton.tsx`에 두고 WDS `Skeleton`으로 그린다. 헤더가 데이터에 따라 달라지는 화면(공지 상세)은 헤더도 데이터 컴포넌트가 등록하고, 스켈레톤이 `useScreenHeaderSkeleton`으로 헤더 자리를 채운다.
+
 ## 에러 / 비동기
 
-- async는 try/catch 또는 서버 상태 라이브러리(도입 시)의 에러 상태로 다룬다. **빈 catch 금지**.
+- async는 try/catch 또는 TanStack Query의 에러 상태로 다룬다. **빈 catch 금지**.
 - 사용자에게 보이는 메시지와 개발 로깅을 구분한다.
 
 ## 주석
