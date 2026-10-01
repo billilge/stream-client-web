@@ -13,24 +13,11 @@ interface ArchivesDetailSectionProps {
   children: ReactNode;
 }
 
-// Figma에서 아이콘마다 24px 프레임 안 그림 위치가 달라서, 받은 그림 SVG를 프레임 기준 위치 그대로 배치한다.
-const ICONS: Record<
-  ArchivesDetailSectionIcon,
-  { src: string; className: string }
-> = {
-  activity: {
-    className:
-      "top-[calc(50%-0.16px)] left-[calc(50%+0.92px)] h-[16.187px] w-[18.162px] -translate-x-1/2 -translate-y-1/2",
-    src: activityIcon,
-  },
-  camera: {
-    className: "inset-[8.33%_8.33%_14.89%_8.33%]",
-    src: cameraIcon,
-  },
-  link: {
-    className: "inset-[12.5%_12.5%_12.48%_12.5%]",
-    src: linkIcon,
-  },
+// SVG 파일이 Figma의 24x24 프레임 그대로라(그림 위치도 그 안에 들어 있다) 위치 보정 없이 그린다.
+const ICON_SOURCES: Record<ArchivesDetailSectionIcon, string> = {
+  activity: activityIcon,
+  camera: cameraIcon,
+  link: linkIcon,
 };
 
 // Figma: 아카이빙 상세 Activity/Photos/Links Section (nodeId 1526:171236, 1526:171242, 1526:171260)
@@ -45,13 +32,7 @@ function ArchivesDetailSection({
       <div className="h-2 w-full shrink-0 bg-background-alternative" />
       <section className="flex flex-col gap-3 px-5">
         <div className="flex items-center gap-1">
-          <div className="relative size-6 shrink-0 overflow-hidden">
-            <img
-              alt=""
-              className={`absolute ${ICONS[icon].className}`}
-              src={ICONS[icon].src}
-            />
-          </div>
+          <img alt="" className="size-6 shrink-0" src={ICON_SOURCES[icon]} />
           <Typography
             as="h3"
             color="semantic.label.normal"
