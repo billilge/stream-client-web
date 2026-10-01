@@ -1,28 +1,67 @@
 import { IconButton, Typography } from "@wanteddev/wds";
 import { IconClose } from "@wanteddev/wds-icon";
 import type { KeyboardEvent } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 
 import { useScreenSheetPortal } from "@/components/ui/useScreenSheetPortal";
 import type {
-  LockersPhotoPin,
-  LockersPhotoPinTone,
-} from "@/features/lockers/constants/lockersLockers";
+  LockersLayout,
+  LockersLayoutBlock,
+  LockersSectionPhoto,
+} from "@/features/lockers/constants/lockersSectionDetails";
 
 interface LockersSectionPhotoModalProps {
   open: boolean;
   sectionName: string;
-  photo: string;
-  pins: LockersPhotoPin[];
+  photo: LockersSectionPhoto;
+  /** 핀 색을 칸이 묶음의 몇 번째 행인지로 정해서, 같은 구역의 layout을 받는다 */
+  layout: LockersLayout;
   onClose: () => void;
 }
 
-const PIN_CLASS_NAMES: Record<LockersPhotoPinTone, string> = {
-  lower: "bg-orange-90",
-  middle: "bg-orange-70",
-  upper: "bg-orange-50",
-};
+// 위쪽 행부터 진한 순서. 3행 묶음은 50·70·90, 5행 묶음은 50·60·70·80·90을 쓴다(Figma A-1·B-2 실제사진).
+const PIN_TONE_CLASS_NAMES = [
+  "bg-orange-50",
+  "bg-orange-60",
+  "bg-orange-70",
+  "bg-orange-80",
+  "bg-orange-90",
+];
+
+function getPinToneClassName(rowIndex: number, rowCount: number) {
+  if (rowCount <= 1) {
+    return PIN_TONE_CLASS_NAMES[0];
+  }
+  const step = Math.round(
+    (rowIndex / (rowCount - 1)) * (PIN_TONE_CLASS_NAMES.length - 1),
+  );
+  return PIN_TONE_CLASS_NAMES[step];
+}
+
+// layout의 모든 칸 묶음을 돌며 칸 번호마다 핀 색을 정해 둔다
+function collectPinToneClassNames(
+  block: LockersLayoutBlock,
+  toneClassNames: Map<number, string>,
+) {
+  if (block.type === "row" || block.type === "column") {
+    for (const child of block.children) {
+      collectPinToneClassNames(child, toneClassNames);
+    }
+  } else if (block.type === "lockerGroup") {
+    block.rows.forEach((row, rowIndex) => {
+      for (const lockerNumber of row) {
+        if (lockerNumber !== null) {
+          toneClassNames.set(
+            lockerNumber,
+            getPinToneClassName(rowIndex, block.rows.length),
+          );
+        }
+      }
+    });
+  }
+  return toneClassNames;
+}
 
 // Figma: A-1구역 실제사진 Modal (nodeId 2159:110299) — Stream 로컬. 닫기 아이콘 + 구역 사진에
 // 칸 번호 핀을 얹고 아래에 안내 문구를 단 카드다. WDS `Modal`은 너비·모서리가 달라서 ConfirmModal과 같은 방식으로
@@ -33,12 +72,16 @@ function LockersSectionPhotoModal({
   open,
   sectionName,
   photo,
-  pins,
+  layout,
   onClose,
 }: LockersSectionPhotoModalProps) {
   const portalEl = useScreenSheetPortal();
   const dialogRef = useRef<HTMLDivElement>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
+  const pinToneClassNames = useMemo(
+    () => collectPinToneClassNames(layout.root, new Map()),
+    [layout],
+  );
 
   // 열리면 포커스를 모달로 옮기고, 닫히면 사진 버튼으로 되돌린다
   useEffect(() => {
@@ -95,25 +138,29 @@ function LockersSectionPhotoModal({
         <IconButton aria-label="닫기" onClick={onClose} size={24}>
           <IconClose />
         </IconButton>
-        {/* Figma는 사진을 1.12° 돌리고 살짝 키워서(320×240) 300×224 틀에 맞춰 자른다 */}
+        {/* Figma 사진 틀 300×224. 서버가 잘라 둔 사진을 받아서 틀에 그대로 채운다
+            (Figma는 사진을 1.12° 돌리고 키워서 맞췄는데, 그 보정은 사진을 자를 때 끝낸다) */}
         <div className="relative h-56 w-[300px] overflow-hidden rounded-sm">
-          <div className="absolute top-[-7.81px] left-[-12.61px] flex h-[246.569px] w-[325.107px] items-center justify-center">
-            <img
-              alt={`${sectionName}구역 사물함 사진`}
-              className="h-[240.355px] w-[320.473px] max-w-none rotate-[1.12deg] object-cover"
-              src={photo}
-            />
-          </div>
-          {pins.map((pin) => (
+          <img
+            alt={`${sectionName}구역 사물함 사진`}
+            className="absolute inset-0 size-full object-cover"
+            src={photo.url}
+          />
+          {photo.pins.map((pin) => (
             <span
-              className={`absolute flex size-[12.414px] items-center justify-center ${PIN_CLASS_NAMES[pin.tone]}`}
-              key={pin.number}
-              style={{ left: pin.left, top: pin.top }}
+              className={`absolute flex size-3.5 -translate-x-1/2 -translate-y-1/2 items-center justify-center ${
+                pinToneClassNames.get(pin.lockerNumber) ??
+                PIN_TONE_CLASS_NAMES[0]
+              }`}
+              key={pin.lockerNumber}
+              // 핀 가운데가 사진 폭·높이 대비 (x, y) 비율 지점에 오도록 놓는다
+              style={{ left: `${pin.x * 100}%`, top: `${pin.y * 100}%` }}
             >
-              {/* 사진 위 주석이라 사진 크기에 맞춘 값이다 — Figma에서도 이름 있는 타입 스타일이
-                  아니라(9.71px) Typography로 옮길 수 없다. 사진이 테마와 무관해 글자도 검정 고정이다. */}
-              <span className="whitespace-nowrap font-medium text-[9.71px] text-black leading-[1.334]">
-                {pin.number}
+              {/* 사진 위 주석이라 핀 크기에 맞춘 값이다 — Figma에서도 이름 있는 타입 스타일이
+                  아니라(7.69~9.71px) Typography로 옮길 수 없다. 사진이 테마와 무관해 글자도 검정 고정이다.
+                  핀 크기는 Figma 두 값(12.4px, 14.9px)의 중간인 14px로 고정했다. */}
+              <span className="whitespace-nowrap font-medium text-[9px] text-black leading-[1.334]">
+                {pin.lockerNumber}
               </span>
             </span>
           ))}

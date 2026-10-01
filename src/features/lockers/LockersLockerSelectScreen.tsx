@@ -4,7 +4,6 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import ComingSoonScreen from "@/app/ComingSoonScreen";
-import sectionA1Photo from "@/assets/images/lockers/section-a-1-photo.jpg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
@@ -15,19 +14,9 @@ import LockersLockerMinimap, {
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelectedLockerBar";
 import {
-  LOCKERS_A1_PHOTO_PINS,
-  type LockersPhotoPin,
-} from "@/features/lockers/constants/lockersLockers";
-import {
   LOCKERS_SECTION_DETAILS,
   type LockersSectionDetail,
 } from "@/features/lockers/constants/lockersSectionDetails";
-
-// 실제 사진 모달은 아직 예전 핀 형식(px 좌표)을 쓴다 — 구역 상세의 photo(비율 좌표)로 바꿀 때 지운다
-const LEGACY_PHOTOS: Record<string, { src: string; pins: LockersPhotoPin[] }> =
-  {
-    "A-1": { pins: LOCKERS_A1_PHOTO_PINS, src: sectionA1Photo },
-  };
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
 // 구역마다 다른 칸 배치는 구역 상세의 layout이 갖고, 이 화면은 그걸 렌더러로 그리기만 한다.
@@ -54,7 +43,6 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
     null,
   );
   const scrollRef = useRef<HTMLDivElement>(null);
-  const photo = LEGACY_PHOTOS[detail.section];
 
   const lockers = useMemo(
     () =>
@@ -113,15 +101,13 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
       title={`${detail.section}구역 사물함 선택`}
       trailing={
         <>
-          {photo && (
-            <TopNavigationButton
-              aria-label="실제 사진 보기"
-              onClick={() => setIsPhotoOpen(true)}
-              variant="icon"
-            >
-              <IconImage />
-            </TopNavigationButton>
-          )}
+          <TopNavigationButton
+            aria-label="실제 사진 보기"
+            onClick={() => setIsPhotoOpen(true)}
+            variant="icon"
+          >
+            <IconImage />
+          </TopNavigationButton>
           <TopNavigationButton
             aria-label="새로고침"
             // 구역 선택 화면과 같다 — 칸 현황 API가 붙으면 그 조회만 다시 하도록 바꾼다
@@ -176,15 +162,13 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
         lockerLabel={selectedLocker?.lockerLabel ?? null}
       />
 
-      {photo && (
-        <LockersSectionPhotoModal
-          onClose={() => setIsPhotoOpen(false)}
-          open={isPhotoOpen}
-          photo={photo.src}
-          pins={photo.pins}
-          sectionName={detail.section}
-        />
-      )}
+      <LockersSectionPhotoModal
+        layout={detail.layout}
+        onClose={() => setIsPhotoOpen(false)}
+        open={isPhotoOpen}
+        photo={detail.photo}
+        sectionName={detail.section}
+      />
     </div>
   );
 }
