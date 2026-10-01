@@ -16,6 +16,7 @@ import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
 import HomeScreen from "@/features/home/HomeScreen";
+import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
 
@@ -104,6 +105,11 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/notices/:noticeId",
+          },
+          {
+            element: <LockersApplyScreen />,
+            // 사물함 유의사항 시트 확인용 임시 라우트 — 실제 진입점이 붙으면 화면과 함께 지운다
+            path: "/lockers/apply",
           },
           {
             element: <ChatEntryScreen />,
