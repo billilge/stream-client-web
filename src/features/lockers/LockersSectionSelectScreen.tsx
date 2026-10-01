@@ -57,13 +57,13 @@ function LockersSectionSelectScreen() {
 
       <ActionArea>
         {/* 높이 보정 이유는 wds-component-usage.md "Action Area 메인 버튼 높이" 참고 */}
-        {/* Figma는 미선택일 때 문구가 "구역을 선택해 주세요"로 바뀌지만,
-            문구는 그대로 두고 잠그기만 하기로 정했다 */}
         <ActionAreaButton
           disabled={selectedSectionId === null}
           sx={{ paddingBlock: "16px" }}
         >
-          신청하기
+          {selectedSectionId === null
+            ? "사물함 구역을 선택해 주세요"
+            : "선택 완료"}
         </ActionAreaButton>
       </ActionArea>
     </div>
