@@ -3,11 +3,11 @@ import { IconChevronLeft, IconSearch } from "@wanteddev/wds-icon";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import ArchivesPhotoCard, {
-  type ArchivesPhotoCardSize,
-} from "@/features/archives/components/ArchivesPhotoCard";
+import type { ArchivesPhotoCardSize } from "@/features/archives/components/ArchivesPhotoCard";
+import ArchivesPhotoColumn from "@/features/archives/components/ArchivesPhotoColumn";
 import ArchivesYearFilter from "@/features/archives/components/ArchivesYearFilter";
 import {
   ARCHIVES_ITEMS,
@@ -17,27 +17,6 @@ import {
 // 2열 매스너리 — 왼쪽 열은 Large/Medium, 오른쪽 열은 Small/Large를 번갈아 써서 두 열의 카드 높이가 엇갈린다.
 const LEFT_COLUMN_SIZES: ArchivesPhotoCardSize[] = ["large", "medium"];
 const RIGHT_COLUMN_SIZES: ArchivesPhotoCardSize[] = ["small", "large"];
-
-function renderColumn(
-  items: ArchivesItem[],
-  sizes: ArchivesPhotoCardSize[],
-  onItemClick: (item: ArchivesItem) => void,
-) {
-  return (
-    <div className="flex flex-1 flex-col gap-2">
-      {items.map((item, index) => (
-        <ArchivesPhotoCard
-          date={item.date}
-          image={item.image}
-          key={item.id}
-          onClick={() => onItemClick(item)}
-          size={sizes[index % sizes.length]}
-          title={item.title}
-        />
-      ))}
-    </div>
-  );
-}
 
 // Figma: 아카이빙 목록 (nodeId 1276:95397)
 function ArchivesListScreen() {
@@ -77,13 +56,19 @@ function ArchivesListScreen() {
       <div className="flex flex-col gap-4 px-5 pb-4">
         <ArchivesYearFilter onChange={setYear} value={year} />
         <div className="flex gap-2">
-          {renderColumn(leftItems, LEFT_COLUMN_SIZES, handleItemClick)}
-          {renderColumn(rightItems, RIGHT_COLUMN_SIZES, handleItemClick)}
+          <ArchivesPhotoColumn
+            items={leftItems}
+            onItemClick={handleItemClick}
+            sizes={LEFT_COLUMN_SIZES}
+          />
+          <ArchivesPhotoColumn
+            items={rightItems}
+            onItemClick={handleItemClick}
+            sizes={RIGHT_COLUMN_SIZES}
+          />
         </div>
       </div>
-      {/* 하단 Home Bar 자리 — env()라 앱 WebView(네이티브가 이미 인셋)에서는 0이 된다.
-          데스크톱 프레임에서는 Figma대로 34px을 흉내 낸다(BottomNav와 같은 규칙). */}
-      <div className="h-safe-bottom sm:h-[34px]" />
+      <ScreenBottomSafeArea />
     </div>
   );
 }

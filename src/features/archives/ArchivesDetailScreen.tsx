@@ -2,6 +2,7 @@ import { IconButton, Typography } from "@wanteddev/wds";
 import { IconChevronLeft, IconShare } from "@wanteddev/wds-icon";
 import { useNavigate, useParams } from "react-router-dom";
 
+import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ArchivesDetailSection from "@/features/archives/components/ArchivesDetailSection";
 import ArchivesPhotoGrid from "@/features/archives/components/ArchivesPhotoGrid";
@@ -71,7 +72,8 @@ function ArchivesDetailScreen() {
           >
             {title}
           </Typography>
-          <dl className="grid grid-cols-[51px_1fr] gap-x-4 gap-y-2">
+          {/* 라벨 칸은 Figma의 51px을 최소폭으로만 쓴다 — 고정하면 "담당 부서"처럼 긴 라벨이 칸을 넘친다 */}
+          <dl className="grid grid-cols-[minmax(51px,auto)_1fr] gap-x-4 gap-y-2">
             {infoRows.map(({ label, value }) => (
               <div className="contents" key={label}>
                 <Typography
@@ -129,9 +131,7 @@ function ArchivesDetailScreen() {
           ))}
         </ArchivesDetailSection>
       </div>
-      {/* 하단 Home Bar 자리 — env()라 앱 WebView(네이티브가 이미 인셋)에서는 0이 된다.
-          데스크톱 프레임에서는 Figma대로 34px을 흉내 낸다(BottomNav와 같은 규칙). */}
-      <div className="h-safe-bottom sm:h-[34px]" />
+      <ScreenBottomSafeArea />
     </div>
   );
 }
