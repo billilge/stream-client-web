@@ -8,13 +8,14 @@ import { useScreenSheetPortal } from "@/components/ui/useScreenSheetPortal";
 import type {
   LockersLayout,
   LockersLayoutBlock,
-  LockersSectionPhoto,
 } from "@/features/lockers/constants/lockersSectionDetails";
+import type { LockersSectionPhotoPin } from "@/features/lockers/constants/lockersSectionPhotoPins";
 
 interface LockersSectionPhotoModalProps {
   open: boolean;
   sectionName: string;
-  photo: LockersSectionPhoto;
+  photoUrl: string;
+  pins: LockersSectionPhotoPin[];
   /** 핀 색을 칸의 행 위치로 정하는 데 쓴다 */
   layout: LockersLayout;
   onClose: () => void;
@@ -70,7 +71,8 @@ function collectPinToneClassNames(
 function LockersSectionPhotoModal({
   open,
   sectionName,
-  photo,
+  photoUrl,
+  pins,
   layout,
   onClose,
 }: LockersSectionPhotoModalProps) {
@@ -142,9 +144,9 @@ function LockersSectionPhotoModal({
           <img
             alt={`${sectionName}구역 사물함 사진`}
             className="absolute inset-0 size-full object-cover"
-            src={photo.url}
+            src={photoUrl}
           />
-          {photo.pins.map((pin) => (
+          {pins.map((pin) => (
             <span
               className={`absolute flex size-3.5 -translate-x-1/2 -translate-y-1/2 items-center justify-center ${
                 pinToneClassNames.get(pin.lockerNumber) ??

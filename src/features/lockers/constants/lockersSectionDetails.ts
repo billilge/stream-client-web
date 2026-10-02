@@ -61,18 +61,6 @@ export interface LockersLayout {
   root: LockersLayoutBlock;
 }
 
-// x·y는 핀 가운데 위치를 사진 폭·높이 대비 0~1 비율로 적는다
-export interface LockersSectionPhotoPin {
-  lockerNumber: number;
-  x: number;
-  y: number;
-}
-
-export interface LockersSectionPhoto {
-  url: string;
-  pins: LockersSectionPhotoPin[];
-}
-
 export interface LockersSectionLocker {
   lockerId: number;
   lockerNumber: number;
@@ -86,7 +74,7 @@ export interface LockersSectionDetail {
   sectionId: number;
   section: string;
   layout: LockersLayout;
-  photo: LockersSectionPhoto;
+  photoUrl: string;
   lockers: LockersSectionLocker[];
 }
 
@@ -108,8 +96,7 @@ function range(from: number, to: number) {
   return Array.from({ length: to - from + 1 }, (_, index) => from + index);
 }
 
-// Figma: A-1구역 (nodeId 2159:110753), 핀은 A-1구역 실제사진 (2159:110299)
-// Figma는 사진을 1.12° 돌려 붙였는데 회전은 무시하고 비율로 옮겼다(가장자리에서 2~3px 차이).
+// Figma: A-1구역 (nodeId 2159:110753)
 const A1_SECTION: LockersSectionDetail = {
   layout: {
     root: {
@@ -184,53 +171,13 @@ const A1_SECTION: LockersSectionDetail = {
     version: 1,
   },
   lockers: createMockLockers("A", range(1, 36)),
-  photo: {
-    pins: [
-      { lockerNumber: 1, x: 0.758, y: 0.392 },
-      { lockerNumber: 2, x: 0.836, y: 0.403 },
-      { lockerNumber: 3, x: 0.936, y: 0.418 },
-      { lockerNumber: 4, x: 0.758, y: 0.54 },
-      { lockerNumber: 5, x: 0.836, y: 0.594 },
-      { lockerNumber: 6, x: 0.936, y: 0.667 },
-      { lockerNumber: 7, x: 0.758, y: 0.667 },
-      { lockerNumber: 8, x: 0.836, y: 0.758 },
-      { lockerNumber: 9, x: 0.936, y: 0.852 },
-      { lockerNumber: 10, x: 0.081, y: 0.437 },
-      { lockerNumber: 11, x: 0.175, y: 0.413 },
-      { lockerNumber: 12, x: 0.243, y: 0.396 },
-      { lockerNumber: 13, x: 0.081, y: 0.635 },
-      { lockerNumber: 14, x: 0.175, y: 0.583 },
-      { lockerNumber: 15, x: 0.243, y: 0.54 },
-      { lockerNumber: 16, x: 0.081, y: 0.848 },
-      { lockerNumber: 17, x: 0.175, y: 0.751 },
-      { lockerNumber: 18, x: 0.243, y: 0.678 },
-      { lockerNumber: 19, x: 0.345, y: 0.622 },
-      { lockerNumber: 20, x: 0.406, y: 0.622 },
-      { lockerNumber: 21, x: 0.466, y: 0.622 },
-      { lockerNumber: 22, x: 0.345, y: 0.521 },
-      { lockerNumber: 23, x: 0.406, y: 0.521 },
-      { lockerNumber: 24, x: 0.466, y: 0.521 },
-      { lockerNumber: 25, x: 0.345, y: 0.419 },
-      { lockerNumber: 26, x: 0.406, y: 0.419 },
-      { lockerNumber: 27, x: 0.466, y: 0.419 },
-      { lockerNumber: 28, x: 0.527, y: 0.419 },
-      { lockerNumber: 29, x: 0.588, y: 0.419 },
-      { lockerNumber: 30, x: 0.648, y: 0.419 },
-      { lockerNumber: 31, x: 0.527, y: 0.521 },
-      { lockerNumber: 32, x: 0.588, y: 0.521 },
-      { lockerNumber: 33, x: 0.648, y: 0.521 },
-      { lockerNumber: 34, x: 0.527, y: 0.622 },
-      { lockerNumber: 35, x: 0.588, y: 0.622 },
-      { lockerNumber: 36, x: 0.648, y: 0.622 },
-    ],
-    url: sectionA1Photo,
-  },
+  photoUrl: sectionA1Photo,
   section: "A-1",
   sectionId: 1,
 };
 
 // Figma: A-2구역 (nodeId 2159:109533)
-// A-2 사진이 아직 없어서 A-1 사진을 임시로 쓰고, 번호가 맞지 않아 핀은 비워 둔다.
+// A-2 사진이 아직 없어서 A-1 사진을 임시로 쓴다.
 const A2_SECTION: LockersSectionDetail = {
   layout: {
     root: {
@@ -274,7 +221,7 @@ const A2_SECTION: LockersSectionDetail = {
     version: 1,
   },
   lockers: createMockLockers("A", range(82, 90)),
-  photo: { pins: [], url: sectionA1Photo },
+  photoUrl: sectionA1Photo,
   section: "A-2",
   sectionId: 2,
 };
