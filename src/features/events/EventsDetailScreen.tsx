@@ -65,7 +65,7 @@ function EventsDetailScreen() {
                 onClick={() => navigate(-1)}
                 variant="icon"
               >
-                <IconChevronLeft />
+                <IconChevronLeft className="text-white" />
               </TopNavigationButton>
             </div>
           }

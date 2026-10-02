@@ -14,11 +14,15 @@ import sanitaryPad from "@/assets/icons/bililge-items/sanitary-pad.svg";
 import umbrella from "@/assets/icons/bililge-items/umbrella.svg";
 import usbCCharger from "@/assets/icons/bililge-items/usb-c-charger.svg";
 
+// BililgeCategoryFilter의 필터 칩과 값을 맞춘다("전체"는 필터 없음을 뜻하는 값이라 제외).
+export type BililgeCategory = "전자기기" | "생활잡화" | "상비약" | "위생용품";
+
 export interface BililgeItem {
   id: string;
   name: string;
   quantity: number;
   icon: string;
+  category: BililgeCategory;
   // 대여 바텀시트의 "대여할 물품" 카드(Figma nodeId 1422:57184, 3013:114608)에 "수량 28 ·
   // {returnDeadlineLabel}"로 붙는 반납 기한 문구 — "오늘 17시까지 반납"/"9/29까지 반납"처럼
   // 오늘·내일·그 이후(월/일)를 서버가 이미 판단해서 내려주는 값이라 가정한다. 오늘/내일 여부는
@@ -45,9 +49,12 @@ function mockReturnDeadlineLabel(daysFromNow: number): string {
   return `${date.getMonth() + 1}/${date.getDate()}까지 반납`;
 }
 
-// Figma: 빌릴게 Item Grid (nodeId 1243:73343) 순서·물품명·수량을 그대로 옮긴 목데이터 — 실 API 연동 전까지 사용
+// Figma: 빌릴게 Item Grid (nodeId 1243:73343) 순서·물품명·수량을 그대로 옮긴 목데이터 — 실 API 연동 전까지 사용.
+// category는 Figma에 카테고리별 그룹핑이 따로 없어(칩 자체만 정의돼 있음) 물품명 기준으로 임의
+// 분류했다 — 실제 분류 기준이 정해지면 API 연동 시 교체한다.
 export const BILILGE_ITEMS: BililgeItem[] = [
   {
+    category: "전자기기",
     icon: curlingIron,
     id: "curling-iron",
     name: "고데기",
@@ -55,6 +62,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
+    category: "전자기기",
     icon: laptopCharger,
     id: "laptop-charger",
     name: "노트북 충전기(C타입)",
@@ -62,6 +70,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(1),
   },
   {
+    category: "전자기기",
     icon: hairDryer,
     id: "hair-dryer",
     name: "드라이기",
@@ -69,6 +78,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
+    category: "위생용품",
     icon: mask,
     id: "mask",
     name: "마스크",
@@ -76,6 +86,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(3),
   },
   {
+    category: "상비약",
     icon: bandAid,
     id: "band-aid",
     name: "밴드",
@@ -83,6 +94,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(3),
   },
   {
+    category: "전자기기",
     icon: powerBank,
     id: "power-bank",
     name: "보조배터리",
@@ -90,6 +102,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(1),
   },
   {
+    category: "위생용품",
     icon: sanitaryPad,
     id: "sanitary-pad-large",
     name: "생리대(대형)",
@@ -97,6 +110,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
+    category: "위생용품",
     icon: sanitaryPad,
     id: "sanitary-pad-small",
     name: "생리대(소형)",
@@ -104,6 +118,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
+    category: "상비약",
     icon: alcoholSwab,
     id: "alcohol-swab",
     name: "알콜스왑",
@@ -111,6 +126,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(2),
   },
   {
+    category: "생활잡화",
     icon: umbrella,
     id: "umbrella",
     name: "우산",
@@ -118,6 +134,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(2),
   },
   {
+    category: "상비약",
     icon: pill,
     id: "stomach-medicine",
     name: "위장약",
@@ -125,6 +142,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(1),
   },
   {
+    category: "상비약",
     icon: pill,
     id: "easyen-6",
     name: "이지엔6",
@@ -132,6 +150,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(1),
   },
   {
+    category: "상비약",
     icon: eyeDrops,
     id: "eye-drops",
     name: "인공눈물",
@@ -139,6 +158,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
+    category: "상비약",
     icon: pill,
     id: "cold-medicine",
     name: "종합감기약",
@@ -146,6 +166,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(1),
   },
   {
+    category: "전자기기",
     icon: usbCCharger,
     id: "usb-c-cable",
     name: "케이블(C to C)",
@@ -153,6 +174,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(0),
   },
   {
+    category: "상비약",
     icon: pill,
     id: "tylenol",
     name: "타이레놀",
@@ -160,6 +182,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(2),
   },
   {
+    category: "상비약",
     icon: painReliefPatch,
     id: "pain-relief-patch",
     name: "파스",
@@ -167,6 +190,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(2),
   },
   {
+    category: "상비약",
     icon: ointment,
     id: "ointment",
     name: "후시딘",
@@ -174,6 +198,7 @@ export const BILILGE_ITEMS: BililgeItem[] = [
     returnDeadlineLabel: mockReturnDeadlineLabel(1),
   },
   {
+    category: "전자기기",
     icon: eightPinCharger,
     id: "8pin-charger",
     name: "8핀 충전기",

@@ -378,6 +378,39 @@ WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하
 - **`PaginationDots`는 부모 flex 컨테이너에 `items-center`가 없으면 왼쪽으로 붙는다**: 이 컴포넌트의 실제 루트(`tabindex` wrapper div)는 `className`/`sx` prop이 그 div까지 전달되지 않아 직접 센터링을 줄 수 없다(내부 tablist는 `width: fit-content`). `flex-col` 부모에 `items-center`를 주고, 형제 요소(캐러셀 스크롤 행)에는 `w-full`을 명시해서 폭을 유지해야 정확히 중앙에 온다 — `/figma-check`로 실측하다 발견된 버그.
 - **`bg-background-alternative`(`#f7f7f8`)는 흰 배경과 3/255밖에 차이가 안 나서 화면에 따라 거의 안 보일 수 있다**: Q&A 카드 배경·8px 섹션 구분선 둘 다 이 값인데, 개별 레이어 단위로 `get_variable_defs`를 다시 떼어봐도 이 값 하나만 바인딩돼 있고 다른 색·테두리는 없었다 — 코드가 Figma 값을 정확히 따르고 있는 게 확인됐다. 그럼에도 시각적 구분이 약하다고 느껴지면, Figma 스펙을 벗어나 더 진한 톤(예: `Line/Normal/Neutral` `#70737c29`)으로 의도적으로 조정할지는 별도 논의 필요 — 이번 PR에서는 Figma 값 그대로 두었다.
 
+## 사물함 신청 전 유의사항 바텀시트(`1737:218213`) 구현 중 확정된 매핑
+
+이 시트에서 WDS는 `ActionArea`/`ActionAreaButton`/`Typography`뿐이다. 제목·유의사항 3줄은 전부 Stream 로컬이다.
+
+- **`Notice Item`(`1417:56435` 계열)은 Stream 로컬**: `get_design_context`의 Component descriptions에 아예 잡히지 않았다. 42px 일러스트 + `[라벨 Label 1/Normal - Regular / 값 Body 2/Normal - Medium]` 두 줄 조합이며, 사물함 전용이 아닐 수 있어 보이지만 재사용처가 아직 없어서 `component-convention.md` §1대로 `features/lockers/`에 뒀다. 두 번째 화면에서 실제로 쓰이면 `components/ui/`로 옮긴다.
+- **유의사항 일러스트 3개(시계 `1417:56488`, 사람 `1417:56599`, 달력 `1417:56600`)도 WDS 아이콘이 아니다**: `download_assets`의 `export`로 받으면 셋 다 42×42 단일 SVG로 떨어진다. 특히 달력은 `get_design_context` 응답에서 배경 SVG + 도형 6개(`#e7f1ff`/`#2c88fe`/`#b3d0f7` 하드코딩) 조합으로 나와서 손으로 그려야 하나 싶지만, **노드 단위 `export`를 쓰면 한 장으로 받아진다** — 도형을 다시 그리지 말 것. `src/assets/icons/lockers/`에 커밋했다.
+- **`download_assets`의 `export`는 캔버스 배경까지 같이 굽는다**: 받은 SVG 맨 앞에 `<rect width="42" height="42" fill="#EFEFEF"/>`(Figma 캔버스 회색)와 뷰박스 밖으로 뻗는 페이지·섹션 배경 path(`<g id="Components">`, `<g id="Icon">`)가 들어 있었다. 그대로 쓰면 동그란 아이콘 뒤에 **회색 네모**가 깔린다. 실제 아이콘은 `<g id="Clock|Person|Calendar">` 하위(배경 원 `Ellipse 11` + 글리프)뿐이라 그 그룹만 남기고 걷어냈다(2.7KB → 1.0KB). **다시 export하면 같은 정리가 필요하다.**
+- **타이포 실측**: 제목은 `heading2`+`bold`(20px/28), 항목 라벨은 `label1`+`regular`(14px/20), 항목 값은 `body2`+`medium`(15px/22)로 Figma와 정확히 일치한다(`typography/style.js` 확인). `heading2`(20px)와 `headline2`(17px)를 혼동하지 않는다.
+
+### 시트 상단 간격은 Figma가 시트마다 다르다 — `BottomSheet`의 `contentGap`
+
+드래그 핸들(24px) 다음 내용이 시작하는 위치가 시트마다 다르다.
+
+| Figma | 내용 시작 y | 간격 |
+|---|---|---|
+| 빌릴게 대여 `1422:57178` | 32 | 8px |
+| 빌릴게 대여(시간 외) `1422:57209` | 32 | 8px |
+| 사물함 유의사항 `1737:218308` | 36 | **12px** |
+
+`BottomSheet`가 빌릴게 기준 8px을 하드코딩하고 있어서 사물함 시트가 4px 짧게 나왔다(시트 상단→제목 실측 37px, Figma 41px). 공용 컴포넌트를 한쪽 값으로 고정할 수 없어 `contentGap?: 8 | 12` prop으로 빼고 기본값을 8(빌릴게 기존 동작)로 뒀다. 사물함 시트만 `contentGap={12}`를 넘긴다 — 수정 후 실측 41px로 일치.
+
+**새 시트를 만들 때 이 값을 Figma에서 먼저 확인한다.** 8/12 외 값이 나오면 `BottomSheetContentGap` 유니온에 추가한다.
+
+### Action Area 메인 버튼 높이 보정은 `paddingBlock`으로 통일한다
+
+같은 56px 보정이 코드에 두 형태로 섞여 있었다 — 행사 화면 3곳은 `sx={{ paddingBlock: "16px" }}`, `BililgeRentalSheet.tsx:176`은 `sx={{ height: "56px" }}`다.
+
+**`paddingBlock` 쪽이 맞다.** Figma 스펙이 `padding: 16px 28px`이라 그대로 옮기는 형태이고, 높이를 고정하면 버튼 문구가 길어져 줄바꿈될 때 잘린다. 이 시트는 신청 기간이 아닐 때 문구가 `신청 기간이 아니에요`로 길어져서 실제로 걸릴 수 있는 자리다. `BililgeRentalSheet`도 정리 대상이다(이번 범위 밖).
+
+### 신청 기간이 아닐 때의 상태는 Figma에 없다
+
+하단 `확인했어요` 버튼을 `disabled`로 두고 문구를 `신청 기간이 아니에요`로 바꾸기로 코드에서 정했다. 유의사항 3줄은 그대로 둔다. 디자인에 없는 상태를 만든 것이라 디자이너 확인이 필요하다 — `docs/plans/#68-lockers-notice-sheet.md` 참고.
+
 ## 열린피드백 상세페이지 · 모아보기(`1410:49988`) 구현 중 확정된 매핑
 
 같은 회차(round)의 답변된 피드백들을 가로로 스와이프해서 넘겨보는 화면. Figma는 정적 예시 한 장만 있어서(신청 폼·행사 상세처럼 스크롤 스냅 캐러셀은 화면에 안 잡힌다), 구조는 공지·행사 상세의 가로 스크롤 스냅 패턴을 그대로 가져오고, "스와이프하는 동안 진행 바가 같이 움직인다"는 요구사항은 스크롤 위치를 0~1 연속값으로 추적해서 반영했다.
@@ -406,3 +439,38 @@ WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외
 ### `Icon/Feedback`·`Icon/Answer`는 게시판-열린피드백 목록과 같은 로컬 아이콘
 
 이 화면의 "피드백 내용"/"학생회 답변" 아이콘은 목록 화면의 `Icon/Question`/`Icon/Answer`와 이름만 다를 뿐 같은 자리(질문/답변 구분 아이콘)라 새로 받지 않고 기존 `src/assets/icons/feedbacks/{question,answer}.svg`를 그대로 재사용했다.
+
+## 사물함 구역 선택 화면(`1737:218452`, `1737:218489`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | 비고 |
+|---|---|---|
+| `Content Badge/Content Badge` | 구역 카드의 혼잡도 뱃지 | `445:5656` — [문서](https://montage.wanted.co.kr/docs/components/contents/content-badge/design) |
+| `Icon/Normal/Chevron Up` | 평면도 가운데 열 방향 표시 | `687:24638`, 코드 `IconChevronUp` |
+| `Icon/Normal/Reset` | Top Navigation 트레일링 새로고침 | `790:38150` — "초기화를 표현합니다 / 반시계 화살표". **`IconRefresh`가 아니라 `IconReset`이다** — wds-icon에 Refresh·Reset·Rotate가 다 있어서 이름만 보고 고르면 틀린다 |
+
+평면도의 구역 카드·호실·화장실·계단은 전부 Stream 로컬이다. 뱃지만 WDS다.
+
+### `ContentBadge`의 `size`는 `xsmall`이다 — 빌릴게의 `small`을 베끼면 틀린다
+
+`style.js` 실측 결과 세 사이즈가 이렇다.
+
+| size | padding | 타이포 |
+|---|---|---|
+| `xsmall` | `3px 6px` | Caption 2 (11px) |
+| `small` | `4px 6px` | Caption 1 (12px) |
+| `medium` | `5px 8px` | Label 2 (14px) |
+
+이 화면의 뱃지는 Figma가 `px-6 py-3` + 11px이라 **`xsmall`**이다. `BililgeRentalHistoryEntry.tsx:52`가 쓰는 `small`과 다르다 — "`Content Badge`의 `size`는 화면마다 실측해야 한다" 절의 사례가 하나 더 늘었다.
+
+혼잡도 3단계는 `color="accent"` + `accentColor`(green/orange/red)로, 배경이 accentColor의 8% 투명도로 깔린다. **마감은 `color="neutral"`**이고 이때 배경은 `semantic.fill.normal`, 글자는 `neutralColor`가 된다(`style.js`의 color 분기 확인) — Figma의 마감 뱃지(`Fill/Normal` 배경 + `Label/Alternative` 글자)와 정확히 맞는다.
+
+### `download_assets`는 노드 모양에 따라 `export`와 `svgAssets` 중 쓸 게 갈린다
+
+- **단일 벡터 레이어**(화장실 `1737:218466`, 계단 `1737:218484`)는 `svgAssets` 항목이 그대로 깨끗한 아이콘이다. `export`를 쓰면 캔버스 배경(`<rect fill="#EFEFEF">`)이 붙는다
+- **여러 레이어 조합**(사물함 유의사항 일러스트)은 `svgAssets`가 레이어별로 쪼개져 나와서 `export`를 써야 하고, 그때 붙는 캔버스 배경을 직접 걷어내야 한다
+
+받은 SVG에 `fill="#EFEFEF"`인 전체 크기 `<rect>`가 맨 앞에 있으면 캔버스 배경이다.
+
+### 구역 카드 배경이 화면 배경과 같은 색이라 라우트에 `background: "normal"`이 필요하다
+
+카드 배경이 `Background/Normal/Alternative`(`#f7f7f8`)인데 `ScreenLayout` 기본 배경도 같은 값이라, handle을 안 주면 카드가 배경에 완전히 묻힌다(실제로 처음 렌더에서 카드가 안 보였다). Figma 화면 배경이 흰 면이라 `handle: { background: "normal" }`을 준다.

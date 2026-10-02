@@ -63,7 +63,9 @@ function BililgeListScreen() {
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
         {tab === "rent" ? (
           <div className="flex flex-col gap-2 px-5 pb-4">
-            {BILILGE_ITEMS.map((item) => (
+            {BILILGE_ITEMS.filter(
+              (item) => category === "전체" || item.category === category,
+            ).map((item) => (
               <BililgeItemCard
                 icon={item.icon}
                 itemName={item.name}

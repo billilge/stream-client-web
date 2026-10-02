@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 
 import BottomSheet from "@/components/ui/BottomSheet";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
+import BililgeRentalConfirmModal from "@/features/bililge/components/BililgeRentalConfirmModal";
 import type { BililgeItem } from "@/features/bililge/constants/bililgeItems";
 
 interface BililgeRentalSheetProps {
@@ -34,6 +35,14 @@ const MINUTE_OPTIONS: WheelPickerOption<number>[] = Array.from(
   { length: 60 },
   (_, i) => ({ label: String(i).padStart(2, "0"), value: i }),
 );
+
+// 칸 사이 세로 간격(행 간 pitch)이 Figma보다 좁아 보인다는 QA 지적(디자인 QA 페이지
+// nodeId 2849:56598의 "빌릴게 대여 바텀시트" 비교 항목, 구현 스크린샷의 오전-오후 사이에
+// 빨간 화살표로 표시됨) — 기존 24는 선택 안 된 줄의 텍스트 블록 높이(17px 폰트 × line-height
+// 1.412 ≈ 24)를 그대로 가져다 쓴 값이라, 실제 Figma의 줄 간 pitch(선택 줄 높이 26 + gap 6 +
+// 비선택 줄 높이 24를 반씩 걸쳐 계산하면 ≈31px, Time Picker 스크린샷에서 실측해도 31px)보다
+// 작았다. WheelPicker 기본값(30)에 더 가까운 이 값으로 세 컬럼 모두 맞춘다.
+const OPTION_ITEM_HEIGHT = 31;
 
 // 선택되지 않은 칸은 옅게, 가운데 선택된 칸만 진하게 — 배경 하이라이트 바는 Time Picker 쪽에서
 // 3개 컬럼 공통으로 하나 깔아주기 때문에 여기서는 텍스트 스타일만 다룬다.
@@ -60,6 +69,15 @@ function getDefaultStartTime(): {
   return { hour: hour12, minute: now.getMinutes(), period };
 }
 
+// 확인 모달의 "대여 시작 시간" 행에 쓰는 문구 — 분은 휠 피커에 보이는 표기(0 패딩)와 맞춘다.
+function formatTimeLabel(time: {
+  period: Period;
+  hour: number;
+  minute: number;
+}): string {
+  return `${time.period} ${time.hour}시 ${String(time.minute).padStart(2, "0")}분`;
+}
+
 // Figma: 빌릴게 대여 바텀시트 (nodeId 1422:57155) 안의 Views / Bottom Sheets (1422:57176).
 // 대여할 물품(수량 스테퍼) + 대여 시작 시간(휠 피커) + 안내문 + 대여 신청하기 버튼으로 구성된다.
 // 대여 가능 시간 검증(대여가능 시간 아닐 때/점심시간 등 Figma의 다른 상태 프레임)은 백엔드 연동
@@ -67,13 +85,20 @@ function getDefaultStartTime(): {
 function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
   const [stepperValue, setStepperValue] = useState(1);
   const [time, setTime] = useState(getDefaultStartTime);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (item) {
       setStepperValue(1);
       setTime(getDefaultStartTime());
+      setConfirmOpen(false);
     }
   }, [item]);
+
+  const handleConfirm = () => {
+    setConfirmOpen(false);
+    onClose();
+  };
 
   return (
     <BottomSheet onClose={onClose} open={open}>
@@ -126,7 +151,7 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
                     onValueChange={(period) =>
                       setTime((prev) => ({ ...prev, period }))
                     }
-                    optionItemHeight={24}
+                    optionItemHeight={OPTION_ITEM_HEIGHT}
                     options={PERIOD_OPTIONS}
                     value={time.period}
                     visibleCount={12}
@@ -138,7 +163,7 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
                     onValueChange={(hour) =>
                       setTime((prev) => ({ ...prev, hour }))
                     }
-                    optionItemHeight={24}
+                    optionItemHeight={OPTION_ITEM_HEIGHT}
                     options={HOUR_OPTIONS}
                     value={time.hour}
                     visibleCount={12}
@@ -150,7 +175,7 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
                     onValueChange={(minute) =>
                       setTime((prev) => ({ ...prev, minute }))
                     }
-                    optionItemHeight={24}
+                    optionItemHeight={OPTION_ITEM_HEIGHT}
                     options={MINUTE_OPTIONS}
                     value={time.minute}
                     visibleCount={12}
@@ -178,10 +203,23 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
         {/* Figma Main Action(1422:...;16215:35710)은 56px인데 ActionAreaButton의 size="large"
             Button은 padding(12px×2)+body1 line-height(24px)라 48px이 된다. WDS Button엔 large보다
             큰 사이즈가 없어 sx로 높이만 보정한다. */}
-        <ActionAreaButton onClick={onClose} sx={{ height: "56px" }}>
+        <ActionAreaButton
+          onClick={() => setConfirmOpen(true)}
+          sx={{ height: "56px" }}
+        >
           대여 신청하기
         </ActionAreaButton>
       </ActionArea>
+      {item && (
+        <BililgeRentalConfirmModal
+          itemName={item.name}
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={handleConfirm}
+          open={confirmOpen}
+          quantity={stepperValue}
+          timeLabel={formatTimeLabel(time)}
+        />
+      )}
     </BottomSheet>
   );
 }
