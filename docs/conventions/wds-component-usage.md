@@ -486,18 +486,45 @@ WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외
 
 칸(`Locker Cell`)·칸 묶음(`Zone Area`)·`Shelf Label`·범례·미니맵·`Locker Selector`·실제사진 모달은 전부 Stream 로컬이다. `search_design_system`에서 `Locker Cell`은 결과가 없었다.
 
+### 구역별 칸 배치는 서버 layout JSON을 렌더러로 그린다
+
+구역마다 배치 컴포넌트를 두지 않고, 구역 상세 응답의 `layout`(블록 7종: `row`·`column`·`lockerGroup`·`label`·`area`·`text`·`shelfLabel`)을 `LockersLayoutRenderer`가 그린다. 타입과 A-1·A-2 목데이터는 `constants/lockersSectionDetails.ts`. 블록은 Figma 로컬 요소와 이렇게 대응한다.
+
+| 블록 | Figma | 코드 |
+|---|---|---|
+| `lockerGroup` | Zone Area + Locker Grid | `LockersLockerGrid`(`bordered`면 `Line/Solid/Alternative` 테두리 상자) |
+| `label` | Direction Label·Aisle | `LockersMapLabel` — 세로면 한 글자씩 줄바꿈하고 단어 사이에 빈 줄 |
+| `area` | Room Label·Zone Label·Stairs Area | `LockersMapArea` — 구역 선택 평면도와 같은 점선 상자 |
+| `shelfLabel` | Shelf Label | `LockersShelfLabel` |
+
+크기는 `hug`·`fill`·px다. `fill`은 부모와 같은 축이면 남은 공간을 나누고(`flex-1`) 다른 축이면 부모에 맞춰 늘어난다(`self-stretch`). 칸 상태는 layout에 없고 `lockers`에서 `lockerNumber`로 찾는다.
+
 ### 선택 불가 칸은 범례 SVG 하나로 그린다
 
 Figma 범례의 선택 불가 칸(`2159:110819`)은 `Label/Assistive` 바탕 + `Label/Neutral` 대각선을 합친 15px SVG다. `preserveAspectRatio="none"`이라 28px 칸에 그대로 늘려도 모서리(2.29 → 4.28px)·선 굵기가 본문 칸(radius 4)과 맞아서, 본문 칸도 같은 파일(`locker-unavailable.svg`)을 쓴다.
 
 ### 미니맵은 따로 그리지 않고 본문 배치를 `zoom`으로 줄였다
 
-Figma 미니맵은 칸 8px·글자 3.5~4px로 하나하나 다시 그렸지만(값도 칸마다 비율이 제각각), 코드에서는 본문 칸 배치를 `zoom: 0.31`로 줄여 그린다. 칸 배치가 바뀌어도 미니맵을 따로 고칠 일이 없고, 검은 테두리(`Highlight Overlay`)를 가로 스크롤 비율에 그대로 맞출 수 있다. 4px 글자를 직접 쓰면 브라우저 최소 글자 크기에 걸리는 문제도 피한다. A-2처럼 화면에 다 들어오는 구역은 Figma도 미니맵을 `opacity: 0`으로 숨겨서, 코드는 스크롤이 생길 때만 미니맵을 띄우고 128px 자리는 항상 남긴다.
+Figma 미니맵은 칸 8px·글자 3.5~4px로 하나하나 다시 그렸지만, 코드에서는 본문 칸 배치를 `zoom`으로 줄여 그린다. 배치를 두 벌 관리하지 않고, 4px 글자가 브라우저 최소 글자 크기에 걸리는 문제도 피한다.
+
+- 높이는 Figma대로 110px 고정, 폭은 배치 비율에 맞춘다(Figma 미니맵 폭 156~208px도 내용에 맞춘 값이다). 범례 앞 남은 폭을 넘으면 더 줄인다
+- 본문과 같은 1배 기준 폭으로 그려야 `fill` 상자 비율이 본문과 같다
+- 확대·축소가 있어서 모든 구역에 띄운다. 검은 테두리(`Highlight Overlay`)는 보이는 영역의 가로·세로 비율을 따라가고(확대하면 작아진다), 스크롤이 없으면 숨긴다
+
+### 칸 배치 확대·축소는 CSS `zoom`으로 한다
+
+`useLockersPinchZoom` — 핀치·Ctrl+휠(트랙패드 핀치), 1배에서 가운데부터, 최소는 배치 전체가 화면 폭에 들어오는 배율, 최대 3배(CGV 좌석 선택 참고). `transform: scale`은 스크롤 영역 크기에 반영되지 않아 `zoom`을 쓴다. 확대하는 래퍼의 최소 폭을 `%`로 주면 배율과 상관없이 화면 폭으로 계산돼 `fill` 상자가 비율대로 커지지 않으므로 px로 준다. 배치 영역에 `touch-pan-x touch-pan-y`를 줘서 두 손가락 동작이 페이지 확대로 가지 않게 한다 — 앱 WebView(iOS·안드로이드)에서는 실기기 확인이 필요하다.
 
 ### Figma 아티팩트 — A-1 `Shelf Label` 높이가 1px이다
 
-A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 칸`이 칸 묶음 아래로 흘러내려 보인다. 미니맵(`2159:110761`)과 A-2(`2159:109622`)에서는 칸 묶음 높이에 맞춰 붙어 있어서, 본문도 칸 묶음 줄 높이(122px)에 맞췄다.
+A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 칸`이 칸 묶음 아래로 흘러내려 보인다. 미니맵(`2159:110761`)과 A-2(`2159:109622`)에서는 칸 묶음 높이에 맞춰 붙어 있어서, 칸 묶음 높이에 맞춘다 — layout의 `shelfLabel.height`(테두리 있는 3행 묶음 122, 칸만 있는 3행 묶음 96).
 
 ### 사물함 선택 시(`2159:113197`) — 선택 상태는 구역 카드와 다르다
 
-구역 카드(`LockersSectionCard`)는 선택되면 Blue/95 배경 + Primary 테두리지만, 사물함 칸은 **Primary/Normal 배경 + 흰 SemiBold 번호**다(`2159:113315`). 구역 카드 표현을 그대로 베끼면 틀린다. 하단 `Locker Selector`는 번호를 `Label 1/Normal - Bold` + Primary/Normal로 `B-25`처럼(동 이름 + 칸 번호, 구역 번호 없음) 쓰고, 버튼 문구는 `사물함 신청하기`다.
+구역 카드(`LockersSectionCard`)는 선택되면 Blue/95 배경 + Primary 테두리지만, 사물함 칸은 **Primary/Normal 배경 + 흰 SemiBold 번호**다(`2159:113315`). 구역 카드 표현을 그대로 베끼면 틀린다. 하단 `Locker Selector`는 번호를 `Label 1/Normal - Bold` + Primary/Normal로 `B-25`처럼 쓰고, 버튼 문구는 `사물함 신청하기`다. 이름은 조합하지 않고 서버 `lockerLabel`을 그대로 쓴다.
+
+내 사물함(`isMine`)은 Figma에 상태가 없어서 임시로 `Status/Positive` 초록 테두리를 둔다(이미 신청한 칸이라 고를 수 없다).
+
+### 실제 사진 핀
+
+핀 좌표는 사진 대비 0~1 비율(핀 가운데)로 받고, 색은 칸이 묶음의 몇 번째 행인지로 정한다 — 위쪽 행일수록 진하게, 3행은 Orange/50·70·90, 5행은 50·60·70·80·90(B-2구역 실제사진 `2159:110653`). 핀 크기는 Figma 두 값(12.4·14.9px)의 중간인 14px로 고정했다. Figma의 사진 회전(1.12°)·확대 보정은 사진을 자를 때 끝내고 코드는 틀에 그대로 채운다.
