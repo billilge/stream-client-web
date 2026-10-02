@@ -8,6 +8,10 @@ interface BililgeItemCardProps {
   icon: string;
   itemName: string;
   subtitle: string;
+  // 대여 바텀시트의 "대여할 물품" 카드(nodeId 1422:57184)에서만 subtitle 뒤에 반납 기한이
+  // 강조(SemiBold) 서체로 붙는다 — "수량 28 · "(Regular)에 이어지는 "9/29까지 반납" 부분.
+  // 다른 호출부(메인 목록·반납 목록)는 안 넘기면 기존처럼 subtitle 전체가 Regular로 나온다.
+  subtitleEmphasis?: string;
   trailingControl?: "button" | "stepper";
   actionLabel?: string;
   onRentRequest?: () => void;
@@ -29,6 +33,7 @@ function BililgeItemCard({
   icon,
   itemName,
   subtitle,
+  subtitleEmphasis,
   trailingControl = "button",
   actionLabel = "대여 신청",
   onRentRequest,
@@ -61,6 +66,16 @@ function BililgeItemCard({
               weight="regular"
             >
               {subtitle}
+              {subtitleEmphasis && (
+                <Typography
+                  as="span"
+                  color="semantic.label.alternative"
+                  variant="caption1"
+                  weight="bold"
+                >
+                  {subtitleEmphasis}
+                </Typography>
+              )}
             </Typography>
           </div>
         </div>
