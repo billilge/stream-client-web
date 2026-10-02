@@ -17,7 +17,6 @@ import type {
 
 interface LockersLayoutRendererProps {
   layout: LockersLayout;
-  /** 구역의 사물함을 lockerNumber로 찾는 표 */
   lockers: ReadonlyMap<number, LockersSectionLocker>;
   selectedLockerNumber: number | null;
   onSelect: (lockerNumber: number) => void;
@@ -25,8 +24,7 @@ interface LockersLayoutRendererProps {
 
 type LockersLayoutBlockContext = Omit<LockersLayoutRendererProps, "layout">;
 
-// 블록이 놓이는 부모의 방향. 같은 "fill"이라도 부모 방향과 같은 축이면 남은 공간을 나눠 갖고(flex-1),
-// 다른 축이면 부모 폭·높이에 맞춰 늘어난다(self-stretch).
+// "fill"은 부모와 같은 축이면 남은 공간을 나눠 갖고(flex-1), 다른 축이면 부모에 맞춰 늘어난다
 type LockersLayoutDirection = "row" | "column";
 
 const ALIGN_CLASS_NAMES: Record<LockersLayoutAlign, string> = {
@@ -111,7 +109,6 @@ function LockersLayoutBlockView({
           selectedLockerNumber={context.selectedLockerNumber}
         />
       );
-      // Figma: Zone Area (nodeId 2159:110831 외) — 칸 묶음을 감싸는 테두리
       return block.bordered ? (
         <div
           className={`rounded-lg border border-line-solid-alternative p-3 ${sizing.className}`}
@@ -137,7 +134,7 @@ function LockersLayoutBlockView({
     case "area":
       return (
         <LockersMapArea
-          // 높이를 따로 주지 않으면 Figma Room Label처럼 위아래 32px 여백으로 높이를 낸다
+          // 높이가 없으면 Figma Room Label처럼 위아래 32px 여백으로 높이를 낸다
           className={`${sizing.className} ${block.height === undefined || block.height === "hug" ? "py-8" : ""}`}
           icon={block.icon === undefined ? undefined : AREA_ICONS[block.icon]}
           label={block.text}
@@ -165,16 +162,12 @@ function LockersLayoutBlockView({
         />
       );
     default:
-      // 서버가 이 버전의 프론트가 모르는 블록을 보내도 화면 전체가 깨지지 않게 그 블록만 건너뛴다
+      // 모르는 블록은 화면 전체가 깨지지 않게 건너뛴다
       return null;
   }
 }
 
-// layout JSON(블록 7종)을 그대로 그린다. 구역마다 배치 컴포넌트를 따로 두지 않고, 구역별 배치는
-// 서버가 주는 layout이 갖는다. 칸 크기·색·간격 같은 디자인 규칙은 각 부품이 갖는다.
-//
-// 최상위 블록은 부모(가로 스크롤 영역) 폭보다 좁아지지 않는다 — 화면에 다 들어오는 구역에서
-// "fill" 상자(A-2의 B-1구역 등)가 화면 끝까지 늘어나게 하려는 것이다.
+// 최상위 블록은 부모 폭보다 좁아지지 않게 해서, 화면보다 좁은 구역의 "fill" 상자가 화면 끝까지 늘어난다
 function LockersLayoutRenderer({
   layout,
   ...context

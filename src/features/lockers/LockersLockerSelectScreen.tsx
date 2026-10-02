@@ -20,7 +20,6 @@ import {
 import { useLockersPinchZoom } from "@/features/lockers/hooks/useLockersPinchZoom";
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
-// 구역마다 다른 칸 배치는 구역 상세의 layout이 갖고, 이 화면은 그걸 렌더러로 그리기만 한다.
 function LockersLockerSelectScreen() {
   const { sectionId = "" } = useParams();
   const detail = LOCKERS_SECTION_DETAILS[sectionId];

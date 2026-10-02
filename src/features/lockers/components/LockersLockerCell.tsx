@@ -19,8 +19,7 @@ interface LockersLockerCellProps {
 // 선택된 칸은 Figma "사물함 선택 시"(2159:113315)대로 Primary/Normal 배경에 번호를
 // Background/Normal/Normal(흰색) SemiBold로 바꾼다.
 //
-// 내 사물함(이미 신청한 칸)은 Figma에 상태가 없어서 임시로 초록 테두리(Status/Positive)를 두른다.
-// 이미 신청한 칸이라 다시 고를 수 없다 — 디자인이 나오면 바꾼다.
+// 내 사물함은 Figma에 상태가 없어서 임시로 초록 테두리를 둔다(이미 신청한 칸이라 고를 수 없다).
 function LockersLockerCell({
   locker,
   isSelected,

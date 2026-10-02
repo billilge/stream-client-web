@@ -15,12 +15,12 @@ interface LockersSectionPhotoModalProps {
   open: boolean;
   sectionName: string;
   photo: LockersSectionPhoto;
-  /** 핀 색을 칸이 묶음의 몇 번째 행인지로 정해서, 같은 구역의 layout을 받는다 */
+  /** 핀 색을 칸의 행 위치로 정하는 데 쓴다 */
   layout: LockersLayout;
   onClose: () => void;
 }
 
-// 위쪽 행부터 진한 순서. 3행 묶음은 50·70·90, 5행 묶음은 50·60·70·80·90을 쓴다(Figma A-1·B-2 실제사진).
+// 위쪽 행일수록 진하다 — 3행은 50·70·90, 5행은 50·60·70·80·90(Figma A-1·B-2 실제사진)
 const PIN_TONE_CLASS_NAMES = [
   "bg-orange-50",
   "bg-orange-60",
@@ -39,7 +39,6 @@ function getPinToneClassName(rowIndex: number, rowCount: number) {
   return PIN_TONE_CLASS_NAMES[step];
 }
 
-// layout의 모든 칸 묶음을 돌며 칸 번호마다 핀 색을 정해 둔다
 function collectPinToneClassNames(
   block: LockersLayoutBlock,
   toneClassNames: Map<number, string>,
@@ -138,8 +137,7 @@ function LockersSectionPhotoModal({
         <IconButton aria-label="닫기" onClick={onClose} size={24}>
           <IconClose />
         </IconButton>
-        {/* Figma 사진 틀 300×224. 서버가 잘라 둔 사진을 받아서 틀에 그대로 채운다
-            (Figma는 사진을 1.12° 돌리고 키워서 맞췄는데, 그 보정은 사진을 자를 때 끝낸다) */}
+        {/* Figma 사진 틀 300×224. Figma의 회전·확대 보정은 사진을 자를 때 끝낸다 */}
         <div className="relative h-56 w-[300px] overflow-hidden rounded-sm">
           <img
             alt={`${sectionName}구역 사물함 사진`}
@@ -153,12 +151,10 @@ function LockersSectionPhotoModal({
                 PIN_TONE_CLASS_NAMES[0]
               }`}
               key={pin.lockerNumber}
-              // 핀 가운데가 사진 폭·높이 대비 (x, y) 비율 지점에 오도록 놓는다
               style={{ left: `${pin.x * 100}%`, top: `${pin.y * 100}%` }}
             >
-              {/* 사진 위 주석이라 핀 크기에 맞춘 값이다 — Figma에서도 이름 있는 타입 스타일이
-                  아니라(7.69~9.71px) Typography로 옮길 수 없다. 사진이 테마와 무관해 글자도 검정 고정이다.
-                  핀 크기는 Figma 두 값(12.4px, 14.9px)의 중간인 14px로 고정했다. */}
+              {/* Figma에서도 이름 있는 타입 스타일이 아니라 Typography로 옮길 수 없다.
+                  사진이 테마와 무관해 글자도 검정 고정이다. 핀 크기는 Figma 두 값(12.4·14.9px)의 중간 */}
               <span className="whitespace-nowrap font-medium text-[9px] text-black leading-[1.334]">
                 {pin.lockerNumber}
               </span>

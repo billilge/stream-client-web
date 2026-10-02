@@ -4,19 +4,16 @@ import type { CSSProperties } from "react";
 interface LockersMapLabelProps {
   text: string;
   orientation?: "horizontal" | "vertical";
-  /** 크기(창문 폭, 벽면 높이 등) — 화면마다 다르다 */
   className?: string;
-  /** px로 정한 크기(layout의 숫자 width·height) */
   style?: CSSProperties;
 }
 
-// 세로 라벨은 Figma가 한 글자씩 줄을 바꾸고 단어 사이에 빈 줄을 둔다("왼쪽 벽면" → 왼/쪽/ /벽/면).
+// Figma는 세로 라벨을 한 글자씩 줄바꿈하고 단어 사이에 빈 줄을 둔다
 function toVerticalText(text: string) {
   return [...text].map((char) => (char === " " ? "" : char)).join("\n");
 }
 
-// Figma: 창문·벽면처럼 고를 수 없는 자리(Direction Label·Aisle) — Stream 로컬. 회색 면에 라벨을 둔다.
-// 가로(창문)는 위아래, 세로(벽면)는 좌우에만 여백을 둔다.
+// Figma: Direction Label·Aisle — 창문·벽면 표시
 function LockersMapLabel({
   text,
   orientation = "horizontal",

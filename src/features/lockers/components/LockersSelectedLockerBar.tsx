@@ -1,7 +1,7 @@
 import { ActionArea, ActionAreaButton, Typography } from "@wanteddev/wds";
 
 interface LockersSelectedLockerBarProps {
-  /** 고른 사물함의 이름(서버 lockerLabel, 예: "A-25"). 고르기 전이면 null */
+  /** 고르기 전이면 null */
   lockerLabel: string | null;
   onSubmit: () => void;
 }
@@ -11,7 +11,7 @@ interface LockersSelectedLockerBarProps {
 // 그림자는 Figma Shadow/Spread/Small 값 그대로다.
 //
 // 선택 전(State=Empty)은 안내 문구 + 잠긴 버튼, 선택 후(Figma "사물함 선택 시" 2159:113198)는
-// 사물함 이름을 Primary/Normal SemiBold로 보여주고 버튼을 연다. 이름은 서버가 주는 값을 그대로 쓴다.
+// 사물함 이름을 Primary/Normal SemiBold로 보여주고 버튼을 연다.
 function LockersSelectedLockerBar({
   lockerLabel,
   onSubmit,

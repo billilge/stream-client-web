@@ -1,12 +1,11 @@
 import sectionA1Photo from "@/assets/images/lockers/section-a-1-photo.jpg";
 
-// 구역 상세 응답(GET /v1/app/lockers/sections/{sectionId})의 형태.
-// 칸 배치(layout)는 구조만 갖고, 칸 상태(선택 가능·내 사물함)는 lockers에서 온다 — 둘은 lockerNumber로 잇는다.
+// 구역 상세 응답(GET /v1/app/lockers/sections/{sectionId}). layout은 구조만 갖고 칸 상태는 lockers에서
+// 온다 — 둘은 lockerNumber로 잇는다.
 
-// "hug"는 내용 크기, "fill"은 부모의 남은 공간 채우기, 숫자는 px 고정.
+// "hug"는 내용 크기, "fill"은 부모의 남은 공간, 숫자는 px
 export type LockersLayoutSize = "hug" | "fill" | number;
 
-// row·column의 교차축 정렬
 export type LockersLayoutAlign = "start" | "center" | "end" | "stretch";
 
 interface LockersLayoutBlockBase {
@@ -21,35 +20,30 @@ export interface LockersLayoutContainerBlock extends LockersLayoutBlockBase {
   align?: LockersLayoutAlign;
 }
 
-// 칸 묶음(Figma Zone Area + Locker Grid). rows[0]이 맨 위 행(위쪽 칸), 숫자는 lockerNumber,
-// null은 칸이 없는 빈 자리다. bordered면 테두리 상자로 감싼다(A-1·B-2).
+// rows[0]이 맨 위 행(위쪽 칸), 숫자는 lockerNumber, null은 빈 자리
 export interface LockersLayoutLockerGroupBlock extends LockersLayoutBlockBase {
   type: "lockerGroup";
   rows: (number | null)[][];
   bordered?: boolean;
 }
 
-// 회색 면 라벨(Figma Direction Label·Aisle). 창문은 가로, 벽면은 세로로 한 글자씩 줄을 바꾼다.
 export interface LockersLayoutLabelBlock extends LockersLayoutBlockBase {
   type: "label";
   text: string;
   orientation?: "horizontal" | "vertical";
 }
 
-// 점선 상자(Figma Zone Label·Room Label·Stairs Area) — 옆 구역, 호실, 계단
 export interface LockersLayoutAreaBlock extends LockersLayoutBlockBase {
   type: "area";
   text: string;
   icon?: "stairs";
 }
 
-// 테두리 없는 글자(Figma 복도)
 export interface LockersLayoutTextBlock extends LockersLayoutBlockBase {
   type: "text";
   text: string;
 }
 
-// 위쪽 칸 / 아래쪽 칸 표시(Figma Shelf Label)
 export interface LockersLayoutShelfLabelBlock extends LockersLayoutBlockBase {
   type: "shelfLabel";
 }
@@ -67,7 +61,7 @@ export interface LockersLayout {
   root: LockersLayoutBlock;
 }
 
-// 사진 위 칸 번호 핀. x·y는 핀 가운데의 위치를 사진 폭·높이 대비 0~1 비율로 적는다.
+// x·y는 핀 가운데 위치를 사진 폭·높이 대비 0~1 비율로 적는다
 export interface LockersSectionPhotoPin {
   lockerNumber: number;
   x: number;
@@ -82,7 +76,7 @@ export interface LockersSectionPhoto {
 export interface LockersSectionLocker {
   lockerId: number;
   lockerNumber: number;
-  // 화면에 그대로 보여주는 이름("A-25"). 관리자가 입력하는 값이라 번호에서 만들지 않는다.
+  // 관리자가 입력하는 값이라 번호에서 만들지 않는다
   lockerLabel: string;
   isAvailable: boolean;
   isMine: boolean;
@@ -96,8 +90,7 @@ export interface LockersSectionDetail {
   lockers: LockersSectionLocker[];
 }
 
-// 목데이터용 — 실제로는 서버가 lockers를 내려준다. Figma 목업이 전부 선택 가능이라 그대로 둔다.
-// 이름은 서버가 관리자 입력값으로 주지만, 목데이터는 Figma 표기("A-25", 동 이름 + 번호)대로 만든다.
+// Figma 목업이 전부 선택 가능이라 그대로 두고, 이름은 Figma 표기("A-25")대로 만든다
 function createMockLockers(
   building: string,
   lockerNumbers: number[],
@@ -115,9 +108,8 @@ function range(from: number, to: number) {
   return Array.from({ length: to - from + 1 }, (_, index) => from + index);
 }
 
-// Figma: A-1구역 (nodeId 2159:110753) — 창문을 사이에 두고 벽면 세 곳에 테두리 묶음이 붙어 있다.
-// 핀은 A-1구역 실제사진(2159:110299)의 좌표를 사진 원본 대비 비율로 옮겼다. Figma는 사진을
-// 1.12° 돌려 붙였는데 서버는 잘라 둔 사진을 줄 거라 회전은 무시했다(가장자리에서 2~3px 차이).
+// Figma: A-1구역 (nodeId 2159:110753), 핀은 A-1구역 실제사진 (2159:110299)
+// Figma는 사진을 1.12° 돌려 붙였는데 회전은 무시하고 비율로 옮겼다(가장자리에서 2~3px 차이).
 const A1_SECTION: LockersSectionDetail = {
   layout: {
     root: {
@@ -237,8 +229,8 @@ const A1_SECTION: LockersSectionDetail = {
   sectionId: 1,
 };
 
-// Figma: A-2구역 (nodeId 2159:109533) — 칸 묶음 옆이 B-1구역, 복도 건너편이 231호실이다.
-// A-2 실제 사진은 아직 없어서(직접 찍을 예정) A-1 사진을 임시로 쓰고, 번호가 맞지 않으니 핀은 비워 둔다.
+// Figma: A-2구역 (nodeId 2159:109533)
+// A-2 사진이 아직 없어서 A-1 사진을 임시로 쓰고, 번호가 맞지 않아 핀은 비워 둔다.
 const A2_SECTION: LockersSectionDetail = {
   layout: {
     root: {
@@ -287,8 +279,7 @@ const A2_SECTION: LockersSectionDetail = {
   sectionId: 2,
 };
 
-// API 연동 전까지 쓰는 구역 상세 목데이터. 지금 주소가 구역 라벨(/lockers/apply/sections/A-1)이라
-// 라벨로 찾는다. 나머지 구역은 서버 시드가 들어오면 응답으로 대체된다.
+// 주소가 구역 라벨(/lockers/apply/sections/A-1)이라 라벨로 찾는다
 export const LOCKERS_SECTION_DETAILS: Record<string, LockersSectionDetail> = {
   "A-1": A1_SECTION,
   "A-2": A2_SECTION,

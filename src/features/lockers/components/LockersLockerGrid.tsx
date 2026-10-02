@@ -2,16 +2,14 @@ import LockersLockerCell from "@/features/lockers/components/LockersLockerCell";
 import type { LockersSectionLocker } from "@/features/lockers/constants/lockersSectionDetails";
 
 interface LockersLockerGridProps {
-  /** layout의 lockerGroup.rows — 숫자는 lockerNumber, null은 칸이 없는 빈 자리 */
   rows: (number | null)[][];
-  /** 구역의 사물함을 lockerNumber로 찾는 표 */
   lockers: ReadonlyMap<number, LockersSectionLocker>;
   selectedLockerNumber: number | null;
   onSelect: (lockerNumber: number) => void;
 }
 
-// Figma: Locker Grid (nodeId 2159:110832 외) — 칸 사이 6px. 열 수는 가장 긴 행을 따른다.
-// layout에 있는데 lockers에 없는 번호는 서버 데이터가 어긋난 경우라, 칸 대신 빈 자리로 둔다.
+// Figma: Locker Grid (nodeId 2159:110832 외)
+// layout에는 있는데 lockers에 없는 번호(서버 데이터가 어긋난 경우)는 빈 자리로 둔다.
 function LockersLockerGrid({
   rows,
   lockers,
