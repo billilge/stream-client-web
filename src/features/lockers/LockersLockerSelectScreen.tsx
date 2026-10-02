@@ -19,6 +19,19 @@ import {
 } from "@/features/lockers/constants/lockersSectionDetails";
 import { useLockersPinchZoom } from "@/features/lockers/hooks/useLockersPinchZoom";
 
+// 배치 영역 안쪽 여백(px-5, pb-5) — 미니맵에 보이는 영역을 배치 기준으로 계산할 때 뺀다
+const CONTENT_PADDING = 20;
+
+interface MinimapState {
+  viewport: LockersLockerMinimapViewport;
+  layoutWidth: number;
+  isScrollable: boolean;
+}
+
+function clampRatio(value: number) {
+  return Math.min(Math.max(value, 0), 1);
+}
+
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
 function LockersLockerSelectScreen() {
   const { sectionId = "" } = useParams();
@@ -39,9 +52,8 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
     number | null
   >(null);
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
-  const [viewport, setViewport] = useState<LockersLockerMinimapViewport | null>(
-    null,
-  );
+  const [minimap, setMinimap] = useState<MinimapState | null>(null);
+  const [scrollerWidth, setScrollerWidth] = useState<number>();
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -55,19 +67,36 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
       ? undefined
       : lockers.get(selectedLockerNumber);
 
-  // 칸 배치가 화면보다 넓을 때만 미니맵을 띄운다 — Figma도 화면에 다 들어오는 A-2는
-  // 미니맵을 투명하게 숨겨 자리만 남겨뒀다.
   const updateViewport = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) {
+    const scroller = scrollRef.current;
+    const content = contentRef.current;
+    if (!scroller || !content) {
       return;
     }
-    const { clientWidth, scrollLeft, scrollWidth } = el;
-    setViewport(
-      scrollWidth > clientWidth
-        ? { size: clientWidth / scrollWidth, start: scrollLeft / scrollWidth }
-        : null,
+    // 제스처 중에는 배율이 상태보다 앞서 DOM에만 반영돼 있어서 DOM 값을 읽는다
+    const zoom = Number(content.style.zoom) || 1;
+    const rect = content.getBoundingClientRect();
+    const layoutWidth = rect.width / zoom - CONTENT_PADDING * 2;
+    const layoutHeight = rect.height / zoom - CONTENT_PADDING;
+    const visibleLeft = scroller.scrollLeft / zoom - CONTENT_PADDING;
+    const visibleTop = scroller.scrollTop / zoom;
+    const left = clampRatio(visibleLeft / layoutWidth);
+    const top = clampRatio(visibleTop / layoutHeight);
+    const right = clampRatio(
+      (visibleLeft + scroller.clientWidth / zoom) / layoutWidth,
     );
+    const bottom = clampRatio(
+      (visibleTop + scroller.clientHeight / zoom) / layoutHeight,
+    );
+
+    setScrollerWidth(scroller.clientWidth);
+    setMinimap({
+      isScrollable:
+        scroller.scrollWidth > scroller.clientWidth + 1 ||
+        scroller.scrollHeight > scroller.clientHeight + 1,
+      layoutWidth,
+      viewport: { height: bottom - top, left, top, width: right - left },
+    });
   }, []);
 
   useLayoutEffect(() => {
@@ -137,28 +166,33 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex min-h-0 flex-1 flex-col gap-10">
-        {/* Figma Minimap Section — 미니맵이 없어도 128px 자리를 지켜서 칸 배치 위치가 구역마다 같다 */}
-        <div className="flex h-32 shrink-0 items-end justify-between px-5">
-          {viewport ? (
-            <LockersLockerMinimap viewport={viewport}>
+        {/* Figma Minimap Section */}
+        <div className="flex h-32 shrink-0 items-end gap-4 px-5">
+          {minimap ? (
+            <LockersLockerMinimap
+              isScrollable={minimap.isScrollable}
+              layoutWidth={minimap.layoutWidth}
+              viewport={minimap.viewport}
+            >
               {map}
             </LockersLockerMinimap>
           ) : (
-            <div />
+            <div className="flex-1" />
           )}
           <LockersLockerLegend />
         </div>
         {/* touch-pan: 두 손가락 동작을 페이지 확대 대신 이 영역의 확대로 받는다.
-            min-w-full: 화면보다 좁은 구역에서 "fill" 상자가 화면 폭까지 늘어나게 한다 */}
+            minWidth를 %가 아니라 px로 주는 이유: zoom을 걸면 %는 배율과 상관없이 화면 폭으로
+            계산돼서, 화면보다 좁은 구역을 확대할 때 "fill" 상자가 비율대로 커지지 않는다 */}
         <div
           className="scrollbar-hidden min-h-0 flex-1 touch-pan-x touch-pan-y overflow-auto"
           onScroll={updateViewport}
           ref={scrollRef}
         >
           <div
-            className="w-max min-w-full px-5 pb-5"
+            className="w-max px-5 pb-5"
             ref={contentRef}
-            style={{ zoom }}
+            style={{ minWidth: scrollerWidth, zoom }}
           >
             {map}
           </div>
