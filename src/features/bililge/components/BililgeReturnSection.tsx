@@ -1,21 +1,17 @@
 import { Button, Divider, Typography } from "@wanteddev/wds";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useState } from "react";
 
 import rentalHistoryEmptyIllustration from "@/assets/icons/bililge-empty/rental-history.svg";
 import returnItemsEmptyIllustration from "@/assets/icons/bililge-empty/return-items.svg";
+import ScreenToast from "@/components/ui/ScreenToast";
 import BililgeEmptyState from "@/features/bililge/components/BililgeEmptyState";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
 import BililgeRentalHistoryEntry from "@/features/bililge/components/BililgeRentalHistoryEntry";
 import BililgeReturnConfirmModal from "@/features/bililge/components/BililgeReturnConfirmModal";
-import BililgeReturnToast from "@/features/bililge/components/BililgeReturnToast";
 import {
   BILILGE_RENTAL_HISTORY,
   BILILGE_RETURN_ITEMS,
 } from "@/features/bililge/constants/bililgeReturns";
-
-// 토스트 자동 닫힘 시간 — Figma엔 지속시간이 없어서 WDS Toast의 duration="short" 기본값과
-// 맞췄다(node_modules/@wanteddev/wds/dist/components/toast/index.mjs, short=3000ms).
-const TOAST_DURATION_MS = 3000;
 
 interface BililgeReturnSectionProps {
   onBrowseRentals?: () => void;
@@ -35,36 +31,18 @@ interface BililgeReturnSectionProps {
 function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
-  // 토스트가 떠 있는 동안 다시 확인해도 스크린리더가 재안내하도록, 확인마다 값을 바꿔 메시지
-  // 텍스트를 새로 마운트한다(BililgeReturnToast의 messageKey로 전달).
+  // 토스트가 떠 있는 동안 다시 확인해도 스크린리더가 재안내하도록, 확인마다 값을 바꿔
+  // ScreenToast를 새로 마운트한다(EventsApplicationScreen의 실패 토스트와 같은 패턴).
   const [toastToken, setToastToken] = useState(0);
-  // 타이머를 이펙트가 아니라 ref로 직접 관리한다 — 토스트가 이미 떠 있는 채로 다시 확인하면
-  // "새 확인 시점부터 3초"가 되도록, 기존 타이머를 지우고 새로 시작해야 하기 때문이다.
-  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (toastTimerRef.current) {
-        clearTimeout(toastTimerRef.current);
-      }
-    };
-  }, []);
 
   const handleConfirm = () => {
     setConfirmOpen(false);
     setToastOpen(true);
     setToastToken((token) => token + 1);
-    if (toastTimerRef.current) {
-      clearTimeout(toastTimerRef.current);
-    }
-    toastTimerRef.current = setTimeout(
-      () => setToastOpen(false),
-      TOAST_DURATION_MS,
-    );
   };
 
   return (
-    <div className="flex flex-col gap-8 px-5 pt-6">
+    <div className="flex flex-col gap-8 px-5 pt-7">
       <div className="flex flex-col gap-3">
         <Typography
           as="p"
@@ -75,7 +53,7 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
           반납이 필요한 물품
         </Typography>
         {BILILGE_RETURN_ITEMS.length > 0 ? (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             {BILILGE_RETURN_ITEMS.map((item) => (
               <BililgeItemCard
                 actionLabel="반납 신청"
@@ -145,7 +123,13 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
         onConfirm={handleConfirm}
         open={confirmOpen}
       />
-      <BililgeReturnToast messageKey={toastToken} open={toastOpen} />
+      <ScreenToast
+        key={toastToken}
+        message="반납 신청이 완료됐어요."
+        onOpenChange={setToastOpen}
+        open={toastOpen}
+        variant="positive"
+      />
     </div>
   );
 }
