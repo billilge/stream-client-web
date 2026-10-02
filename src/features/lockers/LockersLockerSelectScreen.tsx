@@ -17,6 +17,7 @@ import {
   LOCKERS_SECTION_DETAILS,
   type LockersSectionDetail,
 } from "@/features/lockers/constants/lockersSectionDetails";
+import { useLockersPinchZoom } from "@/features/lockers/hooks/useLockersPinchZoom";
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
 // 구역마다 다른 칸 배치는 구역 상세의 layout이 갖고, 이 화면은 그걸 렌더러로 그리기만 한다.
@@ -43,6 +44,7 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
     null,
   );
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const lockers = useMemo(
     () =>
@@ -80,6 +82,8 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
 
     return () => observer.disconnect();
   }, [updateViewport]);
+
+  const zoom = useLockersPinchZoom(scrollRef, contentRef, updateViewport);
 
   useScreenHeader(
     <ScreenHeader
@@ -133,7 +137,7 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex min-h-0 flex-1 flex-col gap-10 overflow-y-auto">
+      <div className="flex min-h-0 flex-1 flex-col gap-10">
         {/* Figma Minimap Section — 미니맵이 없어도 128px 자리를 지켜서 칸 배치 위치가 구역마다 같다 */}
         <div className="flex h-32 shrink-0 items-end justify-between px-5">
           {viewport ? (
@@ -145,14 +149,20 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
           )}
           <LockersLockerLegend />
         </div>
-        {/* 화면 끝까지 스크롤되도록 좌우 여백을 스크롤 영역 안쪽에 둔다.
-            min-w-full: 화면에 다 들어오는 구역에서 layout의 "fill" 상자가 화면 폭까지 늘어나게 한다 */}
+        {/* touch-pan: 두 손가락 동작을 페이지 확대 대신 이 영역의 확대로 받는다.
+            min-w-full: 화면보다 좁은 구역에서 "fill" 상자가 화면 폭까지 늘어나게 한다 */}
         <div
-          className="scrollbar-hidden shrink-0 overflow-x-auto pb-5"
+          className="scrollbar-hidden min-h-0 flex-1 touch-pan-x touch-pan-y overflow-auto"
           onScroll={updateViewport}
           ref={scrollRef}
         >
-          <div className="w-max min-w-full px-5">{map}</div>
+          <div
+            className="w-max min-w-full px-5 pb-5"
+            ref={contentRef}
+            style={{ zoom }}
+          >
+            {map}
+          </div>
         </div>
       </div>
 
