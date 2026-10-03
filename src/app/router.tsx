@@ -21,6 +21,7 @@ import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectS
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
 import NotificationSettingsScreen from "@/features/settings/NotificationSettingsScreen";
+import PhoneChangeScreen from "@/features/settings/PhoneChangeScreen";
 import SettingsScreen from "@/features/settings/SettingsScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
@@ -124,6 +125,15 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/settings/notifications",
+          },
+          {
+            element: <PhoneChangeScreen />,
+            // 입력칸 하나 + 하단 고정 버튼(Action Area)이 있는 흰 배경 화면(Figma 1799:87220)
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/settings/phone",
           },
           {
             element: <LockersApplyScreen />,
