@@ -8,7 +8,6 @@ import {
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { Fragment, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import NoticesCard from "@/features/notices/components/NoticesCard";
@@ -16,6 +15,7 @@ import {
   NOTICES,
   type NoticeCategory,
 } from "@/features/notices/constants/notices";
+import { getSearchPath } from "@/features/search/constants/search";
 
 type NoticeTab = "all" | "general" | "partnership";
 
@@ -42,7 +42,11 @@ function NoticesListScreen() {
       }}
       trailing={
         <>
-          <TopNavigationButton aria-label="검색" variant="icon">
+          <TopNavigationButton
+            aria-label="검색"
+            onClick={() => navigate(getSearchPath("notices"))}
+            variant="icon"
+          >
             <IconSearch />
           </TopNavigationButton>
           <TopNavigationButton aria-label="알림" variant="icon">
