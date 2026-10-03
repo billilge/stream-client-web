@@ -319,7 +319,7 @@ Figma 상세는 뒤로가기 버튼이 Hero 이미지 **위에 떠 있는** 오�
 
 ### 행사 신청 중 마감 화면(`1133:43431`)도 같은 뼈대다
 
-완료 화면과 구조가 같다 — 닫기(X)만 있는 `TopNavigation`, 그 아래 104px 간격, 가운데 일러스트 + 2줄 문구, 하단 Action Area. 다른 점은 버튼이 하나라서 `ActionArea`를 기본값(`variant="strong"`, 세로 배치)으로 쓰고 신청 폼과 같은 `sx={{ paddingBlock: "16px" }}` 보정만 한다는 것뿐이다. 자물쇠 일러스트(`1133:43439`)는 WDS 아이콘이 아니라 Figma 로컬 도형이라 SVG를 그대로 받아 `src/assets/icons/events/application-closed.svg`로 커밋했다(62.963×72.317).
+완료 화면과 구조가 같다 — 닫기(X)만 있는 `TopNavigation`, 그 아래 104px 간격, 가운데 일러스트 + 2줄 문구, 하단 Action Area. 다른 점은 버튼이 하나라서 `ActionArea`를 기본값(`variant="strong"`, 세로 배치)으로 쓰고 신청 폼과 같은 `sx={{ paddingBlock: "16px" }}` 보정만 한다는 것뿐이다. 자물쇠 일러스트(`1133:43439`)는 WDS 아이콘이 아니라 Figma 로컬 도형이라 SVG를 그대로 받아 `src/assets/icons/common/document-lock.svg`로 커밋했다(62.963×72.317). 사물함 신청 오류 화면도 같은 그림이라 공용 폴더에 둔다. 이 화면 구조는 지금 공용 `ResultScreen`이 갖는다.
 
 ### 제출 중 로딩 화면(`1133:43453`)에서 WDS는 `Typography`뿐이다
 

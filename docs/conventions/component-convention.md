@@ -72,6 +72,7 @@ interface RentalItemCardProps {
 - **예외**: 서드파티 라이브러리가 `className` 문자열만 받아서 자기 DOM에 그대로 꽂는 자리(예: `@ncdai/react-wheel-picker`의 `classNames` prop)는 `Typography`로 감쌀 수 없다 — 이럴 땐 Tailwind `text-[17px]` 같은 값을 그대로 쓰되, 어느 Figma 타입 스타일을 옮긴 값인지 주석을 남긴다(`BililgeRentalSheet.tsx`의 `WHEEL_CLASS_NAMES` 참고).
 
 - Stream 자체 이미지·아이콘(일러스트, 물품 아이콘 등)은 `download_assets`로 받아 `src/assets/`에 커밋한다. Figma asset URL은 **7일 후 만료**되므로 절대 코드에 그대로 참조하지 않는다.
+- 에셋은 쓰는 기능 이름의 폴더에 둔다(`src/assets/icons/<기능>/`, `src/assets/lottie/<기능>/`). 두 기능 이상이 같이 쓰게 되면 `common/`으로 옮긴다(예: 행사·사물함 신청 결과 화면의 `icons/common/document-lock.svg`) — 컴포넌트를 `components/ui/`로 옮기는 기준과 같다.
 
 ### 모션 (Lottie)
 
@@ -79,7 +80,7 @@ Figma Motion(키프레임 타임라인)이 붙은 요소는 키프레임을 손�
 
 - **export**: Figma Dev mode에는 Lottie export가 없다. LottieFiles 플러그인에서 **키프레임이 붙은 프레임을 선택**하고 Export 탭 → Preview 확인 후 json으로 받는다. 화면 전체 프레임이 아니라 모션 프레임을 골라야 한다(예: `행사 로딩 1133:43453`이 아니라 `Loading / Document Review 1133:44260`).
   - hidden 레이어와 boolean 연산(union/intersect/exclude)은 export에서 빠진다. Preview에 안 보이면 이걸 먼저 의심한다.
-- **파일 위치**: `src/assets/lottie/<기능>/<이름>.json`. 이미지·아이콘과 같은 이유로 저장소에 커밋한다.
+- **파일 위치**: `src/assets/lottie/<기능>/<이름>.json`, 두 기능 이상이 쓰면 `src/assets/lottie/common/`. 이미지·아이콘과 같은 이유로 저장소에 커밋한다.
 - **컴포넌트**: `lottie-react`의 **`LottieLight`**를 쓴다. `Lottie`(풀 빌드)는 canvas·HTML 렌더러와 `eval` 기반 표현식 엔진까지 끌고 와서 번들이 224KB(gzip 43KB) 커지고, 출하 번들에 `eval`이 남아 WebView CSP에서 깨질 수 있다. Figma에서 나온 Lottie는 표현식을 쓰지 않으므로 SVG 렌더러만 있으면 된다.
 - **문구는 Lottie에 넣지 않는다**: export 원본에 텍스트가 포함돼 있으면 그 레이어를 빼고 컴포지션을 일러스트 경계로 자른 뒤, 문구는 `Typography`로 따로 그린다. Lottie 안의 텍스트는 벡터 도형이라 스크린리더가 못 읽고 타이포 토큰도 안 따라간다. **어떤 레이어를 왜 뺐는지와 잘라낸 크기를 컴포넌트 주석에 남긴다** — 재export 때 같은 가공을 다시 해야 한다.
 - **모션 줄이기**: `usePrefersReducedMotion()`으로 판단해 `autoplay={false}` + `segment={[n, n + 1]}`로 다 그려진 프레임 한 장만 세운다. `autoplay`를 켠 채로 두면 lottie-react가 알아서 막긴 하지만 개발 콘솔에 경고를 남기므로 우리가 먼저 끈다. CSS transition으로 끌 수 있는 자리(`ConfirmModal` 등)는 Tailwind `motion-reduce:` 변형을 그대로 쓴다.
