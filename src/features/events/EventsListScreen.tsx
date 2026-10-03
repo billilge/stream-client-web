@@ -8,7 +8,6 @@ import {
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { Fragment, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
@@ -18,6 +17,7 @@ import {
   EVENT_STATUS_FILTERS,
   EVENTS,
 } from "@/features/events/constants/events";
+import { getSearchPath } from "@/features/search/constants/search";
 
 // Figma: 행사 모집중 empty (nodeId 1165:62713)는 "모집중" 필터 버전만 준다 —
 // 일러스트·레이아웃·"아카이빙 둘러보기" 버튼이 이 조합의 스펙이다.
@@ -57,7 +57,11 @@ function EventsListScreen() {
       title="행사"
       trailing={
         <>
-          <TopNavigationButton aria-label="검색" variant="icon">
+          <TopNavigationButton
+            aria-label="검색"
+            onClick={() => navigate(getSearchPath("events"))}
+            variant="icon"
+          >
             <IconSearch />
           </TopNavigationButton>
           <TopNavigationButton aria-label="알림" variant="icon">

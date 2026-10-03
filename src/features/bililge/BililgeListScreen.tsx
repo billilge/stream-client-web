@@ -5,7 +5,7 @@ import {
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { startTransition, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import BililgeCategoryFilter from "@/features/bililge/components/BililgeCategoryFilter";
@@ -16,11 +16,13 @@ import {
   BILILGE_ITEMS,
   type BililgeItem,
 } from "@/features/bililge/constants/bililgeItems";
+import { getSearchPath } from "@/features/search/constants/search";
 
 // Figma: 빌릴게 (nodeId 1243:73331)
 function BililgeListScreen() {
   const [tab, setTab] = useState("rent");
   const [category, setCategory] = useState("전체");
+  const navigate = useNavigate();
   const [rentalItem, setRentalItem] = useState<BililgeItem | null>(null);
   const [rentalSheetOpen, setRentalSheetOpen] = useState(false);
 
@@ -29,7 +31,11 @@ function BililgeListScreen() {
       title="빌릴게"
       trailing={
         <>
-          <TopNavigationButton aria-label="검색" variant="icon">
+          <TopNavigationButton
+            aria-label="검색"
+            onClick={() => navigate(getSearchPath("bililge"))}
+            variant="icon"
+          >
             <IconSearch />
           </TopNavigationButton>
           <TopNavigationButton aria-label="알림" variant="icon">
