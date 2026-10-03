@@ -17,6 +17,12 @@ export type LockersApplySubmitResult =
   | { type: "success"; application: LockersApplySuccess }
   | { type: "failure"; reason: LockersApplyFailureReason };
 
+// 신청 중 화면 문구 — 칸 선택 화면과 오류 화면(다시 시도)이 같이 쓴다. Figma: 사물함 신청 로딩 (1737:218076)
+export const LOCKERS_APPLY_SUBMITTING_TEXT = {
+  description: "곧 완료돼요! 잠시만 기다려 주세요",
+  title: "사물함 신청을 진행 중이에요",
+};
+
 export interface LockersApplyRequest {
   lockerId: number;
   lockerLabel: string;

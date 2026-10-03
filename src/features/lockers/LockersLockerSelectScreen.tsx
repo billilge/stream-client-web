@@ -15,6 +15,7 @@ import LockersLockerMinimap, {
 } from "@/features/lockers/components/LockersLockerMinimap";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelectedLockerBar";
+import { LOCKERS_APPLY_SUBMITTING_TEXT } from "@/features/lockers/constants/lockersApplySubmit";
 import {
   LOCKERS_SECTION_DETAILS,
   type LockersSectionDetail,
@@ -240,9 +241,9 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
       />
 
       <SubmittingOverlay
-        description="곧 완료돼요! 잠시만 기다려 주세요"
+        description={LOCKERS_APPLY_SUBMITTING_TEXT.description}
         open={isSubmitting}
-        title="사물함 신청을 진행 중이에요"
+        title={LOCKERS_APPLY_SUBMITTING_TEXT.title}
       />
     </div>
   );
