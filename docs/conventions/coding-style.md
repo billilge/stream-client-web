@@ -46,14 +46,14 @@
 
 ## 데이터 로딩
 
-- 서버 데이터는 TanStack Query로 받는다. API 함수·쿼리·타입은 `entities/<도메인>/`에 두고(`<도메인>Api.ts`·`<도메인>Queries.ts`·`types.ts`), 화면은 `useSuspenseQuery(<도메인>Queries.list())`처럼 쿼리 팩토리로만 받는다.
-- 실 API 전까지 API 함수는 `<도메인>Mock.ts`의 목데이터를 `mockResponse`(`lib/mockResponse.ts`)로 돌려준다. 개발 서버에서는 스켈레톤을 확인할 수 있게 500ms 늦게 응답하고, 배포 빌드에서는 바로 응답한다. API가 붙으면 API 함수 안쪽만 바꾼다.
-- 화면(`<화면>Screen.tsx`)은 헤더 등록, UI 상태, 이동 같은 동작을 맡고, 데이터를 받는 영역만 `<Suspense fallback={<전용 스켈레톤 />}>`으로 감싼다. `useSuspenseQuery`를 부르고 데이터를 그리는 부분은 `features/<기능>/components/`의 컴포넌트(`EventsList`, `EventsDetailContent` 등)로 분리하고, 이동 같은 동작은 콜백 prop으로 받는다.
+- 서버 데이터를 받는 API 함수와 타입은 `entities/<도메인>/`에 둔다(`<도메인>Api.ts`·`types.ts`). 화면은 데이터 컴포넌트에서 `use(fetchEvents())`처럼 API 함수의 Promise를 React `use()`로 읽는다. 서버 상태 라이브러리(TanStack Query)는 실 API를 연동할 때 도입하고, 그때 `use(...)`를 `useSuspenseQuery`로 바꾼다.
+- 실 API 전까지 API 함수는 `<도메인>Mock.ts`의 목데이터를 `mockupApi(key, () => data)`(`lib/mockupApi.ts`)로 돌려준다. 개발 서버에서는 스켈레톤을 확인할 수 있게 500ms 늦게 응답하고, 배포 빌드에서는 바로 응답한다. 같은 key의 Promise는 재사용되므로(렌더마다 새로 만들면 `use()`가 계속 서스펜드된다) key는 요청마다 겹치지 않게 `"events"`, `` `events/${id}` ``처럼 정한다. API가 붙으면 API 함수 안쪽만 바꾼다.
+- 화면(`<화면>Screen.tsx`)은 헤더 등록, UI 상태, 이동 같은 동작을 맡고, 데이터를 받는 영역만 `<Suspense fallback={<전용 스켈레톤 />}>`으로 감싼다. `use()`로 데이터를 읽고 그리는 부분은 `features/<기능>/components/`의 컴포넌트(`EventsList`, `EventsDetailContent` 등)로 분리하고, 이동 같은 동작은 콜백 prop으로 받는다.
 - 데이터와 무관한 헤더·탭·필터는 Suspense 밖에서 바로 그리고, 스켈레톤은 데이터 영역의 배치만 따라 그린다. 전용 스켈레톤은 `features/<기능>/components/<화면>Skeleton.tsx`에 두고 WDS `Skeleton`으로 그린다. 헤더가 데이터에 따라 달라지는 화면(공지 상세)은 헤더도 데이터 컴포넌트가 등록하고, 스켈레톤이 `useScreenHeaderSkeleton`으로 헤더 자리를 채운다.
 
 ## 에러 / 비동기
 
-- async는 try/catch 또는 TanStack Query의 에러 상태로 다룬다. **빈 catch 금지**.
+- async는 try/catch 또는 서버 상태 라이브러리(도입 시)의 에러 상태로 다룬다. **빈 catch 금지**.
 - 사용자에게 보이는 메시지와 개발 로깅을 구분한다.
 
 ## 주석
