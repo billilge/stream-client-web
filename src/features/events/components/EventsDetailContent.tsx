@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ActionArea,
   ActionAreaButton,
@@ -7,9 +6,10 @@ import {
   Typography,
 } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
+import { use } from "react";
 
 import PhotoGallery from "@/components/ui/PhotoGallery";
-import { eventsQueries } from "@/entities/events/eventsQueries";
+import { fetchEvent } from "@/entities/events/eventsApi";
 import EventsEmptyState from "@/features/events/components/EventsEmptyState";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
 
@@ -35,7 +35,7 @@ function EventsDetailContent({
   onBack,
   onApply,
 }: EventsDetailContentProps) {
-  const { data: event } = useSuspenseQuery(eventsQueries.detail(eventId));
+  const event = use(fetchEvent(eventId));
 
   if (!event) {
     return (

@@ -1,8 +1,7 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Divider } from "@wanteddev/wds";
-import { Fragment } from "react";
+import { Fragment, use } from "react";
 
-import { eventsQueries } from "@/entities/events/eventsQueries";
+import { fetchEvents } from "@/entities/events/eventsApi";
 import EventsCard from "@/features/events/components/EventsCard";
 import EventsEmptyState from "@/features/events/components/EventsEmptyState";
 
@@ -42,7 +41,7 @@ interface EventsListProps {
 // 행사 목록 데이터를 받아 그리는 부분. 데이터를 받는 동안은 EventsListScreen의 Suspense가
 // EventsListSkeleton을 보여준다. 이동 같은 화면 동작은 Screen이 콜백으로 넘긴다.
 function EventsList({ statusFilter, onSelect, onApply }: EventsListProps) {
-  const { data: events } = useSuspenseQuery(eventsQueries.list());
+  const events = use(fetchEvents());
 
   // 빌릴게 카테고리 필터와 달리 모집 상태는 목데이터에 이미 들어있어서 실제로 걸러낼 수 있다.
   const visibleEvents =

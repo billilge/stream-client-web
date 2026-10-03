@@ -1,9 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Divider } from "@wanteddev/wds";
-import { Fragment } from "react";
+import { Fragment, use } from "react";
 import { Link } from "react-router-dom";
 
-import { noticesQueries } from "@/entities/notices/noticesQueries";
+import { fetchNotices } from "@/entities/notices/noticesApi";
 import type { NoticeCategory } from "@/entities/notices/types";
 import NoticesCard from "@/features/notices/components/NoticesCard";
 
@@ -14,7 +13,7 @@ interface NoticesListProps {
 // 공지 목록 데이터를 받아 그리는 부분. 데이터를 받는 동안은 NoticesListScreen의 Suspense가
 // NoticesListSkeleton을 보여준다.
 function NoticesList({ category }: NoticesListProps) {
-  const { data } = useSuspenseQuery(noticesQueries.list());
+  const data = use(fetchNotices());
   const notices = data.filter(
     (notice) => category === "all" || notice.category === category,
   );
