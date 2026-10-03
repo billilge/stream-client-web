@@ -20,6 +20,9 @@ import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
 import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
+import NotificationSettingsScreen from "@/features/settings/NotificationSettingsScreen";
+import PhoneChangeScreen from "@/features/settings/PhoneChangeScreen";
+import SettingsScreen from "@/features/settings/SettingsScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
 // satisfies로 선언 시점에 RouteObject 형태를 검사한다.
@@ -106,6 +109,31 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/notices/:noticeId",
+          },
+          {
+            element: <SettingsScreen />,
+            // 흰 카드가 회색 배경 위에 쌓이는 화면이라 background는 기본값(alternative)을 쓴다.
+            // 설정은 뒤로가기로만 빠져나가는 흐름이라 Bottom Nav를 안 보여준다(Figma 3013:116135).
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/settings",
+          },
+          {
+            element: <NotificationSettingsScreen />,
+            // 행이 배경까지 흰 면이고 섹션 구분만 8px 회색 띠로 하는 화면이다(Figma 3013:116182)
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/settings/notifications",
+          },
+          {
+            element: <PhoneChangeScreen />,
+            // 입력칸 하나 + 하단 고정 버튼(Action Area)이 있는 흰 배경 화면(Figma 1799:87220)
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/settings/phone",
           },
           {
             element: <LockersApplyScreen />,
