@@ -474,3 +474,23 @@ WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외
 ### 구역 카드 배경이 화면 배경과 같은 색이라 라우트에 `background: "normal"`이 필요하다
 
 카드 배경이 `Background/Normal/Alternative`(`#f7f7f8`)인데 `ScreenLayout` 기본 배경도 같은 값이라, handle을 안 주면 카드가 배경에 완전히 묻힌다(실제로 처음 렌더에서 카드가 안 보였다). Figma 화면 배경이 흰 면이라 `handle: { background: "normal" }`을 준다.
+
+## 설정 화면 (설정 3013:116135 / 알림 설정 3013:116182 / 전화번호 변경 1799:87220)
+
+### 새로 확정된 WDS 매핑
+
+| Figma 인스턴스 | 코드 | 확정 근거 |
+|---|---|---|
+| `Switch/Switch` | `Switch`(`@wanteddev/wds`) | 메인 컴포넌트 Node ID `679:16080` + [공식 문서](https://montage.wanted.co.kr/docs/components/selection-and-input/switch/design). `size="small"`이 Figma와 같은 39×24(실측 일치) |
+| `Textinput/Textfield` | `TextField`(`@wanteddev/wds`) | 메인 컴포넌트 Node ID `445:8591` + [공식 문서](https://montage.wanted.co.kr/docs/components/selection-and-input/text-field/design). radius 12px·padding 12px 실측 일치 |
+| `Icon/Normal/Setting` | `IconSetting`(`@wanteddev/wds-icon`) | 메인 컴포넌트 Node ID `492:5735`("설정으로 이동할 때 사용합니다") |
+
+**`TextField`는 입력 박스만 그린다** — Figma `Textinput/Textfield`는 라벨(Heading) + 입력칸 + 안내 문구를 한 컴포넌트로 묶고 있지만, 코드 쪽 `TextField`에는 label·helper 슬롯이 없다. 그래서 "새 전화번호" 라벨과 "행사 신청 시 사용돼요." 안내는 Figma 구조대로 형제 요소로 따로 그린다. WDS `Label`은 required `*`만 더해주는 `Typography` 래퍼라 쓸 이유가 없다(행사 신청 폼 절의 선례와 같은 판단).
+
+### 설정 행의 `Arrow`는 WDS가 아니다
+
+설정 화면 모든 행 끝의 화살표(`445:12456` "Arrow", 8×12)는 `search_design_system`으로 WDS를 뒤져도 같은 이름이 없다(WDS는 `Icon/Normal/Arrow *`·`Icon/Normal/Chevron *` 네이밍). 133번째 줄 "제외됨" 목록의 `Icon/Arrow`와 같은 Stream 전용 아이콘이라 SVG를 받아 `src/assets/icons/settings/arrow-right.svg`로 커밋했다. 색(`#C2C4C8` = `Atomic/Cool Neutral/90`)이 에셋에 구워져 있어 토큰은 새로 추가하지 않았다.
+
+### 알림 설정의 섹션 구분선은 8px 버전
+
+"`Divider(new)`의 8px 버전은 1px 구분선과 다른 별개 패턴" 절과 같은 케이스다 — `<div className="h-2 w-full bg-background-alternative" />`로 직접 그린다.
