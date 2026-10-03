@@ -1,5 +1,5 @@
 import { TopNavigationButton } from "@wanteddev/wds";
-import { IconBell, IconSearch } from "@wanteddev/wds-icon";
+import { IconBell, IconSearch, IconSetting } from "@wanteddev/wds-icon";
 import { Link, useNavigate } from "react-router-dom";
 import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -17,6 +17,14 @@ function HomeScreen() {
       title="STREAM"
       trailing={
         <>
+          {/* Figma 홈 Top Navigation(3147:146294)의 아이콘은 설정·검색·알림 3개 순서다 */}
+          <TopNavigationButton
+            aria-label="설정"
+            onClick={() => navigate("/settings")}
+            variant="icon"
+          >
+            <IconSetting />
+          </TopNavigationButton>
           <TopNavigationButton aria-label="검색" variant="icon">
             <IconSearch />
           </TopNavigationButton>
