@@ -20,6 +20,7 @@ import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
 import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
+import SearchScreen from "@/features/search/SearchScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
 // satisfies로 선언 시점에 RouteObject 형태를 검사한다.
@@ -111,6 +112,15 @@ const routes = [
             element: <LockersApplyScreen />,
             // 시트만 있는 화면이라 뒤에 Bottom Nav가 비쳐도 Figma(홈 위에 뜨는 시트)와 같다
             path: "/lockers/apply",
+          },
+          {
+            element: <SearchScreen />,
+            // 검색 화면은 Figma에 Bottom Nav가 없고(뒤로가기로 진입한 화면에 복귀) 배경이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/search",
           },
           {
             element: <ChatEntryScreen />,
