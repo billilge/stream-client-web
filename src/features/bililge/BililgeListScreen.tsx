@@ -63,6 +63,7 @@ function BililgeListScreen() {
           // 헤더·토글·필터는 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다
           <Suspense fallback={<BililgeListSkeleton />}>
             <BililgeItemList
+              category={category}
               onRentRequest={(item) => {
                 // 바텀시트를 여는 것(슬라이드 애니메이션)은 즉시 반영하고, 그 안의 휠
                 // 피커(특히 분 60개) 마운트처럼 무거운 작업은 startTransition으로 낮은

@@ -30,18 +30,25 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
   const notice = use(fetchNotice(noticeId));
   const photoCount = notice?.photoCount ?? 0;
 
-  const backButton = (
-    <TopNavigationButton aria-label="뒤로가기" onClick={onBack} variant="icon">
-      <IconChevronLeft />
-    </TopNavigationButton>
-  );
-
   // 사진이 있으면 행사 상세와 같은 방식으로 뒤로가기를 사진 위 오버레이로 그려서 사진이 화면
   // 최상단부터 시작하게 한다(ScreenLayout 헤더 슬롯을 비우면 0px로 접힌다). 사진이 없으면
   // 덮을 이미지가 없어서 기존처럼 흰 배경 헤더를 쓴다.
+  // 오버레이일 때만 화살표를 흰색으로 바꾼다 — 사진 위 그라데이션(PhotoGallery)과 짝을 이루는
+  // 색이라, 흰 배경 헤더에 그대로 쓰면 안 보인다(Figma QA nodeId 2849:60815).
   useScreenHeader(
     notice?.hasThumbnail ? null : (
-      <ScreenHeader leading={backButton} variant="normal" />
+      <ScreenHeader
+        leading={
+          <TopNavigationButton
+            aria-label="뒤로가기"
+            onClick={onBack}
+            variant="icon"
+          >
+            <IconChevronLeft />
+          </TopNavigationButton>
+        }
+        variant="normal"
+      />
     ),
   );
 
@@ -67,7 +74,15 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
           idPrefix={notice.id}
           key={notice.id}
           overlay={
-            <div className="absolute top-4 left-4 z-10">{backButton}</div>
+            <div className="absolute top-4 left-4 z-10">
+              <TopNavigationButton
+                aria-label="뒤로가기"
+                onClick={onBack}
+                variant="icon"
+              >
+                <IconChevronLeft className="text-white" />
+              </TopNavigationButton>
+            </div>
           }
           photoCount={photoCount}
           showCounter

@@ -75,7 +75,7 @@ function EventsDetailContent({
                 onClick={onBack}
                 variant="icon"
               >
-                <IconChevronLeft />
+                <IconChevronLeft className="text-white" />
               </TopNavigationButton>
             </div>
           }

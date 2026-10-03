@@ -23,7 +23,16 @@ function getBottomNavValueFromPath(pathname: string): BottomNavValue {
   const matched = (
     Object.entries(BOTTOM_NAV_PATHS) as [BottomNavValue, string][]
   ).find(([, path]) => path === pathname);
-  return matched?.[0] ?? "home";
+  if (matched) {
+    return matched[0];
+  }
+  // 열린피드백은 "게시판" 탭 소속이지만 상세(모아보기)·글쓰기 화면은 각자 다른 경로
+  // (/feedbacks/:feedbackId, /feedbacks/new)라 위 exact-match로는 안 잡힌다 — 진입 시에도
+  // 계속 "게시판"이 활성으로 보여야 한다(Figma QA nodeId 2849:56863).
+  if (pathname.startsWith("/feedbacks")) {
+    return "board";
+  }
+  return "home";
 }
 
 // 화면 전체 배경. 카드형 화면(빌릴게·신청서)은 흰 카드가 뜨도록 회색 여백(alternative)이 필요하고,

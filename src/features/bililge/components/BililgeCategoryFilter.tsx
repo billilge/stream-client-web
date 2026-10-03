@@ -16,7 +16,8 @@ interface BililgeCategoryFilterProps {
 }
 
 // Figma: 빌릴게 Filter Row (nodeId 1243:73337) — 칩 자체는 행사 화면과 공유하는 FilterChipGroup을 쓴다.
-// 카테고리·물품 매핑 API가 아직 없어 필터링 없이 선택 상태만 표시한다.
+// 실제 목록 필터링은 BililgeItemList가 물품 데이터의 category 필드를 기준으로 한다
+// (entities/bililge/bililgeMock.ts 참고) — 이 컴포넌트는 선택 상태 표시·onChange 전달만 맡는다.
 function BililgeCategoryFilter({
   value,
   onChange,
