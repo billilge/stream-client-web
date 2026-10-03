@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
+import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
-import EventsCompleteCheck from "@/features/events/components/EventsCompleteCheck";
 import EventsSummaryCard from "@/features/events/components/EventsSummaryCard";
 import { EVENTS_APPLICATION } from "@/features/events/constants/eventsApplication";
 
@@ -17,7 +17,7 @@ function EventsApplicationCompleteScreen() {
   return (
     <ResultScreen
       description="신청해 주셔서 감사해요. 행사날 뵐게요!"
-      illustration={<EventsCompleteCheck />}
+      illustration={<CompleteCheck />}
       illustrationGap={8}
       // 신청이 끝난 화면이라 닫으면 폼으로 돌아가지 않고 홈으로 나간다
       onClose={() => navigate("/")}
