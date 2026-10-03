@@ -16,6 +16,8 @@ import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
 import HomeScreen from "@/features/home/HomeScreen";
+import LockersApplyCompleteScreen from "@/features/lockers/LockersApplyCompleteScreen";
+import LockersApplyFailureScreen from "@/features/lockers/LockersApplyFailureScreen";
 import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
 import LockersLockerSelectScreen from "@/features/lockers/LockersLockerSelectScreen";
 import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
@@ -142,6 +144,24 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/lockers/apply/sections/:sectionId",
+          },
+          {
+            element: <LockersApplyCompleteScreen />,
+            // 신청 결과 화면 — 행사 신청 결과와 같이 하단 탭 없이 흰 배경 전체 화면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/lockers/apply/sections/:sectionId/complete",
+          },
+          {
+            element: <LockersApplyFailureScreen />,
+            // 신청 결과 화면 — 완료 화면과 같다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/lockers/apply/sections/:sectionId/failure/:reason",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           { element: <ComingSoonScreen />, path: "*" },

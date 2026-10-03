@@ -4,7 +4,9 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import ComingSoonScreen from "@/app/ComingSoonScreen";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
 import LockersLockerLegend from "@/features/lockers/components/LockersLockerLegend";
@@ -13,11 +15,13 @@ import LockersLockerMinimap, {
 } from "@/features/lockers/components/LockersLockerMinimap";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelectedLockerBar";
+import { LOCKERS_APPLY_SUBMITTING_TEXT } from "@/features/lockers/constants/lockersApplySubmit";
 import {
   LOCKERS_SECTION_DETAILS,
   type LockersSectionDetail,
 } from "@/features/lockers/constants/lockersSectionDetails";
 import { LOCKERS_SECTION_PHOTO_PINS } from "@/features/lockers/constants/lockersSectionPhotoPins";
+import { useLockersApplySubmit } from "@/features/lockers/hooks/useLockersApplySubmit";
 import { useLockersPinchZoom } from "@/features/lockers/hooks/useLockersPinchZoom";
 
 // 배치 영역 안쪽 여백(px-5, pb-5) — 미니맵에 보이는 영역을 배치 기준으로 계산할 때 뺀다
@@ -53,6 +57,8 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
     number | null
   >(null);
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const { isSubmitting, submit } = useLockersApplySubmit(detail.section);
   const [minimap, setMinimap] = useState<MinimapState | null>(null);
   const [scrollerWidth, setScrollerWidth] = useState<number>();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -201,9 +207,8 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
       </div>
 
       <LockersSelectedLockerBar
-        // 신청 API가 아직 없어서 누를 곳만 열어둔다
-        onSubmit={() => {}}
         lockerLabel={selectedLocker?.lockerLabel ?? null}
+        onSubmit={() => setIsConfirmOpen(true)}
       />
 
       <LockersSectionPhotoModal
@@ -213,6 +218,32 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
         photoUrl={detail.photoUrl}
         pins={LOCKERS_SECTION_PHOTO_PINS[detail.section] ?? []}
         sectionName={detail.section}
+      />
+
+      {/* Figma: 사물함 선택 확인 모달 (nodeId 1737:218322) */}
+      <ConfirmModal
+        cancelLabel="수정"
+        confirmLabel="신청하기"
+        description="신청 후에는 변경할 수 없어요."
+        highlight={selectedLocker?.lockerLabel}
+        onCancel={() => setIsConfirmOpen(false)}
+        onConfirm={() => {
+          setIsConfirmOpen(false);
+          if (selectedLocker) {
+            submit({
+              lockerId: selectedLocker.lockerId,
+              lockerLabel: selectedLocker.lockerLabel,
+            });
+          }
+        }}
+        open={isConfirmOpen}
+        title="사물함을 신청할까요?"
+      />
+
+      <SubmittingOverlay
+        description={LOCKERS_APPLY_SUBMITTING_TEXT.description}
+        open={isSubmitting}
+        title={LOCKERS_APPLY_SUBMITTING_TEXT.title}
       />
     </div>
   );
