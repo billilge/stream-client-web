@@ -8,6 +8,7 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import type { NoticeCategory } from "@/entities/notices/types";
 import NoticesList from "@/features/notices/components/NoticesList";
 import NoticesListSkeleton from "@/features/notices/components/NoticesListSkeleton";
+import { getSearchPath } from "@/features/search/constants/search";
 
 type NoticeTab = "all" | "general" | "partnership";
 
@@ -34,7 +35,11 @@ function NoticesListScreen() {
       }}
       trailing={
         <>
-          <TopNavigationButton aria-label="검색" variant="icon">
+          <TopNavigationButton
+            aria-label="검색"
+            onClick={() => navigate(getSearchPath("notices"))}
+            variant="icon"
+          >
             <IconSearch />
           </TopNavigationButton>
           <TopNavigationButton aria-label="알림" variant="icon">

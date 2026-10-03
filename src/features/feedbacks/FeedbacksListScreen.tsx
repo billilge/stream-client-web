@@ -14,7 +14,6 @@ import {
   useState,
 } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
@@ -25,6 +24,7 @@ import {
   FEEDBACK_ROUND_FILTERS,
   FEEDBACKS,
 } from "@/features/feedbacks/constants/feedbacks";
+import { getSearchPath } from "@/features/search/constants/search";
 
 // 카드 한 장이 차지하는 가로 길이(카드끼리 gap이 없어서 카드 폭 그 자체다). 카드가 캐러셀
 // 폭에 꽉 차는 크기라 뷰포트마다 실제 폭이 다르기 때문에 상수로 박아두면 한쪽에서 점이
@@ -365,7 +365,11 @@ function FeedbacksListScreen() {
       }}
       trailing={
         <>
-          <TopNavigationButton aria-label="검색" variant="icon">
+          <TopNavigationButton
+            aria-label="검색"
+            onClick={() => navigate(getSearchPath("feedbacks"))}
+            variant="icon"
+          >
             <IconSearch />
           </TopNavigationButton>
           <TopNavigationButton aria-label="알림" variant="icon">
