@@ -7,9 +7,9 @@ import {
 import { IconClose } from "@wanteddev/wds-icon";
 import { useNavigate } from "react-router-dom";
 
+import CompleteCheck from "@/components/ui/CompleteCheck";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import EventsCompleteCheck from "@/features/events/components/EventsCompleteCheck";
 import EventsSummaryCard from "@/features/events/components/EventsSummaryCard";
 import { EVENTS_APPLICATION } from "@/features/events/constants/eventsApplication";
 
@@ -42,7 +42,7 @@ function EventsApplicationCompleteScreen() {
     <div className="flex h-full flex-col justify-between bg-background-normal">
       <div className="flex flex-col gap-6 px-5 pt-[104px]">
         <div className="flex flex-col items-center gap-2">
-          <EventsCompleteCheck />
+          <CompleteCheck />
           <div className="flex flex-col items-center gap-1 text-center">
             <Typography
               as="p"

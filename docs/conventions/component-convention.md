@@ -79,7 +79,7 @@ Figma Motion(키프레임 타임라인)이 붙은 요소는 키프레임을 손�
 
 - **export**: Figma Dev mode에는 Lottie export가 없다. LottieFiles 플러그인에서 **키프레임이 붙은 프레임을 선택**하고 Export 탭 → Preview 확인 후 json으로 받는다. 화면 전체 프레임이 아니라 모션 프레임을 골라야 한다(예: `행사 로딩 1133:43453`이 아니라 `Loading / Document Review 1133:44260`).
   - hidden 레이어와 boolean 연산(union/intersect/exclude)은 export에서 빠진다. Preview에 안 보이면 이걸 먼저 의심한다.
-- **파일 위치**: `src/assets/lottie/<기능>/<이름>.json`. 이미지·아이콘과 같은 이유로 저장소에 커밋한다.
+- **파일 위치**: `src/assets/lottie/<기능>/<이름>.json`. 이미지·아이콘과 같은 이유로 저장소에 커밋한다. 여러 기능이 같은 Figma 메인 컴포넌트의 모션을 쓰면 `src/assets/lottie/common/`에 한 벌만 두고, 재생 컴포넌트도 `src/components/ui/`로 올린다(예: 완료 체크 `Circle Check Motion 1712:192849` → `common/complete-check.json` + `CompleteCheck.tsx`). json을 기능별로 복사하면 디자이너가 모션을 고칠 때 재export를 몇 번씩 해야 한다.
 - **컴포넌트**: `lottie-react`의 **`LottieLight`**를 쓴다. `Lottie`(풀 빌드)는 canvas·HTML 렌더러와 `eval` 기반 표현식 엔진까지 끌고 와서 번들이 224KB(gzip 43KB) 커지고, 출하 번들에 `eval`이 남아 WebView CSP에서 깨질 수 있다. Figma에서 나온 Lottie는 표현식을 쓰지 않으므로 SVG 렌더러만 있으면 된다.
 - **문구는 Lottie에 넣지 않는다**: export 원본에 텍스트가 포함돼 있으면 그 레이어를 빼고 컴포지션을 일러스트 경계로 자른 뒤, 문구는 `Typography`로 따로 그린다. Lottie 안의 텍스트는 벡터 도형이라 스크린리더가 못 읽고 타이포 토큰도 안 따라간다. **어떤 레이어를 왜 뺐는지와 잘라낸 크기를 컴포넌트 주석에 남긴다** — 재export 때 같은 가공을 다시 해야 한다.
 - **모션 줄이기**: `usePrefersReducedMotion()`으로 판단해 `autoplay={false}` + `segment={[n, n + 1]}`로 다 그려진 프레임 한 장만 세운다. `autoplay`를 켠 채로 두면 lottie-react가 알아서 막긴 하지만 개발 콘솔에 경고를 남기므로 우리가 먼저 끈다. CSS transition으로 끌 수 있는 자리(`ConfirmModal` 등)는 Tailwind `motion-reduce:` 변형을 그대로 쓴다.
