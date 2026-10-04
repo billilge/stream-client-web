@@ -22,7 +22,8 @@ import { WITHDRAWAL_NOTICES } from "@/features/settings/constants/settings";
 // 활성 Status/Negative #FF4242), 누르면 확인 모달이 뜬다. WDS Button은 color가
 // primary/assistive뿐이라 빨간 버튼은 ConfirmModal과 같은 방식으로 sx로 배경을 덮는다.
 //
-// 모달에서 탈퇴를 확정했을 때 갈 완료 화면은 아직 없다 — 지금은 모달만 닫는다.
+// 모달에서 탈퇴를 확정하면 탈퇴 완료 페이지(3524:152505)로 넘어간다. 실제 탈퇴 API 호출은
+// 연동할 때 onConfirm에 붙인다.
 function WithdrawalScreen() {
   const navigate = useNavigate();
   const consentId = useId();
@@ -119,7 +120,10 @@ function WithdrawalScreen() {
           "탈퇴하면 삭제된 회원 정보와\n이용 내역은 다시 복구할 수 없어요."
         }
         onCancel={() => setConfirmOpen(false)}
-        onConfirm={() => setConfirmOpen(false)}
+        // 탈퇴를 확정하면 되돌아올 화면이 아니라 완료 화면으로 치환한다
+        onConfirm={() =>
+          navigate("/settings/withdraw/complete", { replace: true })
+        }
         open={confirmOpen}
         title="정말 탈퇴하시겠어요?"
         tone="negative"

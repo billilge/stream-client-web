@@ -23,6 +23,7 @@ import NoticesListScreen from "@/features/notices/NoticesListScreen";
 import NotificationSettingsScreen from "@/features/settings/NotificationSettingsScreen";
 import PhoneChangeScreen from "@/features/settings/PhoneChangeScreen";
 import SettingsScreen from "@/features/settings/SettingsScreen";
+import WithdrawalCompleteScreen from "@/features/settings/WithdrawalCompleteScreen";
 import WithdrawalScreen from "@/features/settings/WithdrawalScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
@@ -145,6 +146,15 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/settings/withdraw",
+          },
+          {
+            element: <WithdrawalCompleteScreen />,
+            // 완료 화면 — 하단 탭 없이 흰 배경 전체 화면이다(Figma 3524:152505)
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/settings/withdraw/complete",
           },
           {
             element: <LockersApplyScreen />,
