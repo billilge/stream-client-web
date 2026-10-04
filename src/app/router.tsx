@@ -23,6 +23,7 @@ import NoticesListScreen from "@/features/notices/NoticesListScreen";
 import NotificationSettingsScreen from "@/features/settings/NotificationSettingsScreen";
 import PhoneChangeScreen from "@/features/settings/PhoneChangeScreen";
 import SettingsScreen from "@/features/settings/SettingsScreen";
+import WithdrawalScreen from "@/features/settings/WithdrawalScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
 // satisfies로 선언 시점에 RouteObject 형태를 검사한다.
@@ -134,6 +135,16 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/settings/phone",
+          },
+          {
+            element: <WithdrawalScreen />,
+            // 안내 카드가 회색이라 화면은 흰 면이어야 한다(Figma 3524:152473).
+            // 하단 고정 버튼(Action Area)이 있어 Bottom Nav는 없다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/settings/withdraw",
           },
           {
             element: <LockersApplyScreen />,

@@ -19,8 +19,8 @@ import {
 //
 // 의견 보내기·개인정보 처리방침은 화면을 따로 만들지 않고 구글폼으로 연결한다(폼 주소가 아직
 // 없어서 SETTINGS_EXTERNAL_LINKS가 빈 문자열이면 아무 동작도 하지 않는다).
-// 회원 탈퇴는 Figma에 누른 뒤 화면·모달이 없어서 행만 그리고 동작은 비워뒀다 — 로그아웃만
-// 확인 모달(1799:87183)이 그려져 있어 공용 ConfirmModal(tone="negative")로 붙였다.
+// 로그아웃은 확인 모달(1799:87183)을 공용 ConfirmModal(tone="negative")로 붙였고,
+// 회원 탈퇴는 별도 화면(3524:152473)으로 이동한다.
 function SettingsScreen() {
   const navigate = useNavigate();
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -99,7 +99,11 @@ function SettingsScreen() {
             onClick={() => setLogoutOpen(true)}
             tone="alternative"
           />
-          <SettingsRow arrow label="회원 탈퇴" tone="negative" />
+          <SettingsRow
+            label="회원 탈퇴"
+            onClick={() => navigate("/settings/withdraw")}
+            tone="negative"
+          />
         </SettingsSection>
       </div>
 

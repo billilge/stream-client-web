@@ -49,3 +49,38 @@ export const NOTIFICATION_CATEGORIES: NotificationCategory[] = [
     title: "사물함 알림",
   },
 ];
+
+interface WithdrawalNotice {
+  id: string;
+  title: string;
+  description: string;
+}
+
+// Figma: 탈퇴 확인 페이지 Withdrawal Notice List(nodeId 3524:152481) 순서·문구 그대로.
+// 렌더마다 배열을 다시 만들지 않도록 모듈 스코프 상수로 둔다.
+export const WITHDRAWAL_NOTICES: WithdrawalNotice[] = [
+  {
+    description:
+      "탈퇴 시 계정 및 회원 정보가 삭제되며, 삭제된 정보는 다시 복구할 수 없어요.",
+    id: "account-deletion",
+    title: "회원 정보가 삭제돼요",
+  },
+  {
+    description:
+      "신청 중인 행사나 이용 중인 복지 서비스가 있다면 탈퇴 후 이용이 어려울 수 있어요.",
+    id: "active-services",
+    title: "이용 내역을 확인해 주세요",
+  },
+  {
+    description:
+      "탈퇴 전에 작성한 열린피드백은 탈퇴 후에도 삭제되지 않고 유지돼요.",
+    id: "feedback-retained",
+    title: "작성한 열린피드백은 남아 있어요",
+  },
+  {
+    description:
+      "탈퇴 후 재가입하더라도 기존 계정의 활동 및 이용 내역은 다시 불러올 수 없어요.",
+    id: "records-not-restored",
+    title: "다시 가입해도 이전 기록은 복구되지 않아요",
+  },
+];
