@@ -1,9 +1,11 @@
-import { TopNavigationButton } from "@wanteddev/wds";
-import { IconBell, IconSearch } from "@wanteddev/wds-icon";
+import { PushBadge, TopNavigationButton } from "@wanteddev/wds";
+import { IconBell, IconSearch, IconSetting } from "@wanteddev/wds-icon";
 import { Link, useNavigate } from "react-router-dom";
 import chatbotIcon from "@/assets/icons/chat/bot.svg";
+import logo from "@/assets/icons/home/logo.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { HOME_HAS_UNREAD_NOTIFICATION } from "@/features/home/constants/homeMock";
 
 // 홈 화면 콘텐츠는 아직 없어서, 라우팅이 실제로 동작하는지 확인할 placeholder만 둔다.
 // 챗봇 FAB(Figma nodeId 2443:178457 등, 홈 화면 variant마다 우하단에 고정)만 먼저 구현한다 —
@@ -12,16 +14,26 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 function HomeScreen() {
   const navigate = useNavigate();
 
+  // Figma: Top Navigation State=Home (nodeId 547:31364), 알림 있을 때 (3147:146473)
   useScreenHeader(
     <ScreenHeader
-      title="STREAM"
+      title={<img alt="stream" className="h-8 w-28" src={logo} />}
       trailing={
         <>
+          <TopNavigationButton aria-label="설정" variant="icon">
+            <IconSetting />
+          </TopNavigationButton>
           <TopNavigationButton aria-label="검색" variant="icon">
             <IconSearch />
           </TopNavigationButton>
           <TopNavigationButton aria-label="알림" variant="icon">
-            <IconBell />
+            <PushBadge
+              invisible={!HOME_HAS_UNREAD_NOTIFICATION}
+              position="top-right"
+              variant="dot"
+            >
+              <IconBell />
+            </PushBadge>
           </TopNavigationButton>
         </>
       }
