@@ -1,10 +1,11 @@
 import { PushBadge, TopNavigationButton } from "@wanteddev/wds";
 import { IconBell, IconSearch, IconSetting } from "@wanteddev/wds-icon";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import logo from "@/assets/icons/home/logo.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
-import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import HomeAppliedEventSection from "@/features/home/components/HomeAppliedEventSection";
 import HomeApplyCard from "@/features/home/components/HomeApplyCard";
 import HomeNoticeBanner from "@/features/home/components/HomeNoticeBanner";
 import HomeRentalSection from "@/features/home/components/HomeRentalSection";
@@ -20,45 +21,60 @@ import {
 function HomeScreen() {
   const navigate = useNavigate();
 
-  // Figma: Top Navigation State=Home (nodeId 547:31364), 알림 있을 때 (3147:146473)
-  useScreenHeader(
-    <ScreenHeader
-      title={<img alt="stream" className="h-8 w-28" src={logo} />}
-      trailing={
-        <>
-          <TopNavigationButton aria-label="설정" variant="icon">
-            <IconSetting />
-          </TopNavigationButton>
-          <TopNavigationButton aria-label="검색" variant="icon">
-            <IconSearch />
-          </TopNavigationButton>
-          <TopNavigationButton aria-label="알림" variant="icon">
-            <PushBadge
-              invisible={!HOME_HAS_UNREAD_NOTIFICATION}
-              position="top-right"
-              variant="dot"
-            >
-              <IconBell />
-            </PushBadge>
-          </TopNavigationButton>
-        </>
-      }
-    />,
-  );
+  const [isScrolled, setIsScrolled] = useState(false);
 
   return (
     <div className="relative flex h-full flex-col">
-      <div className="scrollbar-hidden flex flex-1 flex-col gap-3 overflow-y-auto pt-0.5 pb-4">
-        <HomeNoticeBanner notices={HOME_MOCK_DATA.notices} />
-        {HOME_MOCK_DATA.applyCards.length > 0 && (
-          <div className="flex flex-col gap-3 px-5">
-            {HOME_MOCK_DATA.applyCards.map((card) => (
-              <HomeApplyCard card={card} key={card.id} />
-            ))}
+      {/* 스크롤 영역 자체를 flex로 두면 내용이 길 때 섹션이 줄어들어서(배너 가로 스크롤 영역은 최소 높이가 0) 안쪽에서 쌓는다 */}
+      <div
+        className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto"
+        onScroll={(event) => setIsScrolled(event.currentTarget.scrollTop > 0)}
+      >
+        {/* Figma: Top Navigation State=Home (nodeId 547:31364), 알림 있을 때 (3147:146473)
+            홈만 헤더를 스크롤 영역 안에 둔다. Figma는 헤더 배경이 없어 배너 그림자가 헤더까지 번지는데,
+            레이아웃 헤더 슬롯에 두면 그 경계에서 그림자가 잘려 선이 생긴다. 스크롤하면 배경을 깔아
+            지나가는 내용과 겹치지 않게 한다. */}
+        <div
+          className={`sticky top-0 z-10 transition-colors ${isScrolled ? "bg-background-alternative" : ""}`}
+        >
+          <ScreenHeader
+            title={<img alt="stream" className="h-8 w-28" src={logo} />}
+            trailing={
+              <>
+                <TopNavigationButton aria-label="설정" variant="icon">
+                  <IconSetting />
+                </TopNavigationButton>
+                <TopNavigationButton aria-label="검색" variant="icon">
+                  <IconSearch />
+                </TopNavigationButton>
+                <TopNavigationButton aria-label="알림" variant="icon">
+                  <PushBadge
+                    invisible={!HOME_HAS_UNREAD_NOTIFICATION}
+                    position="top-right"
+                    variant="dot"
+                  >
+                    <IconBell />
+                  </PushBadge>
+                </TopNavigationButton>
+              </>
+            }
+          />
+        </div>
+        <div className="flex flex-col gap-3 pt-0.5 pb-4">
+          <HomeNoticeBanner notices={HOME_MOCK_DATA.notices} />
+          {HOME_MOCK_DATA.applyCards.length > 0 && (
+            <div className="flex flex-col gap-3 px-5">
+              {HOME_MOCK_DATA.applyCards.map((card) => (
+                <HomeApplyCard card={card} key={card.id} />
+              ))}
+            </div>
+          )}
+          <div className="px-5">
+            <HomeRentalSection rentals={HOME_MOCK_DATA.rentals} />
           </div>
-        )}
-        <div className="px-5">
-          <HomeRentalSection rentals={HOME_MOCK_DATA.rentals} />
+          <div className="px-5">
+            <HomeAppliedEventSection events={HOME_MOCK_DATA.appliedEvents} />
+          </div>
         </div>
       </div>
       <button

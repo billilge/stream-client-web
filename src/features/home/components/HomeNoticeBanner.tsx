@@ -136,7 +136,8 @@ function getStep(scroller: HTMLElement) {
 // 마지막 카드 오른쪽에 첫 카드 복제본을 두어 끝에서도 같은 방향으로 이어지고, 복제본에 멈추면
 // 진짜 첫 카드 위치로 순간 이동한다.
 // 카드 폭은 화면 폭 - 40이라 화면이 넓어져도 다음 카드는 12px만 보인다(Figma 375 기준 335).
-// 가로 스크롤 영역이 카드 그림자(Shadow/Spread/Small)를 자르지 않게 위아래로 12px(섹션 간격) 넓힌다.
+// 가로 스크롤 영역이 카드 그림자(Shadow/Spread/Small, 60px)를 자르지 않게 위아래로 60px 넓힌다.
+// 넓힌 자리는 아래 섹션 밑으로 깔려서 아래 섹션 터치를 막지 않는다.
 function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -190,7 +191,7 @@ function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
 
   return (
     <div
-      className={`scrollbar-hidden -my-3 flex gap-2 px-5 py-3 ${canSlide ? "snap-x snap-mandatory scroll-px-5 overflow-x-auto" : "overflow-hidden"}`}
+      className={`scrollbar-hidden -my-[60px] flex gap-2 px-5 py-[60px] ${canSlide ? "snap-x snap-mandatory scroll-px-5 overflow-x-auto" : "overflow-hidden"}`}
       ref={scrollerRef}
     >
       {items.map((notice, index) => (
