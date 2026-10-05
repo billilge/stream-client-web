@@ -63,6 +63,9 @@
      정확히 일치한다 — 이름이 아니라 실측 hex를 기준으로 확정했다(Semantic/Primary/Normal은
      #0066FF로 다른 값). */
   --color-progress-fill: var(--atomic-blue-60);
+
+  /* 홈 공지 배너 일반공지 템플릿 배경. Figma에서도 변수가 아니라 raw #f5f9ff다(nodeId 3147:146244). */
+  --color-notice-banner-general: #f5f9ff;
 }
 
 /* iOS 노치·홈 인디케이터 자리. index.html의 viewport-fit=cover와 한 쌍이다.

@@ -1,14 +1,18 @@
 import { PushBadge, TopNavigationButton } from "@wanteddev/wds";
 import { IconBell, IconSearch, IconSetting } from "@wanteddev/wds-icon";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import logo from "@/assets/icons/home/logo.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { HOME_HAS_UNREAD_NOTIFICATION } from "@/features/home/constants/homeMock";
+import HomeNoticeBanner from "@/features/home/components/HomeNoticeBanner";
+import {
+  HOME_HAS_UNREAD_NOTIFICATION,
+  HOME_MOCK_DATA,
+} from "@/features/home/constants/homeMock";
 
-// 홈 화면 콘텐츠는 아직 없어서, 라우팅이 실제로 동작하는지 확인할 placeholder만 둔다.
-// 챗봇 FAB(Figma nodeId 2443:178457 등, 홈 화면 variant마다 우하단에 고정)만 먼저 구현한다 —
+// Figma: 홈 2건 이하 (nodeId 3147:146240), 3건 이상 (3147:146297), empty (3147:146366)
+// 챗봇 FAB(Figma nodeId 2443:178457 등, 홈 화면 variant마다 우하단에 고정) —
 // 우측 20px·바텀 내비 위 24px 고정 위치는 Figma에서 홈 variant별로 다른 화면 높이에서도
 // Bottom Nav 상단과의 간격이 항상 24px로 일정한 걸 좌표로 확인해서 얻은 값이다.
 function HomeScreen() {
@@ -42,13 +46,8 @@ function HomeScreen() {
 
   return (
     <div className="relative flex h-full flex-col">
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 py-20">
-        <p className="text-label-alternative text-sm">
-          홈 화면은 아직 준비 중이에요
-        </p>
-        <Link className="text-primary text-sm underline" to="/bililge">
-          빌릴게 화면 보기
-        </Link>
+      <div className="scrollbar-hidden flex flex-1 flex-col gap-3 overflow-y-auto pt-0.5 pb-4">
+        <HomeNoticeBanner notices={HOME_MOCK_DATA.notices} />
       </div>
       <button
         aria-label="챗봇 열기"
