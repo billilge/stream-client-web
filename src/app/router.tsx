@@ -29,8 +29,14 @@ const routes = [
     children: [
       {
         children: [
-          { element: <HomeScreen />, path: "/" },
-          { element: <BililgeListScreen />, path: "/bililge" },
+          {
+            element: <HomeScreen />,
+            path: "/",
+          },
+          {
+            element: <BililgeListScreen />,
+            path: "/bililge",
+          },
           {
             element: <EventsListScreen />,
             // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
@@ -134,7 +140,10 @@ const routes = [
             path: "/lockers/apply/sections",
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
-          { element: <ComingSoonScreen />, path: "*" },
+          {
+            element: <ComingSoonScreen />,
+            path: "*",
+          },
         ],
         element: <ScreenLayoutRoute />,
       },

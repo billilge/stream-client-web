@@ -96,7 +96,10 @@ function EventsApplicationScreen() {
     }
     // 제출이 끝난 폼으로는 돌아갈 수 없어야 해서 히스토리를 남기지 않고 바꿔치운다
     const resultPath = result === "closed" ? "closed" : "complete";
-    navigate(`/events/${eventId}/apply/${resultPath}`, { replace: true });
+    navigate(`/events/${eventId}/apply/${resultPath}`, {
+      replace: true,
+      viewTransition: true,
+    });
   };
 
   useScreenHeader(
