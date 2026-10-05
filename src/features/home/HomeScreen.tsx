@@ -7,6 +7,7 @@ import logo from "@/assets/icons/home/logo.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import HomeAppliedEventSection from "@/features/home/components/HomeAppliedEventSection";
 import HomeApplyCard from "@/features/home/components/HomeApplyCard";
+import HomeArchiveBanner from "@/features/home/components/HomeArchiveBanner";
 import HomeInfoList from "@/features/home/components/HomeInfoList";
 import HomeNoticeBanner from "@/features/home/components/HomeNoticeBanner";
 import HomeRentalSection from "@/features/home/components/HomeRentalSection";
@@ -78,6 +79,9 @@ function HomeScreen() {
           </div>
           <div className="px-5">
             <HomeInfoList myInfo={HOME_MOCK_DATA.myInfo} />
+          </div>
+          <div className="px-5">
+            <HomeArchiveBanner />
           </div>
         </div>
       </div>

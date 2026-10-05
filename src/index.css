@@ -71,6 +71,9 @@
   --color-notice-banner-partnership: #f4fcfc;
   --color-notice-banner-locker: #fff8f4;
   --color-notice-banner-snack: #fdfaec;
+
+  /* 홈 아카이빙 둘러보기 배너 그라데이션 끝색. Figma에서도 변수가 아니라 raw 값이다(nodeId 3147:146288). */
+  --color-archive-cta-fade: rgb(199 221 255 / 0.1);
 }
 
 /* iOS 노치·홈 인디케이터 자리. index.html의 viewport-fit=cover와 한 쌍이다.
