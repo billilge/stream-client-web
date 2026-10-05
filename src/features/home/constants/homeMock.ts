@@ -5,8 +5,14 @@ import umbrella from "@/assets/icons/bililge-items/umbrella.svg";
 // 홈 API가 붙기 전까지 쓰는 목데이터다.
 export const HOME_HAS_UNREAD_NOTIFICATION = true;
 
-// 공지 배너 템플릿. 지금은 일반공지 하나이고, 종류가 늘면 여기에 추가한다.
-export type HomeNoticeTemplate = "general";
+// 공지 배너 템플릿 — 공지마다 그림을 따로 받지 않고 종류별 그림을 쓴다(Figma 3562:163869)
+export type HomeNoticeTemplate =
+  | "general"
+  | "event"
+  | "partnership"
+  | "locker"
+  | "snack"
+  | "feedback";
 
 export interface HomeNotice {
   id: string;
@@ -65,20 +71,32 @@ const NOTICES: HomeNotice[] = [
   {
     id: "notice-2",
     subtitle: "여긴 부제목이 들어가요",
-    template: "general",
+    template: "event",
     title: "2026-02 슬랑제 신청 안내",
   },
   {
     id: "notice-3",
     subtitle: "여긴 부제목이 들어가요",
-    template: "general",
-    title: "기말고사 간식행사 안내",
+    template: "partnership",
+    title: "ECHO X 해커스토익 제휴 안내",
   },
   {
     id: "notice-4",
     subtitle: "여긴 부제목이 들어가요",
-    template: "general",
-    title: "학생회비 납부 안내",
+    template: "locker",
+    title: "2026년도 사물함 신청 안내",
+  },
+  {
+    id: "notice-5",
+    subtitle: "여긴 부제목이 들어가요",
+    template: "snack",
+    title: "2026-02 기말고사 간식행사",
+  },
+  {
+    id: "notice-6",
+    subtitle: "여러분의 의견을 들려 주세요",
+    template: "feedback",
+    title: "stream에 바라는 점이 있다면?",
   },
 ];
 

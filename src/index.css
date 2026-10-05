@@ -64,8 +64,13 @@
      #0066FF로 다른 값). */
   --color-progress-fill: var(--atomic-blue-60);
 
-  /* 홈 공지 배너 일반공지 템플릿 배경. Figma에서도 변수가 아니라 raw #f5f9ff다(nodeId 3147:146244). */
+  /* 홈 공지 배너 템플릿별 배경. Figma에서도 변수가 아니라 raw hex다(nodeId 3562:163869).
+     의견·설문(feedback) 템플릿은 일반공지와 같은 색이다. */
   --color-notice-banner-general: #f5f9ff;
+  --color-notice-banner-event: #f7f3ff;
+  --color-notice-banner-partnership: #f4fcfc;
+  --color-notice-banner-locker: #fff8f4;
+  --color-notice-banner-snack: #fdfaec;
 }
 
 /* iOS 노치·홈 인디케이터 자리. index.html의 viewport-fit=cover와 한 쌍이다.
