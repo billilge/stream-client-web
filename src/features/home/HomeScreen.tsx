@@ -40,7 +40,11 @@ function HomeScreen() {
           className={`sticky top-0 z-10 transition-colors ${isScrolled ? "bg-background-alternative" : ""}`}
         >
           <ScreenHeader
-            title={<img alt="stream" className="h-8 w-28" src={logo} />}
+            title={
+              <h2>
+                <img alt="stream" className="h-8 w-28" src={logo} />
+              </h2>
+            }
             trailing={
               <>
                 <TopNavigationButton aria-label="설정" variant="icon">
@@ -64,24 +68,27 @@ function HomeScreen() {
         </div>
         <div className="flex flex-col gap-3 pt-0.5 pb-4">
           <HomeNoticeBanner notices={HOME_MOCK_DATA.notices} />
-          {HOME_MOCK_DATA.applyCards.length > 0 && (
-            <div className="flex flex-col gap-3 px-5">
-              {HOME_MOCK_DATA.applyCards.map((card) => (
-                <HomeApplyCard card={card} key={card.id} />
-              ))}
+          {/* 배너 카드(relative)가 뒤 섹션보다 나중에 그려져 그림자가 덮지 않게 뒤 섹션도 relative로 둔다 */}
+          <div className="relative flex flex-col gap-3">
+            {HOME_MOCK_DATA.applyCards.length > 0 && (
+              <div className="flex flex-col gap-3 px-5">
+                {HOME_MOCK_DATA.applyCards.map((card) => (
+                  <HomeApplyCard card={card} key={card.id} />
+                ))}
+              </div>
+            )}
+            <div className="px-5">
+              <HomeRentalSection rentals={HOME_MOCK_DATA.rentals} />
             </div>
-          )}
-          <div className="px-5">
-            <HomeRentalSection rentals={HOME_MOCK_DATA.rentals} />
-          </div>
-          <div className="px-5">
-            <HomeAppliedEventSection events={HOME_MOCK_DATA.appliedEvents} />
-          </div>
-          <div className="px-5">
-            <HomeInfoList myInfo={HOME_MOCK_DATA.myInfo} />
-          </div>
-          <div className="px-5">
-            <HomeArchiveBanner />
+            <div className="px-5">
+              <HomeAppliedEventSection events={HOME_MOCK_DATA.appliedEvents} />
+            </div>
+            <div className="px-5">
+              <HomeInfoList myInfo={HOME_MOCK_DATA.myInfo} />
+            </div>
+            <div className="px-5">
+              <HomeArchiveBanner />
+            </div>
           </div>
         </div>
       </div>

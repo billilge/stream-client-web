@@ -78,13 +78,21 @@ interface HomeNoticeCardProps {
   notice: HomeNotice;
   index: number;
   total: number;
+  // 마지막 카드 뒤에 붙는 첫 카드 복제본 — 스크린리더가 두 번 읽지 않게 숨긴다
+  isClone?: boolean;
 }
 
-function HomeNoticeCard({ notice, index, total }: HomeNoticeCardProps) {
+function HomeNoticeCard({
+  notice,
+  index,
+  total,
+  isClone,
+}: HomeNoticeCardProps) {
   const template = NOTICE_TEMPLATES[notice.template];
 
   return (
     <div
+      aria-hidden={isClone}
       className={`relative flex h-[261px] w-full shrink-0 snap-start flex-col justify-end overflow-hidden rounded-xl border-[0.5px] border-static-white px-4 py-5 shadow-[0_0_60px_rgba(23,23,23,0.1)] ${template.backgroundClassName}`}
     >
       <img
@@ -132,7 +140,8 @@ function getStep(scroller: HTMLElement) {
   return (scroller.firstElementChild as HTMLElement).offsetWidth + CARD_GAP;
 }
 
-// 5초마다 다음 카드로 넘어가고, 손으로 넘기면 그때부터 다시 5초를 센다. 배너가 하나면 넘기지 않는다.
+// 5초마다 다음 카드로 넘어간다. 누르고 있는 동안은 멈추고, 손을 떼거나 스크롤이 멈추면 다시 5초를 센다.
+// 배너가 하나면 넘기지 않는다.
 // 마지막 카드 오른쪽에 첫 카드 복제본을 두어 끝에서도 같은 방향으로 이어지고, 복제본에 멈추면
 // 진짜 첫 카드 위치로 순간 이동한다.
 // 카드 폭은 화면 폭 - 40이라 화면이 넓어져도 다음 카드는 12px만 보인다(Figma 375 기준 335).
@@ -150,42 +159,72 @@ function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
       return;
     }
 
-    // 스크롤이 멈추면(scrollend 미지원 WebView를 위해 scroll 디바운스) 복제본인지 확인한다
-    let settleTimer = 0;
-    const handleScroll = () => {
-      window.clearTimeout(settleTimer);
-      settleTimer = window.setTimeout(() => {
-        if (
-          Math.round(scroller.scrollLeft / getStep(scroller)) >= items.length
-        ) {
-          scroller.scrollTo({ behavior: "instant", left: 0 });
-        }
-      }, 150);
+    // 복제본 자리면 진짜 첫 카드로 순간 이동한다. 공지 수가 줄어 복제본 자리에 걸린 경우도 여기서 풀린다.
+    const jumpIfClone = () => {
+      if (Math.round(scroller.scrollLeft / getStep(scroller)) >= items.length) {
+        scroller.scrollTo({ behavior: "instant", left: 0 });
+      }
     };
-    scroller.addEventListener("scroll", handleScroll, { passive: true });
 
     let slideTimer = 0;
-    const restartSlide = () => {
-      window.clearInterval(slideTimer);
-      if (prefersReducedMotion) {
+    let isPressing = false;
+    const stopSlide = () => window.clearInterval(slideTimer);
+    const startSlide = () => {
+      stopSlide();
+      if (prefersReducedMotion || isPressing) {
         return;
       }
       slideTimer = window.setInterval(() => {
+        jumpIfClone();
         const step = getStep(scroller);
         const next = Math.round(scroller.scrollLeft / step) + 1;
         scroller.scrollTo({ behavior: "smooth", left: next * step });
       }, AUTO_SLIDE_MS);
     };
-    restartSlide();
-    scroller.addEventListener("pointerdown", restartSlide);
-    scroller.addEventListener("touchstart", restartSlide, { passive: true });
+
+    // 스크롤이 멈추면(scrollend 미지원 WebView를 위해 scroll 디바운스) 복제본을 정리하고 5초를 다시 센다.
+    // 트랙패드·휠처럼 누르지 않고 넘긴 경우도 여기서 다시 센다.
+    let settleTimer = 0;
+    const handleScroll = () => {
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(() => {
+        jumpIfClone();
+        startSlide();
+      }, 150);
+    };
+    const handlePress = () => {
+      isPressing = true;
+      stopSlide();
+    };
+    const handleRelease = () => {
+      if (!isPressing) {
+        return;
+      }
+      isPressing = false;
+      startSlide();
+    };
+
+    jumpIfClone();
+    startSlide();
+    scroller.addEventListener("scroll", handleScroll, { passive: true });
+    scroller.addEventListener("pointerdown", handlePress);
+    scroller.addEventListener("touchstart", handlePress, { passive: true });
+    // 영역 밖에서 손을 떼도 받도록 window에서 듣는다
+    window.addEventListener("pointerup", handleRelease);
+    window.addEventListener("pointercancel", handleRelease);
+    window.addEventListener("touchend", handleRelease);
+    window.addEventListener("touchcancel", handleRelease);
 
     return () => {
       window.clearTimeout(settleTimer);
-      window.clearInterval(slideTimer);
+      stopSlide();
       scroller.removeEventListener("scroll", handleScroll);
-      scroller.removeEventListener("pointerdown", restartSlide);
-      scroller.removeEventListener("touchstart", restartSlide);
+      scroller.removeEventListener("pointerdown", handlePress);
+      scroller.removeEventListener("touchstart", handlePress);
+      window.removeEventListener("pointerup", handleRelease);
+      window.removeEventListener("pointercancel", handleRelease);
+      window.removeEventListener("touchend", handleRelease);
+      window.removeEventListener("touchcancel", handleRelease);
     };
   }, [canSlide, prefersReducedMotion, items.length]);
 
@@ -203,9 +242,12 @@ function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
         />
       ))}
       {canSlide && (
-        <div aria-hidden className="contents">
-          <HomeNoticeCard index={0} notice={items[0]} total={items.length} />
-        </div>
+        <HomeNoticeCard
+          index={0}
+          isClone
+          notice={items[0]}
+          total={items.length}
+        />
       )}
     </div>
   );
