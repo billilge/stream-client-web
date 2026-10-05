@@ -12,6 +12,10 @@ interface BililgeItemCardProps {
   // 강조(SemiBold) 서체로 붙는다 — "수량 28 · "(Regular)에 이어지는 "9/29까지 반납" 부분.
   // 다른 호출부(메인 목록·반납 목록)는 안 넘기면 기존처럼 subtitle 전체가 Regular로 나온다.
   subtitleEmphasis?: string;
+  // 반납 기한이 지나면 부제목이 빨갛다(홈 대여 중인 물품, nodeId 3147:146331)
+  subtitleTone?: "normal" | "negative";
+  // 홈은 흰 카드 안에 줄만 들어가서 카드 틀(배경·모서리·여백)을 끈다
+  surface?: boolean;
   trailingControl?: "button" | "stepper";
   actionLabel?: string;
   onRentRequest?: () => void;
@@ -34,6 +38,8 @@ function BililgeItemCard({
   itemName,
   subtitle,
   subtitleEmphasis,
+  subtitleTone = "normal",
+  surface = true,
   trailingControl = "button",
   actionLabel = "대여 신청",
   onRentRequest,
@@ -45,7 +51,7 @@ function BililgeItemCard({
 
   return (
     <div
-      className={`flex w-full items-center rounded-xl bg-background-normal p-4 ${isStepper ? "border border-line-solid-neutral" : ""}`}
+      className={`flex w-full items-center ${surface ? "rounded-xl bg-background-normal p-4" : ""} ${isStepper ? "border border-line-solid-neutral" : ""}`}
     >
       <div className="flex h-[42px] w-full items-center justify-between">
         <div className="flex items-center gap-3">
@@ -61,7 +67,11 @@ function BililgeItemCard({
             </Typography>
             <Typography
               as="p"
-              color="semantic.label.alternative"
+              color={
+                subtitleTone === "negative"
+                  ? "semantic.status.negative"
+                  : "semantic.label.alternative"
+              }
               variant="caption1"
               weight="regular"
             >

@@ -7,6 +7,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import HomeApplyCard from "@/features/home/components/HomeApplyCard";
 import HomeNoticeBanner from "@/features/home/components/HomeNoticeBanner";
+import HomeRentalSection from "@/features/home/components/HomeRentalSection";
 import {
   HOME_HAS_UNREAD_NOTIFICATION,
   HOME_MOCK_DATA,
@@ -56,6 +57,9 @@ function HomeScreen() {
             ))}
           </div>
         )}
+        <div className="px-5">
+          <HomeRentalSection rentals={HOME_MOCK_DATA.rentals} />
+        </div>
       </div>
       <button
         aria-label="챗봇 열기"
