@@ -7,6 +7,7 @@ import logo from "@/assets/icons/home/logo.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import HomeAppliedEventSection from "@/features/home/components/HomeAppliedEventSection";
 import HomeApplyCard from "@/features/home/components/HomeApplyCard";
+import HomeInfoList from "@/features/home/components/HomeInfoList";
 import HomeNoticeBanner from "@/features/home/components/HomeNoticeBanner";
 import HomeRentalSection from "@/features/home/components/HomeRentalSection";
 import {
@@ -74,6 +75,9 @@ function HomeScreen() {
           </div>
           <div className="px-5">
             <HomeAppliedEventSection events={HOME_MOCK_DATA.appliedEvents} />
+          </div>
+          <div className="px-5">
+            <HomeInfoList myInfo={HOME_MOCK_DATA.myInfo} />
           </div>
         </div>
       </div>
