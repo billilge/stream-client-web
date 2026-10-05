@@ -5,6 +5,7 @@ import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import logo from "@/assets/icons/home/logo.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import HomeApplyCard from "@/features/home/components/HomeApplyCard";
 import HomeNoticeBanner from "@/features/home/components/HomeNoticeBanner";
 import {
   HOME_HAS_UNREAD_NOTIFICATION,
@@ -48,6 +49,13 @@ function HomeScreen() {
     <div className="relative flex h-full flex-col">
       <div className="scrollbar-hidden flex flex-1 flex-col gap-3 overflow-y-auto pt-0.5 pb-4">
         <HomeNoticeBanner notices={HOME_MOCK_DATA.notices} />
+        {HOME_MOCK_DATA.applyCards.length > 0 && (
+          <div className="flex flex-col gap-3 px-5">
+            {HOME_MOCK_DATA.applyCards.map((card) => (
+              <HomeApplyCard card={card} key={card.id} />
+            ))}
+          </div>
+        )}
       </div>
       <button
         aria-label="챗봇 열기"
