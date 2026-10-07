@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -22,10 +22,29 @@ export interface LockersApplyFailureState {
 export function useLockersApplySubmit(sectionId: string) {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // 신청 중 화면은 클릭만 막아서 키보드로 버튼을 다시 누를 수 있다 — 진행 중이면 두 번째 신청을 무시한다
+  const isSubmittingRef = useRef(false);
+  // 신청 중에 기기 뒤로가기로 화면을 떠나면, 늦게 온 응답으로 결과 화면에 끌고 가지 않는다
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const submit = async (request: LockersApplyRequest) => {
+    if (isSubmittingRef.current) {
+      return;
+    }
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     const result = await submitLockersApplication(request);
+    isSubmittingRef.current = false;
+    if (!isMountedRef.current) {
+      return;
+    }
     setIsSubmitting(false);
 
     const basePath = `/lockers/apply/sections/${sectionId}`;

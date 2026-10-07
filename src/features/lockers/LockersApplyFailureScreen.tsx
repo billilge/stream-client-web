@@ -98,7 +98,8 @@ const FAILURE_CONTENTS: Record<
 function isFailureReason(
   reason: string | undefined,
 ): reason is LockersApplyFailureReason {
-  return reason !== undefined && reason in FAILURE_CONTENTS;
+  // in은 constructor·toString 같은 기본 속성까지 통과시켜서 직접 정의한 키만 본다
+  return reason !== undefined && Object.hasOwn(FAILURE_CONTENTS, reason);
 }
 
 function LockersApplyFailureScreen() {
