@@ -17,7 +17,6 @@ import {
   LOCKERS_SECTION_DETAILS,
   type LockersSectionDetail,
 } from "@/features/lockers/constants/lockersSectionDetails";
-import { LOCKERS_SECTION_PHOTO_PINS } from "@/features/lockers/constants/lockersSectionPhotoPins";
 import { useLockersPinchZoom } from "@/features/lockers/hooks/useLockersPinchZoom";
 
 // 배치 영역 안쪽 여백(px-5, pb-5) — 미니맵에 보이는 영역을 배치 기준으로 계산할 때 뺀다
@@ -207,11 +206,9 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
       />
 
       <LockersSectionPhotoModal
-        layout={detail.layout}
         onClose={() => setIsPhotoOpen(false)}
         open={isPhotoOpen}
         photoUrl={detail.photoUrl}
-        pins={LOCKERS_SECTION_PHOTO_PINS[detail.section] ?? []}
         sectionName={detail.section}
       />
     </div>
