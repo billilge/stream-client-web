@@ -1,4 +1,5 @@
 import sectionA1Photo from "@/assets/images/lockers/section-a-1-photo.jpg";
+import sectionA2Photo from "@/assets/images/lockers/section-a-2-photo.jpg";
 
 // 구역 상세 응답(GET /v1/app/lockers/sections/{sectionId}). layout은 구조만 갖고 칸 상태는 lockers에서
 // 온다 — 둘은 lockerNumber로 잇는다.
@@ -177,7 +178,6 @@ const A1_SECTION: LockersSectionDetail = {
 };
 
 // Figma: A-2구역 (nodeId 2159:109533)
-// A-2 사진이 아직 없어서 A-1 사진을 임시로 쓴다.
 const A2_SECTION: LockersSectionDetail = {
   layout: {
     root: {
@@ -221,7 +221,7 @@ const A2_SECTION: LockersSectionDetail = {
     version: 1,
   },
   lockers: createMockLockers("A", range(82, 90)),
-  photoUrl: sectionA1Photo,
+  photoUrl: sectionA2Photo,
   section: "A-2",
   sectionId: 2,
 };
