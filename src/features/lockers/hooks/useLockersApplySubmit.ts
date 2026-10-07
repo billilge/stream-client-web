@@ -35,12 +35,14 @@ export function useLockersApplySubmit(sectionId: string) {
         state: {
           application: result.application,
         } satisfies LockersApplyCompleteState,
+        viewTransition: true,
       });
       return;
     }
     navigate(`${basePath}/failure/${result.reason}`, {
       replace: true,
       state: { request } satisfies LockersApplyFailureState,
+      viewTransition: true,
     });
   };
 
