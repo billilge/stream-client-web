@@ -59,7 +59,9 @@ function LockersSectionSelectScreen() {
         <ActionAreaButton
           disabled={selectedSectionId === null}
           onClick={() =>
-            navigate(`/lockers/apply/sections/${selectedSectionId}`)
+            navigate(`/lockers/apply/sections/${selectedSectionId}`, {
+              viewTransition: true,
+            })
           }
           sx={{ paddingBlock: "16px" }}
         >
