@@ -24,9 +24,7 @@ function HomeAppliedEventSection({ events }: { events: HomeAppliedEvent[] }) {
             행사 둘러보기
           </Button>
         }
-        illustration={
-          <img alt="" className="h-[34.39px] w-[34.83px]" src={emptyEvents} />
-        }
+        illustration={<img alt="" className="w-8.75" src={emptyEvents} />}
         message="관심 있는 행사를 둘러 보세요"
       />
     );

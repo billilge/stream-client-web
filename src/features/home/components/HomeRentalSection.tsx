@@ -17,13 +17,7 @@ function HomeRentalSection({ rentals }: { rentals: HomeRental[] }) {
             대여하러 가기
           </Button>
         }
-        illustration={
-          <img
-            alt=""
-            className="h-[28.07px] w-[34.77px]"
-            src={returnItemsEmpty}
-          />
-        }
+        illustration={<img alt="" className="w-8.75" src={returnItemsEmpty} />}
         message="대여한 물품이 없어요"
       />
     );

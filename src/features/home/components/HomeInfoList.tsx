@@ -79,7 +79,7 @@ function InfoRow({ icon, title, subtitle, badge, isExternal }: InfoRowProps) {
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="flex min-w-0 items-center gap-3">
-        <img alt="" className="size-[42px] shrink-0" src={icon} />
+        <img alt="" className="size-10.5 shrink-0" src={icon} />
         <div className="flex min-w-0 flex-col gap-0.5">
           <Typography
             as="p"

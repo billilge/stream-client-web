@@ -1,12 +1,12 @@
 import { PageCounter, Typography } from "@wanteddev/wds";
 import { useEffect, useRef } from "react";
 
-import noticeEvent from "@/assets/images/home/notice-event.png";
-import noticeFeedback from "@/assets/images/home/notice-feedback.png";
-import noticeGeneral from "@/assets/images/home/notice-general.png";
-import noticeLocker from "@/assets/images/home/notice-locker.png";
-import noticePartnership from "@/assets/images/home/notice-partnership.png";
-import noticeSnack from "@/assets/images/home/notice-snack.png";
+import noticeEvent from "@/assets/images/home/notice-event.jpg";
+import noticeFeedback from "@/assets/images/home/notice-feedback.jpg";
+import noticeGeneral from "@/assets/images/home/notice-general.jpg";
+import noticeLocker from "@/assets/images/home/notice-locker.jpg";
+import noticePartnership from "@/assets/images/home/notice-partnership.jpg";
+import noticeSnack from "@/assets/images/home/notice-snack.jpg";
 import type {
   HomeNotice,
   HomeNoticeTemplate,
@@ -16,53 +16,30 @@ import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 const AUTO_SLIDE_MS = 5000;
 
 interface NoticeTemplateStyle {
-  image: string;
-  // 그림 자리. Figma 템플릿마다 그림 크기·위치가 다르다
-  imageClassName: string;
+  // 그림·그라데이션을 Figma 배치대로 카드 폭(335) 크기로 합친 그림
+  art: string;
+  // 그림 아래 글자 영역 배경. 그림 아래쪽 색과 같다
   backgroundClassName: string;
-  // 그림 아래를 배경색으로 덮어 글자와 이어 주는 그라데이션
-  fadeClassName: string;
 }
 
 // Figma: Notice Carousel (nodeId 3562:163869) — 일반공지 3562:163870, 행사 3562:163888,
 // 제휴 3562:163897, 사물함 3562:163906, 간식 3562:163915, 의견·설문 3562:163879
 const NOTICE_TEMPLATES: Record<HomeNoticeTemplate, NoticeTemplateStyle> = {
-  event: {
-    backgroundClassName: "bg-notice-banner-event",
-    fadeClassName: "top-[86px] h-[98px] from-notice-banner-event",
-    image: noticeEvent,
-    imageClassName: "top-6 h-40 w-[272px]",
-  },
+  event: { art: noticeEvent, backgroundClassName: "bg-notice-banner-event" },
   feedback: {
+    art: noticeFeedback,
     backgroundClassName: "bg-notice-banner-general",
-    fadeClassName: "top-[118px] h-[50px] from-notice-banner-general",
-    image: noticeFeedback,
-    imageClassName: "top-0 h-[206.3px] w-[335px]",
   },
   general: {
+    art: noticeGeneral,
     backgroundClassName: "bg-notice-banner-general",
-    fadeClassName: "top-[103px] h-[67px] from-notice-banner-general",
-    image: noticeGeneral,
-    imageClassName: "top-2 h-[175px] w-[264px]",
   },
-  locker: {
-    backgroundClassName: "bg-notice-banner-locker",
-    fadeClassName: "top-[119px] h-[65px] from-notice-banner-locker",
-    image: noticeLocker,
-    imageClassName: "top-[21px] h-[168px] w-[303.8px]",
-  },
+  locker: { art: noticeLocker, backgroundClassName: "bg-notice-banner-locker" },
   partnership: {
+    art: noticePartnership,
     backgroundClassName: "bg-notice-banner-partnership",
-    fadeClassName: "top-[86px] h-[98px] from-notice-banner-partnership",
-    image: noticePartnership,
-    imageClassName: "top-8 h-[147px] w-[294px]",
   },
-  snack: {
-    backgroundClassName: "bg-notice-banner-snack",
-    fadeClassName: "top-[85px] h-[99px] from-notice-banner-snack",
-    image: noticeSnack,
-    imageClassName: "top-[15px] h-[178px] w-[321px]",
-  },
+  snack: { art: noticeSnack, backgroundClassName: "bg-notice-banner-snack" },
 };
 
 // 공지가 하나도 없을 때 보여 주는 배너
@@ -92,18 +69,17 @@ function HomeNoticeCard({
   return (
     <div
       aria-hidden={isClone}
-      className={`relative flex h-[261px] w-full shrink-0 snap-start flex-col justify-end overflow-hidden rounded-xl border-[0.5px] border-static-white px-4 py-5 shadow-[0_0_60px_rgba(23,23,23,0.1)] ${template.backgroundClassName}`}
+      // border-[0.5px]: Figma 흰 테두리 0.5px — 단계로 나타낼 수 없는 선 굵기라 임의값으로 둔다
+      className={`relative flex h-notice-banner w-full shrink-0 snap-start flex-col justify-end overflow-hidden rounded-xl border-[0.5px] border-static-white px-4 py-5 shadow-spread-small ${template.backgroundClassName}`}
     >
+      {/* 카드가 넓어져도 그림은 Figma 카드 폭(335 = w-83.75) 그대로 가운데에 둔다 */}
       <img
         alt=""
-        className={`absolute left-1/2 -translate-x-1/2 object-cover ${template.imageClassName}`}
-        src={template.image}
+        className="absolute top-0 left-1/2 w-83.75 max-w-none -translate-x-1/2"
+        src={template.art}
       />
-      <div
-        className={`absolute left-0 w-full bg-linear-to-t to-transparent ${template.fadeClassName}`}
-      />
-      <div className="relative flex items-end justify-between">
-        <div className="flex w-[257px] flex-col gap-1">
+      <div className="relative flex items-end justify-between gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <Typography
             as="p"
             className="line-clamp-2 break-keep"
@@ -146,7 +122,7 @@ function getStep(scroller: HTMLElement) {
 // 마지막 카드 오른쪽에 첫 카드 복제본을 두어 끝에서도 같은 방향으로 이어지고, 복제본에 멈추면
 // 진짜 첫 카드 위치로 순간 이동한다.
 // 카드 폭은 화면 폭 - 40(Figma 375 기준 335)이고, 카드 사이(gap-10)도 좌우 여백 합 40이라 이전·다음 카드는 화면 밖에 있다.
-// 가로 스크롤 영역이 카드 그림자(Shadow/Spread/Small, 60px)를 자르지 않게 위아래로 60px 넓힌다.
+// 가로 스크롤 영역이 카드 그림자(Shadow/Spread/Small, 60px)를 자르지 않게 위아래로 60px(15단계) 넓힌다.
 // 넓힌 자리는 아래 섹션 밑으로 깔려서 아래 섹션 터치를 막지 않는다.
 function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -243,7 +219,7 @@ function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
 
   return (
     <div
-      className={`scrollbar-hidden -my-[60px] flex gap-10 px-5 py-[60px] ${canSlide ? "snap-x snap-mandatory scroll-px-5 overflow-x-auto" : "overflow-hidden"}`}
+      className={`scrollbar-hidden -my-15 flex gap-10 px-5 py-15 ${canSlide ? "snap-x snap-mandatory scroll-px-5 overflow-x-auto" : "overflow-hidden"}`}
       ref={scrollerRef}
     >
       {items.map((notice, index) => (

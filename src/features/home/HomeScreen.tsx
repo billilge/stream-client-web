@@ -99,11 +99,11 @@ function HomeScreen() {
       </div>
       <button
         aria-label="챗봇 열기"
-        className="absolute right-5 bottom-6 flex size-14 items-center justify-center rounded-full bg-primary drop-shadow-[2px_2px_10px_rgba(0,0,0,0.12)]"
+        className="absolute right-5 bottom-6 flex size-14 items-center justify-center rounded-full bg-primary drop-shadow-chatbot-fab"
         onClick={() => navigate("/chat")}
         type="button"
       >
-        <img alt="" className="h-[33.5px] w-10" src={chatbotIcon} />
+        <img alt="" src={chatbotIcon} />
       </button>
     </div>
   );

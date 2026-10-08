@@ -5,7 +5,7 @@ import archiveFolder from "@/assets/icons/home/archive-folder.svg";
 // Figma: Archive CTA (nodeId 3147:146288)
 function HomeArchiveBanner() {
   return (
-    <div className="relative overflow-hidden rounded-xl bg-linear-[167.2deg] from-54% from-background-normal to-[153.5%] to-archive-cta-fade p-4">
+    <div className="relative overflow-hidden rounded-xl bg-archive-cta p-4">
       <Typography
         as="p"
         color="semantic.label.normal"
@@ -22,13 +22,8 @@ function HomeArchiveBanner() {
       >
         지난 활동과 기록을 한번에
       </Typography>
-      <div className="absolute top-[15px] right-0 flex h-[69.85px] w-[82.23px] items-center justify-center">
-        <img
-          alt=""
-          className="h-[57.86px] w-[73.18px] rotate-[10.15deg]"
-          src={archiveFolder}
-        />
-      </div>
+      {/* 폴더 그림은 Figma 회전(10.15°)을 SVG에 반영해 둬서 고유 크기 그대로 놓는다 */}
+      <img alt="" className="absolute top-3.75 right-0" src={archiveFolder} />
     </div>
   );
 }
