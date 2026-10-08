@@ -165,8 +165,11 @@ function ConfirmModal({
               {title}
             </Typography>
             {description && (
+              // Figma 모달 설명은 줄바꿈 위치까지 디자인에 포함돼 있어서(예: 탈퇴 확인 모달
+              // 3524:152535) `\n`을 그대로 살린다. 기존 사용처는 모두 한 줄 문구라 영향이 없다.
               <Typography
                 as="p"
+                className="whitespace-pre-line"
                 color="semantic.label.alternative"
                 variant="label1-reading"
                 weight="regular"
