@@ -49,6 +49,10 @@
 
   /* 사물함 칸 선택 — 선택 가능한 칸 배경(Figma "Orange/95")과 칸 묶음 테두리(Figma "Line/Solid/Alternative") */
   --color-orange-95: var(--atomic-orange-95);
+
+  /* 학생회비 송금 — 업로드한 파일 행 배경(Figma "Atomic/Blue/99", 3562:162922).
+     primary-subtle(Blue/95)보다 훨씬 옅어서 흰 카드 위에서 행만 살짝 떠 보인다 */
+  --color-blue-99: var(--atomic-blue-99);
   --color-line-solid-alternative: var(--semantic-line-solid-alternative);
 
   --color-status-positive: var(--semantic-status-positive);
