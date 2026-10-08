@@ -17,6 +17,9 @@ interface BililgeItemCardProps {
   // 홈은 흰 카드 안에 줄만 들어가서 카드 틀(배경·모서리·여백)을 끈다
   surface?: boolean;
   trailingControl?: "button" | "stepper";
+  // 흰 배경 화면 위에 놓일 때 카드 경계를 보여주는 테두리 — 검색 결과(Figma nodeId 3147:138737)가
+  // 이 모양이다. 회색 배경 위의 메인 목록은 테두리가 없고, stepper variant는 항상 테두리가 있다.
+  bordered?: boolean;
   actionLabel?: string;
   onRentRequest?: () => void;
   stepperValue?: number;
@@ -41,6 +44,7 @@ function BililgeItemCard({
   subtitleTone = "normal",
   surface = true,
   trailingControl = "button",
+  bordered = false,
   actionLabel = "대여 신청",
   onRentRequest,
   stepperValue = 1,
@@ -51,7 +55,7 @@ function BililgeItemCard({
 
   return (
     <div
-      className={`flex w-full items-center ${surface ? "rounded-xl bg-background-normal p-4" : ""} ${isStepper ? "border border-line-solid-neutral" : ""}`}
+      className={`flex w-full items-center ${surface ? "rounded-xl bg-background-normal p-4" : ""} ${isStepper || bordered ? "border border-line-solid-neutral" : ""}`}
     >
       <div className="flex h-[42px] w-full items-center justify-between">
         <div className="flex items-center gap-3">

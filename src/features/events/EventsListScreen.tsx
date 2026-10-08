@@ -14,6 +14,7 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import EventsList from "@/features/events/components/EventsList";
 import EventsListSkeleton from "@/features/events/components/EventsListSkeleton";
 import { EVENT_STATUS_FILTERS } from "@/features/events/constants/events";
+import { getSearchPath } from "@/features/search/constants/search";
 
 // Figma: 행사 (nodeId 1243:70854)
 function EventsListScreen() {
@@ -26,7 +27,11 @@ function EventsListScreen() {
       title="행사"
       trailing={
         <>
-          <TopNavigationButton aria-label="검색" variant="icon">
+          <TopNavigationButton
+            aria-label="검색"
+            onClick={() => navigate(getSearchPath("events"))}
+            variant="icon"
+          >
             <IconSearch />
           </TopNavigationButton>
           <TopNavigationButton aria-label="알림" variant="icon">

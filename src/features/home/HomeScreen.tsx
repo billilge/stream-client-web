@@ -15,6 +15,7 @@ import {
   HOME_HAS_UNREAD_NOTIFICATION,
   HOME_MOCK_DATA,
 } from "@/features/home/constants/homeMock";
+import { getSearchPath } from "@/features/search/constants/search";
 
 // Figma: 홈 2건 이하 (nodeId 3147:146240), 3건 이상 (3147:146297), empty (3147:146366)
 // 챗봇 FAB(Figma nodeId 2443:178457 등, 홈 화면 variant마다 우하단에 고정) —
@@ -50,7 +51,11 @@ function HomeScreen() {
                 <TopNavigationButton aria-label="설정" variant="icon">
                   <IconSetting />
                 </TopNavigationButton>
-                <TopNavigationButton aria-label="검색" variant="icon">
+                <TopNavigationButton
+                  aria-label="검색"
+                  onClick={() => navigate(getSearchPath())}
+                  variant="icon"
+                >
                   <IconSearch />
                 </TopNavigationButton>
                 <TopNavigationButton aria-label="알림" variant="icon">

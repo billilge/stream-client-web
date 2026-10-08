@@ -550,6 +550,41 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 
 `ActionArea variant="neutral"`은 버튼을 `flex: 1 1 0`으로 나누지만, 좌우 padding 28px + 문구가 절반 너비를 넘으면 그 버튼이 넓어진다. 구역 마감 화면(`3013:99139`)의 `다른 구역 선택하기`가 그렇다(Figma는 반반). 맞추려면 `ResultScreen`의 버튼 좌우 padding을 줄여야 해서 보류했다.
 
+## 검색 화면(`1879:90575`, 화면설계서 `3147:135502`) 구현 중 확정된 매핑
+
+`/component`로 검색 진입·검색 중·검색 완료(전체/행사 탭)·결과 없음 프레임을 구현하며 확인된 내용. 코드는 `src/features/search/` 참고.
+
+| WDS 컴포넌트 | 코드 export | 확인 내용 |
+|---|---|---|
+| `Tab/Tab` (결과 탭 줄) | `Tab` + `TabList` + `TabListItem` | Figma 탭 줄(`3147:138705`: 높이 40, 좌우 20, 탭 간격 24, 라벨 15px SemiBold)이 **`TabList size="small" horizontalPadding`**과 정확히 맞는다 — `small`이 Body 2/Bold + 세로 패딩 9(=높이 40)고, `horizontalPadding`이 좌우 20을 스크롤 영역 안쪽에 줘서 6개 탭이 375px을 넘을 때 화면 끝까지 스크롤된다(`tab/style.js`의 `tabPaddingStyle`·`tabSizeStyle`). 기본(`medium`, Headline 2 17px)은 높이가 48이라 어긋난다. 공지 화면처럼 바깥에 `px-5` 래퍼를 두면 스크롤이 20px 안쪽에서 잘린다 |
+| `Button` (`n개 더보기`) | `Button color="assistive" variant="outlined" size="small"` + `trailingContent` | 행사 empty 버튼과 같은 조합. 오른쪽 꺽쇠는 `trailingContent={<IconChevronRight />}`로 넘긴다(Figma `Trailing Icon`) |
+| `Skeleton` (응답 대기) | `Skeleton variant="rectangle"` | Figma에 스켈레톤 프레임은 없고 화면설계서 8번 문구뿐이라 결과 화면 뼈대를 직접 흉내 냈다. `animation` prop은 `usePrefersReducedMotion`으로 끈다 |
+| `Icon/Normal/Clock`·`Close`·`Search`·`Circle Close` | `IconClock`·`IconClose`·`IconSearch`·`IconCircleCloseFill` | Figma 컴포넌트 설명 문서로 WDS 확인. 검색어 지움 버튼은 채워진 회색 원 + 흰 X라 `*Fill` 쪽이다 |
+
+### 반례 — Search Field는 WDS `SearchField`가 아니다
+
+`@wanteddev/wds`에 `SearchField`가 있고 처음엔 재검토했지만(위 "제외됨" 표의 로컬 분류가 맞는지) `search-field/style.js` 실측값이 Figma(`3147:138703`)와 셋 다 다르다.
+
+| 항목 | WDS `SearchField` | Figma |
+|---|---|---|
+| 배경 | `fill.normal`(rgba 8%) | `Background/Normal/Alternative`(#F7F7F8) |
+| padding | medium 12 / small 8 (사방 동일) | 가로 12 · 세로 8 (높이 40) |
+| 지움 버튼 | 입력창에 **포커스가 있을 때만** 표시 | 검색 완료 화면에서 포커스 없이도 표시 |
+
+내부를 오버라이드해야 맞출 수 있어서 `src/features/search/components/SearchField.tsx`를 로컬로 만들었다. `<input>`은 `Typography`로 감쌀 수 없어 Body 1/Regular(16px) 값을 className에 직접 썼다(행사 신청 폼의 기타 입력칸과 같은 예외).
+
+### 검색 입력은 `useScreenHeader`(헤더 슬롯)에 넣지 않는다
+
+검색 화면의 뒤로가기 + 검색 필드는 `ScreenHeader`의 헤더 슬롯이 아니라 **화면 본문 최상단**에 직접 둔다. 입력값이 화면 state라서 슬롯에 넣으면 타이핑할 때마다 `setHeader`(effect → `ScreenLayout` 리렌더)를 거쳐 제어 입력의 값 반영이 한 박자 늦어지고, 한글 조합(IME)이 끊긴다. `ScreenHeader` 안의 "search variant는 화면이 생기면 추가" 메모는 이 이유로 이번에도 추가하지 않았다.
+
+### 검색 결과 카드 — 재사용 vs 새로 만든 것
+
+설계서 4번 "기존 UI card와 달라지는 card: 아카이빙, 빌릴게" 그대로다.
+
+- **재사용(수정 없음)**: 행사 `EventsCard`, 공지 `NoticesCard`, 열린피드백 `FeedbacksCard`
+- **빌릴게**: `BililgeItemCard`에 `bordered` prop만 추가했다(흰 배경 위에서 테두리 `border-line-solid-neutral`). 메인 목록은 회색 배경 위라 테두리가 없다
+- **아카이빙**: Figma `Search Archiving Card`(`3013:127633`)는 Stream 로컬이고 이 화면 전용이라 `features/search/components/SearchArchivingCard.tsx`로 새로 만들었다
+
 ## 홈 화면(`3147:146240` 2건 이하 / `3147:146297` 3건 이상 / `3562:163866` empty) 구현 중 확정된 매핑
 
 | Figma | 코드 | 확인 내용 |
