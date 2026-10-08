@@ -1,38 +1,42 @@
 import { ActionAreaButton } from "@wanteddev/wds";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import wonIcon from "@/assets/icons/fee/won.svg";
 import FeeTransferStepLayout from "@/features/fee/components/FeeTransferStepLayout";
 import {
-  buildTossTransferUrl,
-  FEE_MOCK_AMOUNT,
+  FEE_EXTERNAL_LINKS,
   FEE_TRANSFER_PATHS,
 } from "@/features/fee/constants/fee";
-import { useTossDeepLink } from "@/features/fee/hooks/useTossDeepLink";
 
 // Figma: 계좌 송금 - 토스로 이동 안내 (nodeId 3562:163025) / 토스 이동 실패 (3562:163046)
 //
 // 두 프레임은 같은 화면의 상태 차이다 — 실패하면 일러스트가 빠지고 문구와 버튼 라벨만 바뀐다.
 // 그래서 라우트를 나누지 않고 실패 여부 state로 토글한다.
 //
-// Figma 문구("송금 후 이 화면으로 돌아와 송금 완료 여부를 꼭 확인해 주세요")대로, 토스에 갔다가
-// 브라우저로 돌아오면 송금 확인 단계로 넘긴다. 복귀 감지는 useTossDeepLink이 한다.
+// 토스는 딥링크라 열렸는지 브라우저가 알려주지 않는다. 링크 주소 자체가 아직 없어서 지금은
+// 상수가 비어 있으면 곧바로 실패 상태로 두고, 주소가 생기면 window.open 결과로 판정한다.
 function FeeTransferTossScreen() {
   const navigate = useNavigate();
   const [hasFailed, setFailed] = useState(false);
-  const handleFail = useCallback(() => setFailed(true), []);
-  const handleReturn = useCallback(
-    () => navigate(FEE_TRANSFER_PATHS.confirm),
-    [navigate],
-  );
-  const { open } = useTossDeepLink({
-    onFail: handleFail,
-    onReturn: handleReturn,
-  });
 
-  // 금액은 남은 학기 수에 따라 달라져야 하는데 규칙을 아직 못 받아서 목업 값으로 보낸다
-  const handleOpenToss = () => open(buildTossTransferUrl(FEE_MOCK_AMOUNT));
+  const handleOpenToss = () => {
+    if (!FEE_EXTERNAL_LINKS.tossTransfer) {
+      setFailed(true);
+      return;
+    }
+    const opened = window.open(
+      FEE_EXTERNAL_LINKS.tossTransfer,
+      "_blank",
+      "noopener",
+    );
+    if (opened) {
+      // 토스에 다녀오면 돌아올 화면이 송금 확인 단계다
+      navigate(FEE_TRANSFER_PATHS.confirm);
+      return;
+    }
+    setFailed(true);
+  };
 
   if (hasFailed) {
     return (
