@@ -315,17 +315,17 @@ Figma 상세는 뒤로가기 버튼이 Hero 이미지 **위에 떠 있는** 오�
 
 `IconCircleCheckFill` 같은 WDS 아이콘이 아니다 — 72px 프레임 안에 60px `Primary/Normal` 원과 흰 체크 선이 따로 있고, 진입할 때 원이 튀어오르며 커지고(back-out) 체크 선이 그려진다(path trim). `get_design_context`의 Component description도 "System Check"뿐이고 montage 문서 링크가 없어서 WDS가 아닌 게 확정된다.
 
-모션은 `src/assets/lottie/events/complete-check.json`(LottieFiles 플러그인 export)을 `LottieLight`로 재생한다 — 처음엔 `get_motion_context` 값을 보고 SVG path와 키프레임을 손으로 옮겼지만, 디자이너가 모션을 고칠 때마다 같은 노동이 반복돼서 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고). 코드는 `src/features/events/components/EventsCompleteCheck.tsx`.
+모션은 `src/assets/lottie/common/complete-check.json`(LottieFiles 플러그인 export)을 `LottieLight`로 재생한다 — 처음엔 `get_motion_context` 값을 보고 SVG path와 키프레임을 손으로 옮겼지만, 디자이너가 모션을 고칠 때마다 같은 노동이 반복돼서 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고). 코드는 `src/components/ui/CompleteCheck.tsx`(사물함 신청 완료와 공용).
 
 ### 행사 신청 중 마감 화면(`1133:43431`)도 같은 뼈대다
 
-완료 화면과 구조가 같다 — 닫기(X)만 있는 `TopNavigation`, 그 아래 104px 간격, 가운데 일러스트 + 2줄 문구, 하단 Action Area. 다른 점은 버튼이 하나라서 `ActionArea`를 기본값(`variant="strong"`, 세로 배치)으로 쓰고 신청 폼과 같은 `sx={{ paddingBlock: "16px" }}` 보정만 한다는 것뿐이다. 자물쇠 일러스트(`1133:43439`)는 WDS 아이콘이 아니라 Figma 로컬 도형이라 SVG를 그대로 받아 `src/assets/icons/events/application-closed.svg`로 커밋했다(62.963×72.317).
+완료 화면과 구조가 같다 — 닫기(X)만 있는 `TopNavigation`, 그 아래 104px 간격, 가운데 일러스트 + 2줄 문구, 하단 Action Area. 다른 점은 버튼이 하나라서 `ActionArea`를 기본값(`variant="strong"`, 세로 배치)으로 쓰고 신청 폼과 같은 `sx={{ paddingBlock: "16px" }}` 보정만 한다는 것뿐이다. 자물쇠 일러스트(`1133:43439`)는 WDS 아이콘이 아니라 Figma 로컬 도형이라 SVG를 그대로 받아 `src/assets/icons/common/document-lock.svg`로 커밋했다(62.963×72.317). 사물함 신청 오류 화면도 같은 그림이라 공용 폴더에 둔다. 이 화면 구조는 지금 공용 `ResultScreen`이 갖는다.
 
 ### 제출 중 로딩 화면(`1133:43453`)에서 WDS는 `Typography`뿐이다
 
-문서 일러스트와 체크 항목 3줄은 전부 Figma 로컬 도형이고(WDS 아이콘 아님), 3.4초 루프 모션이 붙어 있다(`Loading / Document Review`, 1133:44260). 이 일러스트 전체를 `src/assets/lottie/events/submitting.json`으로 받아 `LottieLight`로 재생한다 — 처음엔 path trim을 SVG로 인라인하고 문서 본체만 svg로 받았지만 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고).
+문서 일러스트와 체크 항목 3줄은 전부 Figma 로컬 도형이고(WDS 아이콘 아님), 3.4초 루프 모션이 붙어 있다(`Loading / Document Review`, 1133:44260). 이 일러스트 전체를 `src/assets/lottie/common/submitting.json`으로 받아 `LottieLight`로 재생한다 — 처음엔 path trim을 SVG로 인라인하고 문서 본체만 svg로 받았지만 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고).
 
-LottieFiles export 원본(`Loading Content`)에는 문구 2줄도 벡터 도형으로 들어 있는데 그 레이어는 빼고 쓴다 — 문구 2줄은 WDS `Typography`(`heading1` 22px / `label1` 14px)로 그려야 스크린리더가 읽고 타이포 토큰도 따라간다. 코드는 `src/features/events/components/EventsSubmittingOverlay.tsx`.
+LottieFiles export 원본(`Loading Content`)에는 문구 2줄도 벡터 도형으로 들어 있는데 그 레이어는 빼고 쓴다 — 문구 2줄은 WDS `Typography`(`heading1` 22px / `label1` 14px)로 그려야 스크린리더가 읽고 타이포 토큰도 따라간다. 코드는 `src/components/ui/SubmittingOverlay.tsx`(사물함 신청 중과 공용, 문구는 prop).
 
 ## 공지 상세 화면(`1256:81842`, `1256:81856`) 구현 중 확정된 매핑
 
@@ -528,3 +528,24 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 ### 실제 사진의 칸 번호는 서버 사진에 찍혀 온다
 
 처음엔 서버가 사진 주소만 주고 프론트가 구역별 핀 좌표로 번호를 얹었지만, 사진을 바꿀 때마다 좌표를 같이 고쳐야 해서 번호를 사진에 찍어 받는 걸로 바꿨다. 모달은 `photoUrl`을 Figma 사진 틀(300×224)에 그대로 채운다. Figma의 사진 회전(1.12°)·확대 보정과 번호 핀(Orange 계열)은 사진을 만들 때 반영한다.
+
+## 사물함 신청 확인·진행·완료·오류(`1737:218322`, `1737:218076`, `1737:218058`, `3013:99093` 외 4종) 구현 중 확정된 매핑
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| 사물함 선택 확인 모달 (`1737:218322`) | `ConfirmModal` + `highlight` | 행사 신청 확인 모달과 같은 Stream 로컬 Modal이다. 사물함 번호만 Primary 색이라 `highlight`로 넘긴다 |
+| 사물함 신청 로딩 (`1737:218076`) | `SubmittingOverlay` | 행사 제출 중 화면과 같은 모션, 문구만 다르다 |
+| 사물함 신청 완료 (`1737:218058`) | `ResultScreen` + `CompleteCheck` | 행사 완료 화면과 같은 뼈대. `Locker Summary` 카드(`1737:218070`)만 화면이 그린다 |
+| 오류 5종 (`3013:99093`·`99116`·`99139`·`99162`·`99183`) | `ResultScreen` | 행사 신청 중 마감 화면과 같은 뼈대. 버튼 1개면 세로, 2개면 `neutral` |
+
+### 결과 화면은 공용 `ResultScreen` — WDS `FallbackView`를 쓰지 않는다
+
+행사 완료·마감, 사물함 완료·오류 7개 화면이 닫기(X) 헤더, 104px 아래 일러스트 + 2줄 문구, 하단 Action Area로 같은 뼈대라 `src/components/ui/ResultScreen.tsx`로 모았다. WDS `FallbackView`도 구조는 같지만 Empty State 때와 같은 이유(일러스트 폭·상하 패딩·컨테이너 폭이 고정)로 맞지 않아서, 바깥 틀만 로컬로 짜고 내부는 WDS(`TopNavigation`, `Typography`, `ActionArea`)로 채운다. 그림과 문구 사이 간격은 Figma가 체크 모션 화면만 8px, 나머지는 16px이라 `illustrationGap`으로 받는다.
+
+### 오류 일러스트 — 자물쇠는 공용, 와이파이는 사물함 로컬
+
+자물쇠(`document-lock.svg`)는 행사 마감 화면과 같은 그림이라 `icons/common/`의 것을 쓴다. 네트워크 오류의 와이파이 끊김 그림(`3013:99162`)은 WDS 아이콘이 아닌 Figma 로컬 도형이라 `icons/lockers/network-offline.svg`로 받았다 — 75×59.88 그림을 Figma 80×80 틀 위치 그대로 svg 안에 넣었다.
+
+### 미해결: 버튼 2개의 문구 길이가 다르면 너비가 반반이 안 된다
+
+`ActionArea variant="neutral"`은 버튼을 `flex: 1 1 0`으로 나누지만, 좌우 padding 28px + 문구가 절반 너비를 넘으면 그 버튼이 넓어진다. 구역 마감 화면(`3013:99139`)의 `다른 구역 선택하기`가 그렇다(Figma는 반반). 맞추려면 `ResultScreen`의 버튼 좌우 padding을 줄여야 해서 보류했다.

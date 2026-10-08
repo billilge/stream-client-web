@@ -10,9 +10,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
+import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
-import EventsSubmittingOverlay from "@/features/events/components/EventsSubmittingOverlay";
 import EventsSummaryCard from "@/features/events/components/EventsSummaryCard";
 import {
   EVENTS_APPLICATION,
@@ -183,7 +183,11 @@ function EventsApplicationScreen() {
         tone="negative"
       />
 
-      <EventsSubmittingOverlay open={isSubmitting} />
+      <SubmittingOverlay
+        description="곧 완료돼요! 잠시만 기다려 주세요"
+        open={isSubmitting}
+        title="신청서를 제출하고 있어요"
+      />
 
       <ScreenToast
         key={failureCount}
