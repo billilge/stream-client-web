@@ -141,11 +141,13 @@ function EventsQuestionField({
                 </label>
               </div>
               {isOtherChecked && (
-                // <input>이라 Typography로 감쌀 수 없는 자리 — Figma "Label 1/Normal - Regular"(14px)와
-                // 밑줄(Primary/Normal 0.7px)을 그대로 옮긴 값이다.
-                <input
+                // Figma "Label 1/Reading - Regular" + 밑줄(Primary/Normal 0.7px). 입력칸도 Typography를
+                // `as="input"`으로 렌더해 글자 스타일을 WDS에서 받는다.
+                <Typography
                   aria-label={`${question.title} 기타 내용`}
-                  className="w-full border-primary border-b-[0.7px] pb-0.5 text-[14px] text-label-normal leading-[1.571] outline-none placeholder:text-label-assistive"
+                  as="input"
+                  className="w-full border-primary border-b-[0.7px] pb-0.5 outline-none placeholder:text-label-assistive"
+                  color="semantic.label.normal"
                   maxLength={EVENTS_OTHER_MAX_LENGTH}
                   onChange={(event) =>
                     onAnswerChange({
@@ -155,6 +157,8 @@ function EventsQuestionField({
                   }
                   placeholder="기타 내용을 입력해 주세요."
                   value={choiceAnswer.otherText}
+                  variant="label1-reading"
+                  weight="regular"
                 />
               )}
             </div>
