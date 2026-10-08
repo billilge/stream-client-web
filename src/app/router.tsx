@@ -12,6 +12,11 @@ import EventsApplicationCompleteScreen from "@/features/events/EventsApplication
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
+import FeeTransferCompleteScreen from "@/features/fee/FeeTransferCompleteScreen";
+import FeeTransferConfirmScreen from "@/features/fee/FeeTransferConfirmScreen";
+import FeeTransferSemesterScreen from "@/features/fee/FeeTransferSemesterScreen";
+import FeeTransferTossScreen from "@/features/fee/FeeTransferTossScreen";
+import FeeTransferTranscriptScreen from "@/features/fee/FeeTransferTranscriptScreen";
 import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
@@ -121,6 +126,53 @@ const routes = [
             element: <LockersApplyScreen />,
             // 시트만 있는 화면이라 뒤에 Bottom Nav가 비쳐도 Figma(홈 위에 뜨는 시트)와 같다
             path: "/lockers/apply",
+          },
+          // 학생회비 계좌 송금 플로우 — 전부 하단 고정 버튼(Action Area)이 있는 흰 배경 화면이다.
+          // 단계를 오갈 수 있어야 해서 한 라우트 위저드가 아니라 단계별 경로로 나눠 뒀다.
+          {
+            element: <FeeTransferSemesterScreen />,
+            // Figma 3562:162833
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/fee/transfer/semester",
+          },
+          {
+            element: <FeeTransferTranscriptScreen />,
+            // Figma 3562:162845(업로드 전) · 3562:162891(업로드 후) — 한 화면의 상태 차이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/fee/transfer/transcript",
+          },
+          {
+            element: <FeeTransferTossScreen />,
+            // Figma 3562:163025(안내) · 3562:163046(이동 실패) — 한 화면의 상태 차이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/fee/transfer/toss",
+          },
+          {
+            element: <FeeTransferConfirmScreen />,
+            // Figma 3562:162973
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/fee/transfer/confirm",
+          },
+          {
+            element: <FeeTransferCompleteScreen />,
+            // 신청 결과 화면과 같은 모양이다(Figma 3562:163013)
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/fee/transfer/complete",
           },
           {
             element: <SearchScreen />,

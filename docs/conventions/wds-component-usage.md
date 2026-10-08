@@ -584,3 +584,43 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 - **재사용(수정 없음)**: 행사 `EventsCard`, 공지 `NoticesCard`, 열린피드백 `FeedbacksCard`
 - **빌릴게**: `BililgeItemCard`에 `bordered` prop만 추가했다(흰 배경 위에서 테두리 `border-line-solid-neutral`). 메인 목록은 회색 배경 위라 테두리가 없다
 - **아카이빙**: Figma `Search Archiving Card`(`3013:127633`)는 Stream 로컬이고 이 화면 전용이라 `features/search/components/SearchArchivingCard.tsx`로 새로 만들었다
+
+## 학생회비 계좌 송금 플로우(`3562:162833` 외 5종) 구현 중 확정된 매핑
+
+| Figma 인스턴스 | 코드 | 확정 근거 |
+|---|---|---|
+| `Textinput/Textfield` | `TextField`(`@wanteddev/wds`) | 메인 컴포넌트 Node ID `445:8591` + [공식 문서](https://montage.wanted.co.kr/docs/components/selection-and-input/text-field/design). 남은 학기 수 입력칸(`3562:162844`)이 335×48·radius 12px로 실측 일치 |
+| `Icon/Normal/Upload` | `IconUpload`(`@wanteddev/wds-icon`) | 메인 컴포넌트 Node ID `3716:22984`("내용을 업로드할 때 사용합니다") |
+| `Icon/Normal/Trash` | `IconTrash`(`@wanteddev/wds-icon`) | 메인 컴포넌트 Node ID `3562:162692`("내용을 삭제할 때 사용합니다") |
+| `Modal`(`3562:162972`) | 공용 `ConfirmModal` | 311×190·radius 24px·버튼 2개로 기존 `Modal`(`995:34701`)과 같은 인스턴스다 |
+
+### `Image Upload Button`은 WDS가 아니다
+
+업로드 버튼(`3716:23609`, 335×46·radius 10px·1px `Line/Normal/Neutral` 테두리 + primary 라벨)은
+`search_design_system`에 같은 모양이 없다. 안쪽 아이콘만 WDS `Icon/Normal/Upload`고 껍데기는 Stream
+로컬이다 — WDS `Button`의 outlined는 radius·높이가 달라서 쓰지 않았다.
+
+### 파일 행 아이콘(`fa7-solid:image`)도 WDS가 아니다
+
+업로드한 파일 행의 28px 이미지 아이콘(`3562:162924`)은 이름 그대로 FontAwesome 글리프다. WDS
+`IconImage`는 외곽선 스타일이라 **이름은 비슷해도 모양이 달라서** SVG를 받아
+`src/assets/icons/fee/image-file.svg`로 커밋했다.
+
+### 48px 일러스트는 `export`로 받고 캔버스 배경을 걷어내야 한다
+
+`Won Icon`(`3562:163032`)·`Send Fast Icon`(`3562:162980`)은 `svgAssets`가 레이어별로 쪼개져 나와
+`download_assets`의 `export`(format `svg`)를 써야 한다. 그때 붙는 `<rect fill="#EFEFEF">`와 캔버스
+전체를 덮는 `<g id="UI">` 조상 path들을 지우고 아이콘 그룹만 남겼다(사물함 유의사항 일러스트와 같은 처리).
+
+### 송금 확인 화면의 Sub Action은 `ActionArea variant="strong"`이다
+
+주 버튼 아래 텍스트 버튼을 세로로 쌓는 배치(`3562:162974`)는 WDS가 `variant="strong"`일 때만
+`flex-direction: column` + `gap: 8px`가 된다(기본값은 가로 12px). 다만 `ActionAreaButton variant="sub"`가
+세로 margin 8px을 따로 갖고 있어 그대로 두면 간격이 16px이 되므로 `sx`로 `marginBlock: 0`을 준다.
+높이도 Figma가 44px인데 WDS는 28px이라 `paddingBlock: "12px"`로 보정한다.
+
+### 카드 테두리를 `border`로 그리면 안쪽 폭이 2px 깎인다
+
+업로드한 이미지 카드(`3562:162918`)는 Figma에서 335×104 안에 303px 행이 들어간다. CSS `border`는
+`box-sizing: border-box` 때문에 가로·세로를 각각 2px씩 먹어서 333/102가 된다 — `outline-1`
+`-outline-offset-1`로 그려야 Figma 수치와 맞는다.
