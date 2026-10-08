@@ -2,11 +2,11 @@ import { Typography } from "@wanteddev/wds";
 import { LottieLight } from "lottie-react";
 import { createPortal } from "react-dom";
 
-import submittingDocument from "@/assets/lottie/events/submitting.json";
+import submittingDocument from "@/assets/lottie/common/submitting.json";
 import { useScreenSheetPortal } from "@/components/ui/useScreenSheetPortal";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
-// Figma: 행사 로딩 (nodeId 1133:43453), 모션은 Loading / Document Review (1133:44260).
+// Figma: 행사 로딩 (nodeId 1133:43453), 사물함 신청 로딩 (1737:218076), 모션은 Loading / Document Review (1133:44260).
 // 3.4초 루프 안에서 체크·긴 줄·짧은 줄이 순서대로 그려지고 마지막에 함께 사라진다.
 //
 // 모션은 Figma LottieFiles 플러그인으로 뽑은 Lottie를 그대로 재생한다 — 자세한 규칙은
@@ -21,8 +21,18 @@ import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 // 173프레임에 모든 선이 완성되고 181프레임부터 함께 사라지기 시작한다.
 const DRAWN_SEGMENT = [175, 176] as const;
 
-// 제출 중 화면 — Figma에 헤더가 없어서 화면 포털에 흰 배경으로 프레임 전체를 덮는다.
-function EventsSubmittingOverlay({ open }: { open: boolean }) {
+interface SubmittingOverlayProps {
+  open: boolean;
+  title: string;
+  description: string;
+}
+
+// 신청 제출 중 화면(행사·사물함 공용) — Figma에 헤더가 없어서 화면 포털에 흰 배경으로 프레임 전체를 덮는다.
+function SubmittingOverlay({
+  open,
+  title,
+  description,
+}: SubmittingOverlayProps) {
   const portalEl = useScreenSheetPortal();
   const shouldReduceMotion = usePrefersReducedMotion();
 
@@ -50,7 +60,7 @@ function EventsSubmittingOverlay({ open }: { open: boolean }) {
           variant="heading1"
           weight="bold"
         >
-          신청서를 제출하고 있어요
+          {title}
         </Typography>
         <Typography
           as="p"
@@ -58,7 +68,7 @@ function EventsSubmittingOverlay({ open }: { open: boolean }) {
           variant="label1"
           weight="regular"
         >
-          곧 완료돼요! 잠시만 기다려 주세요
+          {description}
         </Typography>
       </div>
     </div>,
@@ -66,4 +76,4 @@ function EventsSubmittingOverlay({ open }: { open: boolean }) {
   );
 }
 
-export default EventsSubmittingOverlay;
+export default SubmittingOverlay;

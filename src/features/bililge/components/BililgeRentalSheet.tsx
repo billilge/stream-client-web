@@ -9,9 +9,9 @@ import { IconCircleInfo } from "@wanteddev/wds-icon";
 import { useEffect, useState } from "react";
 
 import BottomSheet from "@/components/ui/BottomSheet";
+import type { BililgeItem } from "@/entities/bililge/types";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
 import BililgeRentalConfirmModal from "@/features/bililge/components/BililgeRentalConfirmModal";
-import type { BililgeItem } from "@/features/bililge/constants/bililgeItems";
 
 interface BililgeRentalSheetProps {
   item: BililgeItem | null;

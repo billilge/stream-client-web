@@ -1,16 +1,4 @@
-export type NoticeCategory = "일반" | "제휴";
-
-export interface Notice {
-  id: string;
-  title: string;
-  date: string;
-  category: NoticeCategory;
-  isPinned?: boolean;
-  hasThumbnail?: boolean;
-  /** 상세 화면 이미지 갤러리 총 장수 — hasThumbnail일 때만 의미가 있다. */
-  photoCount?: number;
-  body: string;
-}
+import type { Notice } from "@/entities/notices/types";
 
 // Figma: 공지 상세 (nodeId 1256:81842) 목업 본문 — 목업 데이터라 공지 5건이 본문을 공유한다.
 const NOTICE_BODY = `안녕하십니까, 제10대 소프트웨어융합대학 학생회 '에코'입니다.

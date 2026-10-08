@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { getSearchPath } from "@/features/search/constants/search";
 
 // 홈 화면 콘텐츠는 아직 없어서, 라우팅이 실제로 동작하는지 확인할 placeholder만 둔다.
 // 챗봇 FAB(Figma nodeId 2443:178457 등, 홈 화면 variant마다 우하단에 고정)만 먼저 구현한다 —
@@ -25,7 +26,11 @@ function HomeScreen() {
           >
             <IconSetting />
           </TopNavigationButton>
-          <TopNavigationButton aria-label="검색" variant="icon">
+          <TopNavigationButton
+            aria-label="검색"
+            onClick={() => navigate(getSearchPath())}
+            variant="icon"
+          >
             <IconSearch />
           </TopNavigationButton>
           <TopNavigationButton aria-label="알림" variant="icon">

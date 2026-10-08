@@ -3,15 +3,9 @@ import { LottieLight } from "lottie-react";
 import completeCheck from "@/assets/lottie/common/complete-check.json";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
-// Figma: Circle Check Motion (nodeId 1712:192849, 설명 "System Check").
+// Figma: Circle Check Motion (nodeId 1712:192849), 완료 화면에 놓인 인스턴스는 1712:192851.
 // 원이 튀어올랐다 자리를 잡고(back-out) 체크 선이 그려진다(path trim). 타임라인은 2초 1회
 // 재생인데 실제 움직임은 앞 0.55초에 끝나고 나머지는 멈춰 있는 구간이다.
-//
-// 완료 화면들이 모두 이 메인 컴포넌트의 인스턴스라 공용으로 둔다 — 행사 신청 완료
-// (인스턴스 1712:192851), 회원 탈퇴 완료(3524:152512), 사물함 신청 완료(1737:218066).
-// 셋의 타임라인 길이·반복 설정은 Figma에서 제각각이지만(2초 loop / 1초 once / 2초 once)
-// 키프레임 값은 동일해서(원 450ms, 체크 550ms, 같은 back-out 이징) 실제로 보이는 모션이
-// 같다. 그래서 한 벌만 두고 1회 재생으로 통일한다.
 //
 // 모션은 Figma LottieFiles 플러그인으로 뽑은 Lottie를 그대로 재생한다 — 자세한 규칙은
 // component-convention.md "모션 (Lottie)" 참고. 이 파일은 export 원본을 가공 없이 쓴다.
@@ -19,6 +13,7 @@ import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 // 모션 줄이기를 켠 사용자에게는 다 그려진 한 프레임만 세워둔다. 33프레임에서 체크가 완성된다.
 const DRAWN_SEGMENT = [33, 34] as const;
 
+// 신청 완료 화면(행사·사물함 공용)의 체크 모션
 function CompleteCheck() {
   const shouldReduceMotion = usePrefersReducedMotion();
 
