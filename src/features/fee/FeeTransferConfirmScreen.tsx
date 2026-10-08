@@ -9,9 +9,10 @@ import { FEE_TRANSFER_PATHS } from "@/features/fee/constants/fee";
 // 토스에서 송금하고 돌아온 사용자에게 확인을 받는 단계. 실제 입금 확인은 학생회가 수동으로
 // 하기 때문에 여기서 "네"를 눌러야 확인 요청이 접수된다.
 //
-// 일러스트에 Figma Motion(종이비행기가 튀어 들어오는 2초 루프)이 붙어 있지만, Lottie는
-// Dev mode에서 뽑을 수 없고 LottieFiles 플러그인으로 디자이너가 내보내야 한다
-// (component-convention.md "모션 (Lottie)"). 받기 전까지는 정지 SVG로 둔다 —
+// 일러스트에 Figma Motion이 붙어 있다(3562:163004·163010) — 2초 루프 안에서 종이비행기가
+// 0~0.82초에 걸쳐 기울기·크기·위치가 함께 튀어 들어오고(overshoot), 꼬리 획이 0~0.4초에
+// 페이드인한다. Lottie는 Dev mode에서 못 뽑고 디자이너가 LottieFiles 플러그인으로 내보내야
+// 해서(component-convention.md "모션 (Lottie)") 받기 전까지는 정지 SVG로 둔다 —
 // 키프레임을 손으로 옮기지 않는다.
 function FeeTransferConfirmScreen() {
   const navigate = useNavigate();

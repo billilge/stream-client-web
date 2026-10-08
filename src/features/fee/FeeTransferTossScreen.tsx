@@ -16,6 +16,12 @@ import {
 //
 // 토스는 딥링크라 열렸는지 브라우저가 알려주지 않는다. 링크 주소 자체가 아직 없어서 지금은
 // 상수가 비어 있으면 곧바로 실패 상태로 두고, 주소가 생기면 window.open 결과로 판정한다.
+//
+// ₩ 아이콘에는 Figma Motion이 붙어 있다(3562:163039·163043) — 2초 루프 안에서 세로 획이
+// 0~1.1초, 가로 획이 0.42~1.1초에 걸쳐 그려진다(ease cubic-bezier(0.25, 0.65, 0.35, 1)).
+// Lottie는 Dev mode에서 못 뽑고 디자이너가 LottieFiles 플러그인으로 내보내야 해서
+// (component-convention.md "모션 (Lottie)"), 받기 전까지는 다 그려진 정지 SVG로 둔다.
+// 키프레임을 손으로 옮기지 않는다.
 function FeeTransferTossScreen() {
   const navigate = useNavigate();
   const [hasFailed, setFailed] = useState(false);
