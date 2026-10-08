@@ -39,7 +39,7 @@ function NotificationsListSkeleton() {
               width="40px"
             />
           </div>
-          <div className="pt-1 pr-[38px] pl-8">
+          <div className="pt-1 pr-9.5 pl-8">
             <Skeleton
               animation={animation}
               height="18px"

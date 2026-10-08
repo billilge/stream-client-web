@@ -51,8 +51,8 @@ function NotificationsItem({
             {timeLabel}
           </Typography>
         </div>
-        {/* 아이콘(24) + 간격(8) 만큼 들여 라벨과 같은 줄에서 시작하고, 오른쪽은 38px 비운다 */}
-        <div className="pr-[38px] pl-8">
+        {/* 아이콘(24) + 간격(8) 만큼 들여 라벨과 같은 줄에서 시작하고, 오른쪽은 38px(pr-9.5) 비운다 */}
+        <div className="pr-9.5 pl-8">
           <Typography
             color="semantic.label.normal"
             variant="label1-reading"
