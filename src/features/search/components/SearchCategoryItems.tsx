@@ -1,16 +1,13 @@
 import { Divider } from "@wanteddev/wds";
 import { Fragment, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import type { SearchResults } from "@/entities/search/types";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
 import EventsCard from "@/features/events/components/EventsCard";
 import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
 import NoticesCard from "@/features/notices/components/NoticesCard";
 import SearchArchivingCard from "@/features/search/components/SearchArchivingCard";
-import type {
-  SearchCategory,
-  SearchResults,
-} from "@/features/search/constants/search";
+import type { SearchCategory } from "@/features/search/constants/search";
 
 interface SearchCategoryItemsProps {
   category: SearchCategory;

@@ -1,9 +1,4 @@
-export interface ArchiveItem {
-  id: string;
-  title: string;
-  /** 이미 포맷된 표시용 문자열 (예: "2025.05.04") */
-  date: string;
-}
+import type { ArchiveItem } from "@/entities/archives/types";
 
 // Figma: 검색 완료 - 모든 검색 UI > Search Archiving Card (nodeId 3013:127633) 목업 데이터.
 // 아카이빙 목록·상세 화면이 아직 없어서 지금은 검색 결과에서만 쓴다. 실 API가 붙으면 교체한다.

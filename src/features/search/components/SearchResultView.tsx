@@ -2,6 +2,7 @@ import { Button, Tab, TabList, TabListItem } from "@wanteddev/wds";
 import { IconChevronRight } from "@wanteddev/wds-icon";
 import { Fragment } from "react";
 
+import type { SearchResults } from "@/entities/search/types";
 import SearchCategoryItems from "@/features/search/components/SearchCategoryItems";
 import SearchEmptyState from "@/features/search/components/SearchEmptyState";
 import SearchSectionHeader from "@/features/search/components/SearchSectionHeader";
@@ -13,7 +14,6 @@ import {
   SEARCH_ALL_TAB_SECTIONS,
   SEARCH_CATEGORY_LABELS,
   SEARCH_TABS,
-  type SearchResults,
   type SearchTab,
 } from "@/features/search/constants/search";
 

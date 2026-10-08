@@ -1,17 +1,4 @@
-import {
-  ARCHIVES,
-  type ArchiveItem,
-} from "@/features/archives/constants/archives";
-import {
-  BILILGE_ITEMS,
-  type BililgeItem,
-} from "@/features/bililge/constants/bililgeItems";
-import { EVENTS, type EventItem } from "@/features/events/constants/events";
-import {
-  FEEDBACKS,
-  type Feedback,
-} from "@/features/feedbacks/constants/feedbacks";
-import { NOTICES, type Notice } from "@/features/notices/constants/notices";
+import type { SearchResults } from "@/entities/search/types";
 
 // 검색 결과 카테고리 — 키는 용어 사전(terminology.md)의 코드 용어를 그대로 쓴다.
 export type SearchCategory =
@@ -22,14 +9,6 @@ export type SearchCategory =
   | "archives";
 
 export type SearchTab = "all" | SearchCategory;
-
-export interface SearchResults {
-  events: EventItem[];
-  notices: Notice[];
-  feedbacks: Feedback[];
-  bililge: BililgeItem[];
-  archives: ArchiveItem[];
-}
 
 export const SEARCH_CATEGORY_LABELS = {
   archives: "아카이빙",
@@ -60,9 +39,6 @@ export const SEARCH_ALL_TAB_SECTIONS: SearchCategory[] = [
 ];
 export const SEARCH_ALL_TAB_PREVIEW_COUNT = 2;
 
-// 실제 API가 붙기 전까지 "응답 대기 중 스켈레톤 UI"(화면설계서 8번)를 볼 수 있게 두는 가짜 지연.
-export const SEARCH_MOCK_DELAY_MS = 600;
-
 export function getSearchTabLabel(tab: SearchTab): string {
   return tab === "all" ? "전체" : SEARCH_CATEGORY_LABELS[tab];
 }
@@ -89,34 +65,4 @@ export function getSearchResultCount(
     );
   }
   return results[tab].length;
-}
-
-function includesKeyword(text: string, keyword: string): boolean {
-  return text.toLowerCase().includes(keyword);
-}
-
-// 목데이터 기준 클라이언트 검색이다 — 제목류 필드만 대소문자 무시 부분 일치로 본다.
-// 공지·행사 본문은 목데이터가 전부 같은 글이라 본문까지 보면 아무 키워드나 전부 걸린다.
-export function searchAll(rawKeyword: string): SearchResults {
-  const keyword = rawKeyword.trim().toLowerCase();
-  if (!keyword) {
-    return {
-      archives: [],
-      bililge: [],
-      events: [],
-      feedbacks: [],
-      notices: [],
-    };
-  }
-  return {
-    archives: ARCHIVES.filter((item) => includesKeyword(item.title, keyword)),
-    bililge: BILILGE_ITEMS.filter((item) =>
-      includesKeyword(item.name, keyword),
-    ),
-    events: EVENTS.filter((item) => includesKeyword(item.title, keyword)),
-    feedbacks: FEEDBACKS.filter((item) =>
-      includesKeyword(item.question, keyword),
-    ),
-    notices: NOTICES.filter((item) => includesKeyword(item.title, keyword)),
-  };
 }
