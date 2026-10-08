@@ -1,7 +1,8 @@
 import { ActionAreaButton } from "@wanteddev/wds";
 import { useNavigate } from "react-router-dom";
 
-import sendFastIcon from "@/assets/icons/fee/send-fast.svg";
+import sendFastMotion from "@/assets/lottie/fee/send-fast.json";
+import FeeLottieIcon from "@/features/fee/components/FeeLottieIcon";
 import FeeTransferStepLayout from "@/features/fee/components/FeeTransferStepLayout";
 import { FEE_TRANSFER_PATHS } from "@/features/fee/constants/fee";
 
@@ -9,11 +10,9 @@ import { FEE_TRANSFER_PATHS } from "@/features/fee/constants/fee";
 // 토스에서 송금하고 돌아온 사용자에게 확인을 받는 단계. 실제 입금 확인은 학생회가 수동으로
 // 하기 때문에 여기서 "네"를 눌러야 확인 요청이 접수된다.
 //
-// 일러스트에 Figma Motion이 붙어 있다(3562:163004·163010) — 2초 루프 안에서 종이비행기가
-// 0~0.82초에 걸쳐 기울기·크기·위치가 함께 튀어 들어오고(overshoot), 꼬리 획이 0~0.4초에
-// 페이드인한다. Lottie는 Dev mode에서 못 뽑고 디자이너가 LottieFiles 플러그인으로 내보내야
-// 해서(component-convention.md "모션 (Lottie)") 받기 전까지는 정지 SVG로 둔다 —
-// 키프레임을 손으로 옮기지 않는다.
+// 종이비행기(3562:162980)는 기울기·크기·위치가 함께 튀어 들어오는(overshoot) Figma Motion이라
+// Lottie로 받아 재생한다. 플러그인이 이징을 매 프레임으로 구워서 키프레임만 보면 끝을 알 수
+// 없는데, 실제 값은 49프레임(0.82초)부터 고정이다 — rotation 6° → -2.5° → 1° → 0°로 잦아든다.
 function FeeTransferConfirmScreen() {
   const navigate = useNavigate();
 
@@ -43,7 +42,9 @@ function FeeTransferConfirmScreen() {
       }
       actionsVariant="strong"
       contentGap={12}
-      illustration={<img alt="" className="size-12" src={sendFastIcon} />}
+      illustration={
+        <FeeLottieIcon animation={sendFastMotion} settledFrame={49} />
+      }
       title="송금을 완료하셨나요?"
     />
   );
