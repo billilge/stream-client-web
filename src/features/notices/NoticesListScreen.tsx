@@ -8,6 +8,7 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import type { NoticeCategory } from "@/entities/notices/types";
 import NoticesList from "@/features/notices/components/NoticesList";
 import NoticesListSkeleton from "@/features/notices/components/NoticesListSkeleton";
+import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
 type NoticeTab = "all" | "general" | "partnership";
@@ -42,7 +43,13 @@ function NoticesListScreen() {
           >
             <IconSearch />
           </TopNavigationButton>
-          <TopNavigationButton aria-label="알림" variant="icon">
+          <TopNavigationButton
+            aria-label="알림"
+            onClick={() =>
+              navigate(NOTIFICATIONS_PATH, { viewTransition: true })
+            }
+            variant="icon"
+          >
             <IconBell />
           </TopNavigationButton>
         </>

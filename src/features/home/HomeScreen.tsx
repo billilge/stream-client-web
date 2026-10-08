@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
 // 홈 화면 콘텐츠는 아직 없어서, 라우팅이 실제로 동작하는지 확인할 placeholder만 둔다.
@@ -25,7 +26,13 @@ function HomeScreen() {
           >
             <IconSearch />
           </TopNavigationButton>
-          <TopNavigationButton aria-label="알림" variant="icon">
+          <TopNavigationButton
+            aria-label="알림"
+            onClick={() =>
+              navigate(NOTIFICATIONS_PATH, { viewTransition: true })
+            }
+            variant="icon"
+          >
             <IconBell />
           </TopNavigationButton>
         </>

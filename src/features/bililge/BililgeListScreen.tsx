@@ -15,6 +15,7 @@ import BililgeItemList from "@/features/bililge/components/BililgeItemList";
 import BililgeListSkeleton from "@/features/bililge/components/BililgeListSkeleton";
 import BililgeRentalSheet from "@/features/bililge/components/BililgeRentalSheet";
 import BililgeReturnSection from "@/features/bililge/components/BililgeReturnSection";
+import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
 // Figma: 빌릴게 (nodeId 1243:73331)
@@ -37,7 +38,13 @@ function BililgeListScreen() {
           >
             <IconSearch />
           </TopNavigationButton>
-          <TopNavigationButton aria-label="알림" variant="icon">
+          <TopNavigationButton
+            aria-label="알림"
+            onClick={() =>
+              navigate(NOTIFICATIONS_PATH, { viewTransition: true })
+            }
+            variant="icon"
+          >
             <IconBell />
           </TopNavigationButton>
         </>
