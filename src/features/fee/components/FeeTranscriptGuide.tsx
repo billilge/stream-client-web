@@ -13,8 +13,11 @@ import transcriptExample from "@/assets/images/fee/transcript-example.png";
 function FeeTranscriptGuide() {
   return (
     // Figma 카드는 248px에서 잘린다 — 예시 이미지 아래쪽(이수학기 행)이 일부러 잘려 보인다
-    // 335px 카드 안에 280px 그림을 가운데 두면 좌우가 27.5px씩 남는다(Figma는 28/27로 반올림)
-    <div className="flex h-[248px] flex-col items-center gap-[13px] overflow-hidden rounded-xl bg-background-alternative px-[27.5px] pt-4">
+    // 카드 높이를 고정하지 않는다 — 화면 프레임이 w-full / sm:w-[480px]라 카드 폭이 변하는데,
+    // 248px(375 기준)로 박으면 넓은 화면에서 그림 아래가 잘린다. 아래 여백 없이 그림이 카드
+    // 바닥에 붙는 Figma 구조(3562:162857: 위 16px, 내용 231.76px, 합 248px) 그대로 내용이
+    // 높이를 정하게 두면 설계 폭에서 자동으로 248px이 된다. 모서리 때문에 overflow만 숨긴다.
+    <div className="flex flex-col items-center gap-[13px] overflow-hidden rounded-xl bg-background-alternative px-7 pt-4">
       <Typography
         as="p"
         className="w-full"
@@ -24,9 +27,11 @@ function FeeTranscriptGuide() {
       >
         캡처 예시
       </Typography>
+      {/* Figma 그림 크기는 280px 고정이다. 카드가 그보다 좁아지면 Tailwind preflight의
+          max-width:100%가 알아서 줄여준다 — 넓어져도 커지지는 않게 w-full을 쓰지 않는다. */}
       <img
         alt="학점이수현황 캡처 예시 — 학생정보와 이수학기가 보이는 화면"
-        className="w-full shrink-0"
+        className="w-[280px] shrink-0"
         height={615}
         src={transcriptExample}
         width={840}
