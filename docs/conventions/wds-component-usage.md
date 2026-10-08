@@ -584,3 +584,28 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 - **재사용(수정 없음)**: 행사 `EventsCard`, 공지 `NoticesCard`, 열린피드백 `FeedbacksCard`
 - **빌릴게**: `BililgeItemCard`에 `bordered` prop만 추가했다(흰 배경 위에서 테두리 `border-line-solid-neutral`). 메인 목록은 회색 배경 위라 테두리가 없다
 - **아카이빙**: Figma `Search Archiving Card`(`3013:127633`)는 Stream 로컬이고 이 화면 전용이라 `features/search/components/SearchArchivingCard.tsx`로 새로 만들었다
+
+## 홈 화면(`3147:146240` 2건 이하 / `3147:146297` 3건 이상 / `3562:163866` empty) 구현 중 확정된 매핑
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| Top Navigation `State=Home` (`547:31364`) | `ScreenHeader`(display) + `title`에 로고 | 게시판 헤더와 같은 Stream 로컬 컴포넌트의 상태 하나다. 그래서 display variant의 `title`이 글자 대신 요소(로고)도 받게 넓혔다 |
+| `Button/Icon/Normal` + `Push Badge` (`3147:146473`) | `TopNavigationButton` + `PushBadge variant="dot"` | 알림 점은 WDS `PushBadge` 기본 크기·`top-right`가 Figma 위치와 같다 |
+| `Page Indicator/Counter` (`471:13822`) | `PageCounter size="small" alternative` | 카드마다 자기 순서를 표시한다 |
+| `Content Badge` (신청마감·학생회비·사물함 상태) | `ContentBadge size="small" variant="solid"` | 강조색 redOrange·orange·red·green은 `color="accent"`, 회색(미신청)은 `color="neutral"` + `semantic.label.alternative` |
+| `Menu/Resource/Action Area/Trailing Content/Button` (반납 신청) | `BililgeItemCard` 재사용 | 홈은 흰 카드 안의 줄이라 `surface={false}`, 기한이 지나면 `subtitleTone="negative"` |
+| 빈 상태 버튼 `대여하러 가기` / `행사 둘러보기` | `Button size="small"` | 앞은 `color="assistive" variant="solid"`, 뒤는 반납 신청과 같은 연파랑 `sx` 보정 |
+
+### 공지 배너는 템플릿 6종 — 그림·배경색은 공지마다가 아니라 종류별이다
+
+Figma(`3562:163869`)에 일반공지·행사·제휴·사물함·간식·의견 6종이 있고 카드 구조는 같다. 다른 건 배경색·그림 크기와 위치·그라데이션 위치뿐이라 `HomeNoticeBanner`의 `NOTICE_TEMPLATES` 표 하나로 모았다. 배경색은 Figma에서도 변수가 아닌 raw hex라 `--color-notice-banner-*` 토큰으로 뒀다. 그림은 Figma에서 잘린 모양 그대로 3배로 내보낸 PNG다(`src/assets/images/home/`).
+
+화면설계서 기준으로 5초마다 넘어가고, 마지막 카드 오른쪽에 첫 카드 복제본을 둬서 같은 방향으로 이어진다. 카드 폭은 화면 폭 - 40(Figma 375 기준 335)이고, 카드 사이를 40px 띄워 이전·다음 카드는 화면에 보이지 않게 했다(Figma는 다음 카드가 12px 보이지만 팀 논의로 숨기기로 함).
+
+### 홈 헤더는 레이아웃 헤더 슬롯에 두지 않는다
+
+Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px)가 헤더까지 번진다. 레이아웃 헤더 슬롯(`useScreenHeader`)에 두면 스크롤 영역 위 끝에서 그림자가 잘려 헤더와 배너 사이에 선이 생겨서, 홈만 스크롤 영역 안에 `sticky` 헤더를 두고 스크롤하면 배경을 깐다. 같은 이유로 배너 가로 스크롤 영역도 위아래 60px 넓혀 그림자를 자르지 않는다.
+
+### 빈 상태는 WDS `FallbackView`가 아니라 홈 로컬 `HomeEmptyState`
+
+일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/bililge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/events/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.

@@ -9,10 +9,13 @@ interface ScreenHeaderToggleTitle {
 
 type ScreenHeaderTitle = string | ScreenHeaderToggleTitle;
 
-function isToggleTitle(
-  title: ScreenHeaderTitle,
-): title is ScreenHeaderToggleTitle {
-  return typeof title !== "string";
+function isToggleTitle(title: unknown): title is ScreenHeaderToggleTitle {
+  return (
+    typeof title === "object" &&
+    title !== null &&
+    "options" in title &&
+    "activeIndex" in title
+  );
 }
 
 // Figma: 게시판류 화면의 "공지 | 열린피드백" 같은 2단 탭 타이틀(nodeId 1256:81792 "Board Title").
@@ -47,7 +50,8 @@ function ScreenHeaderToggleTitle({
 type ScreenHeaderProps =
   | {
       variant?: "display";
-      title?: ScreenHeaderTitle;
+      // 홈은 글자 대신 로고를 넣는다(Figma Top Navigation `State=Home`, nodeId 547:31364)
+      title?: ScreenHeaderTitle | ReactNode;
       trailing?: ReactNode;
     }
   | {
@@ -102,19 +106,20 @@ function ScreenHeader(props: ScreenHeaderProps) {
     <div className="flex w-full flex-col">
       <div className="flex w-full items-center justify-between px-5 py-3">
         <div className="flex min-w-0 items-center">
-          {title !== undefined &&
-            (isToggleTitle(title) ? (
-              <ScreenHeaderToggleTitle {...title} />
-            ) : (
-              <Typography
-                as="h2"
-                color="semantic.label.strong"
-                variant="title3"
-                weight="bold"
-              >
-                {title}
-              </Typography>
-            ))}
+          {typeof title === "string" ? (
+            <Typography
+              as="h2"
+              color="semantic.label.strong"
+              variant="title3"
+              weight="bold"
+            >
+              {title}
+            </Typography>
+          ) : isToggleTitle(title) ? (
+            <ScreenHeaderToggleTitle {...title} />
+          ) : (
+            title
+          )}
         </div>
         {trailing !== undefined && (
           <div className="flex shrink-0 items-center gap-4">{trailing}</div>

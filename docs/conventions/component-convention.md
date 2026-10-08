@@ -51,6 +51,15 @@ interface RentalItemCardProps {
 - 색은 `text-[#171719]`처럼 hex를 직접 박지 않는다. `src/index.css`의 `@theme` 블록에 있는 시맨틱 토큰(`text-label-normal`, `bg-background-alternative`, `border-line-solid-neutral`, `text-primary`, `bg-primary-subtle` 등)을 쓴다. 이 토큰들은 `@wanteddev/wds/global.css`가 심어둔 `--semantic-*`/`--atomic-*` CSS 변수를 그대로 별칭 연결한 것이라 다크 테마 전환도 자동으로 따라간다.
 - 필요한 색이 아직 토큰으로 없으면, hex를 추측해서 쓰지 말고 `get_variable_defs(fileKey, nodeId)`로 해당 노드의 실제 Figma 변수명·값을 확인한 뒤 `index.css`의 `@theme`에 새 토큰을 추가한다. `Line/Normal/Neutral`(반투명 `#70737c29`)과 `Line/Solid/Neutral`(불투명 `#eaebec`)처럼 이름이 비슷해도 값이 다른 토큰이 있으니 이름만 보고 넘겨짚지 않는다.
 - 컴포넌트 인스턴스가 없는 화면 배경/외곽선처럼 Figma 값이 실제로는 안 보이는 경우(예: Bottom Nav 상단 border가 바로 위 배경과 같은 색이라 안 보였던 사례)도 있다 — 이럴 땐 왜 다른 토큰으로 바꿨는지 주석으로 남긴다.
+
+### 크기·위치·그림자
+
+- 크기·위치·간격도 `h-[261px]`처럼 px 임의값을 박지 않는다. 아래 순서로 정한다.
+  1. **Tailwind 단계**: 정수 px면 단계로 쓴다. Tailwind v4는 0.25 단위(=1px) 소수 단계를 받는다 — `w-[264px]` → `w-66`, `top-[86px]` → `top-21.5`, `size-[42px]` → `size-10.5`.
+  2. **이름 붙인 토큰**: 화면의 기준이 되는 크기(배너 높이 등)나 Figma 효과 스타일(그림자)은 `index.css`의 `@theme`에 이름을 붙여 쓴다 — `--spacing-notice-banner: 261px` → `h-notice-banner`, `--shadow-spread-small` → `shadow-spread-small`. 색 토큰과 같은 방식이다.
+  3. **구조로 없애기**: 그림 위치·크기를 숫자로 맞춰야 하는 자리는 에셋을 Figma 배치대로 잘라 받아(카드 크기 그림, 회전이 반영된 SVG 등) `w-full`·고유 크기로 놓는다. 글자 폭처럼 남는 공간을 채우는 값은 `flex-1`·`min-w-0`으로 둔다.
+  4. **예외**: 0.5px 선처럼 단계·토큰으로 나타낼 수 없는 값만 임의값으로 쓰고, 어느 Figma 값인지 주석을 남긴다.
+
 ### 타이포그래피
 
 - 글자 크기·굵기를 `text-xs`/`text-[17px]`/`font-semibold`처럼 Tailwind로 직접 짓지 않는다. `@wanteddev/wds`의 `Typography` 컴포넌트를 쓴다 — Figma의 이름 있는 타입 스타일(Headline 2/Bold 등)과 `variant`+`weight` 조합이 1:1로 대응한다(`node_modules/@wanteddev/wds/dist/components/typography/style.js`에서 실측 확인 가능).
@@ -96,6 +105,7 @@ Figma Motion(키프레임 타임라인)이 붙은 요소는 키프레임을 손�
 
 - [ ] WDS로 확인된 요소는 전부 import로 대체했다 (raw JSX 없음)
 - [ ] 텍스트는 `Typography`(`variant`+`weight`)로 썼다 — 서드파티가 className만 받는 자리가 아닌 이상 `text-xs`/`text-[Npx]` 직접 사용 없음
+- [ ] 크기·위치·그림자에 px 임의값이 없다 — Tailwind 단계·`@theme` 토큰·에셋 배치로 대체했고, 남은 예외에는 주석이 있다
 - [ ] Stream 고유 요소만 새 컴포넌트로 작성했다
 - [ ] Props가 Figma variant를 유니온 타입으로 반영한다
 - [ ] 이미지/아이콘 asset을 다운로드해 커밋했다 (만료되는 Figma URL 미참조)
