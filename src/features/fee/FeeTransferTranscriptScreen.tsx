@@ -9,7 +9,7 @@ import FeeTranscriptGuide from "@/features/fee/components/FeeTranscriptGuide";
 import FeeTransferStepLayout from "@/features/fee/components/FeeTransferStepLayout";
 import FeeUploadedFileCard from "@/features/fee/components/FeeUploadedFileCard";
 import {
-  FEE_EXTERNAL_LINKS,
+  FEE_K_SMART_MENTOR_URL,
   FEE_TRANSFER_PATHS,
 } from "@/features/fee/constants/fee";
 
@@ -40,8 +40,8 @@ function FeeTransferTranscriptScreen() {
 
   const handleGuideConfirm = () => {
     setGuideModalOpen(false);
-    if (FEE_EXTERNAL_LINKS.kSmartMentor) {
-      window.open(FEE_EXTERNAL_LINKS.kSmartMentor, "_blank", "noopener");
+    if (FEE_K_SMART_MENTOR_URL) {
+      window.open(FEE_K_SMART_MENTOR_URL, "_blank", "noopener");
     }
   };
 
