@@ -69,6 +69,7 @@ interface RentalItemCardProps {
   | `caption1` | `regular` | 12px / Regular | Caption 1/Regular |
   | `caption2` | `medium` | 11px / Medium | Caption 2/Medium |
 
+- **입력칸(`<input>`)도 `Typography`로 그린다**: `Typography`는 `as`로 태그를 바꿀 수 있어서 `<Typography as="input" variant="body1" weight="regular" color="semantic.label.normal" value={…} onChange={…} />`처럼 쓰면 입력칸이 WDS 글자 스타일을 그대로 받는다. `text-[14px]`처럼 값을 박지 않는다. placeholder 색만 `placeholder:text-label-assistive`로 준다. iOS 입력칸 자동 확대는 글자 크기가 아니라 `index.html`의 viewport 설정(iOS 전용 `maximum-scale=1`)으로 막으므로 Figma 크기 그대로 둔다.
 - **예외**: 서드파티 라이브러리가 `className` 문자열만 받아서 자기 DOM에 그대로 꽂는 자리(예: `@ncdai/react-wheel-picker`의 `classNames` prop)는 `Typography`로 감쌀 수 없다 — 이럴 땐 Tailwind `text-[17px]` 같은 값을 그대로 쓰되, 어느 Figma 타입 스타일을 옮긴 값인지 주석을 남긴다(`BililgeRentalSheet.tsx`의 `WHEEL_CLASS_NAMES` 참고).
 
 - Stream 자체 이미지·아이콘(일러스트, 물품 아이콘 등)은 `download_assets`로 받아 `src/assets/`에 커밋한다. Figma asset URL은 **7일 후 만료**되므로 절대 코드에 그대로 참조하지 않는다.
