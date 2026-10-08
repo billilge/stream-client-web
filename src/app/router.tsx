@@ -23,6 +23,8 @@ import LockersLockerSelectScreen from "@/features/lockers/LockersLockerSelectScr
 import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
+import NotificationsScreen from "@/features/notifications/NotificationsScreen";
+import NotificationsSettingsScreen from "@/features/notifications/NotificationsSettingsScreen";
 import SearchScreen from "@/features/search/SearchScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
@@ -130,6 +132,24 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/search",
+          },
+          {
+            element: <NotificationsScreen />,
+            // Figma 알림 화면에는 Bottom Nav가 없고(뒤로가기로 진입한 화면에 복귀) 배경이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/notifications",
+          },
+          {
+            element: <NotificationsSettingsScreen />,
+            // 알림 화면의 설정 아이콘으로 들어가는 화면 — 알림 화면과 같은 이유로 Bottom Nav 없이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/notifications/settings",
           },
           {
             element: <ChatEntryScreen />,

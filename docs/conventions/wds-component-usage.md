@@ -584,3 +584,31 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 - **재사용(수정 없음)**: 행사 `EventsCard`, 공지 `NoticesCard`, 열린피드백 `FeedbacksCard`
 - **빌릴게**: `BililgeItemCard`에 `bordered` prop만 추가했다(흰 배경 위에서 테두리 `border-line-solid-neutral`). 메인 목록은 회색 배경 위라 테두리가 없다
 - **아카이빙**: Figma `Search Archiving Card`(`3013:127633`)는 Stream 로컬이고 이 화면 전용이라 `features/search/components/SearchArchivingCard.tsx`로 새로 만들었다
+
+## 알림(`3595:107100` 목록 / `3595:107112` empty / `3628:110837` 설정) 구현 중 확정된 매핑
+
+코드는 `src/features/notifications/` 참고.
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| `Switch/Switch` (`679:16080`, Small) | `Switch size="small"` | 39×24, 켜짐 배경 `Primary/Normal`(#0066FF), 꺼짐 `Fill/Strong` — 실측으로 Figma와 일치한다. 값은 `checked`/`onCheckedChange`로 제어한다 |
+| `Icon/Normal/Setting` (`492:5735`) | `IconSetting` | 알림 목록 헤더 트레일링 설정 버튼. `ScreenHeader variant="normal"`의 `trailing` + `TopNavigationButton variant="icon"` |
+| `Icon/Normal/Chevron Left` | `IconChevronLeft` | 뒤로가기 — 다른 `variant="normal"` 화면과 같다 |
+| `Divider(new)` 8px (`487:19439`) | `<div className="h-2 … bg-background-alternative">` | 검색 전체 탭의 섹션 구분 띠와 같은 로컬 처리 |
+| `Icon/Normal/Megaphone`·`Icon/Normal/Ticket` | 쓰지 않음 | 알림 항목의 카테고리 아이콘은 WDS 아이콘이 아니라 24px 배지 전체(`알림 - 공지` 등 6종)가 Stream 로컬 에셋이다. 배경(`#F7F7F8`, radius 6)과 아이콘 색이 종류마다 고정이라 `src/assets/icons/notifications/*.svg`로 받았다 |
+
+### `Notification Item`은 Stream 로컬이다
+
+항목 하나(`3595:107106`)는 카테고리 배지·라벨·상대 시간 줄 + 메시지 줄로 이뤄진 Stream 고유 목록 행이다. WDS `List`/`Card` 계열과 구조가 달라 `NotificationsItem`으로 새로 만들었고 텍스트는 `Typography`로 채웠다(라벨 `caption1`/`regular`, 시간 `caption2`/`regular`, 메시지 `label1-reading`/`medium`).
+
+- 안 읽은 항목만 `Atomic/Blue/99` 배경이라 `index.css`에 `--color-notification-unread` 토큰을 추가했다. **아이콘 색은 읽음 여부와 상관없다** — 처음엔 첫 항목만 진한 아이콘으로 보여 읽음 표현이라고 오해하기 쉬운데, `빌릴게 반납`·`공지`·`행사`는 원래 진한 파랑, `빌릴게 대여`·`열린피드백`은 원래 연한 파랑이다.
+- 항목을 눌렀을 때 이동은 디자인에 없어서 읽음 처리까지만 넣었다.
+- 에셋은 `download_assets`의 whole-node svg 내보내기에 컴포넌트 세트 배경(회색 사각형, 가로 5천 px짜리 프레임 도형)이 같이 딸려 와서, 그중 `알림 - …` 24px 배지 그룹만 꺼내 `viewBox="0 0 24 24"` svg로 다시 감쌌다. 공지·행사·열린피드백은 `download_assets`의 `svgAssets`가 회전한 Ratio 레이어 조각으로 쪼개져 나와서 쓸 수 없었다.
+
+### Empty State는 폭을 고정하지 않는다
+
+행사·검색 empty와 같은 뼈대지만 Figma 컨테이너 폭 203px은 가장 긴 문구("새로운 소식이 있으면 알려 드릴게요.")에 맞춘 값이다. `w-[203px]`로 고정하면 폰트 폭이 0.2px만 넓어도(Pretendard를 못 불러온 환경에서 실제로 203.2px) 마지막 글자 "요."가 다음 줄로 넘어간다 — 문구 폭에 맡긴다. 수직 위치는 프레임 전체 높이 기준 가운데(헤더 56px만큼 `pb-14`로 올림)이고, 812px 뷰포트에서 중심이 406px로 Figma와 같다.
+
+### 설정 화면의 "전체 알림"은 상태를 따로 두지 않는다
+
+Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독립된 값이 아니라 카테고리가 모두 켜졌는지로 파생한다. 누르면 네 카테고리를 같은 값으로 맞추고, 하나라도 끄면 전체가 꺼진다. 값은 화면 state뿐이라 새로고침하면 초기값으로 돌아간다(서버 API 연동 때 교체).
