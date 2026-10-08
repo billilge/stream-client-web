@@ -1,181 +1,25 @@
-import {
-  ActionArea,
-  ActionAreaButton,
-  Divider,
-  TopNavigationButton,
-  Typography,
-} from "@wanteddev/wds";
-import { IconChevronLeft } from "@wanteddev/wds-icon";
+import { Suspense } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import PhotoGallery from "@/components/ui/PhotoGallery";
-import EventsEmptyState from "@/features/events/components/EventsEmptyState";
-import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
-import { EVENTS } from "@/features/events/constants/events";
+import EventsDetailContent from "@/features/events/components/EventsDetailContent";
+import EventsDetailSkeleton from "@/features/events/components/EventsDetailSkeleton";
 
-// Figma: 행사 상세 (nodeId 1133:42433 모집중 / 1156:53992 모집예정)
-//
-// 헤더를 useScreenHeader로 등록하지 않는다 — Figma는 뒤로가기 버튼이 Hero 이미지 위에 떠 있는
-// 오버레이인데 ScreenLayout의 헤더 슬롯은 본문 위에 자리를 차지하는 구조라 그대로는 못 맞춘다.
-// 훅을 호출하지 않으면 슬롯이 null(0px)로 남아서, Hero가 화면 최상단부터 시작한다.
-// 공용 ScreenHeader에 overlay 옵션을 넣는 방안도 검토했지만 다른 화면에 영향이 가서 로컬로 뒀다.
-//
-// 상태별로 갈리는 건 뱃지와 하단 CTA뿐이다 — 모집중만 활성이고 나머지는 disabled에
-// 목데이터의 actionLabel("8월 10일 오픈" / "모집종료")이 그대로 들어간다(목록 카드와 같은 규칙).
+// 행사 상세 화면 — 이동 같은 화면 동작만 정하고, 행사 데이터를 받는 동안은 상세 배치를 따른
+// 스켈레톤을 보여준다. 헤더가 없는 화면이라(EventsDetailContent 주석 참고) 화면 전체가 데이터 영역이다.
 function EventsDetailScreen() {
   const navigate = useNavigate();
-  const { eventId } = useParams<{ eventId: string }>();
-  const event = EVENTS.find((item) => item.id === eventId);
-
-  if (!event) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <EventsEmptyState
-          description="목록에서 다시 선택해 주세요"
-          title="행사를 찾을 수 없어요"
-        />
-      </div>
-    );
-  }
-
-  const isOpen = event.status === "open";
-  const hasMultipleImages = event.imageCount > 1;
+  const { eventId = "" } = useParams<{ eventId: string }>();
 
   return (
-    // Figma 상세 루트 배경은 Background/Normal/Normal(#FFFFFF)이다 — ScreenLayout 기본
-    // 배경(Background/Normal/Alternative, #F7F7F8)과 다르다. 흰 배경이어야 Action Area의
-    // 흰 그라데이션이 본문으로 자연스럽게 사라진다(회색 위에 깔면 경계선으로 보인다).
-    //
-    // Action Area는 Figma처럼 absolute로 본문을 덮는다. 아래 형제로 두면 스크롤 영역이
-    // Action Area 위에서 끝나 버려서, 글이 그 아래로 흘러 들어가며 사라지는 효과가 안 난다.
-    <div className="relative flex-1 overflow-hidden bg-background-normal">
-      <div className="scrollbar-hidden h-full overflow-y-auto">
-        {/* Hero — 실제 행사 이미지 API 전까지 Figma와 같은 단색 placeholder.
-            Figma는 375×375 정사각이라 폭이 유동인 지금 레이아웃에서는 aspect-square로 둔다.
-            이미지가 여러 장이면 가로 스크롤 스냅으로 한 장씩 넘긴다(공지 상세와 같은 PhotoGallery). */}
-        <PhotoGallery
-          idPrefix={event.id}
-          key={event.id}
-          overlay={
-            // 뒤로가기는 스크롤되지 않게 스크롤 컨테이너 밖에 절대배치한다. 행사 상세는
-            // ScreenHeader를 안 쓰고 이미지 위 오버레이 버튼이라 슬롯이 아니라 overlay로 넘긴다.
-            <div className="absolute top-4 left-4 z-10">
-              <TopNavigationButton
-                aria-label="뒤로가기"
-                onClick={() => navigate(-1)}
-                variant="icon"
-              >
-                <IconChevronLeft className="text-white" />
-              </TopNavigationButton>
-            </div>
-          }
-          photoCount={event.imageCount}
-          showCounter={hasMultipleImages}
-          slideClassName="aspect-square"
-        />
-
-        <div className="flex flex-col gap-5 px-5 pt-5">
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col items-start gap-2">
-              <EventsStatusBadge
-                size="medium"
-                status={event.status}
-                statusLabel={event.statusLabel}
-              />
-              <Typography
-                as="h1"
-                color="semantic.label.normal"
-                variant="heading2"
-                weight="bold"
-              >
-                {event.title}
-              </Typography>
-            </div>
-
-            {/* Figma는 라벨 칼럼(28px)과 값 칼럼을 gap 12로 나란히 두고, 각 칼럼 안은 gap 8이다 */}
-            <div className="flex gap-3">
-              <div className="flex shrink-0 flex-col gap-2">
-                {["일시", "장소", "대상"].map((label) => (
-                  <Typography
-                    color="semantic.label.alternative"
-                    key={label}
-                    variant="label1"
-                    weight="medium"
-                  >
-                    {label}
-                  </Typography>
-                ))}
-              </div>
-              <div className="flex min-w-px flex-1 flex-col gap-2">
-                <Typography
-                  color="semantic.label.neutral"
-                  variant="label1"
-                  weight="medium"
-                >
-                  {event.schedule}
-                </Typography>
-                <Typography
-                  color="semantic.label.neutral"
-                  variant="label1"
-                  weight="medium"
-                >
-                  {event.location}
-                </Typography>
-                {/* 대상만 여러 줄 — Figma도 한 값 안에서 줄을 나눠 놨다 */}
-                <div className="flex flex-col">
-                  {event.audience.map((line) => (
-                    <Typography
-                      color="semantic.label.neutral"
-                      key={line}
-                      variant="label1"
-                      weight="medium"
-                    >
-                      {line}
-                    </Typography>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <Divider color="semantic.line.normal.alternative" />
-
-          {/* 본문은 Figma "Label 1/Reading - Regular"(14px, line-height 1.571) = label1-reading.
-              목데이터가 줄바꿈을 그대로 들고 있어서 whitespace-pre-wrap으로 살린다. */}
-          <Typography
-            color="semantic.label.normal"
-            sx={{ whiteSpace: "pre-wrap" }}
-            variant="label1-reading"
-            weight="regular"
-          >
-            {event.description}
-          </Typography>
-        </div>
-
-        {/* Action Area가 본문을 덮으므로 끝부분이 영구히 가리지 않도록 같은 높이를 비워둔다.
-            96px = Action Area 위아래 padding 20+20 + 버튼 56. 데스크톱 프레임에서는
-            홈 인디케이터 여백 14px이 더 붙는다(아래 filler와 같은 규칙). */}
-        <div className="h-24 sm:h-[110px]" />
-      </div>
-
-      <div className="absolute inset-x-0 bottom-0">
-        <ActionArea background>
-          {/* WDS ActionAreaButton은 항상 Button size="large"(padding 12px 28px → 48px)로 그리는데,
-              Figma Main Action은 padding 16px 28px(56px)이라 세로 padding만 sx로 맞춘다. */}
-          <ActionAreaButton
-            disabled={!isOpen}
-            onClick={() => navigate(`/events/${event.id}/apply`)}
-            sx={{ paddingBlock: "16px" }}
-          >
-            {event.actionLabel}
-          </ActionAreaButton>
-        </ActionArea>
-        {/* Figma Action Area(110px)는 버튼 아래가 iOS Home Bar 여백까지 합쳐 34px인데,
-            WDS ActionArea는 아래 padding 20px만 준다 — 모자란 14px을 여기서 더한다.
-            앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다(BottomNav와 같은 규칙). */}
-        <div className="h-safe-bottom-extra bg-background-elevated-normal sm:h-[14px]" />
-      </div>
-    </div>
+    <Suspense fallback={<EventsDetailSkeleton />}>
+      <EventsDetailContent
+        eventId={eventId}
+        onApply={(id) =>
+          navigate(`/events/${id}/apply`, { viewTransition: true })
+        }
+        onBack={() => navigate(-1)}
+      />
+    </Suspense>
   );
 }
 

@@ -1,9 +1,9 @@
 import { Typography } from "@wanteddev/wds";
 import { IconChevronUp } from "@wanteddev/wds-icon";
-import type { ReactNode } from "react";
 
 import restroomIcon from "@/assets/icons/lockers/restroom.svg";
 import stairsIcon from "@/assets/icons/lockers/stairs.svg";
+import LockersMapArea from "@/features/lockers/components/LockersMapArea";
 import LockersSectionCard from "@/features/lockers/components/LockersSectionCard";
 import {
   LOCKERS_LEFT_SECTIONS,
@@ -14,41 +14,6 @@ import {
 interface LockersFloorMapProps {
   selectedSectionId: string | null;
   onSelect: (sectionId: string) => void;
-}
-
-// 호실·화장실처럼 고를 수 없는 자리. 점선 테두리에 라벨만 가운데 둔다.
-function MapArea({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className: string;
-}) {
-  return (
-    <div
-      className={`flex items-center justify-center rounded-lg border border-line-solid-normal border-dashed bg-background-normal ${className}`}
-    >
-      {children}
-    </div>
-  );
-}
-
-function AreaLabel({ icon, label }: { icon?: string; label: string }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {icon !== undefined && (
-        <img alt="" className="size-6 shrink-0" src={icon} />
-      )}
-      <Typography
-        as="p"
-        color="semantic.label.assistive"
-        variant="caption1"
-        weight="medium"
-      >
-        {label}
-      </Typography>
-    </div>
-  );
 }
 
 // Figma: 사물함 구역 선택 Floor Map (nodeId 1737:218457)
@@ -78,16 +43,14 @@ function LockersFloorMap({
   return (
     <div className="flex flex-1 gap-2.5">
       <div className="flex flex-[124] flex-col gap-1">
-        <MapArea className="flex-[186]">
-          <AreaLabel label="231호실" />
-        </MapArea>
+        <LockersMapArea className="flex-[186]" label="231호실" />
         {LOCKERS_LEFT_SECTIONS.map(renderCard)}
-        <MapArea className="flex-[186]">
-          <AreaLabel label="232호실" />
-        </MapArea>
-        <MapArea className="flex-[134]">
-          <AreaLabel icon={restroomIcon} label="화장실" />
-        </MapArea>
+        <LockersMapArea className="flex-[186]" label="232호실" />
+        <LockersMapArea
+          className="flex-[134]"
+          icon={restroomIcon}
+          label="화장실"
+        />
       </div>
 
       {/* 가운데 열은 복도다 — 카드가 없고 방향 표시만 있다.
@@ -121,9 +84,7 @@ function LockersFloorMap({
 
       <div className="flex flex-[124] flex-col gap-1.5">
         {LOCKERS_RIGHT_SECTIONS.map(renderCard)}
-        <MapArea className="flex-[34]">
-          <AreaLabel icon={stairsIcon} label="계단" />
-        </MapArea>
+        <LockersMapArea className="flex-[34]" icon={stairsIcon} label="계단" />
         {LOCKERS_RIGHT_SECTIONS_BELOW_STAIRS.map(renderCard)}
       </div>
     </div>

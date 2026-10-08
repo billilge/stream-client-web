@@ -47,6 +47,10 @@
      Background/Normal/Alternative(#f7f7f8)보다 한 단계 진해서 잠긴 걸 드러낸다 */
   --color-cool-neutral-97: var(--atomic-coolNeutral-97);
 
+  /* 사물함 칸 선택 — 선택 가능한 칸 배경(Figma "Orange/95")과 칸 묶음 테두리(Figma "Line/Solid/Alternative") */
+  --color-orange-95: var(--atomic-orange-95);
+  --color-line-solid-alternative: var(--semantic-line-solid-alternative);
+
   --color-status-positive: var(--semantic-status-positive);
   --color-inverse-background: var(--semantic-inverse-background);
 
@@ -102,6 +106,91 @@
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* 스택 슬라이드 전환 — 목록→상세처럼 viewTransition을 켠 이동만 탄다(react-router가 그 이동의
+   뒤로가기에도 자동으로 켠다). 탭 전환은 옵션을 안 켜서 지금처럼 즉시 바뀐다.
+   움직이는 건 화면 컬럼(ScreenLayout, view-transition-name: screen)뿐이고, 데스크톱 양옆 여백인
+   root는 그대로 둔다. 방향은 ScreenLayoutRoute가 html[data-navigation]에 적는다.
+   View Transitions를 지원하지 않는 WebView·브라우저는 react-router가 그냥 즉시 이동한다. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  ::view-transition-group(screen) {
+    animation-duration: 350ms;
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* 데스크톱 컬럼(480px) 밖으로 슬라이드가 삐져나오지 않게 자른다 */
+  ::view-transition-image-pair(screen) {
+    overflow: hidden;
+  }
+
+  ::view-transition-old(screen),
+  ::view-transition-new(screen) {
+    animation-duration: inherit;
+    animation-timing-function: inherit;
+    /* 기본값(plus-lighter)은 크로스페이드용이라, 겹쳐 미끄러지는 두 화면이 밝게 합쳐진다 */
+    mix-blend-mode: normal;
+  }
+
+  /* 앞으로: 새 화면이 오른쪽에서 덮고, 이전 화면은 왼쪽으로 조금 밀려난다(iOS push와 같은 비율) */
+  html[data-navigation="forward"]::view-transition-old(screen) {
+    animation-name: screen-slide-out-to-left;
+  }
+
+  html[data-navigation="forward"]::view-transition-new(screen) {
+    animation-name: screen-slide-in-from-right;
+  }
+
+  /* 뒤로: 현재 화면이 오른쪽으로 빠지며 아래 화면을 드러낸다 — 빠지는 쪽이 위에 있어야 한다 */
+  html[data-navigation="back"]::view-transition-old(screen) {
+    z-index: 1;
+    animation-name: screen-slide-out-to-right;
+  }
+
+  html[data-navigation="back"]::view-transition-new(screen) {
+    animation-name: screen-slide-in-from-left;
+  }
+}
+
+/* 동작 줄이기를 켠 사용자는 슬라이드는 물론 브라우저 기본 크로스페이드도 없이 즉시 바뀐다 */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(screen),
+  ::view-transition-old(screen),
+  ::view-transition-new(screen) {
+    animation: none;
+  }
+}
+
+@keyframes screen-slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes screen-slide-out-to-left {
+  to {
+    transform: translateX(-30%);
+  }
+}
+
+@keyframes screen-slide-out-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes screen-slide-in-from-left {
+  from {
+    transform: translateX(-30%);
   }
 }
 

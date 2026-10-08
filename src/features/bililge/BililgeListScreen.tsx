@@ -4,18 +4,16 @@ import {
   TopNavigationButton,
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
-import { startTransition, useState } from "react";
+import { Suspense, startTransition, useState } from "react";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import type { BililgeItem } from "@/entities/bililge/types";
 import BililgeCategoryFilter from "@/features/bililge/components/BililgeCategoryFilter";
-import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
+import BililgeItemList from "@/features/bililge/components/BililgeItemList";
+import BililgeListSkeleton from "@/features/bililge/components/BililgeListSkeleton";
 import BililgeRentalSheet from "@/features/bililge/components/BililgeRentalSheet";
 import BililgeReturnSection from "@/features/bililge/components/BililgeReturnSection";
-import {
-  BILILGE_ITEMS,
-  type BililgeItem,
-} from "@/features/bililge/constants/bililgeItems";
 
 // Figma: 빌릴게 (nodeId 1243:73331)
 function BililgeListScreen() {
@@ -62,28 +60,22 @@ function BililgeListScreen() {
 
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
         {tab === "rent" ? (
-          <div className="flex flex-col gap-2 px-5 pb-4">
-            {BILILGE_ITEMS.filter(
-              (item) => category === "전체" || item.category === category,
-            ).map((item) => (
-              <BililgeItemCard
-                icon={item.icon}
-                itemName={item.name}
-                key={item.id}
-                onRentRequest={() => {
-                  // 바텀시트를 여는 것(슬라이드 애니메이션)은 즉시 반영하고, 그 안의 휠
-                  // 피커(특히 분 60개) 마운트처럼 무거운 작업은 startTransition으로 낮은
-                  // 우선순위로 미뤄서 첫 프레임이 버벅이지 않게 한다 — 처음 열 때만 해당하고,
-                  // rentalItem은 닫아도 null로 안 돌아가서 두 번째부터는 이 마운트 비용 자체가 없다.
-                  setRentalSheetOpen(true);
-                  startTransition(() => {
-                    setRentalItem(item);
-                  });
-                }}
-                subtitle={`수량 ${item.quantity}`}
-              />
-            ))}
-          </div>
+          // 헤더·토글·필터는 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다
+          <Suspense fallback={<BililgeListSkeleton />}>
+            <BililgeItemList
+              category={category}
+              onRentRequest={(item) => {
+                // 바텀시트를 여는 것(슬라이드 애니메이션)은 즉시 반영하고, 그 안의 휠
+                // 피커(특히 분 60개) 마운트처럼 무거운 작업은 startTransition으로 낮은
+                // 우선순위로 미뤄서 첫 프레임이 버벅이지 않게 한다 — 처음 열 때만 해당하고,
+                // rentalItem은 닫아도 null로 안 돌아가서 두 번째부터는 이 마운트 비용 자체가 없다.
+                setRentalSheetOpen(true);
+                startTransition(() => {
+                  setRentalItem(item);
+                });
+              }}
+            />
+          </Suspense>
         ) : (
           <BililgeReturnSection onBrowseRentals={() => setTab("rent")} />
         )}
