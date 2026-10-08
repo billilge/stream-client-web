@@ -14,8 +14,6 @@ import type {
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 const AUTO_SLIDE_MS = 5000;
-// 카드 사이를 화면 좌우 여백 합(20 + 20)만큼 띄워 옆 카드가 화면에 보이지 않게 한다
-const CARD_GAP = 40;
 
 interface NoticeTemplateStyle {
   image: string;
@@ -137,15 +135,17 @@ function HomeNoticeCard({
   );
 }
 
+// 한 칸 거리는 실제 카드 위치에서 잰다 — 간격 값(gap-10)을 한 곳에서만 관리한다
 function getStep(scroller: HTMLElement) {
-  return (scroller.firstElementChild as HTMLElement).offsetWidth + CARD_GAP;
+  const [first, second] = scroller.children as HTMLCollectionOf<HTMLElement>;
+  return second.offsetLeft - first.offsetLeft;
 }
 
 // 5초마다 다음 카드로 넘어간다. 누르고 있는 동안은 멈추고, 손을 떼거나 스크롤이 멈추면 다시 5초를 센다.
 // 배너가 하나면 넘기지 않는다.
 // 마지막 카드 오른쪽에 첫 카드 복제본을 두어 끝에서도 같은 방향으로 이어지고, 복제본에 멈추면
 // 진짜 첫 카드 위치로 순간 이동한다.
-// 카드 폭은 화면 폭 - 40(Figma 375 기준 335)이고, 이전·다음 카드는 화면 밖에 둔다.
+// 카드 폭은 화면 폭 - 40(Figma 375 기준 335)이고, 카드 사이(gap-10)도 좌우 여백 합 40이라 이전·다음 카드는 화면 밖에 있다.
 // 가로 스크롤 영역이 카드 그림자(Shadow/Spread/Small, 60px)를 자르지 않게 위아래로 60px 넓힌다.
 // 넓힌 자리는 아래 섹션 밑으로 깔려서 아래 섹션 터치를 막지 않는다.
 function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
@@ -193,6 +193,8 @@ function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
         startSlide();
       }, 150);
     };
+    // 터치는 touch 이벤트로만 판단한다. 손가락을 옆으로 끌면 브라우저가 pointercancel을 먼저 보내서,
+    // pointer 이벤트로 풀면 손가락이 아직 화면에 있는데 다시 넘어가기 시작한다.
     const handlePress = () => {
       isPressing = true;
       stopSlide();
@@ -204,15 +206,25 @@ function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
       isPressing = false;
       startSlide();
     };
+    const handlePointerPress = (event: PointerEvent) => {
+      if (event.pointerType !== "touch") {
+        handlePress();
+      }
+    };
+    const handlePointerRelease = (event: PointerEvent) => {
+      if (event.pointerType !== "touch") {
+        handleRelease();
+      }
+    };
 
     jumpIfClone();
     startSlide();
     scroller.addEventListener("scroll", handleScroll, { passive: true });
-    scroller.addEventListener("pointerdown", handlePress);
+    scroller.addEventListener("pointerdown", handlePointerPress);
     scroller.addEventListener("touchstart", handlePress, { passive: true });
     // 영역 밖에서 손을 떼도 받도록 window에서 듣는다
-    window.addEventListener("pointerup", handleRelease);
-    window.addEventListener("pointercancel", handleRelease);
+    window.addEventListener("pointerup", handlePointerRelease);
+    window.addEventListener("pointercancel", handlePointerRelease);
     window.addEventListener("touchend", handleRelease);
     window.addEventListener("touchcancel", handleRelease);
 
@@ -220,10 +232,10 @@ function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
       window.clearTimeout(settleTimer);
       stopSlide();
       scroller.removeEventListener("scroll", handleScroll);
-      scroller.removeEventListener("pointerdown", handlePress);
+      scroller.removeEventListener("pointerdown", handlePointerPress);
       scroller.removeEventListener("touchstart", handlePress);
-      window.removeEventListener("pointerup", handleRelease);
-      window.removeEventListener("pointercancel", handleRelease);
+      window.removeEventListener("pointerup", handlePointerRelease);
+      window.removeEventListener("pointercancel", handlePointerRelease);
       window.removeEventListener("touchend", handleRelease);
       window.removeEventListener("touchcancel", handleRelease);
     };
