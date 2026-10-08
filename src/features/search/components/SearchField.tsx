@@ -1,3 +1,4 @@
+import { Typography } from "@wanteddev/wds";
 import { IconCircleCloseFill, IconSearch } from "@wanteddev/wds-icon";
 import type { Ref } from "react";
 
@@ -17,8 +18,7 @@ interface SearchFieldProps {
 //   - 지움 버튼이 입력창에 포커스가 있을 때만 보이는데 Figma 검색 완료 화면은 포커스 없이도 보인다
 // 내부를 오버라이드해야 맞출 수 있어서(컨벤션상 금지) 로컬로 짰다.
 //
-// `<input>`은 Typography로 감쌀 수 없는 자리라 Figma `Body 1/Normal - Regular`(16px, 줄높이 1.5,
-// 자간 0.0912px) 값을 className에 직접 썼다(행사 신청 폼의 기타 입력칸과 같은 예외).
+// 입력칸 글자는 Figma `Body 1/Normal - Regular`라 Typography를 `as="input"`으로 렌더해 WDS에서 받는다.
 function SearchField({
   value,
   onChange,
@@ -36,16 +36,20 @@ function SearchField({
         onSubmit();
       }}
     >
-      <input
+      <Typography
         aria-label="검색어"
+        as="input"
         autoComplete="off"
-        className="min-w-0 flex-1 bg-transparent text-base text-label-normal leading-6 tracking-[0.0912px] outline-none placeholder:text-label-assistive"
+        className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-label-assistive"
+        color="semantic.label.normal"
         enterKeyHint="search"
         onChange={(event) => onChange(event.target.value)}
         placeholder="검색어를 입력하세요"
         ref={inputRef}
         type="text"
         value={value}
+        variant="body1"
+        weight="regular"
       />
       {hasValue ? (
         <button

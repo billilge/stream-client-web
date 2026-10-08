@@ -141,13 +141,13 @@ function EventsQuestionField({
                 </label>
               </div>
               {isOtherChecked && (
-                // <input>이라 Typography로 감쌀 수 없는 자리 — Figma "Label 1/Normal - Regular"와
-                // 밑줄(Primary/Normal 0.7px)을 옮긴 값이다. 글자 크기만 Figma(14px)가 아니라 16px이다:
-                // iOS는 focus된 입력칸 글자가 16px 미만이면 화면을 확대하고, PWA에서는 그 배율이
-                // 돌아오지 않는다(#103 챗봇 입력창과 같은 이유). 줄 높이는 Figma 값(22px)으로 고정해 높이를 유지한다.
-                <input
+                // Figma "Label 1/Reading - Regular" + 밑줄(Primary/Normal 0.7px). 입력칸도 Typography를
+                // `as="input"`으로 렌더해 글자 스타일을 WDS에서 받는다.
+                <Typography
                   aria-label={`${question.title} 기타 내용`}
-                  className="w-full border-primary border-b-[0.7px] pb-0.5 text-base text-label-normal leading-[22px] outline-none placeholder:text-label-assistive"
+                  as="input"
+                  className="w-full border-primary border-b-[0.7px] pb-0.5 outline-none placeholder:text-label-assistive"
+                  color="semantic.label.normal"
                   maxLength={EVENTS_OTHER_MAX_LENGTH}
                   onChange={(event) =>
                     onAnswerChange({
@@ -157,6 +157,8 @@ function EventsQuestionField({
                   }
                   placeholder="기타 내용을 입력해 주세요."
                   value={choiceAnswer.otherText}
+                  variant="label1-reading"
+                  weight="regular"
                 />
               )}
             </div>
