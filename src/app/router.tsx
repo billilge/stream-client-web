@@ -5,6 +5,13 @@ import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
+import AuthEntryGate from "@/features/auth/AuthEntryGate";
+import AuthLoginScreen from "@/features/auth/AuthLoginScreen";
+import AuthOnboardingCompleteScreen from "@/features/auth/AuthOnboardingCompleteScreen";
+import AuthOnboardingPhoneScreen from "@/features/auth/AuthOnboardingPhoneScreen";
+import AuthOnboardingTermsScreen from "@/features/auth/AuthOnboardingTermsScreen";
+import AuthSplashScreen from "@/features/auth/AuthSplashScreen";
+import AuthTermsDetailScreen from "@/features/auth/AuthTermsDetailScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
@@ -34,7 +41,12 @@ const routes = [
       {
         children: [
           {
-            element: <HomeScreen />,
+            // 앱 첫 진입점 — 로그인한 기록이 없으면 스플래시(→ 로그인 화면)로 보낸다
+            element: (
+              <AuthEntryGate>
+                <HomeScreen />
+              </AuthEntryGate>
+            ),
             path: "/",
           },
           {
@@ -130,6 +142,55 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/search",
+          },
+          {
+            element: <AuthSplashScreen />,
+            // Figma 스플래시·로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth/splash",
+          },
+          {
+            element: <AuthLoginScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth/login",
+          },
+          {
+            element: <AuthOnboardingPhoneScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth/onboarding/phone",
+          },
+          {
+            element: <AuthOnboardingTermsScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth/onboarding/terms",
+          },
+          {
+            element: <AuthTermsDetailScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth/onboarding/terms/:termsId",
+          },
+          {
+            element: <AuthOnboardingCompleteScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth/onboarding/complete",
           },
           {
             element: <ChatEntryScreen />,
