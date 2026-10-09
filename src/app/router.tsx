@@ -12,6 +12,7 @@ import EventsApplicationCompleteScreen from "@/features/events/EventsApplication
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
+import FeePaymentsScreen from "@/features/fee/FeePaymentsScreen";
 import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import FeedbacksMineDetailScreen from "@/features/feedbacks/FeedbacksMineDetailScreen";
@@ -93,6 +94,12 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/my/feedbacks/:feedbackId",
+          },
+          {
+            element: <FeePaymentsScreen />,
+            // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/my/fee",
           },
           {
             element: <EventsDetailScreen />,
