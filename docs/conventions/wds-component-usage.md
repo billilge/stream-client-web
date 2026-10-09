@@ -609,3 +609,37 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 ### 빈 상태는 WDS `FallbackView`가 아니라 홈 로컬 `HomeEmptyState`
 
 일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/bililge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/events/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.
+
+## 스플래시·로그인·온보딩(`3658:112096` / `3738:73115`, 화면설계서 `3747:74283` / `3747:74298`) 구현 중 확정된 매핑
+
+코드는 `src/features/auth/`, `src/entities/auth/` 참고.
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| `Control/Checkbox` (`440:11057`) | `Checkbox size="medium"` | Figma Control이 24px(박스 18 + 패딩 3)라 **`medium`**이다. 행사 신청 폼에서 쓴 `small`(20px, 패딩 2)이 아니다 — `checkbox/style.js`의 `checkboxSizeStyle`로 확인. 라벨 `x=52`(24 + 간격 8)가 Figma와 일치한다 |
+| `Textinput/Textfield` (`445:8591`) | `TextField` | 높이 48, 모서리 12, 입력 글자 16px이 Figma와 일치한다. 숫자 키패드(`inputMode="numeric"`, `type="tel"`)와 자동 하이픈은 화면에서 처리한다 |
+| `Divider/Divider` (`445:4786`) | `Divider color="semantic.line.normal.normal"` | 약관 동의 목록의 전체 동의/개별 항목 구분선(1px, `Line/Normal/Normal`) |
+| `divider(8px)` (`1256:77295`) | `Divider color="semantic.line.normal.alternative"` | 약관 상세의 조항 구분선(1px, `Line/Normal/Alternative`). **이름이 비슷한 위 구분선과 색이 다르다** |
+| `Action Area/Action Area` | `ActionArea` + `ActionAreaButton sx={{ paddingBlock: "16px" }}` | "Action Area 메인 버튼 높이" 규칙 그대로다. 비활성(`다음`)은 WDS disabled 스타일이 Figma `Interaction/Disable` 배경과 맞는다 |
+| `Icon/Normal/Chevron Left` | `IconChevronLeft` | 뒤로가기 — 다른 `variant="normal"` 화면과 같다 |
+| `Circle Check Motion` (`1712:192849`) | `CompleteCheck` + 공용 `ResultScreen` | 가입 완료 화면은 신청 완료 화면과 같은 뼈대(닫기 X, 체크 모션, 제목·설명, 하단 버튼)다. 새로 만들지 않고 재사용했고, 체크–문구 간격 8이라 `illustrationGap={8}` |
+
+### 반례 — `Pagination/Dots`는 WDS `PaginationDots`와 크기가 다르다
+
+Figma 닷은 지름 6px·간격 6px(중심 간격 12px)이다. WDS `PaginationDots`는 `small`이 8px·간격 8px(중심 간격 16px), `medium`이 10px이고, 닷 크기를 CSS 변수(`--wds-pagination-dot-size`)로만 바꿀 수 있어 내부 오버라이드가 된다(`pagination-dots/style.js` 확인). 그래서 `AuthPaginationDots`를 로컬로 짰다 — 현재 닷은 `Label/Normal`, 나머지는 같은 색 16% 불투명도.
+
+### 반례 — `K-CONNECT로 시작하기` 버튼은 WDS `ActionAreaButton`이 아니다
+
+배경이 K-CONNECT 브랜드색 `#004F9F`(Figma에서도 변수가 아니라 raw hex)이고 높이 57px·좌측 로고가 있어 WDS 버튼의 색·크기 스케일로 만들 수 없다. `AuthKConnectButton`을 로컬로 두고 색은 `index.css`에 `--color-k-connect` 토큰으로 추가했다.
+
+### 로그인 문구 블록의 Figma 아티팩트 — `Login Copy` 프레임이 50px로 고정돼 있다
+
+문구(제목 28 + 간격 4 + 설명 22 = 54px)가 프레임보다 4px 넘친다. Figma 좌표상 문구–닷 간격이 28px로 보이지만 실제 문구 끝에서 닷까지는 24px이라, 닷 위치(y=538)를 기준으로 `gap-6`을 썼다.
+
+### 스플래시·로그인 위치는 앱 WebView 영역 기준이다
+
+Figma 프레임의 상태 표시줄(54px)과 홈 바(34px)는 앱 셸 몫이라 웹에는 없다. 로그인 브랜드 헤더 y=126 → 웹에서 72, 스플래시 하단 슬로건 바닥 y=719 → 웹 영역 바닥에서 59 같은 식으로 그 영역을 뺀 값이다. 브라우저에서 열면(상태 표시줄 없이 화면 전체가 웹) 같은 값이 위로 치우쳐 보여서, `isInAppShell()`이 아닐 때만 스플래시 심볼을 세로 정가운데(50%)에, 로그인 본문을 버튼 위 영역의 정가운데(auto 마진)에 둔다. 앱 WebView에서는 위 Figma 값 그대로다.
+
+### 약관 동의 상태는 모듈 저장소(`useSyncExternalStore`)에 둔다
+
+약관 동의 화면과 약관 상세(별도 라우트)가 같은 상태를 봐야 하고, 상세에서 돌아오면 목록 화면이 다시 마운트돼 컴포넌트 state로는 유지되지 않는다. 설계서 7번(상세는 동의 상태를 바꾸지 않는다)과 4번(전체 ↔ 개별 연동)을 `useOnboardingAgreements`가 맡고, 가입을 마치면 `resetOnboardingAgreements()`로 비운다. 전체 동의는 따로 저장하지 않고 세 항목에서 파생한다.
