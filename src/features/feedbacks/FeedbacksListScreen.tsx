@@ -18,12 +18,10 @@ import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { FEEDBACKS } from "@/entities/feedbacks/feedbacksMock";
 import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
 import FeedbacksQaCard from "@/features/feedbacks/components/FeedbacksQaCard";
-import {
-  FEEDBACK_ROUND_FILTERS,
-  FEEDBACKS,
-} from "@/features/feedbacks/constants/feedbacks";
+import { FEEDBACK_ROUND_FILTERS } from "@/features/feedbacks/constants/feedbacks";
 import { getSearchPath } from "@/features/search/constants/search";
 
 // 카드 한 장이 차지하는 가로 길이(카드끼리 gap이 없어서 카드 폭 그 자체다). 카드가 캐러셀

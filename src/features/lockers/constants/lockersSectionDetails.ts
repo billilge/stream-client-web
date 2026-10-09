@@ -79,14 +79,17 @@ export interface LockersSectionDetail {
   lockers: LockersSectionLocker[];
 }
 
-// Figma 목업이 전부 선택 가능이라 그대로 두고, 이름은 Figma 표기("A-25")대로 만든다
+// Figma 목업이 전부 선택 가능이라 그대로 두고, 이름은 Figma 표기("A-25")대로 만든다.
+// 내 사물함은 사물함 배정 상태 목데이터(entities/lockers)의 A-7과 맞춘다.
+const MY_LOCKER_LABEL = "A-7";
+
 function createMockLockers(
   building: string,
   lockerNumbers: number[],
 ): LockersSectionLocker[] {
   return lockerNumbers.map((lockerNumber) => ({
     isAvailable: true,
-    isMine: false,
+    isMine: `${building}-${lockerNumber}` === MY_LOCKER_LABEL,
     lockerId: lockerNumber,
     lockerLabel: `${building}-${lockerNumber}`,
     lockerNumber,

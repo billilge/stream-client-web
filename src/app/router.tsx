@@ -12,14 +12,19 @@ import EventsApplicationCompleteScreen from "@/features/events/EventsApplication
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
+import FeePaymentsScreen from "@/features/fee/FeePaymentsScreen";
 import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
+import FeedbacksMineDetailScreen from "@/features/feedbacks/FeedbacksMineDetailScreen";
+import FeedbacksMineScreen from "@/features/feedbacks/FeedbacksMineScreen";
 import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import LockersApplyCompleteScreen from "@/features/lockers/LockersApplyCompleteScreen";
 import LockersApplyFailureScreen from "@/features/lockers/LockersApplyFailureScreen";
 import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
-import LockersLockerSelectScreen from "@/features/lockers/LockersLockerSelectScreen";
+import LockersAssignmentScreen from "@/features/lockers/LockersAssignmentScreen";
+import LockersCellSelectScreen from "@/features/lockers/LockersCellSelectScreen";
+import LockersMineScreen from "@/features/lockers/LockersMineScreen";
 import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
@@ -76,6 +81,42 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/feedbacks/:feedbackId",
+          },
+          {
+            element: <FeedbacksMineScreen />,
+            // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/my/feedbacks",
+          },
+          {
+            element: <FeedbacksMineDetailScreen />,
+            // 작성내역 상세 — 열린피드백 상세와 같은 흰 배경, 하단 탭 없음
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/my/feedbacks/:feedbackId",
+          },
+          {
+            element: <FeePaymentsScreen />,
+            // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/my/fee",
+          },
+          {
+            element: <LockersAssignmentScreen />,
+            // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/my/locker",
+          },
+          {
+            element: <LockersMineScreen />,
+            // 칸 선택 화면과 같은 흰 배경
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/my/locker/location",
           },
           {
             element: <EventsDetailScreen />,
@@ -153,7 +194,7 @@ const routes = [
             path: "/lockers/apply/sections",
           },
           {
-            element: <LockersLockerSelectScreen />,
+            element: <LockersCellSelectScreen />,
             // 구역 선택 화면과 같다 — 하단 고정 선택 영역이 있고, 칸 배경이 흰 면 위에 놓인다
             handle: {
               background: "normal",
