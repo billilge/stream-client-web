@@ -19,7 +19,7 @@ import answerIcon from "@/assets/icons/feedbacks/answer.svg";
 import questionIcon from "@/assets/icons/feedbacks/question.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { FEEDBACKS } from "@/features/feedbacks/constants/feedbacks";
+import { FEEDBACKS } from "@/entities/feedbacks/feedbacksMock";
 
 // 답변 텍스트의 **강조** 구간을 볼드 Typography로 바꿔 그린다(Figma nodeId 1410:50009의
 // 인라인 볼드 스팬). 문단 구분(\n\n)은 별도 파싱 없이 부모의 white-space: pre-wrap에 맡긴다.
