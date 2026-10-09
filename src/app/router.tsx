@@ -9,6 +9,13 @@ import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
 import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
 import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
+import AuthEntryGate from "@/features/auth/AuthEntryGate";
+import AuthLoginScreen from "@/features/auth/AuthLoginScreen";
+import AuthOnboardingCompleteScreen from "@/features/auth/AuthOnboardingCompleteScreen";
+import AuthOnboardingPhoneScreen from "@/features/auth/AuthOnboardingPhoneScreen";
+import AuthOnboardingTermsScreen from "@/features/auth/AuthOnboardingTermsScreen";
+import AuthSplashScreen from "@/features/auth/AuthSplashScreen";
+import AuthTermsDetailScreen from "@/features/auth/AuthTermsDetailScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
@@ -40,7 +47,12 @@ const routes = [
       {
         children: [
           {
-            element: <HomeScreen />,
+            // 앱 첫 진입점 — 로그인한 기록이 없으면 스플래시(→ 로그인 화면)로 보낸다
+            element: (
+              <AuthEntryGate>
+                <HomeScreen />
+              </AuthEntryGate>
+            ),
             path: "/",
           },
           {
@@ -140,6 +152,9 @@ const routes = [
           {
             element: <NotificationsScreen />,
             // Figma 알림 화면에는 Bottom Nav가 없고(뒤로가기로 진입한 화면에 복귀) 배경이 흰 면이다
+
+            element: <AuthSplashScreen />,
+            // Figma 스플래시·로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
             handle: {
               background: "normal",
               hasBottomNav: false,
@@ -149,11 +164,50 @@ const routes = [
           {
             element: <NotificationsSettingsScreen />,
             // 알림 화면의 설정 아이콘으로 들어가는 화면 — 알림 화면과 같은 이유로 Bottom Nav 없이 흰 면이다
+=======
+            path: "/auth/splash",
+          },
+          {
+            element: <AuthLoginScreen />,
             handle: {
               background: "normal",
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/notifications/settings",
+=======
+            path: "/auth/login",
+          },
+          {
+            element: <AuthOnboardingPhoneScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth/onboarding/phone",
+          },
+          {
+            element: <AuthOnboardingTermsScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth/onboarding/terms",
+          },
+          {
+            element: <AuthTermsDetailScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth/onboarding/terms/:termsId",
+          },
+          {
+            element: <AuthOnboardingCompleteScreen />,
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth/onboarding/complete",
           },
           {
             element: <ChatEntryScreen />,
