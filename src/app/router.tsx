@@ -22,6 +22,7 @@ import HomeScreen from "@/features/home/HomeScreen";
 import LockersApplyCompleteScreen from "@/features/lockers/LockersApplyCompleteScreen";
 import LockersApplyFailureScreen from "@/features/lockers/LockersApplyFailureScreen";
 import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
+import LockersAssignmentScreen from "@/features/lockers/LockersAssignmentScreen";
 import LockersLockerSelectScreen from "@/features/lockers/LockersLockerSelectScreen";
 import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
@@ -100,6 +101,12 @@ const routes = [
             // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/my/fee",
+          },
+          {
+            element: <LockersAssignmentScreen />,
+            // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/my/locker",
           },
           {
             element: <EventsDetailScreen />,
