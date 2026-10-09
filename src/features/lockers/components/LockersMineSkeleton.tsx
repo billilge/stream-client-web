@@ -3,7 +3,7 @@ import { Skeleton } from "@wanteddev/wds";
 import { useSkeletonAnimation } from "@/components/ui/ScreenSkeleton";
 
 // 배정 정보를 받는 동안 보이는 스켈레톤 — 미니맵 자리와 칸 배치 영역만 따른다.
-function LockersMyLockerSkeleton() {
+function LockersMineSkeleton() {
   const animation = useSkeletonAnimation();
 
   return (
@@ -28,4 +28,4 @@ function LockersMyLockerSkeleton() {
   );
 }
 
-export default LockersMyLockerSkeleton;
+export default LockersMineSkeleton;

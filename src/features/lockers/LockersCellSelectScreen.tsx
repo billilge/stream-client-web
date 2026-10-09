@@ -9,7 +9,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
-import LockersLockerMapView from "@/features/lockers/components/LockersLockerMapView";
+import LockersMapView from "@/features/lockers/components/LockersMapView";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelectedLockerBar";
 import { LOCKERS_APPLY_SUBMITTING_TEXT } from "@/features/lockers/constants/lockersApplySubmit";
@@ -20,7 +20,7 @@ import {
 import { useLockersApplySubmit } from "@/features/lockers/hooks/useLockersApplySubmit";
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
-function LockersLockerSelectScreen() {
+function LockersCellSelectScreen() {
   const { sectionId = "" } = useParams();
   const detail = LOCKERS_SECTION_DETAILS[sectionId];
 
@@ -104,7 +104,7 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <LockersLockerMapView map={map} />
+      <LockersMapView map={map} />
 
       <LockersSelectedLockerBar
         lockerLabel={selectedLocker?.lockerLabel ?? null}
@@ -147,4 +147,4 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
   );
 }
 
-export default LockersLockerSelectScreen;
+export default LockersCellSelectScreen;

@@ -6,22 +6,22 @@ import {
   useState,
 } from "react";
 
-import LockersLockerLegend from "@/features/lockers/components/LockersLockerLegend";
-import LockersLockerMinimap, {
-  type LockersLockerMinimapViewport,
-} from "@/features/lockers/components/LockersLockerMinimap";
+import LockersLegend from "@/features/lockers/components/LockersLegend";
+import LockersMinimap, {
+  type LockersMinimapViewport,
+} from "@/features/lockers/components/LockersMinimap";
 import { useLockersPinchZoom } from "@/features/lockers/hooks/useLockersPinchZoom";
 
 // 배치 영역 안쪽 여백(px-5, pb-5) — 미니맵에 보이는 영역을 배치 기준으로 계산할 때 뺀다
 const CONTENT_PADDING = 20;
 
 interface MinimapState {
-  viewport: LockersLockerMinimapViewport;
+  viewport: LockersMinimapViewport;
   layoutWidth: number;
   isScrollable: boolean;
 }
 
-interface LockersLockerMapViewProps {
+interface LockersMapViewProps {
   /** 칸 배치 — 본문과 미니맵에 같이 그린다 */
   map: ReactNode;
   /** 보기 전용(내 사물함 화면) — 범례를 내 칸 표시로 바꾸고, 처음에 내 칸이 보이게 스크롤한다 */
@@ -33,10 +33,7 @@ function clampRatio(value: number) {
 }
 
 // 칸 선택 화면과 내 사물함 화면이 같이 쓰는 칸 배치 영역 — 미니맵·범례와 확대·스크롤되는 본문.
-function LockersLockerMapView({
-  map,
-  isViewOnly = false,
-}: LockersLockerMapViewProps) {
+function LockersMapView({ map, isViewOnly = false }: LockersMapViewProps) {
   const [minimap, setMinimap] = useState<MinimapState | null>(null);
   const [scrollerWidth, setScrollerWidth] = useState<number>();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -122,17 +119,17 @@ function LockersLockerMapView({
       {/* Figma Minimap Section */}
       <div className="flex h-32 shrink-0 items-end gap-4 px-5">
         {minimap ? (
-          <LockersLockerMinimap
+          <LockersMinimap
             isScrollable={minimap.isScrollable}
             layoutWidth={minimap.layoutWidth}
             viewport={minimap.viewport}
           >
             {map}
-          </LockersLockerMinimap>
+          </LockersMinimap>
         ) : (
           <div className="flex-1" />
         )}
-        <LockersLockerLegend isViewOnly={isViewOnly} />
+        <LockersLegend isViewOnly={isViewOnly} />
       </div>
       {/* touch-pan: 두 손가락 동작을 페이지 확대 대신 이 영역의 확대로 받는다.
           minWidth를 %가 아니라 px로 주는 이유: zoom을 걸면 %는 배율과 상관없이 화면 폭으로
@@ -154,4 +151,4 @@ function LockersLockerMapView({
   );
 }
 
-export default LockersLockerMapView;
+export default LockersMapView;

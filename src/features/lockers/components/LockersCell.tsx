@@ -3,7 +3,7 @@ import { Typography } from "@wanteddev/wds";
 import lockerUnavailableIcon from "@/assets/icons/lockers/locker-unavailable.svg";
 import type { LockersSectionLocker } from "@/features/lockers/constants/lockersSectionDetails";
 
-interface LockersLockerCellProps {
+interface LockersCellProps {
   locker: LockersSectionLocker;
   isSelected: boolean;
   /** 없으면 보기 전용 — 칸을 누를 수 없다(내 사물함 화면) */
@@ -23,11 +23,7 @@ interface LockersLockerCellProps {
 // 내 사물함은 Figma에 상태가 없어서 임시로 초록 테두리를 둔다(이미 신청한 칸이라 고를 수 없다).
 //
 // 보기 전용(내 사물함 화면)에서는 칸을 버튼으로 그리지 않고, 내 칸을 선택된 칸 모양으로 표시한다.
-function LockersLockerCell({
-  locker,
-  isSelected,
-  onSelect,
-}: LockersLockerCellProps) {
+function LockersCell({ locker, isSelected, onSelect }: LockersCellProps) {
   const isViewOnly = onSelect === undefined;
 
   if (locker.isMine && !isViewOnly) {
@@ -86,7 +82,7 @@ function LockersLockerCell({
           locker.isMine ? `${locker.lockerLabel} 내 사물함` : locker.lockerLabel
         }
         className={className}
-        // 내 사물함 화면이 처음 열릴 때 이 칸이 보이게 스크롤하는 기준(LockersLockerMapView)
+        // 내 사물함 화면이 처음 열릴 때 이 칸이 보이게 스크롤하는 기준(LockersMapView)
         data-my-locker={locker.isMine || undefined}
         role="img"
       >
@@ -107,4 +103,4 @@ function LockersLockerCell({
   );
 }
 
-export default LockersLockerCell;
+export default LockersCell;

@@ -23,8 +23,8 @@ import LockersApplyCompleteScreen from "@/features/lockers/LockersApplyCompleteS
 import LockersApplyFailureScreen from "@/features/lockers/LockersApplyFailureScreen";
 import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
 import LockersAssignmentScreen from "@/features/lockers/LockersAssignmentScreen";
-import LockersLockerSelectScreen from "@/features/lockers/LockersLockerSelectScreen";
-import LockersMyLockerScreen from "@/features/lockers/LockersMyLockerScreen";
+import LockersCellSelectScreen from "@/features/lockers/LockersCellSelectScreen";
+import LockersMineScreen from "@/features/lockers/LockersMineScreen";
 import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
@@ -110,7 +110,7 @@ const routes = [
             path: "/my/locker",
           },
           {
-            element: <LockersMyLockerScreen />,
+            element: <LockersMineScreen />,
             // 칸 선택 화면과 같은 흰 배경
             handle: {
               background: "normal",
@@ -194,7 +194,7 @@ const routes = [
             path: "/lockers/apply/sections",
           },
           {
-            element: <LockersLockerSelectScreen />,
+            element: <LockersCellSelectScreen />,
             // 구역 선택 화면과 같다 — 하단 고정 선택 영역이 있고, 칸 배경이 흰 면 위에 놓인다
             handle: {
               background: "normal",

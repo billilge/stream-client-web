@@ -5,12 +5,12 @@ import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import LockersMyLockerContent from "@/features/lockers/components/LockersMyLockerContent";
-import LockersMyLockerSkeleton from "@/features/lockers/components/LockersMyLockerSkeleton";
+import LockersMineContent from "@/features/lockers/components/LockersMineContent";
+import LockersMineSkeleton from "@/features/lockers/components/LockersMineSkeleton";
 
 // 사물함 배정 상태의 "사물함 위치 보기" — Figma에 따로 없어서 칸 선택 화면(A-1구역 2159:110753)
 // 배치를 보기 전용으로 쓴다. 다른 칸은 누를 수 없고 내 칸만 선택된 칸 모양으로 표시한다.
-function LockersMyLockerScreen() {
+function LockersMineScreen() {
   const navigate = useNavigate();
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
 
@@ -51,8 +51,8 @@ function LockersMyLockerScreen() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <Suspense fallback={<LockersMyLockerSkeleton />}>
-        <LockersMyLockerContent
+      <Suspense fallback={<LockersMineSkeleton />}>
+        <LockersMineContent
           isPhotoOpen={isPhotoOpen}
           onClosePhoto={() => setIsPhotoOpen(false)}
         />
@@ -61,4 +61,4 @@ function LockersMyLockerScreen() {
   );
 }
 
-export default LockersMyLockerScreen;
+export default LockersMineScreen;

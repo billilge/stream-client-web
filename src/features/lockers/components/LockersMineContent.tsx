@@ -3,21 +3,21 @@ import { Navigate } from "react-router-dom";
 
 import { fetchMyLockerAssignment } from "@/entities/lockers/lockersApi";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
-import LockersLockerMapView from "@/features/lockers/components/LockersLockerMapView";
-import LockersMyLockerBar from "@/features/lockers/components/LockersMyLockerBar";
+import LockersMapView from "@/features/lockers/components/LockersMapView";
+import LockersMineBar from "@/features/lockers/components/LockersMineBar";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import { LOCKERS_SECTION_DETAILS } from "@/features/lockers/constants/lockersSectionDetails";
 
-interface LockersMyLockerContentProps {
+interface LockersMineContentProps {
   isPhotoOpen: boolean;
   onClosePhoto: () => void;
 }
 
 // 배정된 구역의 칸 배치를 보기 전용으로 그리고 내 칸만 표시한다.
-function LockersMyLockerContent({
+function LockersMineContent({
   isPhotoOpen,
   onClosePhoto,
-}: LockersMyLockerContentProps) {
+}: LockersMineContentProps) {
   const assignment = use(fetchMyLockerAssignment());
   const detail = assignment
     ? LOCKERS_SECTION_DETAILS[assignment.sectionId]
@@ -46,8 +46,8 @@ function LockersMyLockerContent({
 
   return (
     <>
-      <LockersLockerMapView isViewOnly map={map} />
-      <LockersMyLockerBar lockerLabel={assignment.lockerLabel} />
+      <LockersMapView isViewOnly map={map} />
+      <LockersMineBar lockerLabel={assignment.lockerLabel} />
       <LockersSectionPhotoModal
         onClose={onClosePhoto}
         open={isPhotoOpen}
@@ -58,4 +58,4 @@ function LockersMyLockerContent({
   );
 }
 
-export default LockersMyLockerContent;
+export default LockersMineContent;

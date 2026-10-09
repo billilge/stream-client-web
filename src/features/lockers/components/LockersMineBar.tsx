@@ -1,12 +1,12 @@
 import { Typography } from "@wanteddev/wds";
 
-interface LockersMyLockerBarProps {
+interface LockersMineBarProps {
   lockerLabel: string;
 }
 
 // 내 사물함 화면 하단 — 칸 선택 화면의 선택한 사물함 카드(LockersSelectedLockerBar)와 같은 모양에서
 // 신청 버튼만 뺐다. 보기 전용이라 할 동작이 없다.
-function LockersMyLockerBar({ lockerLabel }: LockersMyLockerBarProps) {
+function LockersMineBar({ lockerLabel }: LockersMineBarProps) {
   return (
     <div className="shrink-0 rounded-t-3xl bg-background-normal shadow-spread-small">
       <div className="flex items-center justify-between px-9 py-5">
@@ -32,4 +32,4 @@ function LockersMyLockerBar({ lockerLabel }: LockersMyLockerBarProps) {
   );
 }
 
-export default LockersMyLockerBar;
+export default LockersMineBar;

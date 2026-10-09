@@ -492,7 +492,7 @@ WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외
 
 | 블록 | Figma | 코드 |
 |---|---|---|
-| `lockerGroup` | Zone Area + Locker Grid | `LockersLockerGrid`(`bordered`면 `Line/Solid/Alternative` 테두리 상자) |
+| `lockerGroup` | Zone Area + Locker Grid | `LockersGrid`(`bordered`면 `Line/Solid/Alternative` 테두리 상자) |
 | `label` | Direction Label·Aisle | `LockersMapLabel` — 세로면 한 글자씩 줄바꿈하고 단어 사이에 빈 줄 |
 | `area` | Room Label·Zone Label·Stairs Area | `LockersMapArea` — 구역 선택 평면도와 같은 점선 상자 |
 | `shelfLabel` | Shelf Label | `LockersShelfLabel` |
