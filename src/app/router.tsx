@@ -14,6 +14,7 @@ import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
 import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
+import FeedbacksMineScreen from "@/features/feedbacks/FeedbacksMineScreen";
 import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import LockersApplyCompleteScreen from "@/features/lockers/LockersApplyCompleteScreen";
@@ -76,6 +77,12 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/feedbacks/:feedbackId",
+          },
+          {
+            element: <FeedbacksMineScreen />,
+            // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/my/feedbacks",
           },
           {
             element: <EventsDetailScreen />,
