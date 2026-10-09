@@ -5,14 +5,7 @@ import {
   Typography,
 } from "@wanteddev/wds";
 import { IconClose } from "@wanteddev/wds-icon";
-import {
-  Fragment,
-  type UIEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { type UIEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import answerIcon from "@/assets/icons/feedbacks/answer.svg";
@@ -20,22 +13,7 @@ import questionIcon from "@/assets/icons/feedbacks/question.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import { FEEDBACKS } from "@/entities/feedbacks/feedbacksMock";
-
-// 답변 텍스트의 **강조** 구간을 볼드 Typography로 바꿔 그린다(Figma nodeId 1410:50009의
-// 인라인 볼드 스팬). 문단 구분(\n\n)은 별도 파싱 없이 부모의 white-space: pre-wrap에 맡긴다.
-function renderAnswerText(text: string, idPrefix: string) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((segment, index) => {
-    const key = `${idPrefix}-${index}`;
-    if (segment.startsWith("**") && segment.endsWith("**")) {
-      return (
-        <Typography as="span" key={key} variant="body2-reading" weight="bold">
-          {segment.slice(2, -2)}
-        </Typography>
-      );
-    }
-    return <Fragment key={key}>{segment}</Fragment>;
-  });
-}
+import FeedbacksAnswerText from "@/features/feedbacks/components/FeedbacksAnswerText";
 
 // Figma: 열린피드백 상세페이지 (nodeId 1410:49988)
 // 제목·진행 바는 같은 회차(round)의 답변된 피드백들을 한데 묶어 보여준다는 뜻에서
@@ -216,15 +194,7 @@ function FeedbacksDetailScreen() {
                     </Typography>
                   </div>
                 </div>
-                <Typography
-                  as="p"
-                  color="semantic.label.normal"
-                  sx={{ whiteSpace: "pre-wrap" }}
-                  variant="body2-reading"
-                  weight="regular"
-                >
-                  {renderAnswerText(item.answer, item.id)}
-                </Typography>
+                <FeedbacksAnswerText text={item.answer} />
               </div>
             )}
           </div>

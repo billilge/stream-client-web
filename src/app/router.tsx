@@ -14,6 +14,7 @@ import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
 import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
+import FeedbacksMineDetailScreen from "@/features/feedbacks/FeedbacksMineDetailScreen";
 import FeedbacksMineScreen from "@/features/feedbacks/FeedbacksMineScreen";
 import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
 import HomeScreen from "@/features/home/HomeScreen";
@@ -83,6 +84,15 @@ const routes = [
             // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/my/feedbacks",
+          },
+          {
+            element: <FeedbacksMineDetailScreen />,
+            // 작성내역 상세 — 열린피드백 상세와 같은 흰 배경, 하단 탭 없음
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/my/feedbacks/:feedbackId",
           },
           {
             element: <EventsDetailScreen />,
