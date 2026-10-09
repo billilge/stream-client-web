@@ -43,6 +43,14 @@
   --color-primary: var(--semantic-primary-normal);
   --color-primary-subtle: var(--atomic-blue-95);
 
+  /* 로그인 화면 `K-CONNECT로 시작하기` 버튼 배경(Figma 로그인 nodeId 3147:135414). K-CONNECT 브랜드색이라
+     Figma에서도 변수가 아니라 raw #004f9f로 그려져 있고 대응하는 WDS 시맨틱 토큰이 없다. */
+  --color-k-connect: #004f9f;
+
+  /* 스플래시 등장 모션(화면설계서 FLW_HOM_001 1번) — 심볼은 0~0.45초, 슬로건·워드마크는 0.5~0.9초에 페이드인 */
+  --animate-auth-fade-in-logo: auth-fade-in 450ms ease-out both;
+  --animate-auth-fade-in-copy: auth-fade-in 400ms ease-out 500ms both;
+
   /* 사물함 구역 선택의 마감 구역 배경(Figma "Cool Neutral/97") — 회색 계열이지만
      Background/Normal/Alternative(#f7f7f8)보다 한 단계 진해서 잠긴 걸 드러낸다 */
   --color-cool-neutral-97: var(--atomic-coolNeutral-97);
@@ -266,5 +274,11 @@
   @media (prefers-reduced-motion: reduce) {
     animation: none;
     opacity: 0.6;
+  }
+}
+
+@keyframes auth-fade-in {
+  from {
+    opacity: 0;
   }
 }
