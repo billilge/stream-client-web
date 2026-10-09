@@ -24,6 +24,7 @@ import LockersApplyFailureScreen from "@/features/lockers/LockersApplyFailureScr
 import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
 import LockersAssignmentScreen from "@/features/lockers/LockersAssignmentScreen";
 import LockersLockerSelectScreen from "@/features/lockers/LockersLockerSelectScreen";
+import LockersMyLockerScreen from "@/features/lockers/LockersMyLockerScreen";
 import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
@@ -107,6 +108,15 @@ const routes = [
             // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/my/locker",
+          },
+          {
+            element: <LockersMyLockerScreen />,
+            // 칸 선택 화면과 같은 흰 배경
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/my/locker/location",
           },
           {
             element: <EventsDetailScreen />,

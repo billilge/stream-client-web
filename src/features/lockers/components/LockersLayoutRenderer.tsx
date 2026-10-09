@@ -19,7 +19,8 @@ interface LockersLayoutRendererProps {
   layout: LockersLayout;
   lockers: ReadonlyMap<number, LockersSectionLocker>;
   selectedLockerNumber: number | null;
-  onSelect: (lockerNumber: number) => void;
+  /** 없으면 보기 전용 — 칸을 누를 수 없다(내 사물함 화면) */
+  onSelect?: (lockerNumber: number) => void;
 }
 
 type LockersLayoutBlockContext = Omit<LockersLayoutRendererProps, "layout">;

@@ -1,6 +1,6 @@
 import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft, IconImage, IconReset } from "@wanteddev/wds-icon";
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import ComingSoonScreen from "@/app/ComingSoonScreen";
@@ -9,10 +9,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
-import LockersLockerLegend from "@/features/lockers/components/LockersLockerLegend";
-import LockersLockerMinimap, {
-  type LockersLockerMinimapViewport,
-} from "@/features/lockers/components/LockersLockerMinimap";
+import LockersLockerMapView from "@/features/lockers/components/LockersLockerMapView";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelectedLockerBar";
 import { LOCKERS_APPLY_SUBMITTING_TEXT } from "@/features/lockers/constants/lockersApplySubmit";
@@ -21,20 +18,6 @@ import {
   type LockersSectionDetail,
 } from "@/features/lockers/constants/lockersSectionDetails";
 import { useLockersApplySubmit } from "@/features/lockers/hooks/useLockersApplySubmit";
-import { useLockersPinchZoom } from "@/features/lockers/hooks/useLockersPinchZoom";
-
-// 배치 영역 안쪽 여백(px-5, pb-5) — 미니맵에 보이는 영역을 배치 기준으로 계산할 때 뺀다
-const CONTENT_PADDING = 20;
-
-interface MinimapState {
-  viewport: LockersLockerMinimapViewport;
-  layoutWidth: number;
-  isScrollable: boolean;
-}
-
-function clampRatio(value: number) {
-  return Math.min(Math.max(value, 0), 1);
-}
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
 function LockersLockerSelectScreen() {
@@ -58,10 +41,6 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const { isSubmitting, submit } = useLockersApplySubmit(detail.section);
-  const [minimap, setMinimap] = useState<MinimapState | null>(null);
-  const [scrollerWidth, setScrollerWidth] = useState<number>();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
 
   const lockers = useMemo(
     () =>
@@ -72,52 +51,6 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
     selectedLockerNumber === null
       ? undefined
       : lockers.get(selectedLockerNumber);
-
-  const updateViewport = useCallback(() => {
-    const scroller = scrollRef.current;
-    const content = contentRef.current;
-    if (!scroller || !content) {
-      return;
-    }
-    // 제스처 중에는 배율이 상태보다 앞서 DOM에만 반영돼 있어서 DOM 값을 읽는다
-    const zoom = Number(content.style.zoom) || 1;
-    const rect = content.getBoundingClientRect();
-    const layoutWidth = rect.width / zoom - CONTENT_PADDING * 2;
-    const layoutHeight = rect.height / zoom - CONTENT_PADDING;
-    const visibleLeft = scroller.scrollLeft / zoom - CONTENT_PADDING;
-    const visibleTop = scroller.scrollTop / zoom;
-    const left = clampRatio(visibleLeft / layoutWidth);
-    const top = clampRatio(visibleTop / layoutHeight);
-    const right = clampRatio(
-      (visibleLeft + scroller.clientWidth / zoom) / layoutWidth,
-    );
-    const bottom = clampRatio(
-      (visibleTop + scroller.clientHeight / zoom) / layoutHeight,
-    );
-
-    setScrollerWidth(scroller.clientWidth);
-    setMinimap({
-      isScrollable:
-        scroller.scrollWidth > scroller.clientWidth + 1 ||
-        scroller.scrollHeight > scroller.clientHeight + 1,
-      layoutWidth,
-      viewport: { height: bottom - top, left, top, width: right - left },
-    });
-  }, []);
-
-  useLayoutEffect(() => {
-    const el = scrollRef.current;
-    if (!el) {
-      return;
-    }
-    updateViewport();
-    const observer = new ResizeObserver(updateViewport);
-    observer.observe(el);
-
-    return () => observer.disconnect();
-  }, [updateViewport]);
-
-  const zoom = useLockersPinchZoom(scrollRef, contentRef, updateViewport);
 
   useScreenHeader(
     <ScreenHeader
@@ -171,39 +104,7 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex min-h-0 flex-1 flex-col gap-10">
-        {/* Figma Minimap Section */}
-        <div className="flex h-32 shrink-0 items-end gap-4 px-5">
-          {minimap ? (
-            <LockersLockerMinimap
-              isScrollable={minimap.isScrollable}
-              layoutWidth={minimap.layoutWidth}
-              viewport={minimap.viewport}
-            >
-              {map}
-            </LockersLockerMinimap>
-          ) : (
-            <div className="flex-1" />
-          )}
-          <LockersLockerLegend />
-        </div>
-        {/* touch-pan: 두 손가락 동작을 페이지 확대 대신 이 영역의 확대로 받는다.
-            minWidth를 %가 아니라 px로 주는 이유: zoom을 걸면 %는 배율과 상관없이 화면 폭으로
-            계산돼서, 화면보다 좁은 구역을 확대할 때 "fill" 상자가 비율대로 커지지 않는다 */}
-        <div
-          className="scrollbar-hidden min-h-0 flex-1 touch-pan-x touch-pan-y overflow-auto"
-          onScroll={updateViewport}
-          ref={scrollRef}
-        >
-          <div
-            className="w-max px-5 pb-5"
-            ref={contentRef}
-            style={{ minWidth: scrollerWidth, zoom }}
-          >
-            {map}
-          </div>
-        </div>
-      </div>
+      <LockersLockerMapView map={map} />
 
       <LockersSelectedLockerBar
         lockerLabel={selectedLocker?.lockerLabel ?? null}
