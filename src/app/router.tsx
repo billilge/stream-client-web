@@ -9,6 +9,7 @@ import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
 import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
+import EventsApplicationDetailScreen from "@/features/events/EventsApplicationDetailScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
@@ -52,6 +53,12 @@ const routes = [
             // 행사 목록의 신청내역 탭 — 같은 화면이 주소로 탭을 고른다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/events/applications",
+          },
+          {
+            element: <EventsApplicationDetailScreen />,
+            // 하단 탭 없이 회색 배경(기본값) — 흰 카드가 뜬다
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/events/applications/:applicationId",
           },
           {
             element: <NoticesListScreen />,

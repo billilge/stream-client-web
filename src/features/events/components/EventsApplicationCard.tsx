@@ -1,21 +1,15 @@
 import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 
 import type { MyEventApplication } from "@/entities/events/types";
+import {
+  EVENTS_APPLICATION_STATUS_BADGES,
+  formatApplicationDateTime,
+} from "@/features/events/constants/events";
 
 interface EventsApplicationCardProps {
   application: MyEventApplication;
   onSelectEvent: () => void;
   onSelectApplication: () => void;
-}
-
-const STATUS_BADGES = {
-  applied: { color: "green", label: "신청완료" },
-  cancelled: { color: "red", label: "신청취소" },
-} as const;
-
-// "2026-06-04T13:00" → "2026.06.04 13:00"
-function formatDateTime(value: string) {
-  return value.replace("T", " ").replaceAll("-", ".");
 }
 
 // Figma: ApplicationHistory Card (nodeId 1133:46176, 신청취소 1133:46180) — Stream 로컬 카드.
@@ -27,12 +21,12 @@ function EventsApplicationCard({
   onSelectEvent,
   onSelectApplication,
 }: EventsApplicationCardProps) {
-  const badge = STATUS_BADGES[application.status];
+  const badge = EVENTS_APPLICATION_STATUS_BADGES[application.status];
   const isCancelled =
     application.status === "cancelled" && application.cancelledAt !== null;
   const dateLabel = isCancelled
-    ? `${formatDateTime(application.cancelledAt ?? "")} 취소`
-    : `${formatDateTime(application.appliedAt)} 신청`;
+    ? `${formatApplicationDateTime(application.cancelledAt ?? "")} 취소`
+    : `${formatApplicationDateTime(application.appliedAt)} 신청`;
 
   return (
     <div className="flex flex-col gap-4 px-5">

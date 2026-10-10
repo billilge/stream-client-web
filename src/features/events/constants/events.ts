@@ -14,3 +14,14 @@ export const EVENTS_TAB_PATHS = {
 } as const;
 
 export type EventsTab = keyof typeof EVENTS_TAB_PATHS;
+
+// 신청내역 상태 배지 — 목록 카드와 상세가 같이 쓴다
+export const EVENTS_APPLICATION_STATUS_BADGES = {
+  applied: { color: "green", label: "신청완료" },
+  cancelled: { color: "red", label: "신청취소" },
+} as const;
+
+// "2026-06-04T13:00" → "2026.06.04 13:00"
+export function formatApplicationDateTime(value: string) {
+  return value.replace("T", " ").replaceAll("-", ".");
+}
