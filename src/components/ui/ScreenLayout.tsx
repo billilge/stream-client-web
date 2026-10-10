@@ -32,7 +32,8 @@ function getBottomNavValueFromPath(pathname: string): BottomNavValue {
   if (pathname.startsWith("/feedbacks")) {
     return "board";
   }
-  // 행사 목록의 신청내역 탭(/events/applications)도 "행사" 탭 소속이다
+  // 행사 목록의 신청내역 탭(/events/applications)도 "행사" 탭 소속이다.
+  // 경로는 features/events의 EVENTS_TAB_PATHS와 같지만, 공용 UI가 기능 폴더를 import하지 않도록 여기 그대로 적는다.
   if (pathname === "/events/applications") {
     return "event";
   }

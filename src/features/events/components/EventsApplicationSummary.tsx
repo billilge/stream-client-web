@@ -20,7 +20,7 @@ function EventsApplicationSummary({
       value: `${formatApplicationDateTime(application.eventDateTime)} · ${application.location}`,
     },
     { label: "신청", value: formatApplicationDateTime(application.appliedAt) },
-    ...(application.cancelledAt
+    ...(application.status === "cancelled"
       ? [
           {
             label: "취소",

@@ -22,11 +22,10 @@ function EventsApplicationCard({
   onSelectApplication,
 }: EventsApplicationCardProps) {
   const badge = EVENTS_APPLICATION_STATUS_BADGES[application.status];
-  const isCancelled =
-    application.status === "cancelled" && application.cancelledAt !== null;
-  const dateLabel = isCancelled
-    ? `${formatApplicationDateTime(application.cancelledAt ?? "")} 취소`
-    : `${formatApplicationDateTime(application.appliedAt)} 신청`;
+  const dateLabel =
+    application.status === "cancelled"
+      ? `${formatApplicationDateTime(application.cancelledAt)} 취소`
+      : `${formatApplicationDateTime(application.appliedAt)} 신청`;
 
   return (
     <div className="flex flex-col gap-4 px-5">
@@ -65,6 +64,8 @@ function EventsApplicationCard({
       <div className="flex gap-2">
         <div className="flex-1">
           <Button
+            // 카드마다 같은 문구라, 스크린리더가 어느 행사의 버튼인지 구분하도록 행사명을 붙인다
+            aria-label={`${application.eventTitle} 행사 상세`}
             color="assistive"
             fullWidth
             onClick={onSelectEvent}
@@ -76,6 +77,7 @@ function EventsApplicationCard({
         </div>
         <div className="flex-1">
           <Button
+            aria-label={`${application.eventTitle} 신청 상세`}
             color="assistive"
             fullWidth
             onClick={onSelectApplication}

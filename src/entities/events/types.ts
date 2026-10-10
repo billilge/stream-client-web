@@ -51,18 +51,23 @@ export type EventsAnswer = string | EventsChoiceAnswer;
 
 export type MyEventApplicationStatus = "applied" | "cancelled";
 
-// 내 행사 신청내역. 행사 쪽 문항이 나중에 바뀌어도 내가 답한 그대로 보여 주려고 신청 당시 문항을 같이 들고 있다.
-export interface MyEventApplication {
+interface MyEventApplicationBase {
   id: string;
   eventId: string;
   eventTitle: string;
   // "2026-05-12T12:00"
   eventDateTime: string;
   location: string;
-  status: MyEventApplicationStatus;
   appliedAt: string;
-  cancelledAt: string | null;
   questions: EventsQuestion[];
   // 문항 id → 답변. 답하지 않은 선택 문항은 빠진다
   answers: Record<string, EventsAnswer>;
 }
+
+// 내 행사 신청내역. 행사 쪽 문항이 나중에 바뀌어도 내가 답한 그대로 보여 주려고 신청 당시 문항을 같이 들고 있다.
+// 취소 일시는 신청취소일 때만 있다 — 상태로 갈라 두어 "취소인데 취소 일시가 없는" 경우를 타입에서 막는다.
+export type MyEventApplication = MyEventApplicationBase &
+  (
+    | { status: "applied"; cancelledAt: null }
+    | { status: "cancelled"; cancelledAt: string }
+  );

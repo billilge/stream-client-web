@@ -112,6 +112,8 @@ function EventsQuestionField({
             return (
               <div className="flex items-start gap-2" key={option}>
                 <Checkbox
+                  // 읽기 전용이면 눌러도 안 바뀐다는 걸 스크린리더에도 알린다
+                  aria-readonly={isReadOnly || undefined}
                   checked={choiceAnswer.selected.includes(option)}
                   disabled={disabled}
                   id={optionId}
@@ -141,6 +143,7 @@ function EventsQuestionField({
             <div className="flex flex-col gap-1">
               <div className="flex items-start gap-2">
                 <Checkbox
+                  aria-readonly={isReadOnly || undefined}
                   checked={isOtherChecked}
                   disabled={disabled}
                   id={otherId}
@@ -194,6 +197,7 @@ function EventsQuestionField({
       {question.type === "singleChoice" && (
         <RadioGroup
           aria-labelledby={titleId}
+          aria-readonly={isReadOnly || undefined}
           disabled={disabled}
           onValueChange={onAnswerChange}
           required={question.isRequired}
