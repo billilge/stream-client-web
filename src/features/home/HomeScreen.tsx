@@ -6,6 +6,7 @@ import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import logo from "@/assets/icons/home/logo.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { BILILGE_TAB_PATHS } from "@/features/bililge/constants/bililge";
+import { useBililgeReturnRequest } from "@/features/bililge/hooks/useBililgeReturnRequest";
 import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
 import HomeAppliedEventSection from "@/features/home/components/HomeAppliedEventSection";
 import HomeApplyCard from "@/features/home/components/HomeApplyCard";
@@ -30,6 +31,8 @@ function HomeScreen() {
 
   // 상세·신청·내 내역처럼 화면을 쌓는 이동은 슬라이드로, 하단 탭 화면(빌릴게·행사와 그 탭)으로는 바로 바꾼다
   const push = (to: string) => navigate(to, { viewTransition: true });
+  // 대여 현황의 반납 신청은 빌릴게로 보내지 않고 홈에서 바로 확인 모달을 띄운다
+  const { openReturnRequest, returnRequestDialogs } = useBililgeReturnRequest();
 
   return (
     <div className="relative flex h-full flex-col">
@@ -112,6 +115,7 @@ function HomeScreen() {
               <HomeRentalSection
                 onBrowse={() => navigate(BILILGE_TAB_PATHS.rent)}
                 onMore={() => navigate(BILILGE_TAB_PATHS.return)}
+                onReturnRequest={openReturnRequest}
                 rentals={HOME_MOCK_DATA.rentals}
               />
             </div>
@@ -147,6 +151,7 @@ function HomeScreen() {
       >
         <img alt="" src={chatbotIcon} />
       </button>
+      {returnRequestDialogs}
     </div>
   );
 }

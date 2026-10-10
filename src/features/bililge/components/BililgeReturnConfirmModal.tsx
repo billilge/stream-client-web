@@ -139,7 +139,7 @@ function BililgeReturnConfirmModal({
             sx={{ flex: 1, padding: "12px 20px" }}
             variant="solid"
           >
-            수정
+            닫기
           </Button>
           <Button
             color="primary"
