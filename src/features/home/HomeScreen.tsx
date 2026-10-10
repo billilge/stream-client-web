@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import logo from "@/assets/icons/home/logo.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import { BILILGE_TAB_PATHS } from "@/features/bililge/constants/bililge";
+import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
 import HomeAppliedEventSection from "@/features/home/components/HomeAppliedEventSection";
 import HomeApplyCard from "@/features/home/components/HomeApplyCard";
 import HomeArchiveBanner from "@/features/home/components/HomeArchiveBanner";
@@ -25,6 +27,9 @@ function HomeScreen() {
   const navigate = useNavigate();
 
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // 상세·신청·내 내역처럼 화면을 쌓는 이동은 슬라이드로, 하단 탭 화면(빌릴게·행사와 그 탭)으로는 바로 바꾼다
+  const push = (to: string) => navigate(to, { viewTransition: true });
 
   return (
     <div className="relative flex h-full flex-col">
@@ -72,24 +77,61 @@ function HomeScreen() {
           />
         </div>
         <div className="flex flex-col gap-3 pt-0.5 pb-4">
-          <HomeNoticeBanner notices={HOME_MOCK_DATA.notices} />
+          <HomeNoticeBanner
+            notices={HOME_MOCK_DATA.notices}
+            onSelect={(noticeId) => push(`/notices/${noticeId}`)}
+          />
           {/* 배너 카드(relative)가 뒤 섹션보다 나중에 그려져 그림자가 덮지 않게 뒤 섹션도 relative로 둔다 */}
           <div className="relative flex flex-col gap-3">
             {HOME_MOCK_DATA.applyCards.length > 0 && (
               <div className="flex flex-col gap-3 px-5">
                 {HOME_MOCK_DATA.applyCards.map((card) => (
-                  <HomeApplyCard card={card} key={card.id} />
+                  <HomeApplyCard
+                    card={card}
+                    key={card.id}
+                    // 사물함은 상세 화면이 없어서 카드도 신청(유의사항 시트 → 구역 선택)으로 보낸다
+                    onApply={() =>
+                      push(
+                        card.kind === "event"
+                          ? `/events/${card.eventId}/apply`
+                          : "/lockers/apply",
+                      )
+                    }
+                    onSelect={() =>
+                      push(
+                        card.kind === "event"
+                          ? `/events/${card.eventId}`
+                          : "/lockers/apply",
+                      )
+                    }
+                  />
                 ))}
               </div>
             )}
             <div className="px-5">
-              <HomeRentalSection rentals={HOME_MOCK_DATA.rentals} />
+              <HomeRentalSection
+                onBrowse={() => navigate(BILILGE_TAB_PATHS.rent)}
+                onMore={() => navigate(BILILGE_TAB_PATHS.return)}
+                rentals={HOME_MOCK_DATA.rentals}
+              />
             </div>
             <div className="px-5">
-              <HomeAppliedEventSection events={HOME_MOCK_DATA.appliedEvents} />
+              <HomeAppliedEventSection
+                events={HOME_MOCK_DATA.appliedEvents}
+                onBrowse={() => navigate(EVENTS_TAB_PATHS.event)}
+                onMore={() => navigate(EVENTS_TAB_PATHS.application)}
+                onSelect={(event) =>
+                  push(`${EVENTS_TAB_PATHS.application}/${event.applicationId}`)
+                }
+              />
             </div>
             <div className="px-5">
-              <HomeInfoList myInfo={HOME_MOCK_DATA.myInfo} />
+              <HomeInfoList
+                myInfo={HOME_MOCK_DATA.myInfo}
+                onSelectFee={() => push("/my/fee")}
+                onSelectFeedbacks={() => push("/my/feedbacks")}
+                onSelectLocker={() => push("/my/locker")}
+              />
             </div>
             <div className="px-5">
               <HomeArchiveBanner />

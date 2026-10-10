@@ -5,8 +5,8 @@ import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
 import type { LockersApplyCompleteState } from "@/features/lockers/hooks/useLockersApplySubmit";
 
-// 신청내역 화면은 아직 없다 — 행사 완료 화면과 같은 주소로 보내 준비 중 화면이 뜬다.
-const APPLICATION_HISTORY_PATH = "/my/applications";
+// 사물함 신청내역은 사물함 배정 상태 화면이다
+const APPLICATION_HISTORY_PATH = "/my/locker";
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 

@@ -9,12 +9,27 @@ const VISIBLE_COUNT = 2;
 
 // Figma: Event Applications 1건 (nodeId 3147:146275), 3건 이상 (3147:146335), empty (3562:163940)
 // 제목의 건수는 Figma대로 3건 이상일 때만 붙는다.
-function HomeAppliedEventSection({ events }: { events: HomeAppliedEvent[] }) {
+interface HomeAppliedEventSectionProps {
+  events: HomeAppliedEvent[];
+  onSelect: (event: HomeAppliedEvent) => void;
+  // 더보기 → 행사 신청내역 탭
+  onMore: () => void;
+  // 빈 상태 → 행사 목록
+  onBrowse: () => void;
+}
+
+function HomeAppliedEventSection({
+  events,
+  onSelect,
+  onMore,
+  onBrowse,
+}: HomeAppliedEventSectionProps) {
   if (events.length === 0) {
     return (
       <HomeEmptyState
         action={
           <Button
+            onClick={onBrowse}
             size="small"
             sx={{
               backgroundColor: "var(--color-primary-subtle)",
@@ -43,7 +58,12 @@ function HomeAppliedEventSection({ events }: { events: HomeAppliedEvent[] }) {
         {hiddenCount > 0 ? `신청한 행사 · ${events.length}건` : "신청한 행사"}
       </Typography>
       {events.slice(0, VISIBLE_COUNT).map((event) => (
-        <div className="flex items-center justify-between gap-3" key={event.id}>
+        <button
+          className="flex items-center justify-between gap-3 text-left"
+          key={event.id}
+          onClick={() => onSelect(event)}
+          type="button"
+        >
           <div className="flex min-w-0 flex-col gap-0.5">
             <Typography
               as="p"
@@ -63,12 +83,12 @@ function HomeAppliedEventSection({ events }: { events: HomeAppliedEvent[] }) {
             </Typography>
           </div>
           <img alt="" className="-mr-1 size-3 shrink-0" src={arrowRight} />
-        </div>
+        </button>
       ))}
       {hiddenCount > 0 && (
         <>
           <Divider color="semantic.line.normal.alternative" />
-          <button type="button">
+          <button onClick={onMore} type="button">
             <Typography
               align="center"
               as="span"

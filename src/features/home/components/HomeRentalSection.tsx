@@ -7,13 +7,30 @@ import type { HomeRental } from "@/features/home/constants/homeMock";
 
 const VISIBLE_COUNT = 2;
 
+interface HomeRentalSectionProps {
+  rentals: HomeRental[];
+  // 더보기 → 빌릴게 반납 탭
+  onMore: () => void;
+  // 빈 상태 → 빌릴게 대여 탭
+  onBrowse: () => void;
+}
+
 // Figma: Rental Summary 2건 (nodeId 3147:146269), 3건 이상 (3147:146326), empty (3562:163925)
-function HomeRentalSection({ rentals }: { rentals: HomeRental[] }) {
+function HomeRentalSection({
+  rentals,
+  onMore,
+  onBrowse,
+}: HomeRentalSectionProps) {
   if (rentals.length === 0) {
     return (
       <HomeEmptyState
         action={
-          <Button color="assistive" size="small" variant="solid">
+          <Button
+            color="assistive"
+            onClick={onBrowse}
+            size="small"
+            variant="solid"
+          >
             대여하러 가기
           </Button>
         }
@@ -55,7 +72,7 @@ function HomeRentalSection({ rentals }: { rentals: HomeRental[] }) {
       {hiddenCount > 0 && (
         <>
           <Divider color="semantic.line.normal.alternative" />
-          <button type="button">
+          <button onClick={onMore} type="button">
             <Typography
               align="center"
               as="span"

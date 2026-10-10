@@ -56,6 +56,8 @@ interface HomeNoticeCardProps {
   total: number;
   // 마지막 카드 뒤에 붙는 첫 카드 복제본 — 스크린리더가 두 번 읽지 않게 숨긴다
   isClone?: boolean;
+  // 없으면 누를 수 없는 카드(공지가 없을 때의 기본 배너)
+  onSelect?: () => void;
 }
 
 function HomeNoticeCard({
@@ -63,14 +65,21 @@ function HomeNoticeCard({
   index,
   total,
   isClone,
+  onSelect,
 }: HomeNoticeCardProps) {
   const template = NOTICE_TEMPLATES[notice.template];
+  // 공지 상세로 가는 카드는 버튼으로 그린다
+  const Root = onSelect ? "button" : "div";
 
   return (
-    <div
+    <Root
       aria-hidden={isClone}
       // border-[0.5px]: Figma 흰 테두리 0.5px — 단계로 나타낼 수 없는 선 굵기라 임의값으로 둔다
-      className={`relative flex h-notice-banner w-full shrink-0 snap-start flex-col justify-end overflow-hidden rounded-xl border-[0.5px] border-static-white px-4 py-5 shadow-spread-small ${template.backgroundClassName}`}
+      className={`relative flex h-notice-banner w-full shrink-0 snap-start flex-col justify-end overflow-hidden rounded-xl border-[0.5px] border-static-white px-4 py-5 text-left shadow-spread-small ${template.backgroundClassName}`}
+      onClick={onSelect}
+      // 숨긴 복제본은 키보드 포커스도 받지 않는다
+      tabIndex={isClone ? -1 : undefined}
+      type={onSelect ? "button" : undefined}
     >
       {/* 카드가 넓어져도 그림은 Figma 카드 폭(335 = w-83.75) 그대로 가운데에 둔다 */}
       <img
@@ -107,7 +116,7 @@ function HomeNoticeCard({
           />
         )}
       </div>
-    </div>
+    </Root>
   );
 }
 
@@ -124,11 +133,20 @@ function getStep(scroller: HTMLElement) {
 // 카드 폭은 화면 폭 - 40(Figma 375 기준 335)이고, 카드 사이(gap-10)도 좌우 여백 합 40이라 이전·다음 카드는 화면 밖에 있다.
 // 가로 스크롤 영역이 카드 그림자(Shadow/Spread/Small, 60px)를 자르지 않게 위아래로 60px(15단계) 넓힌다.
 // 넓힌 자리는 아래 섹션 밑으로 깔려서 아래 섹션 터치를 막지 않는다.
-function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
+interface HomeNoticeBannerProps {
+  notices: HomeNotice[];
+  onSelect: (noticeId: string) => void;
+}
+
+function HomeNoticeBanner({ notices, onSelect }: HomeNoticeBannerProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
   const items = notices.length > 0 ? notices : [DEFAULT_NOTICE];
   const canSlide = items.length > 1;
+  const selectHandler = (notice: HomeNotice) => {
+    const { noticeId } = notice;
+    return noticeId ? () => onSelect(noticeId) : undefined;
+  };
 
   useEffect(() => {
     const scroller = scrollerRef.current;
@@ -227,6 +245,7 @@ function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
           index={index}
           key={notice.id}
           notice={notice}
+          onSelect={selectHandler(notice)}
           total={items.length}
         />
       ))}
@@ -235,6 +254,7 @@ function HomeNoticeBanner({ notices }: { notices: HomeNotice[] }) {
           index={0}
           isClone
           notice={items[0]}
+          onSelect={selectHandler(items[0])}
           total={items.length}
         />
       )}

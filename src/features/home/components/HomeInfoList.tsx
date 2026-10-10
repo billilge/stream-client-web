@@ -57,9 +57,18 @@ interface InfoRowProps {
   badge?: InfoBadge;
   // 학생회비 납부하기는 앱 밖(송금)으로 나가서 ↗ 화살표다
   isExternal?: boolean;
+  // 없으면 누를 수 없는 줄로 그린다(아직 화면이 없는 학생회비 납부하기)
+  onSelect?: () => void;
 }
 
-function InfoRow({ icon, title, subtitle, badge, isExternal }: InfoRowProps) {
+function InfoRow({
+  icon,
+  title,
+  subtitle,
+  badge,
+  isExternal,
+  onSelect,
+}: InfoRowProps) {
   let trailing: ReactNode = (
     <img
       alt=""
@@ -76,8 +85,8 @@ function InfoRow({ icon, title, subtitle, badge, isExternal }: InfoRowProps) {
     );
   }
 
-  return (
-    <div className="flex items-center justify-between gap-3">
+  const content = (
+    <>
       <div className="flex min-w-0 items-center gap-3">
         <img alt="" className="size-10.5 shrink-0" src={icon} />
         <div className="flex min-w-0 flex-col gap-0.5">
@@ -102,17 +111,42 @@ function InfoRow({ icon, title, subtitle, badge, isExternal }: InfoRowProps) {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">{trailing}</div>
-    </div>
+    </>
+  );
+
+  return onSelect ? (
+    <button
+      className="flex items-center justify-between gap-3 text-left"
+      onClick={onSelect}
+      type="button"
+    >
+      {content}
+    </button>
+  ) : (
+    <div className="flex items-center justify-between gap-3">{content}</div>
   );
 }
 
 // Figma: Home Info List (nodeId 3147:146284). 순서는 학생회비 → 열린피드백 → 사물함으로 고정한다.
-function HomeInfoList({ myInfo }: { myInfo: HomeMyInfo }) {
+interface HomeInfoListProps {
+  myInfo: HomeMyInfo;
+  onSelectFee: () => void;
+  onSelectFeedbacks: () => void;
+  onSelectLocker: () => void;
+}
+
+function HomeInfoList({
+  myInfo,
+  onSelectFee,
+  onSelectFeedbacks,
+  onSelectLocker,
+}: HomeInfoListProps) {
   const { feeStatus, feedbackCount, lockerStatus, lockerLabel } = myInfo;
 
   return (
     <div className="flex flex-col gap-4 rounded-xl bg-background-normal p-4">
       {feeStatus === "unpaid" ? (
+        // TODO: 학생회비 계좌 송금 화면(#105)이 머지되면 onSelect로 연결한다
         <InfoRow
           icon={infoFee}
           isExternal
@@ -123,17 +157,20 @@ function HomeInfoList({ myInfo }: { myInfo: HomeMyInfo }) {
         <InfoRow
           badge={FEE_BADGES[feeStatus]}
           icon={infoFee}
+          onSelect={onSelectFee}
           title="학생회비 납부 여부"
         />
       )}
       <InfoRow
         icon={infoFeedback}
+        onSelect={onSelectFeedbacks}
         subtitle={feedbackCount > 0 ? `${feedbackCount}건` : "-"}
         title="열린피드백 작성내역"
       />
       <InfoRow
         badge={LOCKER_BADGES[lockerStatus]}
         icon={infoLocker}
+        onSelect={onSelectLocker}
         subtitle={lockerStatus === "assigned" ? lockerLabel : undefined}
         title="사물함 배정 상태"
       />
