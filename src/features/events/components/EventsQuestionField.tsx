@@ -2,11 +2,13 @@
 // (nodeId 1658:183407, 1658:183418, 1658:183424), 기타 입력칸은 Other Option (nodeId 1658:183954)
 import {
   Checkbox,
+  css,
   RadioGroup,
   RadioGroupItem,
   TextArea,
   TextAreaContent,
   Typography,
+  typographyStyle,
 } from "@wanteddev/wds";
 import { useId } from "react";
 
@@ -29,6 +31,13 @@ interface EventsQuestionFieldProps {
   /** 취소된 신청내역처럼 입력들을 흐리게(비활성) 보여 준다 */
   disabled?: boolean;
 }
+
+const TEXT_AREA_TYPOGRAPHY = css`
+  & textarea,
+  & textarea::placeholder {
+    ${typographyStyle("label1-reading", "regular")}
+  }
+`;
 
 const EMPTY_CHOICE_ANSWER: EventsChoiceAnswer = { otherText: "", selected: [] };
 
@@ -240,6 +249,10 @@ function EventsQuestionField({
           // 읽기 전용에서 답하지 않은 문항은 입력 안내 대신 빈 칸으로 둔다
           placeholder={isReadOnly ? undefined : "메시지를 입력해 주세요."}
           readOnly={isReadOnly}
+          // WDS TextArea는 글자를 Body 1/Reading(16px)으로 고정하는데 Figma 입력 글자·안내는
+          // Label 1/Reading(14px)이다(신청 폼 1658:183424, 신청내역 상세 1133:46214). prop으로 바꿀 수 없어서
+          // 바깥에서 textarea만 덮는다 — 자동 높이를 재는 숨은 textarea도 같은 글자로 재도록 둘 다 잡는다.
+          sx={TEXT_AREA_TYPOGRAPHY}
           trailingContent={
             <TextAreaContent variant="characterCounter">
               {EVENTS_TEXT_MAX_LENGTH[question.type]}
