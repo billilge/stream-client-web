@@ -609,3 +609,19 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 ### 빈 상태는 WDS `FallbackView`가 아니라 홈 로컬 `HomeEmptyState`
 
 일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/bililge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/events/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.
+
+## 행사 신청내역(`1133:46168` 목록 / `1165:63551` empty / `1133:46181` 상세 / `1133:46131` 신청취소 확인모달 / `1133:46216` 신청취소 상세 + 토스트) 구현 중 확정된 매핑
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| `Content Badge` (신청완료·신청취소) | `ContentBadge size="small" variant="solid" color="accent"` | 신청완료 green, 신청취소 red. 목록 카드와 상세가 `EVENTS_APPLICATION_STATUS_BADGES`를 같이 쓴다 |
+| 카드 `행사 상세` / `신청 상세` | `Button size="small" color="assistive"` | 앞은 `variant="outlined"`, 뒤는 `variant="solid"`(Fill/Normal 배경). 둘 다 padding 7/14·radius 8·Label 2/Medium이 Figma와 같다 |
+| 상세 `신청 취소` | `Button size="medium" color="primary" variant="outlined"` + `sx` | WDS Button 색이 primary/assistive뿐이라 글자·테두리(`box-shadow` inset)만 `Status/Negative`로 덮는다. outlined primary가 SemiBold 글자라 primary를 고른다 |
+| 신청취소 확인모달 | `ConfirmModal tone="negative"` | 사물함 신청 확인 모달과 같은 공용 모달이고, `tone="negative"`가 느낌표 아이콘 + 빨간 확인 버튼을 그린다 |
+| 취소 완료 토스트 | `ScreenToast variant="positive"` | 체크 아이콘이 WDS 기본값 그대로 |
+| 상세 문항 `Control/Checkbox`·`Control/Radio`·`Textinput/Textarea` | 신청 폼의 `EventsQuestionField` 재사용 | 답변 변경 콜백을 넘기지 않으면 읽기 전용(선택 표시는 그대로, 바꿀 수 없음). 신청취소 상세는 `disabled`로 WDS 비활성 모양을 쓰고, 선택지 글자는 `Label/Disable`(Figma `1133:46240`) |
+
+- **카드·요약은 Stream 로컬**: 신청내역 카드(`EventsApplicationCard`, 70px 회색 썸네일 + 배지·제목·일시 + 버튼 2개)와 상세 요약(`EventsApplicationSummary`)은 로컬이다. 요약은 신청 폼·완료 화면의 `EventsSummaryCard`(아이콘 + 일시·장소)와 달리 "행사·신청·취소" 라벨 행이라 따로 뒀다.
+- **빈 상태는 `EventsEmptyState` 재사용**: 그림·버튼 모양은 행사 목록 빈 상태와 같고, 설명 굵기만 다르다(행사 목록 Medium, 신청내역 Regular) — `descriptionWeight`로 고른다. 위치는 목록 영역 가운데가 아니라 Figma대로 토글 아래 176px이다.
+- **탭은 경로로 나눈다**: 행사 `/events`, 신청내역 `/events/applications`, 상세 `/events/applications/:applicationId`. 같은 목록 화면이 주소로 탭을 고르고, 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않는다. 신청내역 탭은 Figma에 상태 필터 행이 없어서 숨긴다. 하단 탭은 `/events/applications`에서도 "행사"가 선택된다.
+- **취소는 목록까지 반영된다**: 취소 API(`cancelMyEventApplication`)가 목데이터를 바꾸고 목록·상세 조회 캐시를 지운다. 상세는 다시 그리는 업데이트를 transition으로 묶어 새 데이터를 받는 동안 스켈레톤 대신 지금 화면을 유지하고, 토스트는 취소된 화면과 함께 뜬다. 실패 토스트 문구("신청 취소에 실패했어요. 다시 시도해 주세요.")는 Figma에 없어 임의로 정했다.
