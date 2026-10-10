@@ -5,7 +5,7 @@ import {
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { Suspense, startTransition, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
@@ -15,12 +15,21 @@ import BililgeItemList from "@/features/bililge/components/BililgeItemList";
 import BililgeListSkeleton from "@/features/bililge/components/BililgeListSkeleton";
 import BililgeRentalSheet from "@/features/bililge/components/BililgeRentalSheet";
 import BililgeReturnSection from "@/features/bililge/components/BililgeReturnSection";
+import {
+  BILILGE_TAB_PATHS,
+  type BililgeTab,
+} from "@/features/bililge/constants/bililge";
 import { getSearchPath } from "@/features/search/constants/search";
 
 // Figma: 빌릴게 (nodeId 1243:73331)
 function BililgeListScreen() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState("rent");
+  const { pathname } = useLocation();
+  const tab: BililgeTab =
+    pathname === BILILGE_TAB_PATHS.return ? "return" : "rent";
+  // 탭을 바꿀 때마다 히스토리가 쌓이지 않게 replace로 바꾼다
+  const changeTab = (next: BililgeTab) =>
+    navigate(BILILGE_TAB_PATHS[next], { replace: true });
   const [category, setCategory] = useState("전체");
   const [rentalItem, setRentalItem] = useState<BililgeItem | null>(null);
   const [rentalSheetOpen, setRentalSheetOpen] = useState(false);
@@ -52,7 +61,11 @@ function BililgeListScreen() {
           Figma Tool 프레임(56~88)은 높이 32에 위아래 여백이 없다 — 세로 패딩을 주면
           토글과 그 아래 필터 행이 함께 밀린다(행사·게시판 화면과 같은 규칙). */}
       <div className="shrink-0 px-5">
-        <SegmentedControl onValueChange={setTab} size="small" value={tab}>
+        <SegmentedControl
+          onValueChange={(value) => changeTab(value as BililgeTab)}
+          size="small"
+          value={tab}
+        >
           <SegmentedControlItem value="rent">대여</SegmentedControlItem>
           <SegmentedControlItem value="return">반납</SegmentedControlItem>
         </SegmentedControl>
@@ -84,7 +97,7 @@ function BililgeListScreen() {
             />
           </Suspense>
         ) : (
-          <BililgeReturnSection onBrowseRentals={() => setTab("rent")} />
+          <BililgeReturnSection onBrowseRentals={() => changeTab("rent")} />
         )}
       </div>
 

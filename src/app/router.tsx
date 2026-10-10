@@ -48,6 +48,11 @@ const routes = [
             path: "/bililge",
           },
           {
+            element: <BililgeListScreen />,
+            // 빌릴게의 반납 탭 — 같은 화면이 주소로 탭을 고른다
+            path: "/bililge/returns",
+          },
+          {
             element: <EventsListScreen />,
             // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
