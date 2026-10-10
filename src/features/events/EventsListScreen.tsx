@@ -6,20 +6,26 @@ import {
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { Suspense, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import EventsList from "@/features/events/components/EventsList";
 import EventsListSkeleton from "@/features/events/components/EventsListSkeleton";
-import { EVENT_STATUS_FILTERS } from "@/features/events/constants/events";
+import {
+  EVENT_STATUS_FILTERS,
+  EVENTS_TAB_PATHS,
+  type EventsTab,
+} from "@/features/events/constants/events";
 import { getSearchPath } from "@/features/search/constants/search";
 
 // Figma: 행사 (nodeId 1243:70854)
 function EventsListScreen() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState("event");
+  const { pathname } = useLocation();
+  const tab: EventsTab =
+    pathname === EVENTS_TAB_PATHS.application ? "application" : "event";
   const [statusFilter, setStatusFilter] = useState("all");
 
   useScreenHeader(
@@ -49,7 +55,14 @@ function EventsListScreen() {
           Figma Tool 프레임(56~88)은 높이 32에 위아래 여백이 없다 — 세로 패딩을 주면
           토글과 그 아래 필터 행이 함께 밀린다. */}
       <div className="shrink-0 px-5">
-        <SegmentedControl onValueChange={setTab} size="small" value={tab}>
+        <SegmentedControl
+          // 탭을 바꿀 때마다 히스토리가 쌓이지 않게 replace로 바꾼다
+          onValueChange={(value) =>
+            navigate(EVENTS_TAB_PATHS[value as EventsTab], { replace: true })
+          }
+          size="small"
+          value={tab}
+        >
           <SegmentedControlItem value="event">행사</SegmentedControlItem>
           <SegmentedControlItem value="application">
             신청내역
