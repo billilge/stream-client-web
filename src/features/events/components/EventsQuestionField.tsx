@@ -10,13 +10,15 @@ import {
 } from "@wanteddev/wds";
 import { useId } from "react";
 
+import type {
+  EventsAnswer,
+  EventsChoiceAnswer,
+  EventsQuestion,
+} from "@/entities/events/types";
 import {
   EVENTS_OTHER_MAX_LENGTH,
   EVENTS_OTHER_OPTION_LABEL,
   EVENTS_TEXT_MAX_LENGTH,
-  type EventsAnswer,
-  type EventsChoiceAnswer,
-  type EventsQuestion,
 } from "@/features/events/constants/eventsApplication";
 
 interface EventsQuestionFieldProps {
