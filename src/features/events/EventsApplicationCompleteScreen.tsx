@@ -3,10 +3,8 @@ import { useNavigate } from "react-router-dom";
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
 import EventsSummaryCard from "@/features/events/components/EventsSummaryCard";
+import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
 import { EVENTS_APPLICATION } from "@/features/events/constants/eventsApplication";
-
-// 신청내역 화면은 아직 없다 — 라우트가 없어서 준비 중 화면(ComingSoonScreen)이 뜬다.
-const APPLICATION_HISTORY_PATH = "/my/applications";
 
 // Figma: 행사 신청 완료 페이지 (nodeId 1712:192283)
 // 행사 정보는 신청 폼과 마찬가지로 API 연동 전까지 목업 하나를 보여준다.
@@ -24,7 +22,7 @@ function EventsApplicationCompleteScreen() {
       primaryAction={{ label: "홈으로 가기", onClick: () => navigate("/") }}
       secondaryAction={{
         label: "신청내역 보기",
-        onClick: () => navigate(APPLICATION_HISTORY_PATH),
+        onClick: () => navigate(EVENTS_TAB_PATHS.application),
       }}
       title="신청이 완료됐어요"
     >

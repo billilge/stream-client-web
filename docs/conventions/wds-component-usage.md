@@ -120,6 +120,7 @@ hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참�
   - `width` 기본값이 부모 폭을 채우지 않는다 — 안 주면 카드 폭의 절반 정도로 렌더링돼서 `width="100%"`를 줬다.
   - 높이 계산용 숨김 textarea(`readonly`, `aria-hidden`)를 하나 더 렌더링한다 — 테스트·자동화에서 `textarea` 셀렉터를 쓸 때 제외해야 한다.
   - 단답형(50자)도 같은 `TextArea`를 쓴다(Figma 텍스트 입력 예시 `1133:43105`의 디자이너 메모).
+  - 글자 스타일이 `body1-reading`(16px)으로 고정돼 있고 prop으로 못 바꾼다. Figma 입력 글자·안내 문구는 `Label 1/Reading`(14px)이라(`1658:183424`), `sx`에 `& textarea, & textarea::placeholder { typographyStyle("label1-reading", "regular") }`를 줘서 덮는다(`EventsQuestionField`의 `TEXT_AREA_TYPOGRAPHY`). 위 숨김 textarea도 같은 글자로 높이를 재야 자동 높이가 맞아서 `textarea` 전체를 잡는다. 처음엔 16px 그대로였다가 행사 신청내역(#115) `/figma-check`에서 잡혔다.
 - **`Action Area/Action Area` → `ActionArea background` + `ActionAreaButton`**: `background`를 켜면 `::before`가 영역 위로 `margin-y`(20px)만큼 더 올라가 그라데이션 마스크로 스크롤 내용을 흐리게 덮는다(Figma `Gradient/Solid`와 일치). `divider`는 기본값이 `true`지만 `extra` 모드에서만 선을 그려서 일반 모드에는 영향 없다. Figma Action Area(110px = 위 20 + 버튼 56 + 아래 34)는 버튼 아래가 iOS **Bottom Safe Area까지 합쳐 34px**인데 WDS `ActionArea`는 아래 padding 20px만 줘서, 모자란 **14px**을 `bg-background-elevated-normal` div로 따로 붙였다(`BottomSheet`에서 14px을 더한 것과 같은 이유). 처음엔 Safe Area 34px을 통째로 더해서 버튼 아래가 54px로 벌어졌었다 — ActionArea 자체 padding과 겹치는지 먼저 확인한다. 이때 `--color-background-elevated-normal`(`--semantic-background-elevated-normal` 별칭) 토큰을 추가했다.
 - **Action Area 메인 버튼 높이**: `ActionAreaButton`(`main`)은 항상 `Button size="large"`(padding `12px 28px` → **48px**)로 그리는데, Figma `┗ Main Action`은 padding `16px 28px`(**56px**)이다. WDS에 56px 크기가 없어서 `sx={{ paddingBlock: "16px" }}`로 세로 padding만 맞췄다(`ActionAreaButton`은 `props.sx`를 내부 `Button` 스타일 맨 뒤에 붙여서 덮어쓰기가 된다). 빌릴게 대여 바텀시트 Figma(`1422:57205`)의 "대여 신청하기" 버튼도 같은 56px 스펙이지만, `BililgeRentalSheet.tsx`는 아직 `sx` 없이 48px로 렌더링된다(위 "빌릴게 대여 바텀시트" 절의 "정확히 일치" 기록은 높이까지는 대조하지 않은 것으로 보인다).
 - **기타(직접 입력) 입력칸은 WDS가 아니라 plain `<input>`**: Figma `Other Option`(`1658:183954`)은 체크박스 아래에 밑줄만 있는 입력칸이라, WDS `TextField`(배경·테두리·12px radius가 있는 박스형)와 생김새가 다르다. 밑줄은 `Primary/Normal` 0.7px(에셋 SVG의 stroke로 확인, `get_variable_defs`만으로는 선 색이 안 나온다). 글자는 `Typography as="input"`으로 Figma `Label 1/Reading - Regular`(`variant="label1-reading"`, 14px·줄 높이 22px)를 받는다(`component-convention.md` 타이포그래피 참고).
@@ -609,3 +610,19 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 ### 빈 상태는 WDS `FallbackView`가 아니라 홈 로컬 `HomeEmptyState`
 
 일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/bililge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/events/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.
+
+## 행사 신청내역(`1133:46168` 목록 / `1165:63551` empty / `1133:46181` 상세 / `1133:46131` 신청취소 확인모달 / `1133:46216` 신청취소 상세 + 토스트) 구현 중 확정된 매핑
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| `Content Badge` (신청완료·신청취소) | `ContentBadge size="small" variant="solid" color="accent"` | 신청완료 green, 신청취소 red. 목록 카드와 상세가 `EVENTS_APPLICATION_STATUS_BADGES`를 같이 쓴다 |
+| 카드 `행사 상세` / `신청 상세` | `Button size="small" color="assistive"` | 앞은 `variant="outlined"`, 뒤는 `variant="solid"`(Fill/Normal 배경). 둘 다 padding 7/14·radius 8·Label 2/Medium이 Figma와 같다 |
+| 상세 `신청 취소` | `Button size="medium" color="primary" variant="outlined"` + `sx` | WDS Button 색이 primary/assistive뿐이라 글자·테두리(`box-shadow` inset)만 `Status/Negative`로 덮는다. outlined primary가 SemiBold 글자라 primary를 고른다 |
+| 신청취소 확인모달 | `ConfirmModal tone="negative"` | 사물함 신청 확인 모달과 같은 공용 모달이고, `tone="negative"`가 느낌표 아이콘 + 빨간 확인 버튼을 그린다 |
+| 취소 완료 토스트 | `ScreenToast variant="positive"` | 체크 아이콘이 WDS 기본값 그대로 |
+| 상세 문항 `Control/Checkbox`·`Control/Radio`·`Textinput/Textarea` | 신청 폼의 `EventsQuestionField` 재사용 | 답변 변경 콜백을 넘기지 않으면 읽기 전용(선택 표시는 그대로, 바꿀 수 없음). 신청취소 상세는 `disabled`로 WDS 비활성 모양을 쓰고, 선택지 글자는 `Label/Disable`(Figma `1133:46240`) |
+
+- **카드·요약은 Stream 로컬**: 신청내역 카드(`EventsApplicationCard`, 70px 회색 썸네일 + 배지·제목·일시 + 버튼 2개)와 상세 요약(`EventsApplicationSummary`)은 로컬이다. 요약은 신청 폼·완료 화면의 `EventsSummaryCard`(아이콘 + 일시·장소)와 달리 "행사·신청·취소" 라벨 행이라 따로 뒀다.
+- **빈 상태는 `EventsEmptyState` 재사용**: 그림·버튼 모양은 행사 목록 빈 상태와 같고, 설명 굵기만 다르다(행사 목록 Medium, 신청내역 Regular) — `descriptionWeight`로 고른다. 위치는 목록 영역 가운데가 아니라 Figma대로 토글 아래 176px이다.
+- **탭은 경로로 나눈다**: 행사 `/events`, 신청내역 `/events/applications`, 상세 `/events/applications/:applicationId`. 같은 목록 화면이 주소로 탭을 고르고, 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않는다. 신청내역 탭은 Figma에 상태 필터 행이 없어서 숨긴다. 하단 탭은 `/events/applications`에서도 "행사"가 선택된다.
+- **취소는 목록까지 반영된다**: 취소 API(`cancelMyEventApplication`)가 목데이터를 바꾸고 목록·상세 조회 캐시를 지운다. 상세는 다시 그리는 업데이트를 transition으로 묶어 새 데이터를 받는 동안 스켈레톤 대신 지금 화면을 유지하고, 토스트는 취소된 화면과 함께 뜬다. 실패 토스트 문구("신청 취소에 실패했어요. 다시 시도해 주세요.")는 Figma에 없어 임의로 정했다.

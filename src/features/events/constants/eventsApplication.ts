@@ -1,33 +1,8 @@
 import filePencil from "@/assets/icons/events/file-pencil.svg";
-
-interface EventsQuestionBase {
-  id: string;
-  title: string;
-  isRequired: boolean;
-}
-
-export interface EventsChoiceQuestion extends EventsQuestionBase {
-  type: "multipleChoice" | "singleChoice";
-  options: string[];
-  // 기타(직접 입력) 선택지를 마지막에 붙일지 — 디자인상 복수 선택에만 있다
-  hasOtherOption?: boolean;
-}
-
-export interface EventsTextQuestion extends EventsQuestionBase {
-  type: "shortAnswer" | "longAnswer";
-}
-
-// type 값 이름은 임시 — 백엔드 스펙이 나오면 거기에 맞춘다
-export type EventsQuestion = EventsChoiceQuestion | EventsTextQuestion;
-
-// 복수 선택은 고른 선택지 목록과 기타 입력 내용을 함께 들고 있는다.
-// 단일 선택·텍스트형은 문자열 하나.
-export interface EventsChoiceAnswer {
-  selected: string[];
-  otherText: string;
-}
-
-export type EventsAnswer = string | EventsChoiceAnswer;
+import type {
+  EventsQuestion,
+  EventsTextQuestion,
+} from "@/entities/events/types";
 
 export interface EventsApplication {
   eventName: string;

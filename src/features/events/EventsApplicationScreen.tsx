@@ -12,12 +12,12 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import type { EventsAnswer } from "@/entities/events/types";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
 import EventsSummaryCard from "@/features/events/components/EventsSummaryCard";
 import {
   EVENTS_APPLICATION,
   EVENTS_OTHER_OPTION_LABEL,
-  type EventsAnswer,
 } from "@/features/events/constants/eventsApplication";
 import { submitEventsApplication } from "@/features/events/constants/eventsApplicationSubmit";
 
