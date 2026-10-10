@@ -2,28 +2,42 @@
 // (nodeId 1658:183407, 1658:183418, 1658:183424), 기타 입력칸은 Other Option (nodeId 1658:183954)
 import {
   Checkbox,
+  css,
   RadioGroup,
   RadioGroupItem,
   TextArea,
   TextAreaContent,
   Typography,
+  typographyStyle,
 } from "@wanteddev/wds";
 import { useId } from "react";
 
+import type {
+  EventsAnswer,
+  EventsChoiceAnswer,
+  EventsQuestion,
+} from "@/entities/events/types";
 import {
   EVENTS_OTHER_MAX_LENGTH,
   EVENTS_OTHER_OPTION_LABEL,
   EVENTS_TEXT_MAX_LENGTH,
-  type EventsAnswer,
-  type EventsChoiceAnswer,
-  type EventsQuestion,
 } from "@/features/events/constants/eventsApplication";
 
 interface EventsQuestionFieldProps {
   question: EventsQuestion;
   answer: EventsAnswer | undefined;
-  onAnswerChange: (answer: EventsAnswer) => void;
+  /** 없으면 읽기 전용 — 신청내역 상세처럼 제출한 답변을 보여 주기만 한다 */
+  onAnswerChange?: (answer: EventsAnswer) => void;
+  /** 취소된 신청내역처럼 입력들을 흐리게(비활성) 보여 준다 */
+  disabled?: boolean;
 }
+
+const TEXT_AREA_TYPOGRAPHY = css`
+  & textarea,
+  & textarea::placeholder {
+    ${typographyStyle("label1-reading", "regular")}
+  }
+`;
 
 const EMPTY_CHOICE_ANSWER: EventsChoiceAnswer = { otherText: "", selected: [] };
 
@@ -34,11 +48,20 @@ function toChoiceAnswer(answer: EventsAnswer | undefined): EventsChoiceAnswer {
 // 문항 유형(question.type)별로 컴포넌트를 나누지 않고 이 컴포넌트 하나가 유형에 맞는 입력을 그린다.
 // 제목 옆 "*"는 WDS `Label required`를 쓰지 않았다 — Figma의 Field Label은 WDS 인스턴스가 아닌
 // 로컬 텍스트이고, `*`도 Body 1/Bold(16px)라 Label이 그리는 label1/medium(14px)과 크기가 다르다.
+//
+// 신청내역 상세(1133:46181)는 같은 카드를 읽기 전용으로 쓴다 — 선택 표시는 그대로 두고 바꿀 수만 없다.
+// 신청취소 상세(1133:46216)는 입력들이 흐린 비활성 모양이라 disabled를 넘긴다.
 function EventsQuestionField({
   question,
   answer,
   onAnswerChange,
+  disabled = false,
 }: EventsQuestionFieldProps) {
+  const isReadOnly = onAnswerChange === undefined;
+  // 비활성(취소된 신청)이면 선택지 글자도 Label/Disable로 흐리게 한다(Figma 1133:46240)
+  const optionColor = disabled
+    ? "semantic.label.disable"
+    : "semantic.label.normal";
   const id = useId();
   const titleId = `${id}-title`;
   const otherId = `${id}-other`;
@@ -56,7 +79,7 @@ function EventsQuestionField({
       option === EVENTS_OTHER_OPTION_LABEL && !checked
         ? ""
         : choiceAnswer.otherText;
-    return onAnswerChange({ otherText, selected });
+    return onAnswerChange?.({ otherText, selected });
   };
 
   return (
@@ -98,15 +121,22 @@ function EventsQuestionField({
             return (
               <div className="flex items-start gap-2" key={option}>
                 <Checkbox
+                  // 읽기 전용이면 눌러도 안 바뀐다는 걸 스크린리더에도 알린다
+                  aria-readonly={isReadOnly || undefined}
                   checked={choiceAnswer.selected.includes(option)}
+                  disabled={disabled}
                   id={optionId}
-                  onCheckedChange={(checked) => toggleOption(option, checked)}
+                  onCheckedChange={
+                    isReadOnly
+                      ? undefined
+                      : (checked) => toggleOption(option, checked)
+                  }
                   size="small"
                 />
                 <label className="flex-1" htmlFor={optionId}>
                   <Typography
                     as="span"
-                    color="semantic.label.normal"
+                    color={optionColor}
                     variant="label1"
                     weight="regular"
                   >
@@ -122,17 +152,22 @@ function EventsQuestionField({
             <div className="flex flex-col gap-1">
               <div className="flex items-start gap-2">
                 <Checkbox
+                  aria-readonly={isReadOnly || undefined}
                   checked={isOtherChecked}
+                  disabled={disabled}
                   id={otherId}
-                  onCheckedChange={(checked) =>
-                    toggleOption(EVENTS_OTHER_OPTION_LABEL, checked)
+                  onCheckedChange={
+                    isReadOnly
+                      ? undefined
+                      : (checked) =>
+                          toggleOption(EVENTS_OTHER_OPTION_LABEL, checked)
                   }
                   size="small"
                 />
                 <label className="flex-1" htmlFor={otherId}>
                   <Typography
                     as="span"
-                    color="semantic.label.normal"
+                    color={optionColor}
                     variant="label1"
                     weight="regular"
                   >
@@ -148,14 +183,16 @@ function EventsQuestionField({
                   as="input"
                   className="w-full border-primary border-b-[0.7px] pb-0.5 outline-none placeholder:text-label-assistive"
                   color="semantic.label.normal"
+                  disabled={disabled}
                   maxLength={EVENTS_OTHER_MAX_LENGTH}
                   onChange={(event) =>
-                    onAnswerChange({
+                    onAnswerChange?.({
                       otherText: event.target.value,
                       selected: choiceAnswer.selected,
                     })
                   }
                   placeholder="기타 내용을 입력해 주세요."
+                  readOnly={isReadOnly}
                   value={choiceAnswer.otherText}
                   variant="label1-reading"
                   weight="regular"
@@ -169,6 +206,8 @@ function EventsQuestionField({
       {question.type === "singleChoice" && (
         <RadioGroup
           aria-labelledby={titleId}
+          aria-readonly={isReadOnly || undefined}
+          disabled={disabled}
           onValueChange={onAnswerChange}
           required={question.isRequired}
           value={typeof answer === "string" ? answer : ""}
@@ -183,7 +222,7 @@ function EventsQuestionField({
                   <label className="flex-1" htmlFor={optionId}>
                     <Typography
                       as="span"
-                      color="semantic.label.normal"
+                      color={optionColor}
                       variant="label1"
                       weight="regular"
                     >
@@ -203,10 +242,17 @@ function EventsQuestionField({
         <TextArea
           aria-labelledby={titleId}
           aria-required={question.isRequired}
+          disabled={disabled}
           maxLength={EVENTS_TEXT_MAX_LENGTH[question.type]}
           minRows={1}
-          onChange={(event) => onAnswerChange(event.target.value)}
-          placeholder="메시지를 입력해 주세요."
+          onChange={(event) => onAnswerChange?.(event.target.value)}
+          // 읽기 전용에서 답하지 않은 문항은 입력 안내 대신 빈 칸으로 둔다
+          placeholder={isReadOnly ? undefined : "메시지를 입력해 주세요."}
+          readOnly={isReadOnly}
+          // WDS TextArea는 글자를 Body 1/Reading(16px)으로 고정하는데 Figma 입력 글자·안내는
+          // Label 1/Reading(14px)이다(신청 폼 1658:183424, 신청내역 상세 1133:46214). prop으로 바꿀 수 없어서
+          // 바깥에서 textarea만 덮는다 — 자동 높이를 재는 숨은 textarea도 같은 글자로 재도록 둘 다 잡는다.
+          sx={TEXT_AREA_TYPOGRAPHY}
           trailingContent={
             <TextAreaContent variant="characterCounter">
               {EVENTS_TEXT_MAX_LENGTH[question.type]}

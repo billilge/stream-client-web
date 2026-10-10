@@ -1,4 +1,8 @@
-import type { EventItem } from "@/entities/events/types";
+import type {
+  EventItem,
+  EventsQuestion,
+  MyEventApplication,
+} from "@/entities/events/types";
 
 // Figma 상세(1133:42433 모집중 / 1156:53992 모집예정)의 메타데이터·본문은 목업이라 행사별로 다르지 않다.
 // 목록 카드가 같은 행사명 4개를 상태만 바꿔 보여주는 것과 같은 이유로, 상세 내용도 공통 상수로 두고
@@ -69,3 +73,89 @@ export const EVENTS: EventItem[] = [
     title: "소프트웨어융합대학 체육대회",
   },
 ];
+
+// Figma: 행사 신청내역 (nodeId 1133:46168 목록, 1133:46181 상세, 1133:46216 신청취소 상세)
+// 행사 상세로 이동할 수 있게 eventId는 위 EVENTS에 있는 행사로 맞춘다.
+
+// 신청 폼(EVENTS_APPLICATION)과 같은 문항 — 신청 당시 문항을 그대로 들고 있는 모양을 흉내 낸다.
+const QUESTIONS: EventsQuestion[] = [
+  {
+    hasOtherOption: true,
+    id: "interest",
+    isRequired: true,
+    options: ["개발", "디자인", "기획"],
+    title: "관심 분야를 선택해 주세요.",
+    type: "multipleChoice",
+  },
+  {
+    id: "afterParty",
+    isRequired: true,
+    options: ["참여해요", "참여하지 않아요"],
+    title: "뒤풀이에 참여하시나요?",
+    type: "singleChoice",
+  },
+  {
+    id: "question",
+    isRequired: false,
+    title: "궁금한 점이 있다면 자유롭게 남겨 주세요.",
+    type: "longAnswer",
+  },
+];
+
+const APPLICATIONS: MyEventApplication[] = [
+  {
+    answers: {
+      afterParty: "참여해요",
+      interest: { otherText: "", selected: ["개발", "디자인"] },
+      question:
+        "궁금한 점이 하나 있습니다. 행사 당일 학생증을 꼭 챙겨야 하나요?",
+    },
+    appliedAt: "2026-06-04T13:00",
+    cancelledAt: null,
+    eventDateTime: "2026-06-04T18:30",
+    eventId: "sw-sports-day-closed",
+    eventTitle: "소프트웨어융합대학 체육대회",
+    id: "application-1",
+    location: "미래관 4층 신관 입구",
+    questions: QUESTIONS,
+    status: "applied",
+  },
+  {
+    answers: {
+      afterParty: "참여하지 않아요",
+      interest: { otherText: "", selected: ["기획"] },
+    },
+    appliedAt: "2026-06-04T13:00",
+    cancelledAt: null,
+    eventDateTime: "2026-06-04T18:30",
+    eventId: "sw-sports-day-upcoming",
+    eventTitle: "소프트웨어융합대학 체육대회",
+    id: "application-2",
+    location: "미래관 4층 신관 입구",
+    questions: QUESTIONS,
+    status: "applied",
+  },
+  {
+    answers: {
+      afterParty: "참여해요",
+      interest: { otherText: "", selected: ["개발"] },
+    },
+    appliedAt: "2026-06-03T11:49",
+    cancelledAt: "2026-06-04T13:00",
+    eventDateTime: "2026-06-04T18:30",
+    eventId: "sw-sports-day-closed",
+    eventTitle: "소프트웨어융합대학 체육대회",
+    id: "application-3",
+    location: "미래관 4층 신관 입구",
+    questions: QUESTIONS,
+    status: "cancelled",
+  },
+];
+
+// 상태를 바꿔 신청내역 화면을 확인한다
+type MyEventApplicationsMockState = "list" | "empty";
+const MY_EVENT_APPLICATIONS_MOCK_STATE: MyEventApplicationsMockState = "list";
+
+// 신청 취소가 이 배열의 항목을 바꾼다(eventsApi의 cancelMyEventApplication) — 목록·상세에 같이 반영된다.
+export const MY_EVENT_APPLICATIONS_MOCK: MyEventApplication[] =
+  MY_EVENT_APPLICATIONS_MOCK_STATE === "list" ? APPLICATIONS : [];
