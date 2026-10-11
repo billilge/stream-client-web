@@ -134,7 +134,7 @@ hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참�
   - 단답형(50자)도 같은 `TextArea`를 쓴다(Figma 텍스트 입력 예시 `1133:43105`의 디자이너 메모).
 - **`Action Area/Action Area` → `ActionArea background` + `ActionAreaButton`**: `background`를 켜면 `::before`가 영역 위로 `margin-y`(20px)만큼 더 올라가 그라데이션 마스크로 스크롤 내용을 흐리게 덮는다(Figma `Gradient/Solid`와 일치). `divider`는 기본값이 `true`지만 `extra` 모드에서만 선을 그려서 일반 모드에는 영향 없다. Figma Action Area(110px = 위 20 + 버튼 56 + 아래 34)는 버튼 아래가 iOS **Bottom Safe Area까지 합쳐 34px**인데 WDS `ActionArea`는 아래 padding 20px만 줘서, 모자란 **14px**을 `bg-background-elevated-normal` div로 따로 붙였다(`BottomSheet`에서 14px을 더한 것과 같은 이유). 처음엔 Safe Area 34px을 통째로 더해서 버튼 아래가 54px로 벌어졌었다 — ActionArea 자체 padding과 겹치는지 먼저 확인한다. 이때 `--color-background-elevated-normal`(`--semantic-background-elevated-normal` 별칭) 토큰을 추가했다.
 - **Action Area 메인 버튼 높이**: `ActionAreaButton`(`main`)은 항상 `Button size="large"`(padding `12px 28px` → **48px**)로 그리는데, Figma `┗ Main Action`은 padding `16px 28px`(**56px**)이다. WDS에 56px 크기가 없어서 `sx={{ paddingBlock: "16px" }}`로 세로 padding만 맞췄다(`ActionAreaButton`은 `props.sx`를 내부 `Button` 스타일 맨 뒤에 붙여서 덮어쓰기가 된다). 빌릴게 대여 바텀시트 Figma(`1422:57205`)의 "대여 신청하기" 버튼도 같은 56px 스펙이지만, `BililgeRentalSheet.tsx`는 아직 `sx` 없이 48px로 렌더링된다(위 "빌릴게 대여 바텀시트" 절의 "정확히 일치" 기록은 높이까지는 대조하지 않은 것으로 보인다).
-- **기타(직접 입력) 입력칸은 WDS가 아니라 plain `<input>`**: Figma `Other Option`(`1658:183954`)은 체크박스 아래에 밑줄만 있는 입력칸이라, WDS `TextField`(배경·테두리·12px radius가 있는 박스형)와 생김새가 다르다. 밑줄은 `Primary/Normal` 0.7px(에셋 SVG의 stroke로 확인, `get_variable_defs`만으로는 선 색이 안 나온다). `<input>`은 `Typography`로 감쌀 수 없는 자리라 Figma `Label 1/Normal - Regular`(14px) 값을 className에 직접 쓰고 주석을 남겼다(휠 피커와 같은 예외).
+- **기타(직접 입력) 입력칸은 WDS가 아니라 plain `<input>`**: Figma `Other Option`(`1658:183954`)은 체크박스 아래에 밑줄만 있는 입력칸이라, WDS `TextField`(배경·테두리·12px radius가 있는 박스형)와 생김새가 다르다. 밑줄은 `Primary/Normal` 0.7px(에셋 SVG의 stroke로 확인, `get_variable_defs`만으로는 선 색이 안 나온다). 글자는 `Typography as="input"`으로 Figma `Label 1/Reading - Regular`(`variant="label1-reading"`, 14px·줄 높이 22px)를 받는다(`component-convention.md` 타이포그래피 참고).
 - **Top Navigation 뒤로가기**: `TopNavigationButton`에는 back 전용 variant가 없어서(`'text' | 'icon'`) `variant="icon"` + `IconChevronLeft`를 `ScreenHeader variant="normal"`의 `leading`에 넣는다.
 - **`Icon/Normal/Clock`, `Icon/Normal/Location`**: 위 표의 기존 매핑 재사용(`IconClock`, `IconLocation`). 색은 `get_variable_defs`로 확인한 `Label/Assistive`(`text-label-assistive`) — 옆 텍스트(`Label/Alternative`)보다 옅다.
 
@@ -327,17 +327,17 @@ Figma 상세는 뒤로가기 버튼이 Hero 이미지 **위에 떠 있는** 오�
 
 `IconCircleCheckFill` 같은 WDS 아이콘이 아니다 — 72px 프레임 안에 60px `Primary/Normal` 원과 흰 체크 선이 따로 있고, 진입할 때 원이 튀어오르며 커지고(back-out) 체크 선이 그려진다(path trim). `get_design_context`의 Component description도 "System Check"뿐이고 montage 문서 링크가 없어서 WDS가 아닌 게 확정된다.
 
-모션은 `src/assets/lottie/events/complete-check.json`(LottieFiles 플러그인 export)을 `LottieLight`로 재생한다 — 처음엔 `get_motion_context` 값을 보고 SVG path와 키프레임을 손으로 옮겼지만, 디자이너가 모션을 고칠 때마다 같은 노동이 반복돼서 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고). 코드는 `src/features/events/components/EventsCompleteCheck.tsx`.
+모션은 `src/assets/lottie/common/complete-check.json`(LottieFiles 플러그인 export)을 `LottieLight`로 재생한다 — 처음엔 `get_motion_context` 값을 보고 SVG path와 키프레임을 손으로 옮겼지만, 디자이너가 모션을 고칠 때마다 같은 노동이 반복돼서 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고). 코드는 `src/components/ui/CompleteCheck.tsx`(사물함 신청 완료와 공용).
 
 ### 행사 신청 중 마감 화면(`1133:43431`)도 같은 뼈대다
 
-완료 화면과 구조가 같다 — 닫기(X)만 있는 `TopNavigation`, 그 아래 104px 간격, 가운데 일러스트 + 2줄 문구, 하단 Action Area. 다른 점은 버튼이 하나라서 `ActionArea`를 기본값(`variant="strong"`, 세로 배치)으로 쓰고 신청 폼과 같은 `sx={{ paddingBlock: "16px" }}` 보정만 한다는 것뿐이다. 자물쇠 일러스트(`1133:43439`)는 WDS 아이콘이 아니라 Figma 로컬 도형이라 SVG를 그대로 받아 `src/assets/icons/events/application-closed.svg`로 커밋했다(62.963×72.317).
+완료 화면과 구조가 같다 — 닫기(X)만 있는 `TopNavigation`, 그 아래 104px 간격, 가운데 일러스트 + 2줄 문구, 하단 Action Area. 다른 점은 버튼이 하나라서 `ActionArea`를 기본값(`variant="strong"`, 세로 배치)으로 쓰고 신청 폼과 같은 `sx={{ paddingBlock: "16px" }}` 보정만 한다는 것뿐이다. 자물쇠 일러스트(`1133:43439`)는 WDS 아이콘이 아니라 Figma 로컬 도형이라 SVG를 그대로 받아 `src/assets/icons/common/document-lock.svg`로 커밋했다(62.963×72.317). 사물함 신청 오류 화면도 같은 그림이라 공용 폴더에 둔다. 이 화면 구조는 지금 공용 `ResultScreen`이 갖는다.
 
 ### 제출 중 로딩 화면(`1133:43453`)에서 WDS는 `Typography`뿐이다
 
-문서 일러스트와 체크 항목 3줄은 전부 Figma 로컬 도형이고(WDS 아이콘 아님), 3.4초 루프 모션이 붙어 있다(`Loading / Document Review`, 1133:44260). 이 일러스트 전체를 `src/assets/lottie/events/submitting.json`으로 받아 `LottieLight`로 재생한다 — 처음엔 path trim을 SVG로 인라인하고 문서 본체만 svg로 받았지만 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고).
+문서 일러스트와 체크 항목 3줄은 전부 Figma 로컬 도형이고(WDS 아이콘 아님), 3.4초 루프 모션이 붙어 있다(`Loading / Document Review`, 1133:44260). 이 일러스트 전체를 `src/assets/lottie/common/submitting.json`으로 받아 `LottieLight`로 재생한다 — 처음엔 path trim을 SVG로 인라인하고 문서 본체만 svg로 받았지만 Lottie로 바꿨다(`component-convention.md` "모션 (Lottie)" 참고).
 
-LottieFiles export 원본(`Loading Content`)에는 문구 2줄도 벡터 도형으로 들어 있는데 그 레이어는 빼고 쓴다 — 문구 2줄은 WDS `Typography`(`heading1` 22px / `label1` 14px)로 그려야 스크린리더가 읽고 타이포 토큰도 따라간다. 코드는 `src/features/events/components/EventsSubmittingOverlay.tsx`.
+LottieFiles export 원본(`Loading Content`)에는 문구 2줄도 벡터 도형으로 들어 있는데 그 레이어는 빼고 쓴다 — 문구 2줄은 WDS `Typography`(`heading1` 22px / `label1` 14px)로 그려야 스크린리더가 읽고 타이포 토큰도 따라간다. 코드는 `src/components/ui/SubmittingOverlay.tsx`(사물함 신청 중과 공용, 문구는 prop).
 
 ## 공지 상세 화면(`1256:81842`, `1256:81856`) 구현 중 확정된 매핑
 
@@ -451,3 +451,173 @@ WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외
 ### `Icon/Feedback`·`Icon/Answer`는 게시판-열린피드백 목록과 같은 로컬 아이콘
 
 이 화면의 "피드백 내용"/"학생회 답변" 아이콘은 목록 화면의 `Icon/Question`/`Icon/Answer`와 이름만 다를 뿐 같은 자리(질문/답변 구분 아이콘)라 새로 받지 않고 기존 `src/assets/icons/feedbacks/{question,answer}.svg`를 그대로 재사용했다.
+
+## 사물함 구역 선택 화면(`1737:218452`, `1737:218489`) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | 비고 |
+|---|---|---|
+| `Content Badge/Content Badge` | 구역 카드의 혼잡도 뱃지 | `445:5656` — [문서](https://montage.wanted.co.kr/docs/components/contents/content-badge/design) |
+| `Icon/Normal/Chevron Up` | 평면도 가운데 열 방향 표시 | `687:24638`, 코드 `IconChevronUp` |
+| `Icon/Normal/Reset` | Top Navigation 트레일링 새로고침 | `790:38150` — "초기화를 표현합니다 / 반시계 화살표". **`IconRefresh`가 아니라 `IconReset`이다** — wds-icon에 Refresh·Reset·Rotate가 다 있어서 이름만 보고 고르면 틀린다 |
+
+평면도의 구역 카드·호실·화장실·계단은 전부 Stream 로컬이다. 뱃지만 WDS다.
+
+### `ContentBadge`의 `size`는 `xsmall`이다 — 빌릴게의 `small`을 베끼면 틀린다
+
+`style.js` 실측 결과 세 사이즈가 이렇다.
+
+| size | padding | 타이포 |
+|---|---|---|
+| `xsmall` | `3px 6px` | Caption 2 (11px) |
+| `small` | `4px 6px` | Caption 1 (12px) |
+| `medium` | `5px 8px` | Label 2 (14px) |
+
+이 화면의 뱃지는 Figma가 `px-6 py-3` + 11px이라 **`xsmall`**이다. `BililgeRentalHistoryEntry.tsx:52`가 쓰는 `small`과 다르다 — "`Content Badge`의 `size`는 화면마다 실측해야 한다" 절의 사례가 하나 더 늘었다.
+
+혼잡도 3단계는 `color="accent"` + `accentColor`(green/orange/red)로, 배경이 accentColor의 8% 투명도로 깔린다. **마감은 `color="neutral"`**이고 이때 배경은 `semantic.fill.normal`, 글자는 `neutralColor`가 된다(`style.js`의 color 분기 확인) — Figma의 마감 뱃지(`Fill/Normal` 배경 + `Label/Alternative` 글자)와 정확히 맞는다.
+
+### `download_assets`는 노드 모양에 따라 `export`와 `svgAssets` 중 쓸 게 갈린다
+
+- **단일 벡터 레이어**(화장실 `1737:218466`, 계단 `1737:218484`)는 `svgAssets` 항목이 그대로 깨끗한 아이콘이다. `export`를 쓰면 캔버스 배경(`<rect fill="#EFEFEF">`)이 붙는다
+- **여러 레이어 조합**(사물함 유의사항 일러스트)은 `svgAssets`가 레이어별로 쪼개져 나와서 `export`를 써야 하고, 그때 붙는 캔버스 배경을 직접 걷어내야 한다
+
+받은 SVG에 `fill="#EFEFEF"`인 전체 크기 `<rect>`가 맨 앞에 있으면 캔버스 배경이다.
+
+### 구역 카드 배경이 화면 배경과 같은 색이라 라우트에 `background: "normal"`이 필요하다
+
+카드 배경이 `Background/Normal/Alternative`(`#f7f7f8`)인데 `ScreenLayout` 기본 배경도 같은 값이라, handle을 안 주면 카드가 배경에 완전히 묻힌다(실제로 처음 렌더에서 카드가 안 보였다). Figma 화면 배경이 흰 면이라 `handle: { background: "normal" }`을 준다.
+
+## 사물함 구역별 칸 선택 화면(`2159:110753` A-1, `2159:109533` A-2, `2159:110174` A-1 실제사진) 구현 중 확정된 매핑
+
+| WDS 컴포넌트 | 확인 경로 | 비고 |
+|---|---|---|
+| `Icon/Normal/Image` | A-1 Top Navigation 트레일링 사진 버튼 | `search_design_system`에서 WDS 라이브러리 `component_set`으로 확인(componentKey `ba5095aab91509506b1380975f260bdb0658567f`), 코드 `IconImage` |
+| `Name=close, Thick=False` (`Icon/Normal/Close`) | 실제사진 모달 닫기 | 코드 `IconClose`를 WDS `IconButton size={24}`로 감쌌다 |
+| `Icon/Normal/Reset` | Top Navigation 트레일링 새로고침 | 구역 선택 화면과 같다 — `IconReset` |
+| `Action Area/Action Area` | 하단 선택 영역 | `ActionAreaButton` + `paddingBlock: "16px"` 보정(위 "Action Area 메인 버튼 높이") |
+
+칸(`Locker Cell`)·칸 묶음(`Zone Area`)·`Shelf Label`·범례·미니맵·`Locker Selector`·실제사진 모달은 전부 Stream 로컬이다. `search_design_system`에서 `Locker Cell`은 결과가 없었다.
+
+### 구역별 칸 배치는 서버 layout JSON을 렌더러로 그린다
+
+구역마다 배치 컴포넌트를 두지 않고, 구역 상세 응답의 `layout`(블록 7종: `row`·`column`·`lockerGroup`·`label`·`area`·`text`·`shelfLabel`)을 `LockersLayoutRenderer`가 그린다. 타입과 A-1·A-2 목데이터는 `constants/lockersSectionDetails.ts`. 블록은 Figma 로컬 요소와 이렇게 대응한다.
+
+| 블록 | Figma | 코드 |
+|---|---|---|
+| `lockerGroup` | Zone Area + Locker Grid | `LockersLockerGrid`(`bordered`면 `Line/Solid/Alternative` 테두리 상자) |
+| `label` | Direction Label·Aisle | `LockersMapLabel` — 세로면 한 글자씩 줄바꿈하고 단어 사이에 빈 줄 |
+| `area` | Room Label·Zone Label·Stairs Area | `LockersMapArea` — 구역 선택 평면도와 같은 점선 상자 |
+| `shelfLabel` | Shelf Label | `LockersShelfLabel` |
+
+크기는 `hug`·`fill`·px다. `fill`은 부모와 같은 축이면 남은 공간을 나누고(`flex-1`) 다른 축이면 부모에 맞춰 늘어난다(`self-stretch`). 칸 상태는 layout에 없고 `lockers`에서 `lockerNumber`로 찾는다.
+
+### 선택 불가 칸은 범례 SVG 하나로 그린다
+
+Figma 범례의 선택 불가 칸(`2159:110819`)은 `Label/Assistive` 바탕 + `Label/Neutral` 대각선을 합친 15px SVG다. `preserveAspectRatio="none"`이라 28px 칸에 그대로 늘려도 모서리(2.29 → 4.28px)·선 굵기가 본문 칸(radius 4)과 맞아서, 본문 칸도 같은 파일(`locker-unavailable.svg`)을 쓴다.
+
+### 미니맵은 따로 그리지 않고 본문 배치를 `zoom`으로 줄였다
+
+Figma 미니맵은 칸 8px·글자 3.5~4px로 하나하나 다시 그렸지만, 코드에서는 본문 칸 배치를 `zoom`으로 줄여 그린다. 배치를 두 벌 관리하지 않고, 4px 글자가 브라우저 최소 글자 크기에 걸리는 문제도 피한다.
+
+- 높이는 Figma대로 110px 고정, 폭은 배치 비율에 맞춘다(Figma 미니맵 폭 156~208px도 내용에 맞춘 값이다). 범례 앞 남은 폭을 넘으면 더 줄인다
+- 본문과 같은 1배 기준 폭으로 그려야 `fill` 상자 비율이 본문과 같다
+- 확대·축소가 있어서 모든 구역에 띄운다. 검은 테두리(`Highlight Overlay`)는 보이는 영역의 가로·세로 비율을 따라가고(확대하면 작아진다), 스크롤이 없으면 숨긴다
+
+### 칸 배치 확대·축소는 CSS `zoom`으로 한다
+
+`useLockersPinchZoom` — 핀치·Ctrl+휠(트랙패드 핀치), 1배에서 가운데부터, 최소는 배치 전체가 화면 폭에 들어오는 배율, 최대 3배(CGV 좌석 선택 참고). `transform: scale`은 스크롤 영역 크기에 반영되지 않아 `zoom`을 쓴다. 확대하는 래퍼의 최소 폭을 `%`로 주면 배율과 상관없이 화면 폭으로 계산돼 `fill` 상자가 비율대로 커지지 않으므로 px로 준다. 배치 영역에 `touch-pan-x touch-pan-y`를 줘서 두 손가락 동작이 페이지 확대로 가지 않게 한다 — 앱 WebView(iOS·안드로이드)에서는 실기기 확인이 필요하다.
+
+### Figma 아티팩트 — A-1 `Shelf Label` 높이가 1px이다
+
+A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 칸`이 칸 묶음 아래로 흘러내려 보인다. 미니맵(`2159:110761`)과 A-2(`2159:109622`)에서는 칸 묶음 높이에 맞춰 붙어 있어서, 칸 묶음 높이에 맞춘다 — layout의 `shelfLabel.height`(테두리 있는 3행 묶음 122, 칸만 있는 3행 묶음 96).
+
+### 사물함 선택 시(`2159:113197`) — 선택 상태는 구역 카드와 다르다
+
+구역 카드(`LockersSectionCard`)는 선택되면 Blue/95 배경 + Primary 테두리지만, 사물함 칸은 **Primary/Normal 배경 + 흰 SemiBold 번호**다(`2159:113315`). 구역 카드 표현을 그대로 베끼면 틀린다. 하단 `Locker Selector`는 번호를 `Label 1/Normal - Bold` + Primary/Normal로 `B-25`처럼 쓰고, 버튼 문구는 `사물함 신청하기`다. 이름은 조합하지 않고 서버 `lockerLabel`을 그대로 쓴다.
+
+내 사물함(`isMine`)은 Figma에 상태가 없어서 임시로 `Status/Positive` 초록 테두리를 둔다(이미 신청한 칸이라 고를 수 없다).
+
+### 실제 사진의 칸 번호는 서버 사진에 찍혀 온다
+
+처음엔 서버가 사진 주소만 주고 프론트가 구역별 핀 좌표로 번호를 얹었지만, 사진을 바꿀 때마다 좌표를 같이 고쳐야 해서 번호를 사진에 찍어 받는 걸로 바꿨다. 모달은 `photoUrl`을 Figma 사진 틀(300×224)에 그대로 채운다. Figma의 사진 회전(1.12°)·확대 보정과 번호 핀(Orange 계열)은 사진을 만들 때 반영한다.
+
+## 사물함 신청 확인·진행·완료·오류(`1737:218322`, `1737:218076`, `1737:218058`, `3013:99093` 외 4종) 구현 중 확정된 매핑
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| 사물함 선택 확인 모달 (`1737:218322`) | `ConfirmModal` + `highlight` | 행사 신청 확인 모달과 같은 Stream 로컬 Modal이다. 사물함 번호만 Primary 색이라 `highlight`로 넘긴다 |
+| 사물함 신청 로딩 (`1737:218076`) | `SubmittingOverlay` | 행사 제출 중 화면과 같은 모션, 문구만 다르다 |
+| 사물함 신청 완료 (`1737:218058`) | `ResultScreen` + `CompleteCheck` | 행사 완료 화면과 같은 뼈대. `Locker Summary` 카드(`1737:218070`)만 화면이 그린다 |
+| 오류 5종 (`3013:99093`·`99116`·`99139`·`99162`·`99183`) | `ResultScreen` | 행사 신청 중 마감 화면과 같은 뼈대. 버튼 1개면 세로, 2개면 `neutral` |
+
+### 결과 화면은 공용 `ResultScreen` — WDS `FallbackView`를 쓰지 않는다
+
+행사 완료·마감, 사물함 완료·오류 7개 화면이 닫기(X) 헤더, 104px 아래 일러스트 + 2줄 문구, 하단 Action Area로 같은 뼈대라 `src/components/ui/ResultScreen.tsx`로 모았다. WDS `FallbackView`도 구조는 같지만 Empty State 때와 같은 이유(일러스트 폭·상하 패딩·컨테이너 폭이 고정)로 맞지 않아서, 바깥 틀만 로컬로 짜고 내부는 WDS(`TopNavigation`, `Typography`, `ActionArea`)로 채운다. 그림과 문구 사이 간격은 Figma가 체크 모션 화면만 8px, 나머지는 16px이라 `illustrationGap`으로 받는다.
+
+### 오류 일러스트 — 자물쇠는 공용, 와이파이는 사물함 로컬
+
+자물쇠(`document-lock.svg`)는 행사 마감 화면과 같은 그림이라 `icons/common/`의 것을 쓴다. 네트워크 오류의 와이파이 끊김 그림(`3013:99162`)은 WDS 아이콘이 아닌 Figma 로컬 도형이라 `icons/lockers/network-offline.svg`로 받았다 — 75×59.88 그림을 Figma 80×80 틀 위치 그대로 svg 안에 넣었다.
+
+### 미해결: 버튼 2개의 문구 길이가 다르면 너비가 반반이 안 된다
+
+`ActionArea variant="neutral"`은 버튼을 `flex: 1 1 0`으로 나누지만, 좌우 padding 28px + 문구가 절반 너비를 넘으면 그 버튼이 넓어진다. 구역 마감 화면(`3013:99139`)의 `다른 구역 선택하기`가 그렇다(Figma는 반반). 맞추려면 `ResultScreen`의 버튼 좌우 padding을 줄여야 해서 보류했다.
+
+## 검색 화면(`1879:90575`, 화면설계서 `3147:135502`) 구현 중 확정된 매핑
+
+`/component`로 검색 진입·검색 중·검색 완료(전체/행사 탭)·결과 없음 프레임을 구현하며 확인된 내용. 코드는 `src/features/search/` 참고.
+
+| WDS 컴포넌트 | 코드 export | 확인 내용 |
+|---|---|---|
+| `Tab/Tab` (결과 탭 줄) | `Tab` + `TabList` + `TabListItem` | Figma 탭 줄(`3147:138705`: 높이 40, 좌우 20, 탭 간격 24, 라벨 15px SemiBold)이 **`TabList size="small" horizontalPadding`**과 정확히 맞는다 — `small`이 Body 2/Bold + 세로 패딩 9(=높이 40)고, `horizontalPadding`이 좌우 20을 스크롤 영역 안쪽에 줘서 6개 탭이 375px을 넘을 때 화면 끝까지 스크롤된다(`tab/style.js`의 `tabPaddingStyle`·`tabSizeStyle`). 기본(`medium`, Headline 2 17px)은 높이가 48이라 어긋난다. 공지 화면처럼 바깥에 `px-5` 래퍼를 두면 스크롤이 20px 안쪽에서 잘린다 |
+| `Button` (`n개 더보기`) | `Button color="assistive" variant="outlined" size="small"` + `trailingContent` | 행사 empty 버튼과 같은 조합. 오른쪽 꺽쇠는 `trailingContent={<IconChevronRight />}`로 넘긴다(Figma `Trailing Icon`) |
+| `Skeleton` (응답 대기) | `Skeleton variant="rectangle"` | Figma에 스켈레톤 프레임은 없고 화면설계서 8번 문구뿐이라 결과 화면 뼈대를 직접 흉내 냈다. `animation` prop은 `usePrefersReducedMotion`으로 끈다 |
+| `Icon/Normal/Clock`·`Close`·`Search`·`Circle Close` | `IconClock`·`IconClose`·`IconSearch`·`IconCircleCloseFill` | Figma 컴포넌트 설명 문서로 WDS 확인. 검색어 지움 버튼은 채워진 회색 원 + 흰 X라 `*Fill` 쪽이다 |
+
+### 반례 — Search Field는 WDS `SearchField`가 아니다
+
+`@wanteddev/wds`에 `SearchField`가 있고 처음엔 재검토했지만(위 "제외됨" 표의 로컬 분류가 맞는지) `search-field/style.js` 실측값이 Figma(`3147:138703`)와 셋 다 다르다.
+
+| 항목 | WDS `SearchField` | Figma |
+|---|---|---|
+| 배경 | `fill.normal`(rgba 8%) | `Background/Normal/Alternative`(#F7F7F8) |
+| padding | medium 12 / small 8 (사방 동일) | 가로 12 · 세로 8 (높이 40) |
+| 지움 버튼 | 입력창에 **포커스가 있을 때만** 표시 | 검색 완료 화면에서 포커스 없이도 표시 |
+
+내부를 오버라이드해야 맞출 수 있어서 `src/features/search/components/SearchField.tsx`를 로컬로 만들었다. 입력칸 글자는 `Typography as="input"`으로 Body 1/Regular(`variant="body1"`)를 받는다.
+
+### 검색 입력은 `useScreenHeader`(헤더 슬롯)에 넣지 않는다
+
+검색 화면의 뒤로가기 + 검색 필드는 `ScreenHeader`의 헤더 슬롯이 아니라 **화면 본문 최상단**에 직접 둔다. 입력값이 화면 state라서 슬롯에 넣으면 타이핑할 때마다 `setHeader`(effect → `ScreenLayout` 리렌더)를 거쳐 제어 입력의 값 반영이 한 박자 늦어지고, 한글 조합(IME)이 끊긴다. `ScreenHeader` 안의 "search variant는 화면이 생기면 추가" 메모는 이 이유로 이번에도 추가하지 않았다.
+
+### 검색 결과 카드 — 재사용 vs 새로 만든 것
+
+설계서 4번 "기존 UI card와 달라지는 card: 아카이빙, 빌릴게" 그대로다.
+
+- **재사용(수정 없음)**: 행사 `EventsCard`, 공지 `NoticesCard`, 열린피드백 `FeedbacksCard`
+- **빌릴게**: `BililgeItemCard`에 `bordered` prop만 추가했다(흰 배경 위에서 테두리 `border-line-solid-neutral`). 메인 목록은 회색 배경 위라 테두리가 없다
+- **아카이빙**: Figma `Search Archiving Card`(`3013:127633`)는 Stream 로컬이고 이 화면 전용이라 `features/search/components/SearchArchivingCard.tsx`로 새로 만들었다
+
+## 홈 화면(`3147:146240` 2건 이하 / `3147:146297` 3건 이상 / `3562:163866` empty) 구현 중 확정된 매핑
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| Top Navigation `State=Home` (`547:31364`) | `ScreenHeader`(display) + `title`에 로고 | 게시판 헤더와 같은 Stream 로컬 컴포넌트의 상태 하나다. 그래서 display variant의 `title`이 글자 대신 요소(로고)도 받게 넓혔다 |
+| `Button/Icon/Normal` + `Push Badge` (`3147:146473`) | `TopNavigationButton` + `PushBadge variant="dot"` | 알림 점은 WDS `PushBadge` 기본 크기·`top-right`가 Figma 위치와 같다 |
+| `Page Indicator/Counter` (`471:13822`) | `PageCounter size="small" alternative` | 카드마다 자기 순서를 표시한다 |
+| `Content Badge` (신청마감·학생회비·사물함 상태) | `ContentBadge size="small" variant="solid"` | 강조색 redOrange·orange·red·green은 `color="accent"`, 회색(미신청)은 `color="neutral"` + `semantic.label.alternative` |
+| `Menu/Resource/Action Area/Trailing Content/Button` (반납 신청) | `BililgeItemCard` 재사용 | 홈은 흰 카드 안의 줄이라 `surface={false}`, 기한이 지나면 `subtitleTone="negative"` |
+| 빈 상태 버튼 `대여하러 가기` / `행사 둘러보기` | `Button size="small"` | 앞은 `color="assistive" variant="solid"`, 뒤는 반납 신청과 같은 연파랑 `sx` 보정 |
+
+### 공지 배너는 템플릿 6종 — 그림·배경색은 공지마다가 아니라 종류별이다
+
+Figma(`3562:163869`)에 일반공지·행사·제휴·사물함·간식·의견 6종이 있고 카드 구조는 같다. 다른 건 배경색·그림 크기와 위치·그라데이션 위치뿐이라 `HomeNoticeBanner`의 `NOTICE_TEMPLATES` 표 하나로 모았다. 배경색은 Figma에서도 변수가 아닌 raw hex라 `--color-notice-banner-*` 토큰으로 뒀다. 그림은 Figma에서 잘린 모양 그대로 3배로 내보낸 PNG다(`src/assets/images/home/`).
+
+화면설계서 기준으로 5초마다 넘어가고, 마지막 카드 오른쪽에 첫 카드 복제본을 둬서 같은 방향으로 이어진다. 카드 폭은 화면 폭 - 40(Figma 375 기준 335)이고, 카드 사이를 40px 띄워 이전·다음 카드는 화면에 보이지 않게 했다(Figma는 다음 카드가 12px 보이지만 팀 논의로 숨기기로 함).
+
+### 홈 헤더는 레이아웃 헤더 슬롯에 두지 않는다
+
+Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px)가 헤더까지 번진다. 레이아웃 헤더 슬롯(`useScreenHeader`)에 두면 스크롤 영역 위 끝에서 그림자가 잘려 헤더와 배너 사이에 선이 생겨서, 홈만 스크롤 영역 안에 `sticky` 헤더를 두고 스크롤하면 배경을 깐다. 같은 이유로 배너 가로 스크롤 영역도 위아래 60px 넓혀 그림자를 자르지 않는다.
+
+### 빈 상태는 WDS `FallbackView`가 아니라 홈 로컬 `HomeEmptyState`
+
+일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/bililge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/events/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.

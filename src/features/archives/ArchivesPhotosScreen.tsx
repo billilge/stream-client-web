@@ -1,19 +1,18 @@
 import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
+import { Suspense } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import LazyImage from "@/components/ui/LazyImage";
-import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { ARCHIVES_DETAIL } from "@/features/archives/constants/archivesDetail";
+import ArchivesPhotosContent from "@/features/archives/components/ArchivesPhotosContent";
+import ArchivesPhotosSkeleton from "@/features/archives/components/ArchivesPhotosSkeleton";
 
 // Figma: 현장사진 상세 (nodeId 1434:59294)
-// Figma는 회색 placeholder 칸이라, 상세 화면과 같은 목업 사진 목록으로 채운다(archiveId와 무관).
+// 헤더는 데이터와 무관해서 화면이 바로 그리고, 격자 자리만 스켈레톤으로 채운다.
 function ArchivesPhotosScreen() {
   const navigate = useNavigate();
-  const { archiveId } = useParams();
-  const { title, photos } = ARCHIVES_DETAIL;
+  const { archiveId = "" } = useParams<{ archiveId: string }>();
 
   useScreenHeader(
     <ScreenHeader
@@ -32,28 +31,16 @@ function ArchivesPhotosScreen() {
   );
 
   return (
-    <div className="scrollbar-hidden flex-1 overflow-y-auto">
-      {/* pt-2: Figma Body gap(Top Navigation ↔ Photo Grid 8px) */}
-      <div className="grid grid-cols-2 gap-2 px-5 pt-2 pb-4">
-        {photos.map((photo, index) => (
-          <button
-            className="overflow-hidden rounded-xl"
-            // biome-ignore lint/suspicious/noArrayIndexKey: 같은 사진이 여러 장일 수 있고, 사진 목록은 순서가 바뀌지 않는다
-            key={index}
-            onClick={() => navigate(`/archives/${archiveId}/photos/${index}`)}
-            type="button"
-          >
-            {/* 버튼 안에 글자가 없어서 이 alt가 곧 버튼 이름이다(아카이빙 목록 카드는 제목·날짜가 그 역할을 한다) */}
-            <LazyImage
-              alt={`${title} 현장 사진 ${index + 1}`}
-              className="aspect-square w-full"
-              src={photo}
-            />
-          </button>
-        ))}
-      </div>
-      <ScreenBottomSafeArea />
-    </div>
+    <Suspense fallback={<ArchivesPhotosSkeleton />}>
+      <ArchivesPhotosContent
+        archiveId={archiveId}
+        onSelect={(photoIndex) =>
+          navigate(`/archives/${archiveId}/photos/${photoIndex}`, {
+            viewTransition: true,
+          })
+        }
+      />
+    </Suspense>
   );
 }
 

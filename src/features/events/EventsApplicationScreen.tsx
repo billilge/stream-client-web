@@ -10,9 +10,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
+import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
-import EventsSubmittingOverlay from "@/features/events/components/EventsSubmittingOverlay";
 import EventsSummaryCard from "@/features/events/components/EventsSummaryCard";
 import {
   EVENTS_APPLICATION,
@@ -96,7 +96,10 @@ function EventsApplicationScreen() {
     }
     // 제출이 끝난 폼으로는 돌아갈 수 없어야 해서 히스토리를 남기지 않고 바꿔치운다
     const resultPath = result === "closed" ? "closed" : "complete";
-    navigate(`/events/${eventId}/apply/${resultPath}`, { replace: true });
+    navigate(`/events/${eventId}/apply/${resultPath}`, {
+      replace: true,
+      viewTransition: true,
+    });
   };
 
   useScreenHeader(
@@ -180,7 +183,11 @@ function EventsApplicationScreen() {
         tone="negative"
       />
 
-      <EventsSubmittingOverlay open={isSubmitting} />
+      <SubmittingOverlay
+        description="곧 완료돼요! 잠시만 기다려 주세요"
+        open={isSubmitting}
+        title="신청서를 제출하고 있어요"
+      />
 
       <ScreenToast
         key={failureCount}

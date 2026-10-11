@@ -112,7 +112,7 @@ function ChatEntryScreen() {
       <ChatGradientBackground showBlob={!chatStarted} />
       <div className="relative flex-1 overflow-hidden">
         <div
-          className={`absolute inset-0 flex flex-col gap-8 overflow-y-auto px-5 pt-8 transition-opacity duration-300 ${
+          className={`absolute inset-0 flex flex-col gap-40 overflow-y-auto px-5 pt-8 transition-opacity duration-300 ${
             chatStarted ? "pointer-events-none opacity-0" : "opacity-100"
           }`}
         >

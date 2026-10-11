@@ -1,13 +1,13 @@
+import type { ArchiveItem } from "@/entities/archives/types";
 import ArchivesPhotoCard, {
   type ArchivesPhotoCardSize,
 } from "@/features/archives/components/ArchivesPhotoCard";
-import type { ArchivesItem } from "@/features/archives/constants/archivesItems";
 
 interface ArchivesPhotoColumnProps {
-  items: ArchivesItem[];
+  items: ArchiveItem[];
   /** 위에서부터 번갈아 적용할 카드 높이 — 두 열이 서로 다른 순서를 써서 높이가 엇갈린다 */
   sizes: ArchivesPhotoCardSize[];
-  onItemClick: (item: ArchivesItem) => void;
+  onItemClick: (item: ArchiveItem) => void;
 }
 
 // Figma: 아카이빙 목록 Photo Grid (nodeId 1276:95409)의 한 열.

@@ -20,6 +20,7 @@
 | 사물함 | `lockers` |
 | 슬랑제 | `seulrangjes` |
 | 아카이빙 | `archives` |
+| 검색 | `search` |
 | 챗봇 | `chat` |
 | 파일 | `files` |
 | 행사(event) | `events` |
