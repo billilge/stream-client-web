@@ -20,6 +20,9 @@
   );
 
   --color-line-solid-neutral: var(--semantic-line-solid-neutral);
+  /* Figma "Line/Solid/Normal"(#e1e2e4) — 이름이 비슷한 Line/Solid/Neutral(#eaebec)과 값이 다르다.
+     사물함 평면도의 호실·화장실·계단 점선 테두리가 이 값이다. */
+  --color-line-solid-normal: var(--semantic-line-solid-normal);
   --color-line-normal-neutral: var(--semantic-line-normal-neutral);
   --color-line-solid-alternative: var(--semantic-line-solid-alternative);
 
@@ -39,6 +42,14 @@
 
   --color-primary: var(--semantic-primary-normal);
   --color-primary-subtle: var(--atomic-blue-95);
+
+  /* 사물함 구역 선택의 마감 구역 배경(Figma "Cool Neutral/97") — 회색 계열이지만
+     Background/Normal/Alternative(#f7f7f8)보다 한 단계 진해서 잠긴 걸 드러낸다 */
+  --color-cool-neutral-97: var(--atomic-coolNeutral-97);
+
+  /* 사물함 칸 선택 — 선택 가능한 칸 배경(Figma "Orange/95")과 칸 묶음 테두리(Figma "Line/Solid/Alternative") */
+  --color-orange-95: var(--atomic-orange-95);
+  --color-line-solid-alternative: var(--semantic-line-solid-alternative);
 
   --color-status-positive: var(--semantic-status-positive);
   --color-inverse-background: var(--semantic-inverse-background);
@@ -61,6 +72,25 @@
      정확히 일치한다 — 이름이 아니라 실측 hex를 기준으로 확정했다(Semantic/Primary/Normal은
      #0066FF로 다른 값). */
   --color-progress-fill: var(--atomic-blue-60);
+
+  /* 홈 공지 배너 템플릿별 배경. Figma에서도 변수가 아니라 raw hex다(nodeId 3562:163869).
+     의견·설문(feedback) 템플릿은 일반공지와 같은 색이다. */
+  --color-notice-banner-general: #f5f9ff;
+  --color-notice-banner-event: #f7f3ff;
+  --color-notice-banner-partnership: #f4fcfc;
+  --color-notice-banner-locker: #fff8f4;
+  --color-notice-banner-snack: #fdfaec;
+
+  /* 홈 아카이빙 둘러보기 배너 그라데이션 끝색. Figma에서도 변수가 아니라 raw 값이다(nodeId 3147:146288). */
+  --color-archive-cta-fade: rgb(199 221 255 / 0.1);
+
+  /* 크기·그림자 토큰 — component-convention.md "크기·위치·그림자" 참고 */
+  /* 홈 공지 배너 카드 높이(Figma 일반공지 3562:163870) */
+  --spacing-notice-banner: 261px;
+  /* Figma 효과 스타일 Shadow/Spread/Small */
+  --shadow-spread-small: 0 0 60px rgb(23 23 23 / 0.1);
+  /* 챗봇 플로팅 버튼 그림자(Figma Chatbot Button) */
+  --drop-shadow-chatbot-fab: 2px 2px 10px rgb(0 0 0 / 0.12);
 }
 
 /* iOS 노치·홈 인디케이터 자리. index.html의 viewport-fit=cover와 한 쌍이다.
@@ -68,6 +98,15 @@
    인셋해서 0, 폰 브라우저·PWA(standalone)는 실제 인셋, 데스크톱·구형 기기는 0이다.
    그래서 기기·실행 환경 분기를 코드에서 하지 않아도 된다.
    데스크톱 프레임(sm 이상)에서 Figma 스펙대로 자리를 흉내 내려면 sm: 유틸로 따로 덮는다. */
+/* 홈 아카이빙 둘러보기 배너 배경(Figma Archive CTA 3147:146288) — 각도·멈춤 위치가 단계로 나타낼 수 없는 값이라 이름 붙인 유틸로 둔다 */
+@utility bg-archive-cta {
+  background-image: linear-gradient(
+    167.2deg,
+    var(--color-background-normal) 54%,
+    var(--color-archive-cta-fade) 153.5%
+  );
+}
+
 @utility pt-safe-top {
   padding-top: env(safe-area-inset-top, 0px);
 }
@@ -89,6 +128,91 @@
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* 스택 슬라이드 전환 — 목록→상세처럼 viewTransition을 켠 이동만 탄다(react-router가 그 이동의
+   뒤로가기에도 자동으로 켠다). 탭 전환은 옵션을 안 켜서 지금처럼 즉시 바뀐다.
+   움직이는 건 화면 컬럼(ScreenLayout, view-transition-name: screen)뿐이고, 데스크톱 양옆 여백인
+   root는 그대로 둔다. 방향은 ScreenLayoutRoute가 html[data-navigation]에 적는다.
+   View Transitions를 지원하지 않는 WebView·브라우저는 react-router가 그냥 즉시 이동한다. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  ::view-transition-group(screen) {
+    animation-duration: 350ms;
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* 데스크톱 컬럼(480px) 밖으로 슬라이드가 삐져나오지 않게 자른다 */
+  ::view-transition-image-pair(screen) {
+    overflow: hidden;
+  }
+
+  ::view-transition-old(screen),
+  ::view-transition-new(screen) {
+    animation-duration: inherit;
+    animation-timing-function: inherit;
+    /* 기본값(plus-lighter)은 크로스페이드용이라, 겹쳐 미끄러지는 두 화면이 밝게 합쳐진다 */
+    mix-blend-mode: normal;
+  }
+
+  /* 앞으로: 새 화면이 오른쪽에서 덮고, 이전 화면은 왼쪽으로 조금 밀려난다(iOS push와 같은 비율) */
+  html[data-navigation="forward"]::view-transition-old(screen) {
+    animation-name: screen-slide-out-to-left;
+  }
+
+  html[data-navigation="forward"]::view-transition-new(screen) {
+    animation-name: screen-slide-in-from-right;
+  }
+
+  /* 뒤로: 현재 화면이 오른쪽으로 빠지며 아래 화면을 드러낸다 — 빠지는 쪽이 위에 있어야 한다 */
+  html[data-navigation="back"]::view-transition-old(screen) {
+    z-index: 1;
+    animation-name: screen-slide-out-to-right;
+  }
+
+  html[data-navigation="back"]::view-transition-new(screen) {
+    animation-name: screen-slide-in-from-left;
+  }
+}
+
+/* 동작 줄이기를 켠 사용자는 슬라이드는 물론 브라우저 기본 크로스페이드도 없이 즉시 바뀐다 */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(screen),
+  ::view-transition-old(screen),
+  ::view-transition-new(screen) {
+    animation: none;
+  }
+}
+
+@keyframes screen-slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes screen-slide-out-to-left {
+  to {
+    transform: translateX(-30%);
+  }
+}
+
+@keyframes screen-slide-out-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes screen-slide-in-from-left {
+  from {
+    transform: translateX(-30%);
   }
 }
 

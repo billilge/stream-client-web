@@ -70,6 +70,10 @@ function PhotoGallery({
         ))}
       </div>
 
+      {/* Figma QA(nodeId 2849:60815/60786): 사진 위 뒤로가기가 잘 보이도록 상단에 어두운
+          그라데이션을 깐다. 오버레이 버튼보다 아래(먼저) 그려야 버튼이 그 위에 얹힌다. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[187px] bg-gradient-to-b from-[#6e6e6e] to-[rgba(110,110,110,0)]" />
+
       {overlay}
 
       {/* group + 웹 전용(hover:hover) 미디어에서만 화살표를 보여준다 — 터치 기기는 hover 자체가

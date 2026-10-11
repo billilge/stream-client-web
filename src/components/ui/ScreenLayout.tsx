@@ -23,7 +23,16 @@ function getBottomNavValueFromPath(pathname: string): BottomNavValue {
   const matched = (
     Object.entries(BOTTOM_NAV_PATHS) as [BottomNavValue, string][]
   ).find(([, path]) => path === pathname);
-  return matched?.[0] ?? "home";
+  if (matched) {
+    return matched[0];
+  }
+  // 열린피드백은 "게시판" 탭 소속이지만 상세(모아보기)·글쓰기 화면은 각자 다른 경로
+  // (/feedbacks/:feedbackId, /feedbacks/new)라 위 exact-match로는 안 잡힌다 — 진입 시에도
+  // 계속 "게시판"이 활성으로 보여야 한다(Figma QA nodeId 2849:56863).
+  if (pathname.startsWith("/feedbacks")) {
+    return "board";
+  }
+  return "home";
 }
 
 // 화면 전체 배경. 카드형 화면(빌릴게·신청서)은 흰 카드가 뜨도록 회색 여백(alternative)이 필요하고,
@@ -65,6 +74,7 @@ interface ScreenLayoutProps {
 // 각자 자기 배경을 그 자리까지 연장해야 해서 컴포넌트마다 h-safe-bottom으로 처리한다.
 // 배경도 같은 방식으로 라우트 handle에서 받는다 — 헤더 슬롯까지 이 루트 div가 덮기 때문에,
 // 화면이 헤더와 본문에 따로 배경을 깔 필요가 없다.
+// 화면 전환(index.css의 스택 슬라이드)은 이 컬럼만 움직인다 — view-transition-name: screen.
 function ScreenLayout({
   hasBottomNav = true,
   background = "alternative",
@@ -86,7 +96,7 @@ function ScreenLayout({
       <ScreenSheetPortalContext.Provider value={sheetPortalEl}>
         <ScreenBackgroundPortalContext.Provider value={backgroundPortalEl}>
           <div
-            className={`relative flex h-dvh w-full flex-col overflow-hidden sm:w-[480px] sm:shadow-[0_0_20px_rgba(0,0,0,0.05)] ${BACKGROUND_CLASS_NAMES[background]}`}
+            className={`relative flex h-dvh w-full flex-col overflow-hidden [view-transition-name:screen] sm:w-[480px] sm:shadow-[0_0_20px_rgba(0,0,0,0.05)] ${BACKGROUND_CLASS_NAMES[background]}`}
           >
             {/* 화면 전용 배경 포털 대상 — 프레임 안에서 가장 먼저(맨 아래) 그려져서, 투명한
                 헤더(예: 챗봇 진입 화면)까지 자연스럽게 비쳐 보인다. 콘텐츠가 없는 화면에서는

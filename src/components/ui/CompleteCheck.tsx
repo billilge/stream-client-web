@@ -1,6 +1,6 @@
 import { LottieLight } from "lottie-react";
 
-import completeCheck from "@/assets/lottie/events/complete-check.json";
+import completeCheck from "@/assets/lottie/common/complete-check.json";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 // Figma: Circle Check Motion (nodeId 1712:192849), 완료 화면에 놓인 인스턴스는 1712:192851.
@@ -13,7 +13,8 @@ import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 // 모션 줄이기를 켠 사용자에게는 다 그려진 한 프레임만 세워둔다. 33프레임에서 체크가 완성된다.
 const DRAWN_SEGMENT = [33, 34] as const;
 
-function EventsCompleteCheck() {
+// 신청 완료 화면(행사·사물함 공용)의 체크 모션
+function CompleteCheck() {
   const shouldReduceMotion = usePrefersReducedMotion();
 
   return (
@@ -30,4 +31,4 @@ function EventsCompleteCheck() {
   );
 }
 
-export default EventsCompleteCheck;
+export default CompleteCheck;
