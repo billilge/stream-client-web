@@ -13,6 +13,7 @@
     "check:fix": "biome check --write ."
   },
   "dependencies": {
+    "@billilge/oauth-kconnect": "^0.2.0",
     "@ncdai/react-wheel-picker": "^1.2.3",
     "@use-funnel/react-router-dom": "^0.0.16",
     "@wanteddev/wds": "^3.12.0",

@@ -4,10 +4,16 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  expo-auth-session: '-'
+
 importers:
 
   .:
     dependencies:
+      '@billilge/oauth-kconnect':
+        specifier: ^0.2.0
+        version: 0.2.0(react@19.2.8)
       '@ncdai/react-wheel-picker':
         specifier: ^1.2.3
         version: 1.2.3(react@19.2.8)
@@ -107,6 +113,11 @@ packages:
   '@babel/types@7.29.8':
     resolution: {integrity: sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==}
     engines: {node: '>=6.9.0'}
+
+  '@billilge/oauth-kconnect@0.2.0':
+    resolution: {integrity: sha512-XoM3rXaNU8yxrZojzDfOI9siQKLqe9ejC16DgqLNB2SN3kn3lJJpG87x4rySWg4jqpP/ydlFom09XKev6cKBYQ==, tarball: https://npm.pkg.github.com/download/@billilge/oauth-kconnect/0.2.0/8d37ed0baeab3a0d384b2a43b73cf3530c78f046}
+    peerDependencies:
+      react: '*'
 
   '@biomejs/biome@2.5.11':
     resolution: {integrity: sha512-Tj0dnkLPdW0ASjHfj2D/ZkkvPU2wrFmnE1jWTD2xzV1ycapV1DutbYXk4NDnR3rYTi1ZCbNFD4G2gRMEY65WaA==}
@@ -1375,6 +1386,10 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
+
+  '@billilge/oauth-kconnect@0.2.0(react@19.2.8)':
+    dependencies:
+      react: 19.2.8
 
   '@biomejs/biome@2.5.11':
     optionalDependencies:

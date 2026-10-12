@@ -8,7 +8,8 @@ WORKDIR /app
 RUN corepack enable
 
 # 의존성 캐시 최적화를 위해 매니페스트 먼저 복사
-COPY package.json pnpm-lock.yaml .npmrc ./
+# pnpm-workspace.yaml의 overrides가 lockfile과 같아야 --frozen-lockfile이 통과한다
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 
 # @wanteddev 패키지는 GitHub Packages 사설 레지스트리에서 받으므로 인증 토큰 필요.
 # BuildKit secret으로 주입하고, 같은 RUN 안에서 .npmrc를 원복해 토큰이 레이어에 남지 않도록 한다.
