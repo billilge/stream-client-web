@@ -56,7 +56,7 @@ function ArchivesDetailContent({
             src={archive.image}
           />
           {/* 흰 버튼이 밝은 사진 위에서도 보이도록 상단만 어둡게 덮는다(Figma Gradient Overlay 187px) */}
-          <div className="absolute inset-x-0 top-0 h-[187px] bg-linear-to-b from-hero-overlay to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-46.75 bg-linear-to-b from-hero-overlay to-transparent" />
           <ScreenHeader
             // Figma의 흰 아이콘 버튼 — TopNavigationButton은 color를 primary/assistive로만 받아서,
             // 같은 컴포넌트가 내부에서 렌더링하는 WDS IconButton(Button/Icon/Normal)을 직접 쓴다.

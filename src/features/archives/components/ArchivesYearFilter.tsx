@@ -39,6 +39,7 @@ function ArchivesYearFilter({ value, onChange }: ArchivesYearFilterProps) {
     <div className="flex gap-1.5 overflow-x-auto">
       {RECENT_YEARS.map((year) => (
         <FilterChip
+          aria-pressed={year === value}
           isActive={year === value}
           key={year}
           onClick={() => onChange(year)}

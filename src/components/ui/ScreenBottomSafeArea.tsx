@@ -4,7 +4,7 @@
 // 흉내 낸다 — BottomNav가 자기 영역에서 쓰는 규칙과 같다.
 // Action Area가 있는 화면은 WDS가 이미 아래 padding 20px을 주므로 h-safe-bottom-extra를 쓴다.
 function ScreenBottomSafeArea() {
-  return <div className="h-safe-bottom sm:h-[34px]" />;
+  return <div className="h-safe-bottom sm:h-8.5" />;
 }
 
 export default ScreenBottomSafeArea;

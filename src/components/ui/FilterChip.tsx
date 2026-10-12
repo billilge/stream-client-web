@@ -12,6 +12,8 @@ interface FilterChipProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 // WDS Chip의 활성 스타일은 검정 배경이라 Figma(연한 파랑 배경 + 파랑 outline + 파랑 텍스트)와
 // 다르다. wds-component-usage.md "빌릴게 필터 Chip은 WDS Chip/Chip이 아니었다" 참고.
 //
+// Figma 반경은 20px이지만 칩 높이가 32px이라 브라우저가 16px(높이의 절반)로 깎는다 - 결과가
+// 같아서 임의값 대신 rounded-full로 둔다.
 // 칩 하나만 따로 두는 이유: 단일 선택 행(FilterChipGroup)뿐 아니라, 같은 행에 섞이는 다른 동작의
 // 칩(아카이빙 연도 필터의 드롭다운 트리거)도 같은 모양이어야 한다. WDS `MenuTrigger`가 자식에게
 // onClick·aria 속성을 넘겨주므로 ref와 나머지 props를 그대로 button에 전달한다.
@@ -20,8 +22,8 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
     <button
       className={
         isActive
-          ? "inline-flex h-8 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-[20px] border border-primary bg-primary-subtle px-3"
-          : "inline-flex h-8 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-[20px] border border-line-normal-neutral px-3"
+          ? "inline-flex h-8 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full border border-primary bg-primary-subtle px-3"
+          : "inline-flex h-8 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full border border-line-normal-neutral px-3"
       }
       ref={ref}
       type="button"
