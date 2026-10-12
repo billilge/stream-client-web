@@ -164,6 +164,12 @@ function PhotoGallery({
                 <img
                   alt={photo.alt}
                   className={photoClassName}
+                  decoding="async"
+                  // 보고 있는 장과 앞뒤 한 장만 미리 받는다 — 전부 eager면 열자마자 26장이 한꺼번에
+                  // 요청돼 첫 사진이 늦고, 전부 lazy면 넘기는 순간에야 요청이 시작돼 매번 빈 자리가 보인다.
+                  loading={
+                    Math.abs(index + 1 - currentPage) <= 1 ? "eager" : "lazy"
+                  }
                   src={photo.src}
                 />
               )}
