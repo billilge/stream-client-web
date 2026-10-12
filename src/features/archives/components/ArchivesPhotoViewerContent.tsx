@@ -53,7 +53,8 @@ function ArchivesPhotoViewerContent({
           /* Figma Background blur — 현재 사진을 크게 흐리게 깔아 위아래 빈 공간을 채운다.
              Figma의 711×877 고정값 대신 화면을 채우고 확대하는 방식으로 둔다 — 앱 WebView는 높이가
              제각각이라 고정 픽셀이면 긴 화면에서 위아래에 빈 띠가 남는다(375×812 프레임 기준 값이었다).
-             슬라이드의 같은 사진이 이름을 가지므로 여기는 장식으로 둔다(alt=""). */
+             슬라이드의 같은 사진이 이름을 가지므로 여기는 장식으로 둔다(alt="").
+             blur 21.55px은 Figma 값 그대로다 - Tailwind blur 단계로 나타낼 수 없어 임의값으로 남긴다. */
           <img
             alt=""
             className="absolute inset-0 size-full scale-150 object-cover blur-[21.55px]"
@@ -63,7 +64,7 @@ function ArchivesPhotoViewerContent({
         className="h-full"
         counterAlternative
         /* Figma Page Indicator/Counter — 화면 하단에서 47px 위, 가운데 */
-        counterClassName="inset-x-0 bottom-[47px] flex justify-center"
+        counterClassName="inset-x-0 bottom-11.75 flex justify-center"
         idPrefix={`archives-${archiveId}`}
         initialPage={initialIndex + 1}
         onPageChange={(page) => setCurrentIndex(page - 1)}

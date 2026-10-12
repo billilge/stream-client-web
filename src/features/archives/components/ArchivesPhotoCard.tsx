@@ -14,9 +14,9 @@ interface ArchivesPhotoCardProps {
 }
 
 const HEIGHT_CLASS_NAMES: Record<ArchivesPhotoCardSize, string> = {
-  large: "h-[258px]",
-  medium: "h-[220px]",
-  small: "h-[184px]",
+  large: "h-64.5",
+  medium: "h-55",
+  small: "h-46",
 };
 
 // Figma의 Left-*/Right-* variant는 열 위치만 다르고 구조는 같아서 높이(size) 하나로 합쳤다.
