@@ -6,6 +6,10 @@ import noticesIllustration from "@/assets/images/auth/login-notices.png";
 // 연락처·약관 동의 같은 단계는 이 경로 하나 안에서 useFunnel이 `?auth.step=`으로 나눈다.
 export const AUTH_PATH = "/auth";
 
+// K-CONNECT에 등록한 앱의 client_id — 환경 변수 `VITE_KCONNECT_CLIENT_ID`(.env.example 참고)로 받는다.
+export const KCONNECT_CLIENT_ID: string =
+  import.meta.env.VITE_KCONNECT_CLIENT_ID ?? "";
+
 // 연락처 — 숫자 11자리를 모두 입력해야 `다음`이 켜진다(화면설계서 3번).
 export const PHONE_DIGIT_COUNT = 11;
 

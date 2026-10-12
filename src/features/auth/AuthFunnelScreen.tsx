@@ -1,3 +1,4 @@
+import { useKConnectLogin } from "@billilge/oauth-kconnect/react";
 import {
   ActionArea,
   ActionAreaButton,
@@ -8,14 +9,18 @@ import {
 } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { Fragment, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { loginWithKConnect, submitOnboarding } from "@/entities/auth/authApi";
+import {
+  isMockKConnectKind,
+  mockKConnectLogin,
+  submitOnboarding,
+} from "@/entities/auth/authApi";
 import { markLoggedIn } from "@/entities/auth/session";
 import type { KConnectUser } from "@/entities/auth/types";
 import AuthBrandHeader from "@/features/auth/components/AuthBrandHeader";
@@ -27,6 +32,7 @@ import AuthTermsSection from "@/features/auth/components/AuthTermsSection";
 import {
   INITIAL_TERMS_AGREEMENTS,
   isTermsId,
+  KCONNECT_CLIENT_ID,
   LOGIN_FAILURE_MESSAGE,
   PHONE_DIGIT_COUNT,
   TERMS,
@@ -34,6 +40,7 @@ import {
   type TermsAgreements,
   type TermsId,
 } from "@/features/auth/constants/auth";
+import { readAuthLocationState } from "@/features/auth/utils/authLocationState";
 import {
   formatPhoneNumber,
   toPhoneDigits,
@@ -143,28 +150,57 @@ function BottomAction({
   );
 }
 
-// 로그인 — 화면설계서 2·3번. `K-CONNECT로 시작하기`는 인증 후 신규 사용자면 온보딩으로, 기존 사용자면 홈으로 보낸다.
-// 실패·취소·네트워크 오류는 토스트로 알린다. 인증 사이트와 API는 아직 없어서 entities/auth의 목 로그인이다.
+// 로그인 — 화면설계서 2·3번. `K-CONNECT로 시작하기`를 누르면 K-CONNECT 인증 사이트로 페이지가 이동하고(@billilge/oauth-kconnect),
+// 인증을 마치면 `/oauth/kconnect`(KConnectCallbackScreen)가 결과를 받아 신규 사용자는 연락처 단계로, 기존 사용자는 홈으로 보낸다.
+// 취소·오류·네트워크 오류로 돌아오면 이 화면에서 토스트로 알린다.
 function LoginStep({
-  onLoggedIn,
+  hasFailedLogin,
+  onMockLoggedIn,
 }: {
-  onLoggedIn: (user: KConnectUser) => void;
+  hasFailedLogin: boolean;
+  /** 개발 서버 전용 우회(`?mockKConnect=`)로 인증된 것으로 칠 때 */
+  onMockLoggedIn: (user: KConnectUser) => void;
 }) {
+  const { login } = useKConnectLogin({ clientId: KCONNECT_CLIENT_ID });
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [toastOpen, setToastOpen] = useState(false);
+  const [toastOpen, setToastOpen] = useState(hasFailedLogin);
   // 실패가 연달아 나도 스크린리더가 토스트를 다시 안내하도록 실패마다 ScreenToast를 새로 마운트한다
   const [toastToken, setToastToken] = useState(0);
 
+  const showFailure = () => {
+    setToastOpen(true);
+    setToastToken((token) => token + 1);
+  };
+
   const handleLogin = async () => {
+    // 개발 서버에서만: 주소에 `?mockKConnect=new|existing`가 있으면 K-CONNECT 인증 사이트로 가지 않고 인증된 것으로 친다.
+    // `import.meta.env.DEV`가 상수로 치환되어 배포 빌드에서는 이 분기가 통째로 빠진다.
+    if (import.meta.env.DEV) {
+      const mockKind = new URLSearchParams(window.location.search).get(
+        "mockKConnect",
+      );
+      if (isMockKConnectKind(mockKind)) {
+        setIsLoggingIn(true);
+        onMockLoggedIn(await mockKConnectLogin(mockKind));
+        setIsLoggingIn(false);
+        return;
+      }
+    }
+    if (!KCONNECT_CLIENT_ID) {
+      console.warn(
+        "VITE_KCONNECT_CLIENT_ID가 없어서 K-CONNECT 로그인을 시작할 수 없어요(.env.example 참고).",
+      );
+      showFailure();
+      return;
+    }
     setIsLoggingIn(true);
     try {
-      onLoggedIn(await loginWithKConnect());
+      // 성공하면 페이지가 K-CONNECT로 넘어가서 이 화면으로 돌아오지 않는다 — 그동안 버튼은 눌린 상태로 둔다
+      await login();
     } catch (error) {
       console.warn(LOGIN_FAILURE_MESSAGE, error);
-      setToastOpen(true);
-      setToastToken((token) => token + 1);
-    } finally {
       setIsLoggingIn(false);
+      showFailure();
     }
   };
 
@@ -405,9 +441,15 @@ const SLIDE = { viewTransition: true };
 
 function AuthFunnelScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // K-CONNECT 콜백(KConnectCallbackScreen)이 신규 사용자를 이름과 함께 보내면 로그인을 건너뛰고 연락처 단계에서 시작한다.
+  // `initial`은 주소에 단계가 없을 때만 쓰여서, 단계가 생긴 뒤(약관 동의 등)에는 영향이 없다.
+  const { kConnectName, loginFailed } = readAuthLocationState(location.state);
   const funnel = useFunnel<AuthFunnelSteps>({
     id: "auth",
-    initial: { context: {}, step: "login" },
+    initial: kConnectName
+      ? { context: { name: kConnectName }, step: "phone" }
+      : { context: {}, step: "login" },
     steps: AUTH_FUNNEL_STEP_OPTIONS,
   });
 
@@ -418,7 +460,8 @@ function AuthFunnelScreen() {
       complete={() => <CompleteStep onStart={goHome} />}
       login={({ history }) => (
         <LoginStep
-          onLoggedIn={(user) => {
+          hasFailedLogin={loginFailed === true}
+          onMockLoggedIn={(user) => {
             if (user.isNewUser) {
               history.push("phone", { name: user.name }, SLIDE);
               return;

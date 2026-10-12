@@ -11,6 +11,7 @@ import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
 import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
 import AuthEntryGate from "@/features/auth/AuthEntryGate";
 import AuthFunnelScreen from "@/features/auth/AuthFunnelScreen";
+import KConnectCallbackScreen from "@/features/auth/KConnectCallbackScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
@@ -209,6 +210,15 @@ const routes = [
             path: "/auth/onboarding/complete",
 =======
             path: "/auth",
+          },
+          {
+            element: <KConnectCallbackScreen />,
+            // K-CONNECT 인증 후 되돌아오는 redirect URI — 경로는 K-CONNECT에 등록한 값(@billilge/oauth-kconnect 규약)이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/oauth/kconnect",
           },
           {
             element: <ChatEntryScreen />,
