@@ -2,19 +2,9 @@ import eventsIllustration from "@/assets/images/auth/login-events.png";
 import feedbacksIllustration from "@/assets/images/auth/login-feedbacks.png";
 import noticesIllustration from "@/assets/images/auth/login-notices.png";
 
-// 인증·온보딩 라우트 경로. 용어 사전(terminology.md)의 공통(`auth`) 아래에 둔다.
-export const AUTH_SPLASH_PATH = "/auth/splash";
-export const AUTH_LOGIN_PATH = "/auth/login";
-export const AUTH_ONBOARDING_PHONE_PATH = "/auth/onboarding/phone";
-export const AUTH_ONBOARDING_TERMS_PATH = "/auth/onboarding/terms";
-export const AUTH_ONBOARDING_COMPLETE_PATH = "/auth/onboarding/complete";
-
-export function getTermsDetailPath(termsId: TermsId): string {
-  return `${AUTH_ONBOARDING_TERMS_PATH}/${termsId}`;
-}
-
-// 화면설계서 1번: 중앙 심볼 0~0.45초 → 슬로건·워드마크 0.5~0.9초 → 완성 상태를 잠깐 유지해 총 1.2초.
-export const AUTH_SPLASH_DURATION_MS = 1200;
+// 로그인·온보딩 퍼널의 라우트 경로. 용어 사전(terminology.md)의 공통(`auth`) 아래에 둔다.
+// 연락처·약관 동의 같은 단계는 이 경로 하나 안에서 useFunnel이 `?auth.step=`으로 나눈다.
+export const AUTH_PATH = "/auth";
 
 // 연락처 — 숫자 11자리를 모두 입력해야 `다음`이 켜진다(화면설계서 3번).
 export const PHONE_DIGIT_COUNT = 11;
@@ -46,6 +36,15 @@ export const LOGIN_SLIDES = [
 export type TermsId = "service" | "privacy" | "notifications";
 
 export const TERMS_IDS: TermsId[] = ["service", "privacy", "notifications"];
+
+// 약관별 동의 여부 — 온보딩 퍼널의 context로 단계 사이를 오간다. "전체 동의"는 따로 저장하지 않고 파생한다.
+export type TermsAgreements = Record<TermsId, boolean>;
+
+export const INITIAL_TERMS_AGREEMENTS: TermsAgreements = {
+  notifications: false,
+  privacy: false,
+  service: false,
+};
 
 export function isTermsId(value: string | undefined): value is TermsId {
   return TERMS_IDS.some((id) => id === value);

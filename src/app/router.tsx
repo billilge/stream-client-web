@@ -10,12 +10,7 @@ import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
 import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
 import AuthEntryGate from "@/features/auth/AuthEntryGate";
-import AuthLoginScreen from "@/features/auth/AuthLoginScreen";
-import AuthOnboardingCompleteScreen from "@/features/auth/AuthOnboardingCompleteScreen";
-import AuthOnboardingPhoneScreen from "@/features/auth/AuthOnboardingPhoneScreen";
-import AuthOnboardingTermsScreen from "@/features/auth/AuthOnboardingTermsScreen";
-import AuthSplashScreen from "@/features/auth/AuthSplashScreen";
-import AuthTermsDetailScreen from "@/features/auth/AuthTermsDetailScreen";
+import AuthFunnelScreen from "@/features/auth/AuthFunnelScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
@@ -155,6 +150,10 @@ const routes = [
 
             element: <AuthSplashScreen />,
             // Figma 스플래시·로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
+
+            element: <AuthFunnelScreen />,
+            // 로그인·온보딩 퍼널 하나가 모든 단계(로그인, 연락처, 약관 동의, 약관 상세, 가입 완료)를 그린다.
+            // Figma 로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
             handle: {
               background: "normal",
               hasBottomNav: false,
@@ -208,6 +207,8 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/auth/onboarding/complete",
+=======
+            path: "/auth",
           },
           {
             element: <ChatEntryScreen />,
