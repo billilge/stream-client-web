@@ -680,6 +680,15 @@ Figma 닷은 지름 6px·간격 6px(중심 간격 12px)이다. WDS `PaginationDo
 
 Figma 프레임의 상태 표시줄(54px)과 홈 바(34px)는 앱 셸 몫이라 웹에는 없다. 로그인 브랜드 헤더 y=126 → 웹에서 72 같은 식으로 그 영역을 뺀 값이다. 브라우저에서 열면(상태 표시줄 없이 화면 전체가 웹) 같은 값이 위로 치우쳐 보여서, `isInAppShell()`이 아닐 때만 로그인 본문을 버튼 위 영역의 정가운데(auto 마진)에 둔다. 앱 WebView에서는 위 Figma 값 그대로다. 스플래시는 웹에서 쓰지 않아 구현하지 않았다.
 
+### K-CONNECT 로그인은 `@billilge/oauth-kconnect`(웹용 `/react`)로 한다
+
+`K-CONNECT로 시작하기`는 `useKConnectLogin({ clientId }).login()`으로 K-CONNECT 인증 사이트로 페이지를 이동시키고(PKCE, `state`는 패키지가 sessionStorage에 보관), 인증 후 K-CONNECT가 되돌려 보내는 `/oauth/kconnect`(`KConnectCallbackScreen`)가 `useKConnectCallback()`으로 `{ code, codeVerifier, redirectUri }`를 받는다. 이 경로는 K-CONNECT에 등록한 redirect URI이자 패키지가 정한 값이라 바꾸지 않는다. 받은 값은 서버(`POST /auth/kconnect`)로 보내 서비스 로그인을 마치는데, 서버 주소·응답 형식이 아직 없어서 `entities/auth/authApi.ts`의 `exchangeKConnectCode`가 응답만 흉내 낸다. 신규 사용자는 `/auth`로 이동하면서 이름을 navigate state로 넘겨 로그인 퍼널이 `initial`(주소에 단계가 없을 때만 쓰임)로 연락처 단계에서 시작하고, 기존 사용자는 홈으로 간다. 취소·오류(국민대 학생이 아니어서 거부된 경우 포함)나 서버 실패는 `/auth`로 돌아와 실패 토스트를 띄운다. 어느 경우든 주소창에 `code`가 남지 않도록 `replace`로 이동한다.
+
+- **설정:** `client_id`는 환경 변수 `VITE_KCONNECT_CLIENT_ID`(`.env.example` 참고)로 받는다. K-CONNECT의 "허가된 Redirect URI"에 `http://localhost:5173/oauth/kconnect`(개발)와 배포 주소의 `/oauth/kconnect`가 등록돼 있어야 한다 — 폰으로 `192.168.x.x:5173`처럼 접속하면 등록되지 않은 주소라 로그인이 거부된다.
+- **설치:** 패키지는 GitHub Packages 비공개 배포라 `.npmrc`에 `@billilge:registry`가 필요하고 `read:packages` 토큰이 있어야 한다(토큰은 파일에 쓰지 않고 환경 변수·사용자 npmrc로 둔다). 패키지가 Expo용 `expo-auth-session`을 optional peer로 선언하는데 pnpm `autoInstallPeers`가 설치까지 해서 웹에 필요 없는 Expo 의존성 수백 개가 딸려 오므로, `pnpm-workspace.yaml`의 `overrides`로 뺐다.
+- **K-CONNECT 인증 우회(개발 서버 전용):** `/auth?mockKConnect=new`(신규 → 온보딩) 또는 `?mockKConnect=existing`(기존 → 홈)으로 열고 `K-CONNECT로 시작하기`를 누르면 인증 사이트로 가지 않고 인증된 것으로 친다. `import.meta.env.DEV`로 가려서 배포 빌드에는 들어가지 않는다(번들에 `mockKConnect`가 없음을 확인).
+- **목 QA(실 서버가 붙으면 사라짐):** 인증 후 콜백 주소에 `&mockLogin=existing`을 붙이면 기존 사용자, `&mockLogin=fail`이면 서버 실패로 처리된다. 취소·오류는 `/oauth/kconnect?error=access_denied`로 확인한다. K-CONNECT 계정으로 실제 로그인은 이 환경에서 확인하지 못했다.
+
 ### 로그인·온보딩은 useFunnel 퍼널 하나(`AuthFunnelScreen`)다
 
 로그인 → 연락처 → 약관 동의 → 약관 상세 → 가입 완료를 `@use-funnel/react-router-dom`의 `useFunnel`로 한 파일에 묶었다(라우트 `/auth`, 단계는 `?auth.step=`). 단계 사이에 넘기는 이름·연락처·약관 동의는 퍼널 context가 들고 있어서, 약관 상세(`history.push`)를 다녀와도 동의 상태가 유지된다(별도 저장소·navigate state 불필요). 동의 체크나 연락처 입력은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값이 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) 각 단계의 `guard`가 걸러서 로그인으로 돌려보낸다. 단계가 바뀌는 이동(`push`, 가입 완료로의 `replace`)에는 슬라이드(View Transition)를 켜고, 체크·연락처 입력처럼 context만 갈아 끼우는 `replace`에는 켜지 않는다. 라이브러리 기본 `useFunnel`은 옵션 이름을 `unstable_viewTransition`으로 넘기는데 React Router 7.18은 `viewTransition`만 알아서(소스에 이전 이름이 없다) 슬라이드가 무시된다. 그래서 `src/lib/useFunnel.ts`에 같은 라우터 어댑터를 `createUseFunnel`로 직접 만들고 옵션 이름만 바꿨다(라이브러리의 "라우터 직접 만들기" 가이드 방식) — 라이브러리를 올릴 때 이 이름이 고쳐졌는지 확인하고 고쳐졌다면 이 파일을 지운다.
