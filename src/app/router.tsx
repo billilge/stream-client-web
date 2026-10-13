@@ -148,15 +148,6 @@ const routes = [
           {
             element: <NotificationsScreen />,
             // Figma 알림 화면에는 Bottom Nav가 없고(뒤로가기로 진입한 화면에 복귀) 배경이 흰 면이다
-
-            element: <AuthSplashScreen />,
-            // Figma 스플래시·로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
-
-            element: <AuthFunnelScreen />,
-
-            element: <AuthSignupScreen />,
-            // 로그인·온보딩 퍼널 하나가 모든 단계(로그인, 연락처, 약관 동의, 약관 상세, 가입 완료)를 그린다.
-            // Figma 로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
             handle: {
               background: "normal",
               hasBottomNav: false,
@@ -166,51 +157,20 @@ const routes = [
           {
             element: <NotificationsSettingsScreen />,
             // 알림 화면의 설정 아이콘으로 들어가는 화면 — 알림 화면과 같은 이유로 Bottom Nav 없이 흰 면이다
-=======
-            path: "/auth/splash",
-          },
-          {
-            element: <AuthLoginScreen />,
             handle: {
               background: "normal",
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/notifications/settings",
-=======
-            path: "/auth/login",
           },
           {
-            element: <AuthOnboardingPhoneScreen />,
+            element: <AuthSignupScreen />,
+            // 로그인·온보딩 퍼널 하나가 모든 단계(로그인, 연락처, 약관 동의, 약관 상세, 가입 완료)를 그린다.
+            // Figma 로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
             handle: {
               background: "normal",
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
-            path: "/auth/onboarding/phone",
-          },
-          {
-            element: <AuthOnboardingTermsScreen />,
-            handle: {
-              background: "normal",
-              hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
-            path: "/auth/onboarding/terms",
-          },
-          {
-            element: <AuthTermsDetailScreen />,
-            handle: {
-              background: "normal",
-              hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
-            path: "/auth/onboarding/terms/:termsId",
-          },
-          {
-            element: <AuthOnboardingCompleteScreen />,
-            handle: {
-              background: "normal",
-              hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
-            path: "/auth/onboarding/complete",
-=======
             path: "/auth",
           },
           {
