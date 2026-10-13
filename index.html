@@ -10,6 +10,19 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
+    <!-- iOS는 focus된 입력칸 글자가 16px 미만이면 화면을 자동 확대하고, PWA에서는 그 배율이
+         돌아오지 않는다. maximum-scale=1은 그 자동 확대를 막는다(Safari는 이 값으로 사용자의
+         두 손가락 확대까지 막지는 않는다). Android Chrome은 이 값으로 사용자 확대가 막혀 접근성이
+         나빠지므로 iOS(iPadOS 포함)에서만 붙인다. 입력칸 글자는 Figma 크기 그대로 둔다. -->
+    <script>
+      if (
+        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1)
+      ) {
+        const viewport = document.querySelector('meta[name="viewport"]');
+        viewport.content += ", maximum-scale=1";
+      }
+    </script>
     <title>stream-client</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <link

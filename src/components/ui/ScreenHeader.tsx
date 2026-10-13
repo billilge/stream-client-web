@@ -9,10 +9,13 @@ interface ScreenHeaderToggleTitle {
 
 type ScreenHeaderTitle = string | ScreenHeaderToggleTitle;
 
-function isToggleTitle(
-  title: ScreenHeaderTitle,
-): title is ScreenHeaderToggleTitle {
-  return typeof title !== "string";
+function isToggleTitle(title: unknown): title is ScreenHeaderToggleTitle {
+  return (
+    typeof title === "object" &&
+    title !== null &&
+    "options" in title &&
+    "activeIndex" in title
+  );
 }
 
 // Figma: 게시판류 화면의 "공지 | 열린피드백" 같은 2단 탭 타이틀(nodeId 1256:81792 "Board Title").
@@ -47,12 +50,18 @@ function ScreenHeaderToggleTitle({
 type ScreenHeaderProps =
   | {
       variant?: "display";
-      title?: ScreenHeaderTitle;
+      // 홈은 글자 대신 로고를 넣는다(Figma Top Navigation `State=Home`, nodeId 547:31364)
+      title?: ScreenHeaderTitle | ReactNode;
       trailing?: ReactNode;
     }
   | {
       variant: "normal";
       title?: ScreenHeaderTitle;
+      leading?: ReactNode;
+      trailing?: ReactNode;
+    }
+  | {
+      variant: "floating";
       leading?: ReactNode;
       trailing?: ReactNode;
     };
@@ -77,7 +86,23 @@ type ScreenHeaderProps =
 // 타이틀 + 트레일링 아이콘으로 묶어두기 위한 것이다. 임의의 ReactNode를 받는 슬롯은
 // 이 컴포넌트가 내용을 판단할 수 없어 패스스루 컨테이너가 되고, 화면마다 존재 여부가 달라지면서
 // 계속 늘어난다.
+//
+// variant="floating"(아카이빙 상세·현장 사진 뷰어)은 타이틀 없이 사진 위에 투명하게 겹치는 WDS
+// `TopNavigation` floating variant다. 사진과 같이 스크롤돼야 해서 useScreenHeader(고정 헤더 슬롯)로
+// 등록하지 않고 화면이 사진 컨테이너(relative) 안에 직접 둔다 — 버튼 영역은 WDS가 absolute로 띄우므로
+// 높이를 차지하지 않는다.
 function ScreenHeader(props: ScreenHeaderProps) {
+  if (props.variant === "floating") {
+    return (
+      <TopNavigation
+        background={false}
+        leadingContent={props.leading}
+        trailingContent={props.trailing}
+        variant="floating"
+      />
+    );
+  }
+
   const { title, trailing } = props;
 
   if (props.variant === "normal") {
@@ -102,19 +127,20 @@ function ScreenHeader(props: ScreenHeaderProps) {
     <div className="flex w-full flex-col">
       <div className="flex w-full items-center justify-between px-5 py-3">
         <div className="flex min-w-0 items-center">
-          {title !== undefined &&
-            (isToggleTitle(title) ? (
-              <ScreenHeaderToggleTitle {...title} />
-            ) : (
-              <Typography
-                as="h2"
-                color="semantic.label.strong"
-                variant="title3"
-                weight="bold"
-              >
-                {title}
-              </Typography>
-            ))}
+          {typeof title === "string" ? (
+            <Typography
+              as="h2"
+              color="semantic.label.strong"
+              variant="title3"
+              weight="bold"
+            >
+              {title}
+            </Typography>
+          ) : isToggleTitle(title) ? (
+            <ScreenHeaderToggleTitle {...title} />
+          ) : (
+            title
+          )}
         </div>
         {trailing !== undefined && (
           <div className="flex shrink-0 items-center gap-4">{trailing}</div>
