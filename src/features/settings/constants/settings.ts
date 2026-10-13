@@ -16,40 +16,6 @@ export const SETTINGS_EXTERNAL_LINKS = {
   privacyPolicy: "",
 };
 
-// 화면의 on/off state(Record)와 키를 맞추려고 id를 유니온으로 둔다 — 문자열로 두면 양쪽 중
-// 한쪽에 오타가 나도 타입 에러가 안 난다.
-export type NotificationCategoryId = "bililge" | "events" | "board" | "lockers";
-
-interface NotificationCategory {
-  id: NotificationCategoryId;
-  title: string;
-  description: string;
-}
-
-// Figma: 알림 설정 Category Notification List(nodeId 3013:116193) 순서·문구 그대로
-export const NOTIFICATION_CATEGORIES: NotificationCategory[] = [
-  {
-    description: "대여 진행 상황과 반납 일정을 알려 드려요",
-    id: "bililge",
-    title: "빌릴게 알림",
-  },
-  {
-    description: "진행 중인 행사와 신청 현황을 알려 드려요",
-    id: "events",
-    title: "행사 알림",
-  },
-  {
-    description: "새 공지와 열린피드백 답변을 알려 드려요",
-    id: "board",
-    title: "게시판 알림",
-  },
-  {
-    description: "배정 결과와 이용 기간 만료 임박을 알려 드려요",
-    id: "lockers",
-    title: "사물함 알림",
-  },
-];
-
 interface WithdrawalNotice {
   id: string;
   title: string;

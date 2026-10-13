@@ -666,6 +666,8 @@ Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독
 
 설정 화면 모든 행 끝의 화살표(`445:12456` "Arrow", 8×12)는 `search_design_system`으로 WDS를 뒤져도 같은 이름이 없다(WDS는 `Icon/Normal/Arrow *`·`Icon/Normal/Chevron *` 네이밍). 133번째 줄 "제외됨" 목록의 `Icon/Arrow`와 같은 Stream 전용 아이콘이라 SVG를 받아 `src/assets/icons/settings/arrow-right.svg`로 커밋했다. 색(`#C2C4C8` = `Atomic/Cool Neutral/90`)이 에셋에 구워져 있어 토큰은 새로 추가하지 않았다.
 
-### 알림 설정의 섹션 구분선은 8px 버전
+### 알림 설정 화면은 설정이 아니라 알림 기능이 갖는다
 
-"`Divider(new)`의 8px 버전은 1px 구분선과 다른 별개 패턴" 절과 같은 케이스다 — `<div className="h-2 w-full bg-background-alternative" />`로 직접 그린다.
+Figma는 같은 알림 설정 화면을 **설정 섹션(`3524:152367`)과 알림 섹션(`3628:110837`) 두 군데에 복제**해 뒀다(노드 구조·좌표·문구가 완전히 같다). 디자인이 둘이라고 화면을 둘 만들면 안 된다 — 코드는 `features/notifications/NotificationsSettingsScreen`(`/notifications/settings`) 한 벌만 두고, 설정 화면의 "알림 설정" 행과 알림 목록 헤더의 설정 버튼이 **같은 경로로** 들어간다. 카테고리 문구·초기값도 `features/notifications/constants/notifications.ts`가 단일 출처다.
+
+섹션 구분선(8px `Divider(new)`)과 `Switch` 매핑은 위 "알림" 절에 이미 적어 뒀다.

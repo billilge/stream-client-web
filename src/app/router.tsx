@@ -30,7 +30,6 @@ import NoticesListScreen from "@/features/notices/NoticesListScreen";
 import NotificationsScreen from "@/features/notifications/NotificationsScreen";
 import NotificationsSettingsScreen from "@/features/notifications/NotificationsSettingsScreen";
 import SearchScreen from "@/features/search/SearchScreen";
-import NotificationSettingsScreen from "@/features/settings/NotificationSettingsScreen";
 import PhoneChangeScreen from "@/features/settings/PhoneChangeScreen";
 import SettingsScreen from "@/features/settings/SettingsScreen";
 import WithdrawalCompleteScreen from "@/features/settings/WithdrawalCompleteScreen";
@@ -131,22 +130,15 @@ const routes = [
           {
             element: <SettingsScreen />,
             // 흰 카드가 회색 배경 위에 쌓이는 화면이라 background는 기본값(alternative)을 쓴다.
-            // 설정은 뒤로가기로만 빠져나가는 흐름이라 Bottom Nav를 안 보여준다(Figma 3013:116135).
+            // 설정은 뒤로가기로만 빠져나가는 흐름이라 Bottom Nav를 안 보여준다(Figma 3524:152322).
+            // 설정의 "알림 설정" 행은 알림 화면이 이미 가진 /notifications/settings로 보낸다 —
+            // Figma는 설정·알림 두 섹션에 같은 화면을 복제해 뒀지만 코드에서는 한 벌만 둔다.
             handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
             path: "/settings",
           },
           {
-            element: <NotificationSettingsScreen />,
-            // 행이 배경까지 흰 면이고 섹션 구분만 8px 회색 띠로 하는 화면이다(Figma 3013:116182)
-            handle: {
-              background: "normal",
-              hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
-            path: "/settings/notifications",
-          },
-          {
             element: <PhoneChangeScreen />,
-            // 입력칸 하나 + 하단 고정 버튼(Action Area)이 있는 흰 배경 화면(Figma 1799:87220)
+            // 입력칸 하나 + 하단 고정 버튼(Action Area)이 있는 흰 배경 화면(Figma 3524:152450)
             handle: {
               background: "normal",
               hasBottomNav: false,

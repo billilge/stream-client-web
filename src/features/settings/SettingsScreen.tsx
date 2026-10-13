@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { NOTIFICATIONS_SETTINGS_PATH } from "@/features/notifications/constants/notifications";
 import SettingsRow from "@/features/settings/components/SettingsRow";
 import SettingsSection from "@/features/settings/components/SettingsSection";
 import {
@@ -21,6 +22,9 @@ import {
 // 없어서 SETTINGS_EXTERNAL_LINKS가 빈 문자열이면 아무 동작도 하지 않는다).
 // 로그아웃은 확인 모달(1799:87183)을 공용 ConfirmModal(tone="negative")로 붙였고,
 // 회원 탈퇴는 별도 화면(3524:152473)으로 이동한다.
+//
+// "알림 설정"은 알림 화면이 이미 가진 화면으로 보낸다 — Figma가 설정 섹션(3524:152367)과 알림
+// 섹션(3628:110837)에 같은 화면을 복제해 뒀을 뿐, 진입점만 둘이고 화면은 하나다.
 function SettingsScreen() {
   const navigate = useNavigate();
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -73,7 +77,7 @@ function SettingsScreen() {
         <SettingsSection>
           <SettingsRow
             label="알림 설정"
-            onClick={() => navigate("/settings/notifications")}
+            onClick={() => navigate(NOTIFICATIONS_SETTINGS_PATH)}
           />
         </SettingsSection>
 
