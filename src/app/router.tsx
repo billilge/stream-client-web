@@ -10,7 +10,7 @@ import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
 import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
 import AuthEntryGate from "@/features/auth/AuthEntryGate";
-import AuthFunnelScreen from "@/features/auth/AuthFunnelScreen";
+import AuthSignupScreen from "@/features/auth/AuthSignupScreen";
 import KConnectCallbackScreen from "@/features/auth/KConnectCallbackScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
@@ -153,6 +153,8 @@ const routes = [
             // Figma 스플래시·로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
 
             element: <AuthFunnelScreen />,
+
+            element: <AuthSignupScreen />,
             // 로그인·온보딩 퍼널 하나가 모든 단계(로그인, 연락처, 약관 동의, 약관 상세, 가입 완료)를 그린다.
             // Figma 로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
             handle: {
