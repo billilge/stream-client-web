@@ -2,17 +2,15 @@ import { useNavigate } from "react-router-dom";
 
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
-
-// 탈퇴하면 로그아웃된 상태라 로그인/온보딩으로 나가야 하지만 아직 그 화면이 없다 —
-// 인증을 붙일 때 이 상수만 바꾼다. 그때까지는 다른 결과 화면과 같이 홈으로 내보낸다.
-const EXIT_PATH = "/";
+import { ACCOUNT_EXIT_PATH } from "@/features/settings/constants/settings";
 
 // Figma: 탈퇴 완료 페이지 (nodeId 3524:152505)
 // 신청 결과 화면과 같은 뼈대라 ResultScreen을 쓴다. 버튼이 "확인" 하나뿐이라
 // secondaryAction을 주지 않고, 체크 모션이 붙는 완료 화면이라 간격은 8px이다.
+// 나갈 곳은 로그아웃과 같은 자리라 ACCOUNT_EXIT_PATH를 함께 쓴다.
 function WithdrawalCompleteScreen() {
   const navigate = useNavigate();
-  const exit = () => navigate(EXIT_PATH, { replace: true });
+  const exit = () => navigate(ACCOUNT_EXIT_PATH, { replace: true });
 
   return (
     <ResultScreen

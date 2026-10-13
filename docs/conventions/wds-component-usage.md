@@ -650,24 +650,30 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 
 Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독립된 값이 아니라 카테고리가 모두 켜졌는지로 파생한다. 누르면 네 카테고리를 같은 값으로 맞추고, 하나라도 끄면 전체가 꺼진다. 값은 화면 state뿐이라 새로고침하면 초기값으로 돌아간다(서버 API 연동 때 교체).
 
-## 설정 화면 (설정 3013:116135 / 알림 설정 3013:116182 / 전화번호 변경 1799:87220)
+## 설정 화면 (설정 `3524:152322` / 전화번호 변경 `3524:152450` / 회원 탈퇴 `3524:152473`)
 
-### 새로 확정된 WDS 매핑
-
-| Figma 인스턴스 | 코드 | 확정 근거 |
-|---|---|---|
-| `Switch/Switch` | `Switch`(`@wanteddev/wds`) | 메인 컴포넌트 Node ID `679:16080` + [공식 문서](https://montage.wanted.co.kr/docs/components/selection-and-input/switch/design). `size="small"`이 Figma와 같은 39×24(실측 일치) |
-| `Textinput/Textfield` | `TextField`(`@wanteddev/wds`) | 메인 컴포넌트 Node ID `445:8591` + [공식 문서](https://montage.wanted.co.kr/docs/components/selection-and-input/text-field/design). radius 12px·padding 12px 실측 일치 |
-| `Icon/Normal/Setting` | `IconSetting`(`@wanteddev/wds-icon`) | 메인 컴포넌트 Node ID `492:5735`("설정으로 이동할 때 사용합니다") |
-
-**`TextField`는 입력 박스만 그린다** — Figma `Textinput/Textfield`는 라벨(Heading) + 입력칸 + 안내 문구를 한 컴포넌트로 묶고 있지만, 코드 쪽 `TextField`에는 label·helper 슬롯이 없다. 그래서 "새 전화번호" 라벨과 "행사 신청 시 사용돼요." 안내는 Figma 구조대로 형제 요소로 따로 그린다. WDS `Label`은 required `*`만 더해주는 `Typography` 래퍼라 쓸 이유가 없다(행사 신청 폼 절의 선례와 같은 판단).
-
-### 설정 행의 `Arrow`는 WDS가 아니다
-
-설정 화면 모든 행 끝의 화살표(`445:12456` "Arrow", 8×12)는 `search_design_system`으로 WDS를 뒤져도 같은 이름이 없다(WDS는 `Icon/Normal/Arrow *`·`Icon/Normal/Chevron *` 네이밍). 133번째 줄 "제외됨" 목록의 `Icon/Arrow`와 같은 Stream 전용 아이콘이라 SVG를 받아 `src/assets/icons/settings/arrow-right.svg`로 커밋했다. 색(`#C2C4C8` = `Atomic/Cool Neutral/90`)이 에셋에 구워져 있어 토큰은 새로 추가하지 않았다.
+코드는 `src/features/settings/` 참고.
 
 ### 알림 설정 화면은 설정이 아니라 알림 기능이 갖는다
 
 Figma는 같은 알림 설정 화면을 **설정 섹션(`3524:152367`)과 알림 섹션(`3628:110837`) 두 군데에 복제**해 뒀다(노드 구조·좌표·문구가 완전히 같다). 디자인이 둘이라고 화면을 둘 만들면 안 된다 — 코드는 `features/notifications/NotificationsSettingsScreen`(`/notifications/settings`) 한 벌만 두고, 설정 화면의 "알림 설정" 행과 알림 목록 헤더의 설정 버튼이 **같은 경로로** 들어간다. 카테고리 문구·초기값도 `features/notifications/constants/notifications.ts`가 단일 출처다.
 
-섹션 구분선(8px `Divider(new)`)과 `Switch` 매핑은 위 "알림" 절에 이미 적어 뒀다.
+### 새로 확정된 WDS 매핑
+
+| Figma 인스턴스 | 코드 | 확정 근거 |
+|---|---|---|
+| `Textinput/Textfield` | `TextField`(`@wanteddev/wds`) | 메인 컴포넌트 Node ID `445:8591` + [공식 문서](https://montage.wanted.co.kr/docs/components/selection-and-input/text-field/design). radius 12px·padding 12px 실측 일치 |
+
+`Switch/Switch`·`Icon/Normal/Setting`·`Divider(new)` 8px은 위 "알림" 절에서 이미 확정한 매핑을 그대로 쓴다.
+
+**`TextField`는 입력 박스만 그린다** — Figma `Textinput/Textfield`는 라벨(Heading) + 입력칸 + 안내 문구를 한 컴포넌트로 묶고 있지만, 코드 쪽 `TextField`에는 label·helper 슬롯이 없다. 그래서 "새 전화번호" 라벨과 "행사 신청 시 사용돼요." 안내는 Figma 구조대로 형제 요소로 따로 그린다. WDS `Label`은 required `*`만 더해주는 `Typography` 래퍼라 쓸 이유가 없다(행사 신청 폼 절의 선례와 같은 판단). 값이 있을 때 뜨는 지움(X) 버튼은 `TextField`가 기본으로 그려서 Figma 입력 중 상태(`3524:152465`)와 그대로 맞는다.
+
+### 설정 행의 `Arrow`는 WDS가 아니다
+
+설정 화면 모든 행 끝의 화살표(`445:12456` "Arrow")는 `search_design_system`으로 WDS를 뒤져도 같은 이름이 없다(WDS는 `Icon/Normal/Arrow *`·`Icon/Normal/Chevron *` 네이밍). 133번째 줄 "제외됨" 목록의 `Icon/Arrow`와 같은 Stream 전용 아이콘이라 SVG를 받아 `src/assets/icons/settings/arrow-right.svg`로 커밋했다. 색(`#C2C4C8` = `Atomic/Cool Neutral/90`)이 에셋에 구워져 있어 토큰은 새로 추가하지 않았다.
+
+**에셋은 12×12인데 슬롯은 8×12다.** Figma도 12×12 뷰박스를 `width: 8px; height: 12px` 자리에 `preserveAspectRatio="none"`으로 넣어 가로를 눌러 쓴다. 내려받은 SVG를 그대로 `className="h-3 w-2"`로 쓰는 게 Figma와 같은 결과다 — 8×12로 다시 내보내거나 종횡비를 맞추려 들면 오히려 어긋난다.
+
+### Figma 노드 ID가 통째로 갈린 적이 있다
+
+설정 섹션은 한 번 통째로 다시 만들어졌다. 옛 ID(`1799:85920` 섹션, 설정 `3013:116135`, 알림 설정 `3013:116182`, 전화번호 변경 `1799:87220`, 로그아웃 모달 `1799:87183`)는 **파일에서 삭제되어 조회되지 않는다.** 탈퇴 계열(`3524:152473`·`3524:152505`·`3524:152517`)만 그대로다. 주석의 nodeId가 `get_design_context`에서 "not found"로 나오면 먼저 섹션이 다시 만들어졌는지 확인한다.

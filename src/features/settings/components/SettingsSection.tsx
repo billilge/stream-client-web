@@ -9,9 +9,9 @@ interface SettingsSectionProps {
   children: ReactNode;
 }
 
-// Figma: 설정 화면(nodeId 3013:116135)의 흰 카드 — Account Section(3013:116141),
-// Notification Settings Section(3013:116158), Service Info Section(3013:116162),
-// Logout Section(3013:116177) 넷이 같은 배경·radius·padding이라 하나로 합쳤다.
+// Figma: 설정 화면(nodeId 3524:152322)의 흰 카드 — Account Section(3524:152329),
+// Notification Settings Section(3524:152343), Service Info Section(3524:152347),
+// Logout Section(3524:152359) 넷이 같은 배경·radius·padding이라 하나로 합쳤다.
 // 섹션 라벨 유무와 행 간격만 다르다.
 function SettingsSection({
   title,

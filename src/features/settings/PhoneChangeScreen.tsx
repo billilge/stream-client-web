@@ -13,7 +13,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 
-// Figma: 전화번호 변경 (nodeId 1799:87220), 입력 중 (1799:87227), 완료 토스트 (1917:93781).
+// Figma: 전화번호 변경 (nodeId 3524:152450), 입력 중 (3524:152465), 완료 토스트 (3524:152457).
 // 입력칸은 Figma `Textinput/Textfield`(445:8591, WDS 공식 문서 링크 확인)라 WDS `TextField`를
 // 그대로 쓴다. 다만 WDS `TextField`는 입력 박스만 그려서, 위 라벨("새 전화번호")과 아래 안내
 // 문구는 Figma 구조대로 형제 요소로 따로 그린다 — WDS `Label`은 required `*` 처리만 더해주는
@@ -23,7 +23,7 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 // 활성 #0066FF). 높이 56px은 ActionAreaButton 기본(48px)과 달라 sx로 세로 padding만 보정한다.
 // 실제 변경 API가 없어서 누르면 Figma처럼 완료 토스트만 띄운다.
 //
-// Figma 입력 중 상태(1799:87230)가 "010-1234-5"처럼 하이픈이 끼워진 모습이라 입력하는 대로
+// Figma 입력 중 상태(3524:152465)가 "010-1234-5"처럼 하이픈이 끼워진 모습이라 입력하는 대로
 // 하이픈을 넣어준다. 유효 기준은 placeholder와 같은 010 + 8자리다.
 const PHONE_PATTERN = /^010-\d{4}-\d{4}$/;
 

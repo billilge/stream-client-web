@@ -13,7 +13,10 @@ import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import WithdrawalNoticeCard from "@/features/settings/components/WithdrawalNoticeCard";
-import { WITHDRAWAL_NOTICES } from "@/features/settings/constants/settings";
+import {
+  SETTINGS_PATHS,
+  WITHDRAWAL_NOTICES,
+} from "@/features/settings/constants/settings";
 
 // Figma: 탈퇴 확인 페이지 (nodeId 3524:152473), 체크 상태 (3524:152489), 확인 모달 (3524:152517).
 // 안내 문구 4장은 같은 컴포넌트의 인스턴스라 WithdrawalNoticeCard + WITHDRAWAL_NOTICES로 분리했다.
@@ -122,7 +125,10 @@ function WithdrawalScreen() {
         onCancel={() => setConfirmOpen(false)}
         // 탈퇴를 확정하면 되돌아올 화면이 아니라 완료 화면으로 치환한다
         onConfirm={() =>
-          navigate("/settings/withdraw/complete", { replace: true })
+          navigate(SETTINGS_PATHS.withdrawalComplete, {
+            replace: true,
+            viewTransition: true,
+          })
         }
         open={confirmOpen}
         title="정말 탈퇴하시겠어요?"
