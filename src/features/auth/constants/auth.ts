@@ -10,8 +10,10 @@ export const AUTH_PATH = "/auth";
 export const KCONNECT_CLIENT_ID: string =
   import.meta.env.VITE_KCONNECT_CLIENT_ID ?? "";
 
-// 연락처 — 숫자 11자리를 모두 입력해야 `다음`이 켜진다(화면설계서 3번).
+// 연락처 — 010으로 시작하는 숫자 11자리를 모두 입력해야 `다음`이 켜진다(화면설계서 3번의 11자리에, 설정의 전화번호
+// 변경(#97)과 같은 010 고정 기준을 더했다 — 구 번호(011·016 등)로 가입하면 설정에서 같은 번호로 못 바꾸게 되기 때문이다).
 export const PHONE_DIGIT_COUNT = 11;
+export const PHONE_PREFIX = "010";
 
 export const LOGIN_FAILURE_MESSAGE = "로그인에 실패했어요. 다시 시도해 주세요.";
 
