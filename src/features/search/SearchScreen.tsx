@@ -1,6 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-
+import { useSearchParams } from "react-router-dom";
 import SearchHeader from "@/features/search/components/SearchHeader";
 import SearchRecentList from "@/features/search/components/SearchRecentList";
 import SearchResultContent from "@/features/search/components/SearchResultContent";
@@ -10,6 +9,7 @@ import {
   type SearchTab,
 } from "@/features/search/constants/search";
 import { useRecentSearches } from "@/features/search/hooks/useRecentSearches";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 // Figma: 검색 (nodeId 1879:90575) — 검색 진입(3147:138646) / 검색 중(3147:138670) /
 // 검색 완료(3147:138695, 3147:138745) / 검색 결과 empty state(3147:138770). 동작은 화면설계서
@@ -21,7 +21,6 @@ import { useRecentSearches } from "@/features/search/hooks/useRecentSearches";
 // 홈·행사·게시판·빌릴게 헤더의 검색 아이콘이 `?tab=`으로 넘긴 탭을 결과의 시작 탭으로 쓴다
 // (설계서 3번: 홈 검색은 전체 탭부터, 기능 내 검색은 해당 탭부터).
 function SearchScreen() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const requestedTab = searchParams.get("tab");
   const initialTab: SearchTab = isSearchTab(requestedTab)
@@ -64,16 +63,7 @@ function SearchScreen() {
     setKeyword(null);
   };
 
-  // 이 화면으로 바로 들어오면(딥링크·앱 WebView 진입) 뒤로 갈 히스토리가 없어서 navigate(-1)이
-  // 아무 일도 하지 않는다 — 그럴 땐 홈으로 보낸다(행사 신청 화면의 goBack과 같은 규칙).
-  const goBack = () => {
-    const historyIndex = (window.history.state as { idx?: number } | null)?.idx;
-    if (historyIndex !== undefined && historyIndex > 0) {
-      navigate(-1);
-      return;
-    }
-    navigate("/", { replace: true });
-  };
+  const goBack = useBackNavigation("/");
 
   return (
     <>

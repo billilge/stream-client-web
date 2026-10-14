@@ -6,7 +6,6 @@ import {
 import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
@@ -20,6 +19,7 @@ import {
   type EventsAnswer,
 } from "@/features/events/constants/eventsApplication";
 import { submitEventsApplication } from "@/features/events/constants/eventsApplicationSubmit";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 // 복수 선택은 하나라도 골라야 하고, 기타를 골랐으면 입력 내용까지 있어야 충족으로 본다
 function isAnswered(answer: EventsAnswer | undefined): boolean {
@@ -69,17 +69,7 @@ function EventsApplicationScreen() {
   // 하나라도 고르거나 쓴 게 있으면 그냥 나갔을 때 잃는 내용이 있다는 뜻이라 확인부터 받는다
   const hasDraftAnswer = Object.values(answers).some(hasDraft);
 
-  // 이 화면으로 바로 들어오면(딥링크·앱 WebView 진입) 뒤로 갈 히스토리가 없어서 navigate(-1)이
-  // 아무 일도 하지 않는다 — 작성 중단 모달이 열린 채로 멈춰버린다. 그럴 땐 행사 목록으로 보낸다.
-  // react-router가 히스토리 위치를 history.state.idx에 넣어두고, 직접 진입이면 0이다(실측 확인).
-  const goBack = () => {
-    const historyIndex = (window.history.state as { idx?: number } | null)?.idx;
-    if (historyIndex !== undefined && historyIndex > 0) {
-      navigate(-1);
-      return;
-    }
-    navigate("/events", { replace: true });
-  };
+  const goBack = useBackNavigation("/events");
 
   const handleSubmit = async () => {
     setIsConfirmOpen(false);
