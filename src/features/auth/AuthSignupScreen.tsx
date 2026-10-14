@@ -1,7 +1,8 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { submitOnboarding } from "@/entities/auth/authApi";
-import { markLoggedIn } from "@/entities/auth/session";
+import { isLoggedIn, markLoggedIn } from "@/entities/auth/session";
 import { INITIAL_TERMS_AGREEMENTS } from "@/features/auth/constants/auth";
 import {
   AUTH_SIGNUP_STEP_OPTIONS,
@@ -31,13 +32,36 @@ function AuthSignupScreen() {
   // K-CONNECT 콜백(KConnectCallbackScreen)이 신규 사용자를 이름과 함께 보내면 로그인을 건너뛰고 연락처 단계에서 시작한다.
   // `initial`은 주소에 단계가 없을 때만 쓰여서, 단계가 생긴 뒤(약관 동의 등)에는 영향이 없다.
   const { kConnectName, loginFailed } = readAuthLocationState(location.state);
+  // useFunnel이 `initial`로 값을 다시 계산하지 않도록 kConnectName이 바뀔 때만 새 객체를 만든다
+  const initial = useMemo(
+    () =>
+      kConnectName
+        ? ({ context: { name: kConnectName }, step: "phone" } as const)
+        : ({ context: {}, step: "login" } as const),
+    [kConnectName],
+  );
   const funnel = useFunnel<AuthSignupSteps>({
     id: "auth",
-    initial: kConnectName
-      ? { context: { name: kConnectName }, step: "phone" }
-      : { context: {}, step: "login" },
+    initial,
     steps: AUTH_SIGNUP_STEP_OPTIONS,
   });
+
+  // 로그인 실패 토스트는 한 번만 띄운다 — 화면이 처음 그려질 때 AuthLoginStep이 값을 읽어 가고, 그 뒤에는 state를
+  // 지워서 새로고침하거나 다른 단계에서 돌아와도 실패하지 않았는데 토스트가 다시 뜨지 않게 한다.
+  useEffect(() => {
+    if (loginFailed) {
+      navigate(
+        { pathname: location.pathname, search: location.search },
+        { replace: true, state: null },
+      );
+    }
+  }, [loginFailed, location.pathname, location.search, navigate]);
+
+  // 로그인한 상태로 이 퍼널에 들어오면 홈으로 보낸다 — 가입을 마친 뒤 홈에서 뒤로가기를 눌러 연락처 단계로 돌아와
+  // 가입을 한 번 더 진행하는 일을 막는다. 가입 완료 단계는 로그인 표시를 남긴 직후에 보여 주는 화면이라 예외다.
+  if (funnel.step !== "complete" && isLoggedIn()) {
+    return <Navigate replace to="/" />;
+  }
 
   const goHome = () => navigate("/", { replace: true });
 
@@ -57,11 +81,15 @@ function AuthSignupScreen() {
           }}
         />
       )}
-      phone={({ context, history }) => (
+      phone={({ context, history, index }) => (
         <AuthPhoneStep
           initialPhone={context.phone ?? ""}
           name={context.name}
-          onBack={() => history.back()}
+          // K-CONNECT 콜백에서 바로 연락처 단계로 들어온 경우 퍼널 기록이 이 단계 하나뿐이라, 뒤로가기가 K-CONNECT 쪽
+          // 페이지로 나가 버린다 — 이때는 로그인 단계로 대체해서 로그인 화면으로 돌아가게 한다.
+          onBack={() =>
+            index === 0 ? history.replace("login", {}) : history.back()
+          }
           // 단계를 바꾸지 않고 context만 갈아 끼운다(replace)
           onChangePhone={(phone) =>
             history.replace("phone", (prev) => ({ ...prev, phone }))
