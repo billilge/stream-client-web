@@ -2,12 +2,14 @@ import { Divider } from "@wanteddev/wds";
 import { useState } from "react";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import AuthBackButton from "@/features/auth/components/AuthBackButton";
 import AuthBottomAction from "@/features/auth/components/AuthBottomAction";
 import AuthOnboardingHeading from "@/features/auth/components/AuthOnboardingHeading";
 import AuthTermsAgreementRow from "@/features/auth/components/AuthTermsAgreementRow";
 import {
+  ONBOARDING_FAILURE_MESSAGE,
   TERMS,
   TERMS_IDS,
   type TermsAgreements,
@@ -32,6 +34,9 @@ function AuthTermsStep({
   onComplete: () => Promise<void>;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+  // 저장이 연달아 실패해도 스크린리더가 토스트를 다시 안내하도록 실패마다 ScreenToast를 새로 마운트한다
+  const [toastToken, setToastToken] = useState(0);
   const isAllAgreed = TERMS_IDS.every((id) => agreements[id]);
   const isRequiredAgreed = TERMS_IDS.every(
     (id) => !TERMS[id].isRequired || agreements[id],
@@ -49,7 +54,9 @@ function AuthTermsStep({
     try {
       await onComplete();
     } catch (error) {
-      console.warn("온보딩 정보를 저장하지 못했어요.", error);
+      console.warn(ONBOARDING_FAILURE_MESSAGE, error);
+      setToastOpen(true);
+      setToastToken((token) => token + 1);
     } finally {
       setIsSubmitting(false);
     }
@@ -94,6 +101,13 @@ function AuthTermsStep({
         disabled={!isRequiredAgreed || isSubmitting}
         label="다음"
         onClick={handleComplete}
+      />
+
+      <ScreenToast
+        key={toastToken}
+        message={ONBOARDING_FAILURE_MESSAGE}
+        onOpenChange={setToastOpen}
+        open={toastOpen}
       />
     </div>
   );

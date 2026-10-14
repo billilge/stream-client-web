@@ -16,6 +16,8 @@ export const PHONE_DIGIT_COUNT = 11;
 export const PHONE_PREFIX = "010";
 
 export const LOGIN_FAILURE_MESSAGE = "로그인에 실패했어요. 다시 시도해 주세요.";
+export const ONBOARDING_FAILURE_MESSAGE =
+  "가입 정보를 저장하지 못했어요. 다시 시도해 주세요.";
 
 // Figma 로그인 1~3 — 슬라이드 순서와 문구(nodeId 3658:113051, 3658:113028, 3658:113074)
 export const LOGIN_SLIDES = [
