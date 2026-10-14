@@ -22,7 +22,9 @@ interface LockersCellProps {
 //
 // 내 사물함은 Figma에 상태가 없어서 임시로 초록 테두리를 둔다(이미 신청한 칸이라 고를 수 없다).
 //
-// 보기 전용(내 사물함 화면)에서는 칸을 버튼으로 그리지 않고, 내 칸을 선택된 칸 모양으로 표시한다.
+// 보기 전용(onSelect 없음 — 내 사물함 화면)에서는 칸을 버튼으로 그리지 않는다. 선택된 칸은 같은
+// 선택 모양으로 그려서, 내 사물함 화면은 내 칸을 선택된 칸으로 넘기기만 하면 된다.
+// 선택된 칸에는 data-selected를 붙인다 — LockersMapView가 처음 열 때 이 칸이 보이게 스크롤한다.
 function LockersCell({ locker, isSelected, onSelect }: LockersCellProps) {
   const isViewOnly = onSelect === undefined;
 
@@ -45,8 +47,8 @@ function LockersCell({ locker, isSelected, onSelect }: LockersCellProps) {
     );
   }
 
-  // 내 칸은 서버에서 선택 불가로 올 수 있어서(이미 배정됨) 보기 전용에서도 내 칸으로 그린다
-  if (!locker.isAvailable && !locker.isMine) {
+  // 보기 전용으로 표시하는 칸(내 칸)은 서버에서 선택 불가로 와도(이미 배정됨) 선택 모양으로 그린다
+  if (!locker.isAvailable && !isSelected) {
     return (
       <img
         alt={`${locker.lockerLabel} 선택 불가`}
@@ -56,20 +58,19 @@ function LockersCell({ locker, isSelected, onSelect }: LockersCellProps) {
     );
   }
 
-  const isHighlighted = isViewOnly ? locker.isMine : isSelected;
   const className = `flex size-7 items-center justify-center rounded-sm ${
-    isHighlighted ? "bg-primary" : "bg-orange-95"
+    isSelected ? "bg-primary" : "bg-orange-95"
   }`;
   const number = (
     <Typography
       as="span"
       color={
-        isHighlighted
+        isSelected
           ? "semantic.background.normal.normal"
           : "semantic.label.neutral"
       }
       variant="caption2"
-      weight={isHighlighted ? "bold" : "regular"}
+      weight={isSelected ? "bold" : "regular"}
     >
       {locker.lockerNumber}
     </Typography>
@@ -79,11 +80,10 @@ function LockersCell({ locker, isSelected, onSelect }: LockersCellProps) {
     return (
       <div
         aria-label={
-          locker.isMine ? `${locker.lockerLabel} 내 사물함` : locker.lockerLabel
+          isSelected ? `${locker.lockerLabel} 선택됨` : locker.lockerLabel
         }
         className={className}
-        // 내 사물함 화면이 처음 열릴 때 이 칸이 보이게 스크롤하는 기준(LockersMapView)
-        data-my-locker={locker.isMine || undefined}
+        data-selected={isSelected || undefined}
         role="img"
       >
         {number}
@@ -95,6 +95,7 @@ function LockersCell({ locker, isSelected, onSelect }: LockersCellProps) {
     <button
       aria-pressed={isSelected}
       className={className}
+      data-selected={isSelected || undefined}
       onClick={() => onSelect(locker.lockerNumber)}
       type="button"
     >

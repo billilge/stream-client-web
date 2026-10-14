@@ -9,6 +9,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
+import LockersLegend from "@/features/lockers/components/LockersLegend";
 import LockersMapView from "@/features/lockers/components/LockersMapView";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelectedLockerBar";
@@ -104,7 +105,7 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <LockersMapView map={map} />
+      <LockersMapView legend={<LockersLegend />} map={map} />
 
       <LockersSelectedLockerBar
         lockerLabel={selectedLocker?.lockerLabel ?? null}
