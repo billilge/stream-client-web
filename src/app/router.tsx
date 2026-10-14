@@ -43,7 +43,7 @@ const routes = [
       {
         children: [
           {
-            // 앱 첫 진입점 — 로그인한 기록이 없으면 스플래시(→ 로그인 화면)로 보낸다
+            // 앱 첫 진입점 — 로그인한 기록이 없으면 로그인 화면으로 보낸다
             element: (
               <AuthEntryGate>
                 <HomeScreen />
