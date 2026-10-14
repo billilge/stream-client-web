@@ -33,7 +33,9 @@ function AuthTermsStep({
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isAllAgreed = TERMS_IDS.every((id) => agreements[id]);
-  const isRequiredAgreed = agreements.service && agreements.privacy;
+  const isRequiredAgreed = TERMS_IDS.every(
+    (id) => !TERMS[id].isRequired || agreements[id],
+  );
 
   useScreenHeader(
     <ScreenHeader
