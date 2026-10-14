@@ -7,7 +7,7 @@ export function fetchMyFeedbacks(): Promise<MyFeedback[]> {
   return mockupApi("feedbacks/mine", () => MY_FEEDBACKS_MOCK);
 }
 
-// 없는 피드백은 null — 상세 화면이 홈으로 보낸다.
+// 없는 피드백은 null — 작성내역 상세 화면이 작성내역 목록으로 보낸다.
 export function fetchMyFeedback(
   feedbackId: string,
 ): Promise<MyFeedback | null> {

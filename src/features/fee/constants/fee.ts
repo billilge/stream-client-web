@@ -1,6 +1,6 @@
 import type { FeePaymentStatus } from "@/entities/fee/types";
 
-// 학생회 카카오톡 채널 — 주소를 받으면 채운다. 비어 있으면 문의하기를 눌러도 아무 일도 하지 않는다.
+// 학생회 카카오톡 채널 — 주소를 받으면 채운다. 비어 있으면 확인필요 카드에 문의하기 버튼을 그리지 않는다.
 export const STUDENT_COUNCIL_KAKAO_CHANNEL_URL = "";
 
 // 학생회비 납부 상태 배지 — 납부내역 카드와 홈 내 정보 목록(HomeInfoList)이 같이 쓴다

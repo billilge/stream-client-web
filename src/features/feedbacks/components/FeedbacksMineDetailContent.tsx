@@ -7,6 +7,7 @@ import questionIcon from "@/assets/icons/feedbacks/question.svg";
 import { fetchMyFeedback } from "@/entities/feedbacks/feedbacksApi";
 import FeedbacksAnswerText from "@/features/feedbacks/components/FeedbacksAnswerText";
 import FeedbacksEmptyState from "@/features/feedbacks/components/FeedbacksEmptyState";
+import { hasFeedbackAnswer } from "@/features/feedbacks/constants/feedbacks";
 
 interface FeedbacksMineDetailContentProps {
   feedbackId: string;
@@ -29,6 +30,9 @@ function FeedbacksMineDetailContent({
   if (!feedback) {
     return <Navigate replace to={fallbackPath} />;
   }
+
+  // 목록 카드와 같은 기준(hasFeedbackAnswer)으로 답변이 있는지 본다
+  const answer = hasFeedbackAnswer(feedback) ? feedback.answer : undefined;
 
   return (
     <div className="flex flex-col gap-6 pb-8">
@@ -66,9 +70,7 @@ function FeedbacksMineDetailContent({
 
       <div className="h-2 w-full bg-background-alternative" />
 
-      <div
-        className={`flex flex-col px-5 ${feedback.answer ? "gap-3" : "gap-10"}`}
-      >
+      <div className={`flex flex-col px-5 ${answer ? "gap-3" : "gap-10"}`}>
         <div className="flex items-center gap-2">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background-alternative">
             <img alt="" className="size-4" src={answerIcon} />
@@ -91,9 +93,9 @@ function FeedbacksMineDetailContent({
           </div>
         </div>
 
-        {feedback.answer ? (
+        {answer ? (
           <div className="flex flex-col items-center gap-8">
-            <FeedbacksAnswerText text={feedback.answer} />
+            <FeedbacksAnswerText text={answer} />
             <Button
               color="primary"
               onClick={() => onViewRound(feedback.id)}

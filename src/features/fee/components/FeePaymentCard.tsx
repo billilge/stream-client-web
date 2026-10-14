@@ -6,7 +6,8 @@ import { formatDateTime } from "@/lib/date";
 
 interface FeePaymentCardProps {
   payment: FeePayment;
-  onContact: () => void;
+  /** 없으면 문의하기 버튼을 그리지 않는다(채널 주소가 아직 없을 때) */
+  onContact?: () => void;
 }
 
 function formatAmount(value: number | null) {
@@ -87,15 +88,17 @@ function FeePaymentCard({ payment, onContact }: FeePaymentCardProps) {
               {payment.reviewNote}
             </Typography>
           </div>
-          <Button
-            color="assistive"
-            fullWidth
-            onClick={onContact}
-            size="medium"
-            variant="outlined"
-          >
-            문의하기
-          </Button>
+          {onContact && (
+            <Button
+              color="assistive"
+              fullWidth
+              onClick={onContact}
+              size="medium"
+              variant="outlined"
+            >
+              문의하기
+            </Button>
+          )}
         </div>
       )}
     </div>

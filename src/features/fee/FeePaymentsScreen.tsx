@@ -30,11 +30,10 @@ function FeePaymentsScreen() {
     />,
   );
 
-  const openKakaoChannel = () => {
-    if (STUDENT_COUNCIL_KAKAO_CHANNEL_URL) {
-      window.open(STUDENT_COUNCIL_KAKAO_CHANNEL_URL, "_blank", "noopener");
-    }
-  };
+  // 채널 주소가 정해지기 전에는 눌러도 반응 없는 버튼이 되지 않게 문의하기를 넘기지 않는다(버튼이 숨는다)
+  const openKakaoChannel = STUDENT_COUNCIL_KAKAO_CHANNEL_URL
+    ? () => window.open(STUDENT_COUNCIL_KAKAO_CHANNEL_URL, "_blank", "noopener")
+    : undefined;
 
   return (
     <div className="scrollbar-hidden h-full overflow-y-auto">

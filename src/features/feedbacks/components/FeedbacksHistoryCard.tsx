@@ -2,6 +2,7 @@ import { ContentBadge, Typography } from "@wanteddev/wds";
 
 import arrowRight from "@/assets/icons/home/arrow-right.svg";
 import type { MyFeedback } from "@/entities/feedbacks/types";
+import { hasFeedbackAnswer } from "@/features/feedbacks/constants/feedbacks";
 import { formatDate } from "@/lib/date";
 
 interface FeedbacksHistoryCardProps {
@@ -15,7 +16,7 @@ function FeedbacksHistoryCard({
   feedback,
   onSelect,
 }: FeedbacksHistoryCardProps) {
-  const isAnswered = feedback.answer !== undefined;
+  const isAnswered = hasFeedbackAnswer(feedback);
 
   return (
     <button
