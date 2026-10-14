@@ -10,6 +10,8 @@ import FeedbacksEmptyState from "@/features/feedbacks/components/FeedbacksEmptyS
 
 interface FeedbacksMineDetailContentProps {
   feedbackId: string;
+  /** 없는 피드백이면 보낼 곳 — 이동할 경로는 화면이 정한다 */
+  fallbackPath: string;
   onBrowseFeedbacks: () => void;
   onViewRound: (feedbackId: string) => void;
 }
@@ -18,13 +20,14 @@ interface FeedbacksMineDetailContentProps {
 // 질문·답변 머리(32px 배경 원 + 아이콘)는 열린피드백 상세(FeedbacksDetailScreen)와 같다.
 function FeedbacksMineDetailContent({
   feedbackId,
+  fallbackPath,
   onBrowseFeedbacks,
   onViewRound,
 }: FeedbacksMineDetailContentProps) {
   const feedback = use(fetchMyFeedback(feedbackId));
 
   if (!feedback) {
-    return <Navigate replace to="/my/feedbacks" />;
+    return <Navigate replace to={fallbackPath} />;
   }
 
   return (

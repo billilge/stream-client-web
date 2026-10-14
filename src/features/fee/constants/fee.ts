@@ -13,3 +13,6 @@ export const FEE_STATUS_BADGES: Record<
   "needs-check": { color: "red", label: "확인필요" },
   paid: { color: "green", label: "납부완료" },
 };
+
+// 학생회비 납부내역 화면 경로
+export const FEE_PAYMENTS_PATH = "/my/fee";

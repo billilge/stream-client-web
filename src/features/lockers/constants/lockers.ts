@@ -12,3 +12,7 @@ export const LOCKER_STATUS_BADGES = {
   LockerAssignmentStatus,
   { label: string; color?: "red" | "green" }
 >;
+
+// 사물함 배정 상태·내 사물함(위치 보기) 화면 경로
+export const LOCKER_ASSIGNMENT_PATH = "/my/locker";
+export const MY_LOCKER_LOCATION_PATH = "/my/locker/location";
