@@ -12,6 +12,11 @@ import { useNavigate } from "react-router-dom";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import {
+  formatPhoneNumber,
+  isValidPhoneNumber,
+  PHONE_NUMBER_MAX_LENGTH,
+} from "@/lib/phone";
 
 // Figma: 전화번호 변경 (nodeId 3524:152450), 입력 중 (3524:152465), 완료 토스트 (3524:152457).
 // 입력칸은 Figma `Textinput/Textfield`(445:8591, WDS 공식 문서 링크 확인)라 WDS `TextField`를
@@ -23,21 +28,8 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 // 활성 #0066FF). 높이 56px은 ActionAreaButton 기본(48px)과 달라 sx로 세로 padding만 보정한다.
 // 실제 변경 API가 없어서 누르면 Figma처럼 완료 토스트만 띄운다.
 //
-// Figma 입력 중 상태(3524:152465)가 "010-1234-5"처럼 하이픈이 끼워진 모습이라 입력하는 대로
-// 하이픈을 넣어준다. 유효 기준은 placeholder와 같은 010 + 8자리다.
-const PHONE_PATTERN = /^010-\d{4}-\d{4}$/;
-
-function formatPhone(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (digits.length <= 3) {
-    return digits;
-  }
-  if (digits.length <= 7) {
-    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  }
-  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-}
-
+// 하이픈 포맷과 유효성 판정은 온보딩 연락처 입력(#110)과 같은 로직이라 `lib/phone.ts`에 있다.
+//
 function PhoneChangeScreen() {
   const navigate = useNavigate();
   const [phone, setPhone] = useState("");
@@ -82,8 +74,8 @@ function PhoneChangeScreen() {
         <TextField
           id="phone"
           inputMode="tel"
-          maxLength={13}
-          onChange={(event) => setPhone(formatPhone(event.target.value))}
+          maxLength={PHONE_NUMBER_MAX_LENGTH}
+          onChange={(event) => setPhone(formatPhoneNumber(event.target.value))}
           placeholder="010-1234-5678"
           type="tel"
           value={phone}
@@ -102,7 +94,7 @@ function PhoneChangeScreen() {
         <ActionArea>
           {/* Figma Main Action은 56px인데 ActionAreaButton(size="large")은 48px이라 세로 padding만 보정 */}
           <ActionAreaButton
-            disabled={!PHONE_PATTERN.test(phone)}
+            disabled={!isValidPhoneNumber(phone)}
             onClick={handleSave}
             sx={{ paddingBlock: "16px" }}
           >

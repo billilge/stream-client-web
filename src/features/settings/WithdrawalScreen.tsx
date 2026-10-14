@@ -17,6 +17,7 @@ import {
   SETTINGS_PATHS,
   WITHDRAWAL_NOTICES,
 } from "@/features/settings/constants/settings";
+import type { WithdrawalCompleteState } from "@/features/settings/types";
 
 // Figma: 탈퇴 확인 페이지 (nodeId 3524:152473), 체크 상태 (3524:152489), 확인 모달 (3524:152517).
 // 안내 문구 4장은 같은 컴포넌트의 인스턴스라 WithdrawalNoticeCard + WITHDRAWAL_NOTICES로 분리했다.
@@ -123,13 +124,16 @@ function WithdrawalScreen() {
           "탈퇴하면 삭제된 회원 정보와\n이용 내역은 다시 복구할 수 없어요."
         }
         onCancel={() => setConfirmOpen(false)}
-        // 탈퇴를 확정하면 되돌아올 화면이 아니라 완료 화면으로 치환한다
-        onConfirm={() =>
+        // 탈퇴를 확정하면 되돌아올 화면이 아니라 완료 화면으로 치환한다.
+        // 모달을 먼저 닫는 건 로그아웃 확인 모달과 같은 순서다.
+        onConfirm={() => {
+          setConfirmOpen(false);
           navigate(SETTINGS_PATHS.withdrawalComplete, {
             replace: true,
+            state: { withdrawn: true } satisfies WithdrawalCompleteState,
             viewTransition: true,
-          })
-        }
+          });
+        }}
         open={confirmOpen}
         title="정말 탈퇴하시겠어요?"
         tone="negative"

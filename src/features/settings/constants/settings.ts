@@ -1,29 +1,22 @@
 // 설정 화면들의 경로 — 홈 헤더·설정 화면이 같이 쓰므로 문자열을 흩지 않고 한곳에 둔다
-// (알림의 `NOTIFICATIONS_PATH`와 같은 방식).
+// (알림의 `NOTIFICATIONS_PATH`와 같은 방식). 경로와 컴포넌트 이름의 형태를 맞춘다
+// (`/withdrawal` ↔ `Withdrawal*`).
+//
+// 백엔드 연동 시 확인할 것: `settings`는 용어 사전(terminology.md)에 없는 이름이다. 화면 묶음을
+// 가리키는 말이라 폴더·라우트에만 쓰고, 데이터는 사전에 있는 `users` 도메인으로 뒀다
+// (`entities/users/`). 백엔드가 설정 전용 엔드포인트를 따로 내면 그때 사전에 추가하고 여기를
+// 맞춘다 — 프론트에서 먼저 정하지 않는다(terminology.md 원칙).
 export const SETTINGS_PATHS = {
   phoneChange: "/settings/phone",
   root: "/settings",
-  withdrawal: "/settings/withdraw",
-  withdrawalComplete: "/settings/withdraw/complete",
+  withdrawal: "/settings/withdrawal",
+  withdrawalComplete: "/settings/withdrawal/complete",
 };
 
-// Figma: 설정 화면 계정 정보(nodeId 3524:152331)·앱 버전(3524:152356) 목데이터 — 실 API 연동
-// 전까지 사용. 전화번호 변경 화면은 아직 이 상수를 고치지 않아서, 번호를 바꿔도 설정 화면
-// 값은 그대로다(연동할 때 함께 처리한다).
-export const SETTINGS_ACCOUNT = {
-  email: "pog454@kookmin.ac.kr",
-  name: "이예담",
-  phone: "010-1234-5678",
-};
-
-// 로그아웃·회원 탈퇴로 계정을 떠난 뒤 나갈 곳. 둘 다 로그아웃된 상태라 로그인/온보딩으로 가야
-// 하는데 그 화면이 아직 없어서(#110에서 들어온다) 지금은 홈으로 보낸다. 인증이 붙으면 이 값을
-// "/auth"로 바꾸고, 로그인 표시를 지우는 처리를 두 호출부(SettingsScreen 로그아웃 확인 모달,
-// WithdrawalCompleteScreen)에 같이 붙이면 된다 — 지금은 지울 표시 자체가 없다.
+// 로그아웃·회원 탈퇴로 계정을 떠난 뒤 나갈 곳. 둘 다 로그아웃 상태라 로그인/온보딩으로 가야
+// 하는데 그 화면이 아직 없어서(#110에서 들어온다) 지금은 홈으로 보낸다.
+// 바꿀 때는 이 값과 함께 useAccountExit 안쪽만 보면 된다.
 export const ACCOUNT_EXIT_PATH = "/";
-
-// Figma 표기 그대로("26.0.1 · 최신버전") — 최신 여부 판정은 서버 응답을 그대로 보여주는 자리다.
-export const APP_VERSION_LABEL = "26.0.1 · 최신버전";
 
 // 의견 보내기·개인정보 처리방침은 화면을 따로 만들지 않고 구글폼으로 연결한다. 폼 주소가 아직
 // 없어서 빈 문자열로 두고, 값이 채워졌을 때만 새 탭으로 열도록 호출부에서 분기한다.

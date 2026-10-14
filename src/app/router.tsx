@@ -153,7 +153,7 @@ const routes = [
               background: "normal",
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
-            path: "/settings/withdraw",
+            path: "/settings/withdrawal",
           },
           {
             element: <WithdrawalCompleteScreen />,
@@ -162,7 +162,7 @@ const routes = [
               background: "normal",
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
-            path: "/settings/withdraw/complete",
+            path: "/settings/withdrawal/complete",
           },
           {
             element: <LockersApplyScreen />,

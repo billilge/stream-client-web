@@ -1,21 +1,23 @@
 import { TopNavigationButton, Typography } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import { NOTIFICATIONS_SETTINGS_PATH } from "@/features/notifications/constants/notifications";
+import SettingsAccountRows from "@/features/settings/components/SettingsAccountRows";
+import SettingsAccountRowsSkeleton from "@/features/settings/components/SettingsAccountRowsSkeleton";
+import SettingsAppVersionRow from "@/features/settings/components/SettingsAppVersionRow";
+import SettingsAppVersionRowSkeleton from "@/features/settings/components/SettingsAppVersionRowSkeleton";
 import SettingsRow from "@/features/settings/components/SettingsRow";
 import SettingsSection from "@/features/settings/components/SettingsSection";
 import {
-  ACCOUNT_EXIT_PATH,
-  APP_VERSION_LABEL,
-  SETTINGS_ACCOUNT,
   SETTINGS_EXTERNAL_LINKS,
   SETTINGS_PATHS,
 } from "@/features/settings/constants/settings";
+import { useAccountExit } from "@/features/settings/hooks/useAccountExit";
 
 // Figma: 설정 (nodeId 3524:152322) — 계정 정보 / 알림 설정 / 서비스 정보 / 로그아웃 네 장의 흰
 // 카드가 회색 배경 위에 8px 간격으로 쌓이고, 맨 아래에 Copyright가 깔린다.
@@ -29,6 +31,7 @@ import {
 // 섹션(3628:110837)에 같은 화면을 복제해 뒀을 뿐, 진입점만 둘이고 화면은 하나다.
 function SettingsScreen() {
   const navigate = useNavigate();
+  const exitAccount = useAccountExit();
   const [logoutOpen, setLogoutOpen] = useState(false);
 
   // 설정 아래로 화면을 쌓는 이동이라 슬라이드를 켠다(coding-style.md의 화면 전환 규칙).
@@ -61,22 +64,11 @@ function SettingsScreen() {
     <div className="scrollbar-hidden flex h-full flex-col overflow-y-auto px-5 pb-5">
       <div className="flex flex-col gap-2">
         <SettingsSection title="계정 정보">
-          <SettingsRow
-            label="이름"
-            value={SETTINGS_ACCOUNT.name}
-            variant="account"
-          />
-          <SettingsRow
-            label="이메일"
-            value={SETTINGS_ACCOUNT.email}
-            variant="account"
-          />
-          <SettingsRow
-            label="전화번호"
-            onClick={() => pushScreen(SETTINGS_PATHS.phoneChange)}
-            value={SETTINGS_ACCOUNT.phone}
-            variant="account"
-          />
+          <Suspense fallback={<SettingsAccountRowsSkeleton />}>
+            <SettingsAccountRows
+              onChangePhone={() => pushScreen(SETTINGS_PATHS.phoneChange)}
+            />
+          </Suspense>
         </SettingsSection>
 
         <SettingsSection>
@@ -99,7 +91,9 @@ function SettingsScreen() {
               openExternalLink(SETTINGS_EXTERNAL_LINKS.privacyPolicy)
             }
           />
-          <SettingsRow label="앱 버전" value={APP_VERSION_LABEL} />
+          <Suspense fallback={<SettingsAppVersionRowSkeleton />}>
+            <SettingsAppVersionRow />
+          </Suspense>
         </SettingsSection>
 
         <SettingsSection rowGap="compact">
@@ -136,7 +130,7 @@ function SettingsScreen() {
         // 실제 세션 정리는 인증이 붙을 때 여기에 함께 붙인다(ACCOUNT_EXIT_PATH 주석 참고).
         onConfirm={() => {
           setLogoutOpen(false);
-          navigate(ACCOUNT_EXIT_PATH, { replace: true });
+          exitAccount();
         }}
         open={logoutOpen}
         title="정말 로그아웃할까요?"

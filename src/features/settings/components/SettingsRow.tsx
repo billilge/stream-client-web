@@ -2,20 +2,28 @@ import { Typography } from "@wanteddev/wds";
 
 import arrowRight from "@/assets/icons/settings/arrow-right.svg";
 
-interface SettingsRowProps {
+interface SettingsRowBaseProps {
   label: string;
   /** 오른쪽에 붙는 값 — 계정 정보(이름·이메일·전화번호)와 앱 버전에만 있다 */
   value?: string;
   /** 넘기면 행 전체가 버튼이 되고 오른쪽에 화살표가 붙는다 */
   onClick?: () => void;
-  /**
-   * account: 계정 정보 행 — 라벨 Regular, 값 Medium·Label/Neutral
-   * menu: 그 외 메뉴·액션 행 — 라벨 Medium, 값 Regular·Label/Alternative(앱 버전)
-   */
-  variant?: "account" | "menu";
+}
+
+/** 계정 정보 행 — 라벨 Regular, 값 Medium·Label/Neutral. 색은 고정이라 tone을 받지 않는다. */
+interface SettingsAccountRowProps extends SettingsRowBaseProps {
+  variant: "account";
+}
+
+/** 그 외 메뉴·액션 행 — 라벨 Medium, 값 Regular·Label/Alternative(앱 버전) */
+interface SettingsMenuRowProps extends SettingsRowBaseProps {
+  variant?: "menu";
   /** menu 행 라벨 색 — 로그아웃은 alternative, 회원 탈퇴는 negative */
   tone?: "normal" | "alternative" | "negative";
 }
+
+// variant별로 나눠 둬서 `variant="account"`에 tone을 같이 넘기는 잘못된 조합이 타입에서 걸린다.
+type SettingsRowProps = SettingsAccountRowProps | SettingsMenuRowProps;
 
 const TONE_COLOR = {
   alternative: "semantic.label.alternative",
@@ -35,14 +43,10 @@ const TONE_COLOR = {
 //
 // 라벨·값은 Typography 기본 태그(span)로 둔다 — onClick이 있으면 행 전체가 <button>이 되는데
 // <button>은 phrasing content만 담을 수 있어서 as="p"를 쓰면 무효 마크업이 된다.
-function SettingsRow({
-  label,
-  value,
-  onClick,
-  variant = "menu",
-  tone = "normal",
-}: SettingsRowProps) {
-  const isAccount = variant === "account";
+function SettingsRow(props: SettingsRowProps) {
+  const { label, value, onClick } = props;
+  const isAccount = props.variant === "account";
+  const tone = isAccount ? "normal" : (props.tone ?? "normal");
   const showArrow = Boolean(onClick);
 
   const content = (
