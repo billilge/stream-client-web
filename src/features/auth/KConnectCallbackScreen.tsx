@@ -41,7 +41,9 @@ function KConnectCallbackScreen() {
       return;
     }
 
-    exchangeKConnectCode(result)
+    // result에는 `type`도 들어 있어서, 서버가 쓰는 세 값만 꺼내 넘긴다
+    const { code, codeVerifier, redirectUri } = result;
+    exchangeKConnectCode({ code, codeVerifier, redirectUri })
       .then((user) => {
         if (user.isNewUser) {
           navigate(AUTH_PATH, {
