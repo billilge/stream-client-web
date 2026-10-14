@@ -18,6 +18,7 @@ import {
   SETTINGS_PATHS,
 } from "@/features/settings/constants/settings";
 import { useAccountExit } from "@/features/settings/hooks/useAccountExit";
+import { openExternalLink } from "@/lib/openExternalLink";
 
 // Figma: 설정 (nodeId 3524:152322) — 계정 정보 / 알림 설정 / 서비스 정보 / 로그아웃 네 장의 흰
 // 카드가 회색 배경 위에 8px 간격으로 쌓이고, 맨 아래에 Copyright가 깔린다.
@@ -54,11 +55,6 @@ function SettingsScreen() {
       variant="normal"
     />,
   );
-
-  // 주소가 비어 있으면 행이 비활성이라 여기까지 오지 않는다 — 열 수 있을 때만 새 탭으로 띄운다.
-  const openExternalLink = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
 
   return (
     <div className="scrollbar-hidden flex h-full flex-col overflow-y-auto px-5 pb-5">
