@@ -43,6 +43,7 @@
 - `ScreenLayout`은 **라우터를 모르는 prop 기반 컴포넌트**로 유지한다. 라우트 정보(`useMatches`)는 `ScreenLayoutRoute`만 읽는다.
 - 헤더는 `useScreenHeader`로 `ScreenLayout`의 헤더 자리에 등록한다. 예외는 홈 하나다 — Figma 홈은 헤더 배경이 없어 배너 그림자가 헤더까지 번지는데, 헤더 자리에 두면 경계에서 그림자가 잘려 선이 생긴다. 그래서 홈만 스크롤 영역 안에 `sticky` 헤더를 직접 그린다(`wds-component-usage.md` 홈 섹션 참고).
 - 화면 스택을 쌓는 이동(목록→상세, 상세→신청 등)은 `navigate(to, { viewTransition: true })`·`<Link viewTransition>`으로 슬라이드 전환을 켠다. 뒤로가기는 react-router가 그 이동을 기억해 반대 방향으로 자동 적용하므로 `navigate(-1)`은 그대로 둔다. 브라우저 앞으로가기도 POP이라, `ScreenLayoutRoute`는 히스토리 위치(`history.state.idx`)가 줄어든 POP만 뒤로 방향으로 본다. Bottom Nav·상단 탭처럼 형제 화면을 오가는 이동과 홈으로 돌아가는 이동은 켜지 않는다(즉시 전환). 애니메이션은 `index.css`, 방향은 `ScreenLayoutRoute`가 정한다.
+- **헤더 뒤로가기는 `useBackNavigation(fallbackPath)`를 쓴다**(`src/hooks/`). 화면으로 바로 들어오면(딥링크·앱 WebView 진입·주소 직접 입력) 뒤에 갈 화면이 없어 `navigate(-1)`이 아무 일도 하지 않는다 — 훅이 그때 `fallbackPath`(그 화면의 한 단계 위)로 `replace`해서 보낸다. `fallbackPath` 없이 `navigate(-1)`만 쓰면 그 화면은 딥링크로 열렸을 때 뒤로가기가 먹통이 된다. 히스토리 위치(`history.state.idx`)는 react-router 내부 형태라 `lib/historyIndex.ts`에서만 읽는다.
 - 라우트가 없는 경로는 레이아웃 안의 `path: "*"` 라우트(`ComingSoonScreen`)가 받는다. 하단 탭이 유지돼서 다른 화면으로 돌아갈 수 있다. 구체적인 경로가 `*`보다 항상 우선하므로 배열 순서는 신경 쓰지 않아도 된다.
 
 ## 데이터 로딩

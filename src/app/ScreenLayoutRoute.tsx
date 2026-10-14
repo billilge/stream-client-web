@@ -1,9 +1,9 @@
 import { useLayoutEffect, useRef } from "react";
 import { useLocation, useMatches, useNavigationType } from "react-router-dom";
-
 import ScreenLayout, {
   type ScreenBackground,
 } from "@/components/ui/ScreenLayout";
+import { getHistoryIndex } from "@/lib/historyIndex";
 
 // 화면별 레이아웃 옵션 — router.tsx의 각 라우트에 `handle: { ... } satisfies ScreenRouteHandle`로 지정한다.
 // 모든 필드는 선택이고, 지정하지 않은 필드는 바깥 라우트의 값이나 기본값을 따른다.
@@ -31,20 +31,6 @@ function resolveScreenRouteOption<K extends keyof ScreenRouteHandle>(
     }
   }
   return undefined;
-}
-
-// createBrowserRouter는 history.state.idx에 히스토리 스택 위치를 적어 둔다(push마다 1씩 증가).
-function getHistoryIndex(): number | null {
-  const state: unknown = window.history.state;
-  if (
-    typeof state === "object" &&
-    state !== null &&
-    "idx" in state &&
-    typeof state.idx === "number"
-  ) {
-    return state.idx;
-  }
-  return null;
 }
 
 // ScreenLayout은 라우터를 모르는 prop 기반 레이아웃으로 두고, 이 컴포넌트가 현재 라우트의 handle을
