@@ -2,7 +2,10 @@ import { useKConnectLogin } from "@billilge/oauth-kconnect/react";
 import { useState } from "react";
 
 import ScreenToast from "@/components/ui/ScreenToast";
-import { isMockKConnectKind, mockKConnectLogin } from "@/entities/auth/authApi";
+import {
+  isMockKConnectKind,
+  mockKConnectLogin,
+} from "@/entities/auth/authMock";
 import type { KConnectUser } from "@/entities/auth/types";
 import AuthBrandHeader from "@/features/auth/components/AuthBrandHeader";
 import AuthKConnectButton from "@/features/auth/components/AuthKConnectButton";
