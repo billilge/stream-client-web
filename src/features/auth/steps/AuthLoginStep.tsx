@@ -1,5 +1,5 @@
 import { useKConnectLogin } from "@billilge/oauth-kconnect/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import ScreenToast from "@/components/ui/ScreenToast";
 import {
@@ -32,6 +32,18 @@ function AuthLoginStep({
   const [toastOpen, setToastOpen] = useState(hasFailedLogin);
   // 실패가 연달아 나도 스크린리더가 토스트를 다시 안내하도록 실패마다 ScreenToast를 새로 마운트한다
   const [toastToken, setToastToken] = useState(0);
+
+  // K-CONNECT에서 브라우저 뒤로가기로 돌아오면 브라우저가 이 화면을 `isLoggingIn=true`인 채로 되살릴 수 있다(bfcache) —
+  // 그대로 두면 버튼이 눌린 상태로 굳어서 다시 시작할 수 없다.
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setIsLoggingIn(false);
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
 
   const showFailure = () => {
     setToastOpen(true);
