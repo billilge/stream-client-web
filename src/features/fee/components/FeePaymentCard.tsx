@@ -67,7 +67,7 @@ function FeePaymentCard({ payment, onContact }: FeePaymentCardProps) {
         ))}
       </div>
 
-      {payment.status === "needs-check" && payment.reviewNote && (
+      {payment.status === "needs-check" && (
         <div className="flex flex-col gap-3 rounded-xl bg-background-normal p-4">
           <div className="flex flex-col gap-2">
             <Typography

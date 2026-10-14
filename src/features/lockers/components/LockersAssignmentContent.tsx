@@ -4,7 +4,11 @@ import { use } from "react";
 
 import emptyEventsIllustration from "@/assets/icons/events/empty-events.svg";
 import { fetchMyLockerAssignment } from "@/entities/lockers/lockersApi";
+import { LOCKER_STATUS_BADGES } from "@/features/lockers/constants/lockers";
 import { formatDate, formatDateTime } from "@/lib/date";
+
+// 이 화면에 오는 배정은 항상 배정완료다(기간종료·미신청은 홈 배지에서만 쓴다)
+const ASSIGNED_BADGE = LOCKER_STATUS_BADGES.assigned;
 
 interface LockersAssignmentContentProps {
   onViewLocation: () => void;
@@ -54,12 +58,12 @@ function LockersAssignmentContent({
     <div className="flex flex-col gap-3 px-5 pb-4">
       <div className="flex flex-col items-start gap-2 rounded-xl bg-background-normal p-4">
         <ContentBadge
-          accentColor="semantic.accent.foreground.green"
+          accentColor={`semantic.accent.foreground.${ASSIGNED_BADGE.color}`}
           color="accent"
           size="small"
           variant="solid"
         >
-          배정완료
+          {ASSIGNED_BADGE.label}
         </ContentBadge>
         <Typography
           as="p"
