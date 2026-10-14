@@ -4,24 +4,10 @@ import { use } from "react";
 
 import emptyEventsIllustration from "@/assets/icons/events/empty-events.svg";
 import { fetchMyLockerAssignment } from "@/entities/lockers/lockersApi";
+import { formatDate, formatDateTime } from "@/lib/date";
 
 interface LockersAssignmentContentProps {
   onViewLocation: () => void;
-}
-
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
-
-// "2026-09-05" → "2026.09.05(토)". 시간대에 따라 날짜가 밀리지 않게 문자열을 직접 나눠 읽는다.
-function formatDate(date: string) {
-  const [year, month, day] = date.split("-").map(Number);
-  const weekday = WEEKDAYS[new Date(year, month - 1, day).getDay()];
-  return `${date.replaceAll("-", ".")}(${weekday})`;
-}
-
-// "2026-09-05T13:59" → "2026.09.05(토) 13:59"
-function formatDateTime(value: string) {
-  const [date, time] = value.split("T");
-  return `${formatDate(date)} ${time}`;
 }
 
 // Figma: 사물함 배정 상태 배정완료 (nodeId 3147:148357), 빈 상태 (3147:148331)
@@ -54,10 +40,13 @@ function LockersAssignmentContent({
   }
 
   const rows = [
-    { label: "신청일시", value: formatDateTime(assignment.appliedAt) },
+    {
+      label: "신청일시",
+      value: formatDateTime(assignment.appliedAt, { weekday: true }),
+    },
     {
       label: "사용기한",
-      value: `${formatDate(assignment.usageStartDate)} - ${formatDate(assignment.usageEndDate)}`,
+      value: `${formatDate(assignment.usageStartDate, { weekday: true })} - ${formatDate(assignment.usageEndDate, { weekday: true })}`,
     },
   ];
 

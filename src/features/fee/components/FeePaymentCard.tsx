@@ -2,15 +2,11 @@ import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 
 import type { FeePayment } from "@/entities/fee/types";
 import { FEE_STATUS_BADGES } from "@/features/fee/constants/fee";
+import { formatDateTime } from "@/lib/date";
 
 interface FeePaymentCardProps {
   payment: FeePayment;
   onContact: () => void;
-}
-
-// "2026-09-04T11:49" → "2026.09.04 11:49"
-function formatDateTime(value: string | null) {
-  return value ? value.replace("T", " ").replaceAll("-", ".") : "-";
 }
 
 function formatAmount(value: number | null) {
@@ -24,7 +20,10 @@ function FeePaymentCard({ payment, onContact }: FeePaymentCardProps) {
   const rows = [
     { label: "납부금액", value: formatAmount(payment.amount) },
     { label: "납부일시", value: formatDateTime(payment.paidAt) },
-    { label: "확인일시", value: formatDateTime(payment.confirmedAt) },
+    {
+      label: "확인일시",
+      value: payment.confirmedAt ? formatDateTime(payment.confirmedAt) : "-",
+    },
   ];
 
   return (

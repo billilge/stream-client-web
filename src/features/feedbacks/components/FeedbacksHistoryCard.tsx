@@ -2,6 +2,7 @@ import { ContentBadge, Typography } from "@wanteddev/wds";
 
 import arrowRight from "@/assets/icons/home/arrow-right.svg";
 import type { MyFeedback } from "@/entities/feedbacks/types";
+import { formatDate } from "@/lib/date";
 
 interface FeedbacksHistoryCardProps {
   feedback: MyFeedback;
@@ -53,7 +54,7 @@ function FeedbacksHistoryCard({
           variant="caption1"
           weight="regular"
         >
-          {feedback.createdAt.replaceAll("-", ".")}
+          {formatDate(feedback.createdAt)}
         </Typography>
       </div>
     </button>
