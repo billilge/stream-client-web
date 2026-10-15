@@ -626,16 +626,16 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 
 | Figma | 코드 | 확인 내용 |
 |---|---|---|
-| `Content Badge` (답변완료·답변대기, 납부확인중·확인필요·납부완료, 배정완료) | `ContentBadge size="small" variant="solid" color="accent"` | 홈 내 정보 목록과 같은 상태 이름·색이다. 초록 green, 주황 orange, 빨강 red |
+| `Content Badge` (답변완료·답변대기, 납부확인중·확인필요·납부완료, 배정완료) | `ContentBadge size="small" variant="solid" color="accent"` | 홈 내 정보 목록과 같은 상태 이름·색이다. 초록 green, 주황 orange, 빨강 red. 상태→배지 매핑은 `FEE_STATUS_BADGES`(`features/fee/constants`)·`LOCKER_STATUS_BADGES`(`features/lockers/constants`) 한 곳에 두고 홈과 같이 쓴다 |
 | 작성내역 상세 `해당 회차 답변 모아보기` | `Button color="primary" size="medium" variant="outlined"` | |
 | 학생회비 `문의하기`, 사물함 `사물함 위치 보기` | `Button color="assistive" size="medium" variant="outlined" fullWidth` | 위치 보기의 꺾쇠는 `trailingContent={<IconChevronRight />}` |
 | 빈 상태 버튼 `열린피드백 작성하기` / `열린피드백 보러 가기` | `Button color="assistive" size="small" variant="solid"` | 행사 목록 빈 상태(outlined)와 variant가 다르다 |
-| 뒤로가기 헤더 | `ScreenHeader variant="normal"` + `TopNavigationButton` | 바로 들어와 뒤로 갈 기록이 없으면 홈(상세는 목록, 위치 보기는 배정 상태)으로 보낸다 |
+| 뒤로가기 헤더 | `ScreenHeader variant="normal"` + `TopNavigationButton` | `useBackNavigation(fallbackPath)`(`hooks/`) — 바로 들어와 뒤로 갈 기록이 없으면 홈(상세는 목록, 위치 보기는 배정 상태)으로 보낸다. 대비 경로는 각 기능 `constants`의 경로 상수(`FEE_PAYMENTS_PATH`·`MY_FEEDBACKS_PATH`·`LOCKER_ASSIGNMENT_PATH` 등)를 쓰고, 데이터가 없을 때의 `<Navigate>`도 화면이 넘긴 `fallbackPath`로 간다 |
 
-- **카드·빈 상태는 Stream 로컬**: 작성내역 카드(`FeedbacksHistoryCard`), 납부 카드(`FeePaymentCard`), 배정 카드는 흰 바탕 `rounded-xl p-4` 로컬 카드다. 빈 상태는 행사 목록 Empty State와 같은 이유(`FallbackView`의 일러스트 크기·패딩 고정)로 로컬이다. 열린피드백은 `FeedbacksEmptyState`(그림 `icons/feedbacks/empty-feedback.svg`)를 쓰고, 사물함은 행사 목록과 같은 도형이라 `icons/common/empty-events.svg`를 그대로 쓴다.
+- **카드·빈 상태는 Stream 로컬**: 작성내역 카드(`FeedbacksHistoryCard`), 납부 카드(`FeePaymentCard`), 배정 카드는 흰 바탕 `rounded-xl p-4` 로컬 카드다. 빈 상태는 행사 목록 Empty State와 같은 이유(`FallbackView`의 일러스트 크기·패딩 고정)로 로컬이다. 열린피드백은 `FeedbacksEmptyState`(그림 `icons/feedbacks/empty-feedback.svg`)를 쓰고, 사물함은 `LockersEmptyState`(그림은 행사 목록과 같은 `icons/common/empty-events.svg`)를 쓴다.
 - **답변 강조 표시는 두 상세 화면이 공유한다**: 답변 글의 `**굵게**`를 볼드 `Typography`로 바꾸는 `FeedbacksAnswerText`를 모아보기 상세와 작성내역 상세가 같이 쓴다.
-- **사물함 위치 보기(`/my/locker/location`)는 Figma에 없다**: 칸 선택 화면 배치를 보기 전용으로 쓴다. 칸 영역(미니맵·범례·확대 스크롤)은 `LockersMapView`로 두 화면이 공유한다. 보기 전용에서는 칸을 버튼으로 그리지 않고, 내 칸만 선택된 칸 모양(Primary/Normal 배경 + 흰 번호)으로 표시한다. 범례도 "내 사물함" 하나로 바꾸고, 처음 열 때 내 칸이 화면 밖이면 보일 만큼만 스크롤한다. 신청 화면의 내 칸(초록 테두리, 선택 불가)은 그대로다.
-- **Figma와 다르게 둔 값**: 요일은 날짜로 계산해서 Figma의 요일 표기와 다를 수 있다. 사물함 번호는 칸 배치 목데이터가 있는 A-1 구역에 맞춰 A-7로 두었다(Figma는 B-25). 사물함 빈 상태 문구의 연도는 올해다.
+- **사물함 위치 보기(`/my/locker/location`)는 Figma에 없다**: 칸 선택 화면 배치를 보기 전용으로 쓴다. 칸 영역(미니맵·확대 스크롤)은 `LockersMapView`로 두 화면이 공유하고, 범례는 화면이 `legend`로 넘긴다(신청 `<LockersLegend />`, 위치 보기 `<LockersLegend variant="mine" />` — "내 사물함" 하나). 내 칸은 배정 정보(`lockerLabel`) 하나에서 정해서 `selectedLockerNumber`로 넘기고, 선택된 칸 모양(Primary/Normal 배경 + 흰 번호)으로 그린다. 보기 전용 여부는 `onSelect`가 없는지로만 판단하고, 이때 칸을 버튼으로 그리지 않는다. 처음 열 때 선택된 칸(`data-selected`)이 화면 밖이면 보일 만큼만 스크롤한다. 신청 화면의 내 칸(구역 목데이터 `isMine`, 초록 테두리, 선택 불가)은 보기 전용에서는 그리지 않는다.
+- **Figma와 다르게 둔 값**: 요일은 날짜로 계산해서 Figma의 요일 표기와 다를 수 있다. 사물함 번호는 칸 배치 목데이터가 있는 A-1 구역에 맞춰 A-7로 두었다(Figma는 B-25). 사물함 빈 상태 문구의 연도는 기기 시계의 올해다(API 연동 때 서버 값으로 — 코드에 TODO). 날짜는 `lib/date`의 `formatDate`·`formatDateTime`으로 맞추고, 작성내역 상세만 Figma(`3147:147756`)대로 `2026-04-25` 하이픈 표기다.
 
 ## 알림(`3595:107100` 목록 / `3595:107112` empty / `3628:110837` 설정) 구현 중 확정된 매핑
 
