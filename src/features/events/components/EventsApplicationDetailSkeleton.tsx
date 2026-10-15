@@ -1,6 +1,7 @@
 import { Skeleton } from "@wanteddev/wds";
 
 import { useSkeletonAnimation } from "@/components/ui/ScreenSkeleton";
+import { StatusSummaryCardSkeleton } from "@/components/ui/StatusSummaryCard";
 
 const QUESTION_SKELETON_KEYS = ["question-1", "question-2", "question-3"];
 
@@ -10,33 +11,7 @@ function EventsApplicationDetailSkeleton() {
 
   return (
     <div className="flex flex-col gap-3 px-5">
-      <div className="flex flex-col gap-2 rounded-xl bg-background-normal p-4">
-        <Skeleton
-          animation={animation}
-          height="24px"
-          radius="6px"
-          variant="rectangle"
-          width="56px"
-        />
-        <Skeleton
-          animation={animation}
-          height="28px"
-          variant="text"
-          width="60%"
-        />
-        <Skeleton
-          animation={animation}
-          height="18px"
-          variant="text"
-          width="75%"
-        />
-        <Skeleton
-          animation={animation}
-          height="18px"
-          variant="text"
-          width="45%"
-        />
-      </div>
+      <StatusSummaryCardSkeleton badgeWidth="56px" rowWidths={["75%", "45%"]} />
       {QUESTION_SKELETON_KEYS.map((key) => (
         <div
           className="flex flex-col gap-3 rounded-xl bg-background-normal p-4"

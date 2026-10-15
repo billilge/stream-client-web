@@ -1,5 +1,7 @@
-import { ContentBadge, Typography } from "@wanteddev/wds";
+import { ContentBadge, Skeleton, Typography } from "@wanteddev/wds";
 import type { ReactNode } from "react";
+
+import { useSkeletonAnimation } from "@/components/ui/ScreenSkeleton";
 
 export interface StatusSummaryCardRow {
   label: string;
@@ -56,6 +58,53 @@ function StatusSummaryCard({ badge, title, rows }: StatusSummaryCardProps) {
               {row.value}
             </Typography>
           </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface StatusSummaryCardSkeletonProps {
+  /** 행마다 막대 폭 — 행 수만큼 넘긴다 */
+  rowWidths: string[];
+  badgeWidth?: string;
+  titleWidth?: string;
+}
+
+// 데이터를 받는 동안 StatusSummaryCard 자리를 채운다 — 배지·제목·행 높이와 간격을 카드와 같게 둬서,
+// 데이터가 들어와도 아래 내용이 밀리지 않는다.
+export function StatusSummaryCardSkeleton({
+  rowWidths,
+  badgeWidth = "64px",
+  titleWidth = "60%",
+}: StatusSummaryCardSkeletonProps) {
+  const animation = useSkeletonAnimation();
+
+  return (
+    <div className="flex flex-col gap-2 rounded-xl bg-background-normal p-4">
+      <Skeleton
+        animation={animation}
+        height="24px"
+        radius="6px"
+        variant="rectangle"
+        width={badgeWidth}
+      />
+      <Skeleton
+        animation={animation}
+        height="28px"
+        variant="text"
+        width={titleWidth}
+      />
+      <div className="flex flex-col gap-1.5">
+        {rowWidths.map((width, index) => (
+          <Skeleton
+            animation={animation}
+            height="18px"
+            // biome-ignore lint/suspicious/noArrayIndexKey: 행 수가 고정된 자리 표시라 순서가 바뀌지 않는다
+            key={index}
+            variant="text"
+            width={width}
+          />
         ))}
       </div>
     </div>
