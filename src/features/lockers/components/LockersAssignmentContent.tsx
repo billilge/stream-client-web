@@ -1,7 +1,8 @@
-import { Button, ContentBadge, Typography } from "@wanteddev/wds";
+import { Button, Typography } from "@wanteddev/wds";
 import { IconChevronRight } from "@wanteddev/wds-icon";
 import { use } from "react";
 
+import StatusSummaryCard from "@/components/ui/StatusSummaryCard";
 import { fetchMyLockerAssignment } from "@/entities/lockers/lockersApi";
 import LockersEmptyState from "@/features/lockers/components/LockersEmptyState";
 import { LOCKER_STATUS_BADGES } from "@/features/lockers/constants/lockers";
@@ -15,7 +16,7 @@ interface LockersAssignmentContentProps {
 }
 
 // Figma: 사물함 배정 상태 배정완료 (nodeId 3147:148357), 빈 상태 (3147:148331)
-// 배정 요약 카드와 배정된 사물함 카드 둘 다 Stream 로컬 카드다(학생회비 납부내역 카드와 같은 틀).
+// 배정 요약은 공용 StatusSummaryCard, 배정된 사물함 카드는 사물함 로컬 카드다.
 function LockersAssignmentContent({
   onViewLocation,
 }: LockersAssignmentContentProps) {
@@ -44,46 +45,11 @@ function LockersAssignmentContent({
 
   return (
     <div className="flex flex-col gap-3 px-5 pb-4">
-      <div className="flex flex-col items-start gap-2 rounded-xl bg-background-normal p-4">
-        <ContentBadge
-          accentColor={`semantic.accent.foreground.${ASSIGNED_BADGE.color}`}
-          color="accent"
-          size="small"
-          variant="solid"
-        >
-          {ASSIGNED_BADGE.label}
-        </ContentBadge>
-        <Typography
-          as="p"
-          color="semantic.label.normal"
-          variant="heading2"
-          weight="bold"
-        >
-          {assignment.semester} 사물함
-        </Typography>
-        <div className="flex flex-col gap-1.5">
-          {rows.map((row) => (
-            <div className="flex gap-2" key={row.label}>
-              <Typography
-                as="p"
-                color="semantic.label.alternative"
-                variant="label2"
-                weight="regular"
-              >
-                {row.label}
-              </Typography>
-              <Typography
-                as="p"
-                color="semantic.label.neutral"
-                variant="label2"
-                weight="regular"
-              >
-                {row.value}
-              </Typography>
-            </div>
-          ))}
-        </div>
-      </div>
+      <StatusSummaryCard
+        badge={ASSIGNED_BADGE}
+        rows={rows}
+        title={`${assignment.semester} 사물함`}
+      />
 
       <div className="flex flex-col gap-3 rounded-xl bg-background-normal p-4">
         <div className="flex flex-col gap-1">
