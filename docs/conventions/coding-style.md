@@ -49,6 +49,9 @@
 
 - 서버 데이터를 받는 API 함수와 타입은 `entities/<도메인>/`에 둔다(`<도메인>Api.ts`·`types.ts`). 화면은 데이터 컴포넌트에서 `use(fetchEvents())`처럼 API 함수의 Promise를 React `use()`로 읽는다. 서버 상태 라이브러리(TanStack Query)는 실 API를 연동할 때 도입하고, 그때 `use(...)`를 `useSuspenseQuery`로 바꾼다.
 - 실 API 전까지 API 함수는 `<도메인>Mock.ts`의 목데이터를 `mockupApi(key, () => data)`(`lib/mockupApi.ts`)로 돌려준다. 개발 서버에서는 스켈레톤을 확인할 수 있게 500ms 늦게 응답하고, 배포 빌드에서는 바로 응답한다. 같은 key의 Promise는 재사용되므로(렌더마다 새로 만들면 `use()`가 계속 서스펜드된다) key는 요청마다 겹치지 않게 `"events"`, `` `events/${id}` ``처럼 정한다. API가 붙으면 API 함수 안쪽만 바꾼다.
+- 같은 도메인의 조회 key는 API 파일 안 key 함수 하나(`eventsKeys.application(id)` 등)로 만든다. 조회와 무효화가 문자열을 각자 이어 붙이면, 한쪽만 바뀌었을 때 무효화가 조용히 빗나간다.
+- 데이터를 바꾸는 요청(신청 취소 등)은 `mockupMutation(() => ...)`으로 목데이터를 바꾸고, 응답 뒤 바뀐 조회 key를 `invalidateMockupApi([...])`로 지운다(API 함수 안에서 — 화면은 무효화를 모른다). 실 API에서는 TanStack Query의 `useMutation` + `invalidateQueries`가 이 자리를 맡는다.
+- 무효화된 데이터를 다시 그리는 상태 업데이트는 `startTransition`으로 감싼다. 캐시가 지워진 조회는 새로 서스펜드되는데, transition 안이면 스켈레톤 대신 지금 화면을 유지한 채 새 데이터로 바뀐다(예: `useEventsApplicationCancel`).
 - 화면(`<화면>Screen.tsx`)은 헤더 등록, UI 상태, 이동 같은 동작을 맡고, 데이터를 받는 영역만 `<Suspense fallback={<전용 스켈레톤 />}>`으로 감싼다. `use()`로 데이터를 읽고 그리는 부분은 `features/<기능>/components/`의 컴포넌트(`EventsList`, `EventsDetailContent` 등)로 분리하고, 이동 같은 동작은 콜백 prop으로 받는다.
 - 데이터와 무관한 헤더·탭·필터는 Suspense 밖에서 바로 그리고, 스켈레톤은 데이터 영역의 배치만 따라 그린다. 전용 스켈레톤은 `features/<기능>/components/<화면>Skeleton.tsx`에 두고 WDS `Skeleton`으로 그린다. 헤더가 데이터에 따라 달라지는 화면(공지 상세)은 헤더도 데이터 컴포넌트가 등록하고, 스켈레톤이 `useScreenHeaderSkeleton`으로 헤더 자리를 채운다.
 
