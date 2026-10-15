@@ -25,10 +25,9 @@ function EventsApplicationList({
       // Figma는 가운데가 아니라 토글 아래 176px에 둔다(1165:63551, Empty State y=318)
       <div className="flex justify-center pt-44">
         <EventsEmptyState
-          actionLabel="행사 둘러보기"
+          action={{ label: "행사 둘러보기", onClick: onBrowseEvents }}
           description="관심 있는 행사를 신청해 보세요"
           descriptionWeight="regular"
-          onAction={onBrowseEvents}
           title="아직 신청한 행사가 없어요"
         />
       </div>

@@ -19,6 +19,7 @@ import {
   BILILGE_TAB_PATHS,
   type BililgeTab,
 } from "@/features/bililge/constants/bililge";
+import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
 // Figma: 빌릴게 (nodeId 1243:73331)
@@ -46,7 +47,13 @@ function BililgeListScreen() {
           >
             <IconSearch />
           </TopNavigationButton>
-          <TopNavigationButton aria-label="알림" variant="icon">
+          <TopNavigationButton
+            aria-label="알림"
+            onClick={() =>
+              navigate(NOTIFICATIONS_PATH, { viewTransition: true })
+            }
+            variant="icon"
+          >
             <IconBell />
           </TopNavigationButton>
         </>

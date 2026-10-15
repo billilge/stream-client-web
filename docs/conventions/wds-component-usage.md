@@ -63,8 +63,20 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 | `Icon/Normal/Home` | Bottom Nav "홈" 탭(Normal 상태) | `980:35475` |
 | `Icon/Normal/Ticket` | Bottom Nav "행사" 탭(Normal 상태) | `980:35529` |
 | `Icon/Normal/List` | Bottom Nav "게시판" 탭(Normal 상태) | `980:35703` |
+| `Top Navigation/Resource/Leading/Normal/Default` | 아카이빙 목록 화면(`1276:95397`) Top Navigation 뒤로가기 | `440:7986` |
+| `Button/Icon/Normal` | 아카이빙 목록 화면 Top Navigation 트레일링 검색 버튼 | `440:7585` — [문서](https://montage.wanted.co.kr/docs/components/actions/icon-button/design) |
+| `Icon/Normal/Chevron Left` | 아카이빙 목록 화면 Top Navigation 뒤로가기 아이콘 | `440:7931` |
+| `Icon/Normal/Chevron Down` | 아카이빙 목록 화면 연도 필터 "~2023" 칩 트레일링 아이콘 | `487:18965` |
+| `Menu/Menu` | 아카이빙 목록 - 이전 연도 드롭다운(`1529:172165`) 연도 목록 | `820:40656` — [문서](https://montage.wanted.co.kr/docs/components/presentation/menu/design) |
+| `List Cell/List Cell` | 위 `Menu/Menu` 안의 각 연도 항목 | `445:5923` — [문서](https://montage.wanted.co.kr/docs/components/contents/list-cell/design) |
+| `Top Navigation/Resource/Contents` (타이틀 없는 투명 헤더) | 아카이빙 상세(`1526:171215`) 대표 사진 위 뒤로가기·공유 버튼 | `ScreenHeader variant="floating"` → `TopNavigation variant="floating" background={false}` |
+| `Icon/Normal/Share` | 아카이빙 상세 Top Navigation 트레일링 공유 버튼 | `1490:167136` |
+| `Page Indicator/Counter` (Size=Small, Alternative=True) | 현장 사진 뷰어(`1526:171364`) 하단 "4 / 23" 카운터 | `471:13818` — [문서](https://montage.wanted.co.kr/docs/components/navigations/page-counter/design), 코드 `PageCounter size="small" alternative` |
+| `Icon/Normal/Close` | 현장 사진 뷰어 Top Navigation 트레일링 닫기 버튼 | `445:12096`, 코드 `IconClose` |
 
-코드에서는 `@wanteddev/wds-icon`의 `IconSearch`/`IconBell`/`IconHome`/`IconTicket`/`IconList`로 대응된다(각각 default export를 `index.d.ts`에서 named export로 재노출). `Segmented Control`은 `@wanteddev/wds`의 `SegmentedControl`/`SegmentedControlItem`으로 대응된다.
+코드에서는 `@wanteddev/wds-icon`의 `IconSearch`/`IconBell`/`IconHome`/`IconTicket`/`IconList`/`IconChevronLeft`/`IconChevronDown`으로 대응된다(각각 default export를 `index.d.ts`에서 named export로 재노출). `Segmented Control`은 `@wanteddev/wds`의 `SegmentedControl`/`SegmentedControlItem`으로 대응된다. `Menu/Menu`는 `Menu`/`MenuTrigger`/`MenuContent`/`MenuList`/`MenuItem`으로 대응된다(`MenuItem`이 내부에서 `ListCell`을 렌더링하므로 `List Cell`을 따로 import하지 않는다). `Menu`는 항목을 골라도 자동으로 닫히지 않아 `open`/`onOpenChange`로 직접 닫아야 하고, `MenuContent` 기본 너비가 320px라 Figma 너비와 다르면 `sx`로 맞춘다. Top Navigation의 Leading(뒤로가기)·Trailing 아이콘 버튼은 `TopNavigation`의 `leadingContent`/`trailingContent`에 `TopNavigationButton variant="icon"`으로 넣는다. 단, 아카이빙 상세처럼 사진 위 흰 아이콘 버튼은 `TopNavigationButton`의 `color`가 `primary`/`assistive`만 받아서, 내부에서 렌더링되는 `IconButton`(`variant="normal"`, `size={24}`, `color="semantic.static.white"`)을 직접 쓴다. `Icon/Normal/Share`는 `IconShare`로 대응된다.
+
+아카이빙 목록 화면의 연도 필터 칩(`Chip`, `1276:95404`)과 사진 카드(`Left-Large`/`Left-Medium`/`Right-Small`/`Right-Large`)는 WDS 컴포넌트 설명이 붙어 있지 않은 Stream 로컬 요소다 — 칩 스타일은 아래 "빌릴게 필터 Chip" 반례와 같아서, 최근 연도 칩은 빌릴게·행사와 공용인 `components/ui/FilterChipGroup.tsx`를 그대로 쓴다(이전 연도 드롭다운 트리거만 같은 칩 모양의 로컬 버튼이라 `getFilterChipClassName`을 가져다 쓴다). 코드는 `src/features/archives/components/` 참고.
 
 ### `Typography` — 텍스트 스타일은 Figma 인스턴스 스캔에 안 잡혀서 뒤늦게 확인됨
 
@@ -120,7 +132,7 @@ hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참�
   - `width` 기본값이 부모 폭을 채우지 않는다 — 안 주면 카드 폭의 절반 정도로 렌더링돼서 `width="100%"`를 줬다.
   - 높이 계산용 숨김 textarea(`readonly`, `aria-hidden`)를 하나 더 렌더링한다 — 테스트·자동화에서 `textarea` 셀렉터를 쓸 때 제외해야 한다.
   - 단답형(50자)도 같은 `TextArea`를 쓴다(Figma 텍스트 입력 예시 `1133:43105`의 디자이너 메모).
-  - 글자 스타일이 `body1-reading`(16px)으로 고정돼 있고 prop으로 못 바꾼다. Figma 입력 글자·안내 문구는 `Label 1/Reading`(14px)이라(`1658:183424`), `sx`에 `& textarea, & textarea::placeholder { typographyStyle("label1-reading", "regular") }`를 줘서 덮는다(`EventsQuestionField`의 `TEXT_AREA_TYPOGRAPHY`). 위 숨김 textarea도 같은 글자로 높이를 재야 자동 높이가 맞아서 `textarea` 전체를 잡는다. 처음엔 16px 그대로였다가 행사 신청내역(#115) `/figma-check`에서 잡혔다.
+  - 글자 스타일이 `body1-reading`(16px)으로 고정돼 있고 prop으로 못 바꾼다. Figma 입력 글자·안내 문구는 `Label 1/Reading`(14px)이라(`1658:183424`), `sx`에 `& textarea, & textarea::placeholder { typographyStyle("label1-reading", "regular") }`를 줘서 덮는다(`EventsQuestionField`의 `TEXT_AREA_TYPOGRAPHY`). 위 숨김 textarea도 같은 글자로 높이를 재야 자동 높이가 맞아서 `textarea` 전체를 잡는다. 처음엔 16px 그대로였다가 행사 신청내역(#115) `/figma-check`에서 잡혔다. 신청 폼(`1658:183424`)과 신청내역 상세 둘 다 Figma가 14px다. **WDS를 올릴 때 확인할 곳**: WDS 내부 클래스가 아니라 `textarea` 태그를 잡는 거라 WDS가 textarea를 계속 쓰는 한 유지되지만, 업데이트 뒤 신청 폼 입력 글자가 14px인지·자동 높이가 맞는지 한 번 본다.
 - **`Action Area/Action Area` → `ActionArea background` + `ActionAreaButton`**: `background`를 켜면 `::before`가 영역 위로 `margin-y`(20px)만큼 더 올라가 그라데이션 마스크로 스크롤 내용을 흐리게 덮는다(Figma `Gradient/Solid`와 일치). `divider`는 기본값이 `true`지만 `extra` 모드에서만 선을 그려서 일반 모드에는 영향 없다. Figma Action Area(110px = 위 20 + 버튼 56 + 아래 34)는 버튼 아래가 iOS **Bottom Safe Area까지 합쳐 34px**인데 WDS `ActionArea`는 아래 padding 20px만 줘서, 모자란 **14px**을 `bg-background-elevated-normal` div로 따로 붙였다(`BottomSheet`에서 14px을 더한 것과 같은 이유). 처음엔 Safe Area 34px을 통째로 더해서 버튼 아래가 54px로 벌어졌었다 — ActionArea 자체 padding과 겹치는지 먼저 확인한다. 이때 `--color-background-elevated-normal`(`--semantic-background-elevated-normal` 별칭) 토큰을 추가했다.
 - **Action Area 메인 버튼 높이**: `ActionAreaButton`(`main`)은 항상 `Button size="large"`(padding `12px 28px` → **48px**)로 그리는데, Figma `┗ Main Action`은 padding `16px 28px`(**56px**)이다. WDS에 56px 크기가 없어서 `sx={{ paddingBlock: "16px" }}`로 세로 padding만 맞췄다(`ActionAreaButton`은 `props.sx`를 내부 `Button` 스타일 맨 뒤에 붙여서 덮어쓰기가 된다). 빌릴게 대여 바텀시트 Figma(`1422:57205`)의 "대여 신청하기" 버튼도 같은 56px 스펙이지만, `BililgeRentalSheet.tsx`는 아직 `sx` 없이 48px로 렌더링된다(위 "빌릴게 대여 바텀시트" 절의 "정확히 일치" 기록은 높이까지는 대조하지 않은 것으로 보인다).
 - **기타(직접 입력) 입력칸은 WDS가 아니라 plain `<input>`**: Figma `Other Option`(`1658:183954`)은 체크박스 아래에 밑줄만 있는 입력칸이라, WDS `TextField`(배경·테두리·12px radius가 있는 박스형)와 생김새가 다르다. 밑줄은 `Primary/Normal` 0.7px(에셋 SVG의 stroke로 확인, `get_variable_defs`만으로는 선 색이 안 나온다). 글자는 `Typography as="input"`으로 Figma `Label 1/Reading - Regular`(`variant="label1-reading"`, 14px·줄 높이 22px)를 받는다(`component-convention.md` 타이포그래피 참고).
@@ -609,7 +621,7 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 
 ### 빈 상태는 WDS `FallbackView`가 아니라 홈 로컬 `HomeEmptyState`
 
-일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/bililge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/events/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.
+일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/bililge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/common/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.
 
 ### 홈에서 다른 화면으로 가는 연결(#114)
 
@@ -633,16 +645,16 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 
 | Figma | 코드 | 확인 내용 |
 |---|---|---|
-| `Content Badge` (답변완료·답변대기, 납부확인중·확인필요·납부완료, 배정완료) | `ContentBadge size="small" variant="solid" color="accent"` | 홈 내 정보 목록과 같은 상태 이름·색이다. 초록 green, 주황 orange, 빨강 red |
+| `Content Badge` (답변완료·답변대기, 납부확인중·확인필요·납부완료, 배정완료) | `ContentBadge size="small" variant="solid" color="accent"` | 홈 내 정보 목록과 같은 상태 이름·색이다. 초록 green, 주황 orange, 빨강 red. 상태→배지 매핑은 `FEE_STATUS_BADGES`(`features/fee/constants`)·`LOCKER_STATUS_BADGES`(`features/lockers/constants`) 한 곳에 두고 홈과 같이 쓴다 |
 | 작성내역 상세 `해당 회차 답변 모아보기` | `Button color="primary" size="medium" variant="outlined"` | |
 | 학생회비 `문의하기`, 사물함 `사물함 위치 보기` | `Button color="assistive" size="medium" variant="outlined" fullWidth` | 위치 보기의 꺾쇠는 `trailingContent={<IconChevronRight />}` |
 | 빈 상태 버튼 `열린피드백 작성하기` / `열린피드백 보러 가기` | `Button color="assistive" size="small" variant="solid"` | 행사 목록 빈 상태(outlined)와 variant가 다르다 |
-| 뒤로가기 헤더 | `ScreenHeader variant="normal"` + `TopNavigationButton` | 바로 들어와 뒤로 갈 기록이 없으면 홈(상세는 목록, 위치 보기는 배정 상태)으로 보낸다 |
+| 뒤로가기 헤더 | `ScreenHeader variant="normal"` + `TopNavigationButton` | `useBackNavigation(fallbackPath)`(`hooks/`) — 바로 들어와 뒤로 갈 기록이 없으면 홈(상세는 목록, 위치 보기는 배정 상태)으로 보낸다. 대비 경로는 각 기능 `constants`의 경로 상수(`FEE_PAYMENTS_PATH`·`MY_FEEDBACKS_PATH`·`LOCKER_ASSIGNMENT_PATH` 등)를 쓰고, 데이터가 없을 때의 `<Navigate>`도 화면이 넘긴 `fallbackPath`로 간다 |
 
-- **카드·빈 상태는 Stream 로컬**: 작성내역 카드(`FeedbacksHistoryCard`), 납부 카드(`FeePaymentCard`), 배정 카드는 흰 바탕 `rounded-xl p-4` 로컬 카드다. 빈 상태는 행사 목록 Empty State와 같은 이유(`FallbackView`의 일러스트 크기·패딩 고정)로 로컬이다. 열린피드백은 `FeedbacksEmptyState`(그림 `icons/feedbacks/empty-feedback.svg`)를 쓰고, 사물함은 행사 목록과 같은 도형이라 `icons/events/empty-events.svg`를 그대로 쓴다.
+- **카드·빈 상태는 Stream 로컬**: 작성내역 카드(`FeedbacksHistoryCard`), 납부 카드(`FeePaymentCard`), 배정 카드는 흰 바탕 `rounded-xl p-4` 로컬 카드다. 빈 상태는 행사 목록 Empty State와 같은 이유(`FallbackView`의 일러스트 크기·패딩 고정)로 로컬이다. 열린피드백은 `FeedbacksEmptyState`(그림 `icons/feedbacks/empty-feedback.svg`)를 쓰고, 사물함은 `LockersEmptyState`(그림은 행사 목록과 같은 `icons/common/empty-events.svg`)를 쓴다.
 - **답변 강조 표시는 두 상세 화면이 공유한다**: 답변 글의 `**굵게**`를 볼드 `Typography`로 바꾸는 `FeedbacksAnswerText`를 모아보기 상세와 작성내역 상세가 같이 쓴다.
-- **사물함 위치 보기(`/my/locker/location`)는 Figma에 없다**: 칸 선택 화면 배치를 보기 전용으로 쓴다. 칸 영역(미니맵·범례·확대 스크롤)은 `LockersMapView`로 두 화면이 공유한다. 보기 전용에서는 칸을 버튼으로 그리지 않고, 내 칸만 선택된 칸 모양(Primary/Normal 배경 + 흰 번호)으로 표시한다. 범례도 "내 사물함" 하나로 바꾸고, 처음 열 때 내 칸이 화면 밖이면 보일 만큼만 스크롤한다. 신청 화면의 내 칸(초록 테두리, 선택 불가)은 그대로다.
-- **Figma와 다르게 둔 값**: 요일은 날짜로 계산해서 Figma의 요일 표기와 다를 수 있다. 사물함 번호는 칸 배치 목데이터가 있는 A-1 구역에 맞춰 A-7로 두었다(Figma는 B-25). 사물함 빈 상태 문구의 연도는 올해다.
+- **사물함 위치 보기(`/my/locker/location`)는 Figma에 없다**: 칸 선택 화면 배치를 보기 전용으로 쓴다. 칸 영역(미니맵·확대 스크롤)은 `LockersMapView`로 두 화면이 공유하고, 범례는 화면이 `legend`로 넘긴다(신청 `<LockersLegend />`, 위치 보기 `<LockersLegend variant="mine" />` — "내 사물함" 하나). 내 칸은 배정 정보(`lockerLabel`) 하나에서 정해서 `selectedLockerNumber`로 넘기고, 선택된 칸 모양(Primary/Normal 배경 + 흰 번호)으로 그린다. 보기 전용 여부는 `onSelect`가 없는지로만 판단하고, 이때 칸을 버튼으로 그리지 않는다. 처음 열 때 선택된 칸(`data-selected`)이 화면 밖이면 보일 만큼만 스크롤한다. 신청 화면의 내 칸(구역 목데이터 `isMine`, 초록 테두리, 선택 불가)은 보기 전용에서는 그리지 않는다.
+- **Figma와 다르게 둔 값**: 요일은 날짜로 계산해서 Figma의 요일 표기와 다를 수 있다. 사물함 번호는 칸 배치 목데이터가 있는 A-1 구역에 맞춰 A-7로 두었다(Figma는 B-25). 사물함 빈 상태 문구의 연도는 기기 시계의 올해다(API 연동 때 서버 값으로 — 코드에 TODO). 날짜는 `lib/date`의 `formatDate`·`formatDateTime`으로 맞추고, 작성내역 상세만 Figma(`3147:147756`)대로 `2026-04-25` 하이픈 표기다.
 
 ## 행사 신청내역(`1133:46168` 목록 / `1165:63551` empty / `1133:46181` 상세 / `1133:46131` 신청취소 확인모달 / `1133:46216` 신청취소 상세 + 토스트) 구현 중 확정된 매핑
 
@@ -650,12 +662,40 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 |---|---|---|
 | `Content Badge` (신청완료·신청취소) | `ContentBadge size="small" variant="solid" color="accent"` | 신청완료 green, 신청취소 red. 목록 카드와 상세가 `EVENTS_APPLICATION_STATUS_BADGES`를 같이 쓴다 |
 | 카드 `행사 상세` / `신청 상세` | `Button size="small" color="assistive"` | 앞은 `variant="outlined"`, 뒤는 `variant="solid"`(Fill/Normal 배경). 둘 다 padding 7/14·radius 8·Label 2/Medium이 Figma와 같다 |
-| 상세 `신청 취소` | `Button size="medium" color="primary" variant="outlined"` + `sx` | WDS Button 색이 primary/assistive뿐이라 글자·테두리(`box-shadow` inset)만 `Status/Negative`로 덮는다. outlined primary가 SemiBold 글자라 primary를 고른다 |
+| 상세 `신청 취소` | `Button size="medium" color="primary" variant="outlined"` + `sx` | WDS Button 색이 primary/assistive뿐이라 글자·테두리(`box-shadow` inset)만 `Status/Negative`로 덮는다 — `sx={NEGATIVE_BUTTON_SX.outlined}`(`components/ui/negativeButtonSx.ts`, `ConfirmModal`의 빨간 확인 버튼은 `.solid`). outlined primary가 SemiBold 글자라 primary를 고른다 |
 | 신청취소 확인모달 | `ConfirmModal tone="negative"` | 사물함 신청 확인 모달과 같은 공용 모달이고, `tone="negative"`가 느낌표 아이콘 + 빨간 확인 버튼을 그린다 |
 | 취소 완료 토스트 | `ScreenToast variant="positive"` | 체크 아이콘이 WDS 기본값 그대로 |
-| 상세 문항 `Control/Checkbox`·`Control/Radio`·`Textinput/Textarea` | 신청 폼의 `EventsQuestionField` 재사용 | 답변 변경 콜백을 넘기지 않으면 읽기 전용(선택 표시는 그대로, 바꿀 수 없음). 신청취소 상세는 `disabled`로 WDS 비활성 모양을 쓰고, 선택지 글자는 `Label/Disable`(Figma `1133:46240`) |
+| 상세 문항 `Control/Checkbox`·`Control/Radio`·`Textinput/Textarea` | 신청 폼의 `EventsQuestionField` 재사용 | `readOnly`로 읽기 전용(선택 표시는 그대로, 바꿀 수 없음). 입력 폼은 `onAnswerChange`가 필수라 빠뜨리면 타입 검사에서 걸린다. 신청취소 상세는 `disabled`로 WDS 비활성 모양을 쓰고, 선택지 글자는 `Label/Disable`(Figma `1133:46240`) |
 
 - **카드·요약은 Stream 로컬**: 신청내역 카드(`EventsApplicationCard`, 70px 회색 썸네일 + 배지·제목·일시 + 버튼 2개)와 상세 요약(`EventsApplicationSummary`)은 로컬이다. 요약은 신청 폼·완료 화면의 `EventsSummaryCard`(아이콘 + 일시·장소)와 달리 "행사·신청·취소" 라벨 행이라 따로 뒀다.
-- **빈 상태는 `EventsEmptyState` 재사용**: 그림·버튼 모양은 행사 목록 빈 상태와 같고, 설명 굵기만 다르다(행사 목록 Medium, 신청내역 Regular) — `descriptionWeight`로 고른다. 위치는 목록 영역 가운데가 아니라 Figma대로 토글 아래 176px이다.
-- **탭은 경로로 나눈다**: 행사 `/events`, 신청내역 `/events/applications`, 상세 `/events/applications/:applicationId`. 같은 목록 화면이 주소로 탭을 고르고, 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않는다. 신청내역 탭은 Figma에 상태 필터 행이 없어서 숨긴다. 하단 탭은 `/events/applications`에서도 "행사"가 선택된다.
-- **취소는 목록까지 반영된다**: 취소 API(`cancelMyEventApplication`)가 목데이터를 바꾸고 목록·상세 조회 캐시를 지운다. 상세는 다시 그리는 업데이트를 transition으로 묶어 새 데이터를 받는 동안 스켈레톤 대신 지금 화면을 유지하고, 토스트는 취소된 화면과 함께 뜬다. 실패 토스트 문구("신청 취소에 실패했어요. 다시 시도해 주세요.")는 Figma에 없어 임의로 정했다.
+- **빈 상태는 `EventsEmptyState` 재사용**: 버튼은 `action={{ label, onClick }}` 한 묶음으로 받아서 동작 없는 버튼이 생기지 않는다(신청내역 "행사 둘러보기" → `/events`, 행사 목록 모집중 "아카이빙 둘러보기" → `ARCHIVES_PATH`). 그림·버튼 모양은 행사 목록 빈 상태와 같고, 설명 굵기만 다르다(행사 목록 Medium, 신청내역 Regular) — `descriptionWeight`로 고른다. 위치는 목록 영역 가운데가 아니라 Figma대로 토글 아래 176px이다.
+- **탭은 경로로 나눈다**: 행사 `/events`, 신청내역 `/events/applications`, 상세 `/events/applications/:applicationId`. 같은 목록 화면을 라우터가 `tab` prop(`"event"`/`"application"`)으로 골라 넘기고(화면이 주소를 비교하지 않아 끝에 `/`가 붙어도 맞다), 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않는다. 신청내역 탭은 Figma에 상태 필터 행이 없어서 숨긴다. 하단 탭은 신청내역 라우트 `handle`의 `bottomNavValue: "event"`로 "행사"가 선택된다.
+- **취소는 목록까지 반영된다**: 취소 API(`cancelMyEventApplication`)가 목데이터를 바꾸고 목록·상세 조회 캐시를 지운다(조회·무효화가 같은 `eventsKeys`로 key를 만든다). 요청·토스트 상태는 `useEventsApplicationCancel` 훅이 맡고, 토스트 문구·색은 `CANCEL_TOASTS` 한 곳에 있다. 다시 그리는 업데이트를 transition으로 묶어 새 데이터를 받는 동안 스켈레톤 대신 지금 화면을 유지하고, 토스트는 취소된 화면과 함께 뜬다. 실패 토스트 문구("신청 취소에 실패했어요. 다시 시도해 주세요.")는 Figma에 없어 임의로 정했다.
+
+## 알림(`3595:107100` 목록 / `3595:107112` empty / `3628:110837` 설정) 구현 중 확정된 매핑
+
+코드는 `src/features/notifications/` 참고.
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| `Switch/Switch` (`679:16080`, Small) | `Switch size="small"` | 39×24, 켜짐 배경 `Primary/Normal`(#0066FF), 꺼짐 `Fill/Strong` — 실측으로 Figma와 일치한다. 값은 `checked`/`onCheckedChange`로 제어한다 |
+| `Icon/Normal/Setting` (`492:5735`) | `IconSetting` | 알림 목록 헤더 트레일링 설정 버튼. `ScreenHeader variant="normal"`의 `trailing` + `TopNavigationButton variant="icon"` |
+| `Icon/Normal/Chevron Left` | `IconChevronLeft` | 뒤로가기 — 다른 `variant="normal"` 화면과 같다 |
+| `Divider(new)` 8px (`487:19439`) | `<div className="h-2 … bg-background-alternative">` | 검색 전체 탭의 섹션 구분 띠와 같은 로컬 처리 |
+| `Icon/Normal/Megaphone`·`Icon/Normal/Ticket` | 쓰지 않음 | 알림 항목의 카테고리 아이콘은 WDS 아이콘이 아니라 24px 배지 전체(`알림 - 공지` 등 6종)가 Stream 로컬 에셋이다. 배경(`#F7F7F8`, radius 6)과 아이콘 색이 종류마다 고정이라 `src/assets/icons/notifications/*.svg`로 받았다 |
+
+### `Notification Item`은 Stream 로컬이다
+
+항목 하나(`3595:107106`)는 카테고리 배지·라벨·상대 시간 줄 + 메시지 줄로 이뤄진 Stream 고유 목록 행이다. WDS `List`/`Card` 계열과 구조가 달라 `NotificationsItem`으로 새로 만들었고 텍스트는 `Typography`로 채웠다(라벨 `caption1`/`regular`, 시간 `caption2`/`regular`, 메시지 `label1-reading`/`medium`).
+
+- 안 읽은 항목만 `Atomic/Blue/99` 배경이라 `index.css`에 `--color-notification-unread` 토큰을 추가했다. **아이콘 색은 읽음 여부와 상관없다** — 처음엔 첫 항목만 진한 아이콘으로 보여 읽음 표현이라고 오해하기 쉬운데, `빌릴게 반납`·`공지`·`행사`는 원래 진한 파랑, `빌릴게 대여`·`열린피드백`은 원래 연한 파랑이다.
+- 항목을 눌렀을 때 이동은 디자인에 없어서 읽음 처리까지만 넣었다.
+- 에셋은 `download_assets`의 whole-node svg 내보내기에 컴포넌트 세트 배경(회색 사각형, 가로 5천 px짜리 프레임 도형)이 같이 딸려 와서, 그중 `알림 - …` 24px 배지 그룹만 꺼내 `viewBox="0 0 24 24"` svg로 다시 감쌌다. 공지·행사·열린피드백은 `download_assets`의 `svgAssets`가 회전한 Ratio 레이어 조각으로 쪼개져 나와서 쓸 수 없었다.
+
+### Empty State는 폭을 고정하지 않는다
+
+행사·검색 empty와 같은 뼈대지만 Figma 컨테이너 폭 203px은 가장 긴 문구("새로운 소식이 있으면 알려 드릴게요.")에 맞춘 값이다. `w-[203px]`로 고정하면 폰트 폭이 0.2px만 넓어도(Pretendard를 못 불러온 환경에서 실제로 203.2px) 마지막 글자 "요."가 다음 줄로 넘어간다 — 문구 폭에 맡긴다. 수직 위치는 프레임 전체 높이 기준 가운데(헤더 56px만큼 `pb-14`로 올림)이고, 812px 뷰포트에서 중심이 406px로 Figma와 같다.
+
+### 설정 화면의 "전체 알림"은 상태를 따로 두지 않는다
+
+Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독립된 값이 아니라 카테고리가 모두 켜졌는지로 파생한다. 누르면 네 카테고리를 같은 값으로 맞추고, 하나라도 끄면 전체가 꺼진다. 값은 화면 state뿐이라 새로고침하면 초기값으로 돌아간다(서버 API 연동 때 교체).

@@ -1,6 +1,8 @@
 import hairDryer from "@/assets/icons/bililge-items/hair-dryer.svg";
 import powerBank from "@/assets/icons/bililge-items/power-bank.svg";
 import umbrella from "@/assets/icons/bililge-items/umbrella.svg";
+import type { FeePaymentStatus } from "@/entities/fee/types";
+import type { LockerAssignmentStatus } from "@/entities/lockers/types";
 
 // 홈 API가 붙기 전까지 쓰는 목데이터다.
 export const HOME_HAS_UNREAD_NOTIFICATION = true;
@@ -48,14 +50,13 @@ export interface HomeAppliedEvent {
   daysUntilEvent: number;
 }
 
-export type HomeFeeStatus = "unpaid" | "checking" | "needs-check" | "paid";
-
-export type HomeLockerStatus = "none" | "assigned" | "expired";
+// 납부내역의 상태(entities/fee)에 홈에서만 보이는 미납을 더한다
+export type HomeFeeStatus = FeePaymentStatus | "unpaid";
 
 export interface HomeMyInfo {
   feeStatus: HomeFeeStatus;
   feedbackCount: number;
-  lockerStatus: HomeLockerStatus;
+  lockerStatus: LockerAssignmentStatus;
   lockerLabel?: string;
 }
 

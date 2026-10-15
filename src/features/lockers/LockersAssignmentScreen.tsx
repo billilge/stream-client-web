@@ -7,20 +7,15 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import LockersAssignmentContent from "@/features/lockers/components/LockersAssignmentContent";
 import LockersAssignmentSkeleton from "@/features/lockers/components/LockersAssignmentSkeleton";
+import { MY_LOCKER_LOCATION_PATH } from "@/features/lockers/constants/lockers";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 // Figma: 사물함 배정 상태 배정완료 (nodeId 3147:148357), 빈 상태 (3147:148331)
 function LockersAssignmentScreen() {
   const navigate = useNavigate();
 
   // 바로 들어와 뒤로 갈 히스토리가 없으면 홈으로 보낸다
-  const goBack = () => {
-    const historyIndex = (window.history.state as { idx?: number } | null)?.idx;
-    if (historyIndex !== undefined && historyIndex > 0) {
-      navigate(-1);
-      return;
-    }
-    navigate("/", { replace: true });
-  };
+  const goBack = useBackNavigation("/");
 
   useScreenHeader(
     <ScreenHeader
@@ -43,7 +38,7 @@ function LockersAssignmentScreen() {
       <Suspense fallback={<LockersAssignmentSkeleton />}>
         <LockersAssignmentContent
           onViewLocation={() =>
-            navigate("/my/locker/location", { viewTransition: true })
+            navigate(MY_LOCKER_LOCATION_PATH, { viewTransition: true })
           }
         />
       </Suspense>

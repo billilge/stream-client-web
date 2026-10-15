@@ -1,7 +1,6 @@
 import { Button, Divider, Typography } from "@wanteddev/wds";
-
-import emptyEvents from "@/assets/icons/events/empty-events.svg";
-import arrowRight from "@/assets/icons/home/arrow-right.svg";
+import arrowRight from "@/assets/icons/common/arrow-right.svg";
+import emptyEvents from "@/assets/icons/common/empty-events.svg";
 import HomeEmptyState from "@/features/home/components/HomeEmptyState";
 import type { HomeAppliedEvent } from "@/features/home/constants/homeMock";
 

@@ -2,26 +2,16 @@ import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 import { IconChevronRight } from "@wanteddev/wds-icon";
 import { use } from "react";
 
-import emptyEventsIllustration from "@/assets/icons/events/empty-events.svg";
 import { fetchMyLockerAssignment } from "@/entities/lockers/lockersApi";
+import LockersEmptyState from "@/features/lockers/components/LockersEmptyState";
+import { LOCKER_STATUS_BADGES } from "@/features/lockers/constants/lockers";
+import { formatDate, formatDateTime } from "@/lib/date";
+
+// 이 화면에 오는 배정은 항상 배정완료다(기간종료·미신청은 홈 배지에서만 쓴다)
+const ASSIGNED_BADGE = LOCKER_STATUS_BADGES.assigned;
 
 interface LockersAssignmentContentProps {
   onViewLocation: () => void;
-}
-
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
-
-// "2026-09-05" → "2026.09.05(토)". 시간대에 따라 날짜가 밀리지 않게 문자열을 직접 나눠 읽는다.
-function formatDate(date: string) {
-  const [year, month, day] = date.split("-").map(Number);
-  const weekday = WEEKDAYS[new Date(year, month - 1, day).getDay()];
-  return `${date.replaceAll("-", ".")}(${weekday})`;
-}
-
-// "2026-09-05T13:59" → "2026.09.05(토) 13:59"
-function formatDateTime(value: string) {
-  const [date, time] = value.split("T");
-  return `${formatDate(date)} ${time}`;
 }
 
 // Figma: 사물함 배정 상태 배정완료 (nodeId 3147:148357), 빈 상태 (3147:148331)
@@ -32,32 +22,23 @@ function LockersAssignmentContent({
   const assignment = use(fetchMyLockerAssignment());
 
   if (!assignment) {
+    // TODO: 연도(학기 기준)는 API가 붙으면 서버 값으로 받는다 — 지금은 기기 시계의 올해다
     const year = new Date().getFullYear();
     return (
       <div className="flex justify-center pt-50">
-        {/* Figma: Empty State (nodeId 3147:148336) — 행사 목록과 같은 그림, 타이틀만 있다 */}
-        <div className="flex w-66.75 flex-col items-center gap-3">
-          <div className="flex size-20.25 items-center justify-center">
-            <img alt="" src={emptyEventsIllustration} />
-          </div>
-          <Typography
-            align="center"
-            color="semantic.label.neutral"
-            variant="body2"
-            weight="bold"
-          >
-            {year} 사물함 신청내역이 없어요
-          </Typography>
-        </div>
+        <LockersEmptyState title={`${year} 사물함 신청내역이 없어요`} />
       </div>
     );
   }
 
   const rows = [
-    { label: "신청일시", value: formatDateTime(assignment.appliedAt) },
+    {
+      label: "신청일시",
+      value: formatDateTime(assignment.appliedAt, { weekday: true }),
+    },
     {
       label: "사용기한",
-      value: `${formatDate(assignment.usageStartDate)} - ${formatDate(assignment.usageEndDate)}`,
+      value: `${formatDate(assignment.usageStartDate, { weekday: true })} - ${formatDate(assignment.usageEndDate, { weekday: true })}`,
     },
   ];
 
@@ -65,12 +46,12 @@ function LockersAssignmentContent({
     <div className="flex flex-col gap-3 px-5 pb-4">
       <div className="flex flex-col items-start gap-2 rounded-xl bg-background-normal p-4">
         <ContentBadge
-          accentColor="semantic.accent.foreground.green"
+          accentColor={`semantic.accent.foreground.${ASSIGNED_BADGE.color}`}
           color="accent"
           size="small"
           variant="solid"
         >
-          배정완료
+          {ASSIGNED_BADGE.label}
         </ContentBadge>
         <Typography
           as="p"

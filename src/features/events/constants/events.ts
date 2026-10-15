@@ -20,8 +20,3 @@ export const EVENTS_APPLICATION_STATUS_BADGES = {
   applied: { color: "green", label: "신청완료" },
   cancelled: { color: "red", label: "신청취소" },
 } as const;
-
-// "2026-06-04T13:00" → "2026.06.04 13:00"
-export function formatApplicationDateTime(value: string) {
-  return value.replace("T", " ").replaceAll("-", ".");
-}

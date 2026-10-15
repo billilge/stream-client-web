@@ -2,15 +2,12 @@ import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 
 import type { FeePayment } from "@/entities/fee/types";
 import { FEE_STATUS_BADGES } from "@/features/fee/constants/fee";
+import { formatDateTime } from "@/lib/date";
 
 interface FeePaymentCardProps {
   payment: FeePayment;
-  onContact: () => void;
-}
-
-// "2026-09-04T11:49" → "2026.09.04 11:49"
-function formatDateTime(value: string | null) {
-  return value ? value.replace("T", " ").replaceAll("-", ".") : "-";
+  /** 없으면 문의하기 버튼을 그리지 않는다(채널 주소가 아직 없을 때) */
+  onContact?: () => void;
 }
 
 function formatAmount(value: number | null) {
@@ -24,7 +21,10 @@ function FeePaymentCard({ payment, onContact }: FeePaymentCardProps) {
   const rows = [
     { label: "납부금액", value: formatAmount(payment.amount) },
     { label: "납부일시", value: formatDateTime(payment.paidAt) },
-    { label: "확인일시", value: formatDateTime(payment.confirmedAt) },
+    {
+      label: "확인일시",
+      value: payment.confirmedAt ? formatDateTime(payment.confirmedAt) : "-",
+    },
   ];
 
   return (
@@ -68,7 +68,7 @@ function FeePaymentCard({ payment, onContact }: FeePaymentCardProps) {
         ))}
       </div>
 
-      {payment.status === "needs-check" && payment.reviewNote && (
+      {payment.status === "needs-check" && (
         <div className="flex flex-col gap-3 rounded-xl bg-background-normal p-4">
           <div className="flex flex-col gap-2">
             <Typography
@@ -88,15 +88,17 @@ function FeePaymentCard({ payment, onContact }: FeePaymentCardProps) {
               {payment.reviewNote}
             </Typography>
           </div>
-          <Button
-            color="assistive"
-            fullWidth
-            onClick={onContact}
-            size="medium"
-            variant="outlined"
-          >
-            문의하기
-          </Button>
+          {onContact && (
+            <Button
+              color="assistive"
+              fullWidth
+              onClick={onContact}
+              size="medium"
+              variant="outlined"
+            >
+              문의하기
+            </Button>
+          )}
         </div>
       )}
     </div>

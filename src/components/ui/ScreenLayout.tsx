@@ -32,11 +32,6 @@ function getBottomNavValueFromPath(pathname: string): BottomNavValue {
   if (pathname.startsWith("/feedbacks")) {
     return "board";
   }
-  // 행사 목록의 신청내역 탭(/events/applications)도 "행사" 탭 소속이다.
-  // 경로는 features/events의 EVENTS_TAB_PATHS와 같지만, 공용 UI가 기능 폴더를 import하지 않도록 여기 그대로 적는다.
-  if (pathname === "/events/applications") {
-    return "event";
-  }
   // 빌릴게의 반납 탭(/bililge/returns)도 "빌릴게" 탭 소속이다(BILILGE_TAB_PATHS와 같은 경로)
   if (pathname === "/bililge/returns") {
     return "bililge";
@@ -56,6 +51,8 @@ const BACKGROUND_CLASS_NAMES: Record<ScreenBackground, string> = {
 interface ScreenLayoutProps {
   hasBottomNav?: boolean;
   background?: ScreenBackground;
+  /** 선택돼 보일 하단 탭. 없으면 주소로 정한다(라우트 handle의 bottomNavValue) */
+  bottomNavValue?: BottomNavValue;
 }
 
 // 모든 화면이 공유하는 라우트 레이아웃 — router.tsx에서 부모 route로 두고 화면들을
@@ -87,6 +84,7 @@ interface ScreenLayoutProps {
 function ScreenLayout({
   hasBottomNav = true,
   background = "alternative",
+  bottomNavValue: bottomNavValueProp,
 }: ScreenLayoutProps) {
   const [header, setHeader] = useState<ReactNode>(null);
   const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(
@@ -96,7 +94,8 @@ function ScreenLayout({
     useState<HTMLDivElement | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const bottomNavValue = getBottomNavValueFromPath(location.pathname);
+  const bottomNavValue =
+    bottomNavValueProp ?? getBottomNavValueFromPath(location.pathname);
 
   useNativeSafeAreaColors(background, hasBottomNav);
 

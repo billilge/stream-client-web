@@ -7,20 +7,15 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import FeedbacksMineList from "@/features/feedbacks/components/FeedbacksMineList";
 import FeedbacksMineSkeleton from "@/features/feedbacks/components/FeedbacksMineSkeleton";
+import { getMyFeedbackPath } from "@/features/feedbacks/constants/feedbacks";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 // Figma: 열린피드백 작성내역 (nodeId 3147:147748)
 function FeedbacksMineScreen() {
   const navigate = useNavigate();
 
-  // 바로 들어와 뒤로 갈 히스토리가 없으면 홈으로 보낸다(행사 신청 화면과 같은 이유)
-  const goBack = () => {
-    const historyIndex = (window.history.state as { idx?: number } | null)?.idx;
-    if (historyIndex !== undefined && historyIndex > 0) {
-      navigate(-1);
-      return;
-    }
-    navigate("/", { replace: true });
-  };
+  // 바로 들어와 뒤로 갈 히스토리가 없으면 홈으로 보낸다
+  const goBack = useBackNavigation("/");
 
   useScreenHeader(
     <ScreenHeader
@@ -43,7 +38,7 @@ function FeedbacksMineScreen() {
       <Suspense fallback={<FeedbacksMineSkeleton />}>
         <FeedbacksMineList
           onSelect={(feedbackId) =>
-            navigate(`/my/feedbacks/${feedbackId}`, { viewTransition: true })
+            navigate(getMyFeedbackPath(feedbackId), { viewTransition: true })
           }
           onWrite={() => navigate("/feedbacks/new", { viewTransition: true })}
         />

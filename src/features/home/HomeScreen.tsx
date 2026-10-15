@@ -18,6 +18,7 @@ import {
   HOME_HAS_UNREAD_NOTIFICATION,
   HOME_MOCK_DATA,
 } from "@/features/home/constants/homeMock";
+import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
 // Figma: 홈 2건 이하 (nodeId 3147:146240), 3건 이상 (3147:146297), empty (3147:146366)
@@ -66,7 +67,13 @@ function HomeScreen() {
                 >
                   <IconSearch />
                 </TopNavigationButton>
-                <TopNavigationButton aria-label="알림" variant="icon">
+                <TopNavigationButton
+                  aria-label="알림"
+                  onClick={() =>
+                    navigate(NOTIFICATIONS_PATH, { viewTransition: true })
+                  }
+                  variant="icon"
+                >
                   <PushBadge
                     invisible={!HOME_HAS_UNREAD_NOTIFICATION}
                     position="top-right"
