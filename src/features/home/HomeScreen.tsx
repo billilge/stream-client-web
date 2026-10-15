@@ -8,6 +8,8 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import { BILILGE_TAB_PATHS } from "@/features/bililge/constants/bililge";
 import { useBililgeReturnRequest } from "@/features/bililge/hooks/useBililgeReturnRequest";
 import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
+import { FEE_PAYMENTS_PATH } from "@/features/fee/constants/fee";
+import { MY_FEEDBACKS_PATH } from "@/features/feedbacks/constants/feedbacks";
 import HomeAppliedEventSection from "@/features/home/components/HomeAppliedEventSection";
 import HomeApplyCard from "@/features/home/components/HomeApplyCard";
 import HomeArchiveBanner from "@/features/home/components/HomeArchiveBanner";
@@ -18,6 +20,7 @@ import {
   HOME_HAS_UNREAD_NOTIFICATION,
   HOME_MOCK_DATA,
 } from "@/features/home/constants/homeMock";
+import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
@@ -139,9 +142,9 @@ function HomeScreen() {
             <div className="px-5">
               <HomeInfoList
                 myInfo={HOME_MOCK_DATA.myInfo}
-                onSelectFee={() => push("/my/fee")}
-                onSelectFeedbacks={() => push("/my/feedbacks")}
-                onSelectLocker={() => push("/my/locker")}
+                onSelectFee={() => push(FEE_PAYMENTS_PATH)}
+                onSelectFeedbacks={() => push(MY_FEEDBACKS_PATH)}
+                onSelectLocker={() => push(LOCKER_ASSIGNMENT_PATH)}
               />
             </div>
             <div className="px-5">
