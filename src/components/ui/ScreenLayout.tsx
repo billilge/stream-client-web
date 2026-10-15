@@ -32,10 +32,6 @@ function getBottomNavValueFromPath(pathname: string): BottomNavValue {
   if (pathname.startsWith("/feedbacks")) {
     return "board";
   }
-  // 빌릴게의 반납 탭(/bililge/returns)도 "빌릴게" 탭 소속이다(BILILGE_TAB_PATHS와 같은 경로)
-  if (pathname === "/bililge/returns") {
-    return "bililge";
-  }
   return "home";
 }
 

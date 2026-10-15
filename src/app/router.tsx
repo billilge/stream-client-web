@@ -50,12 +50,13 @@ const routes = [
             path: "/",
           },
           {
-            element: <BililgeListScreen />,
+            element: <BililgeListScreen tab="rent" />,
             path: "/bililge",
           },
           {
-            element: <BililgeListScreen />,
-            // 빌릴게의 반납 탭 — 같은 화면이 주소로 탭을 고른다
+            element: <BililgeListScreen tab="return" />,
+            // 빌릴게의 반납 탭 — 같은 화면을 탭만 바꿔 그리고, 하단 탭은 "빌릴게"가 선택된다
+            handle: { bottomNavValue: "bililge" } satisfies ScreenRouteHandle,
             path: "/bililge/returns",
           },
           {

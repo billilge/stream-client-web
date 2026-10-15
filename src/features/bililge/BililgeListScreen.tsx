@@ -5,7 +5,7 @@ import {
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { Suspense, startTransition, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
@@ -22,12 +22,14 @@ import {
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
+interface BililgeListScreenProps {
+  /** 대여/반납 탭 — 탭마다 경로가 달라서 라우터가 정해 넘긴다 */
+  tab: BililgeTab;
+}
+
 // Figma: 빌릴게 (nodeId 1243:73331)
-function BililgeListScreen() {
+function BililgeListScreen({ tab }: BililgeListScreenProps) {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const tab: BililgeTab =
-    pathname === BILILGE_TAB_PATHS.return ? "return" : "rent";
   // 탭을 바꿀 때마다 히스토리가 쌓이지 않게 replace로 바꾼다
   const changeTab = (next: BililgeTab) =>
     navigate(BILILGE_TAB_PATHS[next], { replace: true });
