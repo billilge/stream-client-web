@@ -28,7 +28,7 @@ function FeedbacksMineList({ onSelect, onWrite }: FeedbacksMineListProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3 px-5 pb-4">
+    <div className="flex flex-col gap-2 px-5 pb-4">
       {feedbacks.map((feedback) => (
         <FeedbacksHistoryCard
           feedback={feedback}
