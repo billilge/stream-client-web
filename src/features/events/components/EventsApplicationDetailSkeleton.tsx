@@ -10,7 +10,7 @@ function EventsApplicationDetailSkeleton() {
   const animation = useSkeletonAnimation();
 
   return (
-    <div className="flex flex-col gap-3 px-5">
+    <div className="flex flex-col gap-2 px-5">
       <StatusSummaryCardSkeleton badgeWidth="56px" rowWidths={["75%", "45%"]} />
       {QUESTION_SKELETON_KEYS.map((key) => (
         <div

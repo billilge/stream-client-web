@@ -44,7 +44,7 @@ function LockersAssignmentContent({
   ];
 
   return (
-    <div className="flex flex-col gap-3 px-5 pb-4">
+    <div className="flex flex-col gap-2 px-5 pb-4">
       <StatusSummaryCard
         badge={ASSIGNED_BADGE}
         rows={rows}

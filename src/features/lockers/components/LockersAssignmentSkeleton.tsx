@@ -8,7 +8,7 @@ function LockersAssignmentSkeleton() {
   const animation = useSkeletonAnimation();
 
   return (
-    <div className="flex flex-col gap-3 px-5">
+    <div className="flex flex-col gap-2 px-5">
       <StatusSummaryCardSkeleton rowWidths={["55%", "80%"]} />
       <div className="flex flex-col gap-3 rounded-xl bg-background-normal p-4">
         <Skeleton
