@@ -1,6 +1,6 @@
 import { Button, Typography } from "@wanteddev/wds";
 
-import emptyEventsIllustration from "@/assets/icons/events/empty-events.svg";
+import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 
 interface EventsEmptyStateProps {
   title: string;

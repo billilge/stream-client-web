@@ -1,9 +1,9 @@
 import { ARCHIVES } from "@/entities/archives/archivesMock";
 import { BILILGE_ITEMS } from "@/entities/bililge/bililgeMock";
 import { EVENTS } from "@/entities/events/eventsMock";
+import { FEEDBACKS } from "@/entities/feedbacks/feedbacksMock";
 import { NOTICES } from "@/entities/notices/noticesMock";
 import type { SearchResults } from "@/entities/search/types";
-import { FEEDBACKS } from "@/features/feedbacks/constants/feedbacks";
 import { mockupApi } from "@/lib/mockupApi";
 
 function includesKeyword(text: string, keyword: string): boolean {

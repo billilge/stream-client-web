@@ -18,12 +18,10 @@ import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { FEEDBACKS } from "@/entities/feedbacks/feedbacksMock";
 import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
 import FeedbacksQaCard from "@/features/feedbacks/components/FeedbacksQaCard";
-import {
-  FEEDBACK_ROUND_FILTERS,
-  FEEDBACKS,
-} from "@/features/feedbacks/constants/feedbacks";
+import { FEEDBACK_ROUND_FILTERS } from "@/features/feedbacks/constants/feedbacks";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
