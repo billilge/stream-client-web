@@ -3,11 +3,9 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
+import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import type { LockersApplyCompleteState } from "@/features/lockers/hooks/useLockersApplySubmit";
 import { formatDate } from "@/lib/date";
-
-// 신청내역 화면은 아직 없다 — 행사 완료 화면과 같은 주소로 보내 준비 중 화면이 뜬다.
-const APPLICATION_HISTORY_PATH = "/my/applications";
 
 // Figma: 사물함 신청 완료 페이지 (nodeId 1737:218058)
 function LockersApplyCompleteScreen() {
@@ -29,7 +27,8 @@ function LockersApplyCompleteScreen() {
       primaryAction={{ label: "홈으로 가기", onClick: () => navigate("/") }}
       secondaryAction={{
         label: "신청내역 보기",
-        onClick: () => navigate(APPLICATION_HISTORY_PATH),
+        // 사물함 신청내역은 사물함 배정 상태 화면이다
+        onClick: () => navigate(LOCKER_ASSIGNMENT_PATH),
       }}
       title="신청이 완료됐어요"
     >
