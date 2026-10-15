@@ -19,6 +19,7 @@ import {
   EVENTS_TAB_PATHS,
   type EventsTab,
 } from "@/features/events/constants/events";
+import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
 // Figma: 행사 (nodeId 1243:70854)
@@ -41,7 +42,13 @@ function EventsListScreen() {
           >
             <IconSearch />
           </TopNavigationButton>
-          <TopNavigationButton aria-label="알림" variant="icon">
+          <TopNavigationButton
+            aria-label="알림"
+            onClick={() =>
+              navigate(NOTIFICATIONS_PATH, { viewTransition: true })
+            }
+            variant="icon"
+          >
             <IconBell />
           </TopNavigationButton>
         </>

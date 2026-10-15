@@ -43,6 +43,9 @@
   --color-primary: var(--semantic-primary-normal);
   --color-primary-subtle: var(--atomic-blue-95);
 
+  /* 알림 목록에서 아직 안 읽은 알림 항목의 배경(Figma "Atomic/Blue/99", 알림 nodeId 3595:107106) */
+  --color-notification-unread: var(--atomic-blue-99);
+
   /* 사물함 구역 선택의 마감 구역 배경(Figma "Cool Neutral/97") — 회색 계열이지만
      Background/Normal/Alternative(#f7f7f8)보다 한 단계 진해서 잠긴 걸 드러낸다 */
   --color-cool-neutral-97: var(--atomic-coolNeutral-97);
@@ -53,6 +56,11 @@
 
   --color-status-positive: var(--semantic-status-positive);
   --color-inverse-background: var(--semantic-inverse-background);
+
+  /* WDS 시맨틱 세트에 없는 값(Figma 변수 없이 raw #111) — 아카이빙 사진 카드 하단 그라데이션 전용 */
+  --color-gradient-overlay: #111111;
+  /* WDS 시맨틱 세트에 없는 값(Figma 변수 없이 raw #6e6e6e) — 아카이빙 상세 대표 사진 상단 그라데이션 전용(흰 버튼 가독성) */
+  --color-hero-overlay: #6e6e6e;
 
   /* WDS 시맨틱 세트에 없는 값(Figma "Sky/Base") — Native / Bottom Sheet Indicator(드래그 핸들) 전용 */
   --color-sheet-indicator: #cdcfd0;

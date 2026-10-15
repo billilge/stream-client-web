@@ -63,8 +63,20 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 | `Icon/Normal/Home` | Bottom Nav "홈" 탭(Normal 상태) | `980:35475` |
 | `Icon/Normal/Ticket` | Bottom Nav "행사" 탭(Normal 상태) | `980:35529` |
 | `Icon/Normal/List` | Bottom Nav "게시판" 탭(Normal 상태) | `980:35703` |
+| `Top Navigation/Resource/Leading/Normal/Default` | 아카이빙 목록 화면(`1276:95397`) Top Navigation 뒤로가기 | `440:7986` |
+| `Button/Icon/Normal` | 아카이빙 목록 화면 Top Navigation 트레일링 검색 버튼 | `440:7585` — [문서](https://montage.wanted.co.kr/docs/components/actions/icon-button/design) |
+| `Icon/Normal/Chevron Left` | 아카이빙 목록 화면 Top Navigation 뒤로가기 아이콘 | `440:7931` |
+| `Icon/Normal/Chevron Down` | 아카이빙 목록 화면 연도 필터 "~2023" 칩 트레일링 아이콘 | `487:18965` |
+| `Menu/Menu` | 아카이빙 목록 - 이전 연도 드롭다운(`1529:172165`) 연도 목록 | `820:40656` — [문서](https://montage.wanted.co.kr/docs/components/presentation/menu/design) |
+| `List Cell/List Cell` | 위 `Menu/Menu` 안의 각 연도 항목 | `445:5923` — [문서](https://montage.wanted.co.kr/docs/components/contents/list-cell/design) |
+| `Top Navigation/Resource/Contents` (타이틀 없는 투명 헤더) | 아카이빙 상세(`1526:171215`) 대표 사진 위 뒤로가기·공유 버튼 | `ScreenHeader variant="floating"` → `TopNavigation variant="floating" background={false}` |
+| `Icon/Normal/Share` | 아카이빙 상세 Top Navigation 트레일링 공유 버튼 | `1490:167136` |
+| `Page Indicator/Counter` (Size=Small, Alternative=True) | 현장 사진 뷰어(`1526:171364`) 하단 "4 / 23" 카운터 | `471:13818` — [문서](https://montage.wanted.co.kr/docs/components/navigations/page-counter/design), 코드 `PageCounter size="small" alternative` |
+| `Icon/Normal/Close` | 현장 사진 뷰어 Top Navigation 트레일링 닫기 버튼 | `445:12096`, 코드 `IconClose` |
 
-코드에서는 `@wanteddev/wds-icon`의 `IconSearch`/`IconBell`/`IconHome`/`IconTicket`/`IconList`로 대응된다(각각 default export를 `index.d.ts`에서 named export로 재노출). `Segmented Control`은 `@wanteddev/wds`의 `SegmentedControl`/`SegmentedControlItem`으로 대응된다.
+코드에서는 `@wanteddev/wds-icon`의 `IconSearch`/`IconBell`/`IconHome`/`IconTicket`/`IconList`/`IconChevronLeft`/`IconChevronDown`으로 대응된다(각각 default export를 `index.d.ts`에서 named export로 재노출). `Segmented Control`은 `@wanteddev/wds`의 `SegmentedControl`/`SegmentedControlItem`으로 대응된다. `Menu/Menu`는 `Menu`/`MenuTrigger`/`MenuContent`/`MenuList`/`MenuItem`으로 대응된다(`MenuItem`이 내부에서 `ListCell`을 렌더링하므로 `List Cell`을 따로 import하지 않는다). `Menu`는 항목을 골라도 자동으로 닫히지 않아 `open`/`onOpenChange`로 직접 닫아야 하고, `MenuContent` 기본 너비가 320px라 Figma 너비와 다르면 `sx`로 맞춘다. Top Navigation의 Leading(뒤로가기)·Trailing 아이콘 버튼은 `TopNavigation`의 `leadingContent`/`trailingContent`에 `TopNavigationButton variant="icon"`으로 넣는다. 단, 아카이빙 상세처럼 사진 위 흰 아이콘 버튼은 `TopNavigationButton`의 `color`가 `primary`/`assistive`만 받아서, 내부에서 렌더링되는 `IconButton`(`variant="normal"`, `size={24}`, `color="semantic.static.white"`)을 직접 쓴다. `Icon/Normal/Share`는 `IconShare`로 대응된다.
+
+아카이빙 목록 화면의 연도 필터 칩(`Chip`, `1276:95404`)과 사진 카드(`Left-Large`/`Left-Medium`/`Right-Small`/`Right-Large`)는 WDS 컴포넌트 설명이 붙어 있지 않은 Stream 로컬 요소다 — 칩 스타일은 아래 "빌릴게 필터 Chip" 반례와 같아서, 최근 연도 칩은 빌릴게·행사와 공용인 `components/ui/FilterChipGroup.tsx`를 그대로 쓴다(이전 연도 드롭다운 트리거만 같은 칩 모양의 로컬 버튼이라 `getFilterChipClassName`을 가져다 쓴다). 코드는 `src/features/archives/components/` 참고.
 
 ### `Typography` — 텍스트 스타일은 Figma 인스턴스 스캔에 안 잡혀서 뒤늦게 확인됨
 
@@ -626,3 +638,31 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 - **빈 상태는 `EventsEmptyState` 재사용**: 그림·버튼 모양은 행사 목록 빈 상태와 같고, 설명 굵기만 다르다(행사 목록 Medium, 신청내역 Regular) — `descriptionWeight`로 고른다. 위치는 목록 영역 가운데가 아니라 Figma대로 토글 아래 176px이다.
 - **탭은 경로로 나눈다**: 행사 `/events`, 신청내역 `/events/applications`, 상세 `/events/applications/:applicationId`. 같은 목록 화면이 주소로 탭을 고르고, 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않는다. 신청내역 탭은 Figma에 상태 필터 행이 없어서 숨긴다. 하단 탭은 `/events/applications`에서도 "행사"가 선택된다.
 - **취소는 목록까지 반영된다**: 취소 API(`cancelMyEventApplication`)가 목데이터를 바꾸고 목록·상세 조회 캐시를 지운다. 상세는 다시 그리는 업데이트를 transition으로 묶어 새 데이터를 받는 동안 스켈레톤 대신 지금 화면을 유지하고, 토스트는 취소된 화면과 함께 뜬다. 실패 토스트 문구("신청 취소에 실패했어요. 다시 시도해 주세요.")는 Figma에 없어 임의로 정했다.
+
+## 알림(`3595:107100` 목록 / `3595:107112` empty / `3628:110837` 설정) 구현 중 확정된 매핑
+
+코드는 `src/features/notifications/` 참고.
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| `Switch/Switch` (`679:16080`, Small) | `Switch size="small"` | 39×24, 켜짐 배경 `Primary/Normal`(#0066FF), 꺼짐 `Fill/Strong` — 실측으로 Figma와 일치한다. 값은 `checked`/`onCheckedChange`로 제어한다 |
+| `Icon/Normal/Setting` (`492:5735`) | `IconSetting` | 알림 목록 헤더 트레일링 설정 버튼. `ScreenHeader variant="normal"`의 `trailing` + `TopNavigationButton variant="icon"` |
+| `Icon/Normal/Chevron Left` | `IconChevronLeft` | 뒤로가기 — 다른 `variant="normal"` 화면과 같다 |
+| `Divider(new)` 8px (`487:19439`) | `<div className="h-2 … bg-background-alternative">` | 검색 전체 탭의 섹션 구분 띠와 같은 로컬 처리 |
+| `Icon/Normal/Megaphone`·`Icon/Normal/Ticket` | 쓰지 않음 | 알림 항목의 카테고리 아이콘은 WDS 아이콘이 아니라 24px 배지 전체(`알림 - 공지` 등 6종)가 Stream 로컬 에셋이다. 배경(`#F7F7F8`, radius 6)과 아이콘 색이 종류마다 고정이라 `src/assets/icons/notifications/*.svg`로 받았다 |
+
+### `Notification Item`은 Stream 로컬이다
+
+항목 하나(`3595:107106`)는 카테고리 배지·라벨·상대 시간 줄 + 메시지 줄로 이뤄진 Stream 고유 목록 행이다. WDS `List`/`Card` 계열과 구조가 달라 `NotificationsItem`으로 새로 만들었고 텍스트는 `Typography`로 채웠다(라벨 `caption1`/`regular`, 시간 `caption2`/`regular`, 메시지 `label1-reading`/`medium`).
+
+- 안 읽은 항목만 `Atomic/Blue/99` 배경이라 `index.css`에 `--color-notification-unread` 토큰을 추가했다. **아이콘 색은 읽음 여부와 상관없다** — 처음엔 첫 항목만 진한 아이콘으로 보여 읽음 표현이라고 오해하기 쉬운데, `빌릴게 반납`·`공지`·`행사`는 원래 진한 파랑, `빌릴게 대여`·`열린피드백`은 원래 연한 파랑이다.
+- 항목을 눌렀을 때 이동은 디자인에 없어서 읽음 처리까지만 넣었다.
+- 에셋은 `download_assets`의 whole-node svg 내보내기에 컴포넌트 세트 배경(회색 사각형, 가로 5천 px짜리 프레임 도형)이 같이 딸려 와서, 그중 `알림 - …` 24px 배지 그룹만 꺼내 `viewBox="0 0 24 24"` svg로 다시 감쌌다. 공지·행사·열린피드백은 `download_assets`의 `svgAssets`가 회전한 Ratio 레이어 조각으로 쪼개져 나와서 쓸 수 없었다.
+
+### Empty State는 폭을 고정하지 않는다
+
+행사·검색 empty와 같은 뼈대지만 Figma 컨테이너 폭 203px은 가장 긴 문구("새로운 소식이 있으면 알려 드릴게요.")에 맞춘 값이다. `w-[203px]`로 고정하면 폰트 폭이 0.2px만 넓어도(Pretendard를 못 불러온 환경에서 실제로 203.2px) 마지막 글자 "요."가 다음 줄로 넘어간다 — 문구 폭에 맡긴다. 수직 위치는 프레임 전체 높이 기준 가운데(헤더 56px만큼 `pb-14`로 올림)이고, 812px 뷰포트에서 중심이 406px로 Figma와 같다.
+
+### 설정 화면의 "전체 알림"은 상태를 따로 두지 않는다
+
+Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독립된 값이 아니라 카테고리가 모두 켜졌는지로 파생한다. 누르면 네 카테고리를 같은 값으로 맞추고, 하나라도 끄면 전체가 꺼진다. 값은 화면 state뿐이라 새로고침하면 초기값으로 돌아간다(서버 API 연동 때 교체).
