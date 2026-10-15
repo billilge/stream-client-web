@@ -23,14 +23,27 @@ import {
   EVENTS_TEXT_MAX_LENGTH,
 } from "@/features/events/constants/eventsApplication";
 
-interface EventsQuestionFieldProps {
+interface EventsQuestionFieldBaseProps {
   question: EventsQuestion;
   answer: EventsAnswer | undefined;
-  /** 없으면 읽기 전용 — 신청내역 상세처럼 제출한 답변을 보여 주기만 한다 */
-  onAnswerChange?: (answer: EventsAnswer) => void;
   /** 취소된 신청내역처럼 입력들을 흐리게(비활성) 보여 준다 */
   disabled?: boolean;
 }
+
+// 읽기 전용은 readOnly로 명시한다. 입력 폼은 onAnswerChange가 필수라, 콜백을 빠뜨리면
+// 조용히 읽기 전용 폼이 되지 않고 타입 검사에서 걸린다.
+type EventsQuestionFieldProps = EventsQuestionFieldBaseProps &
+  (
+    | {
+        /** 신청내역 상세처럼 제출한 답변을 보여 주기만 한다 */
+        readOnly: true;
+        onAnswerChange?: never;
+      }
+    | {
+        readOnly?: false;
+        onAnswerChange: (answer: EventsAnswer) => void;
+      }
+  );
 
 const TEXT_AREA_TYPOGRAPHY = css`
   & textarea,
@@ -49,15 +62,15 @@ function toChoiceAnswer(answer: EventsAnswer | undefined): EventsChoiceAnswer {
 // 제목 옆 "*"는 WDS `Label required`를 쓰지 않았다 — Figma의 Field Label은 WDS 인스턴스가 아닌
 // 로컬 텍스트이고, `*`도 Body 1/Bold(16px)라 Label이 그리는 label1/medium(14px)과 크기가 다르다.
 //
-// 신청내역 상세(1133:46181)는 같은 카드를 읽기 전용으로 쓴다 — 선택 표시는 그대로 두고 바꿀 수만 없다.
+// 신청내역 상세(1133:46181)는 같은 카드를 readOnly로 쓴다 — 선택 표시는 그대로 두고 바꿀 수만 없다.
 // 신청취소 상세(1133:46216)는 입력들이 흐린 비활성 모양이라 disabled를 넘긴다.
 function EventsQuestionField({
   question,
   answer,
   onAnswerChange,
   disabled = false,
+  readOnly: isReadOnly = false,
 }: EventsQuestionFieldProps) {
-  const isReadOnly = onAnswerChange === undefined;
   // 비활성(취소된 신청)이면 선택지 글자도 Label/Disable로 흐리게 한다(Figma 1133:46240)
   const optionColor = disabled
     ? "semantic.label.disable"

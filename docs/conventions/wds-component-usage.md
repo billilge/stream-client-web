@@ -632,7 +632,7 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 | 상세 `신청 취소` | `Button size="medium" color="primary" variant="outlined"` + `sx` | WDS Button 색이 primary/assistive뿐이라 글자·테두리(`box-shadow` inset)만 `Status/Negative`로 덮는다. outlined primary가 SemiBold 글자라 primary를 고른다 |
 | 신청취소 확인모달 | `ConfirmModal tone="negative"` | 사물함 신청 확인 모달과 같은 공용 모달이고, `tone="negative"`가 느낌표 아이콘 + 빨간 확인 버튼을 그린다 |
 | 취소 완료 토스트 | `ScreenToast variant="positive"` | 체크 아이콘이 WDS 기본값 그대로 |
-| 상세 문항 `Control/Checkbox`·`Control/Radio`·`Textinput/Textarea` | 신청 폼의 `EventsQuestionField` 재사용 | 답변 변경 콜백을 넘기지 않으면 읽기 전용(선택 표시는 그대로, 바꿀 수 없음). 신청취소 상세는 `disabled`로 WDS 비활성 모양을 쓰고, 선택지 글자는 `Label/Disable`(Figma `1133:46240`) |
+| 상세 문항 `Control/Checkbox`·`Control/Radio`·`Textinput/Textarea` | 신청 폼의 `EventsQuestionField` 재사용 | `readOnly`로 읽기 전용(선택 표시는 그대로, 바꿀 수 없음). 입력 폼은 `onAnswerChange`가 필수라 빠뜨리면 타입 검사에서 걸린다. 신청취소 상세는 `disabled`로 WDS 비활성 모양을 쓰고, 선택지 글자는 `Label/Disable`(Figma `1133:46240`) |
 
 - **카드·요약은 Stream 로컬**: 신청내역 카드(`EventsApplicationCard`, 70px 회색 썸네일 + 배지·제목·일시 + 버튼 2개)와 상세 요약(`EventsApplicationSummary`)은 로컬이다. 요약은 신청 폼·완료 화면의 `EventsSummaryCard`(아이콘 + 일시·장소)와 달리 "행사·신청·취소" 라벨 행이라 따로 뒀다.
 - **빈 상태는 `EventsEmptyState` 재사용**: 그림·버튼 모양은 행사 목록 빈 상태와 같고, 설명 굵기만 다르다(행사 목록 Medium, 신청내역 Regular) — `descriptionWeight`로 고른다. 위치는 목록 영역 가운데가 아니라 Figma대로 토글 아래 176px이다.

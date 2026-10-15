@@ -42,6 +42,7 @@ function EventsApplicationDetailContent({
             disabled={isCancelled}
             key={question.id}
             question={question}
+            readOnly
           />
         ))}
       </div>
