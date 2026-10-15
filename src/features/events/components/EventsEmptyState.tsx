@@ -5,9 +5,8 @@ import emptyEventsIllustration from "@/assets/icons/events/empty-events.svg";
 interface EventsEmptyStateProps {
   title: string;
   description: string;
-  /** 있을 때만 버튼을 노출한다 — Figma는 모집중 필터에만 "아카이빙 둘러보기"를 둔다 */
-  actionLabel?: string;
-  onAction?: () => void;
+  /** 있을 때만 버튼을 노출한다 — 문구와 동작을 한 묶음으로 받아, 동작 없는 버튼이 그려지지 않게 한다 */
+  action?: { label: string; onClick: () => void };
   /** 설명 굵기 — 행사 목록 empty(1165:62725)는 Medium, 신청내역 empty(1410:52742)는 Regular다 */
   descriptionWeight?: "medium" | "regular";
 }
@@ -20,8 +19,7 @@ interface EventsEmptyStateProps {
 function EventsEmptyState({
   title,
   description,
-  actionLabel,
-  onAction,
+  action,
   descriptionWeight = "medium",
 }: EventsEmptyStateProps) {
   return (
@@ -51,16 +49,14 @@ function EventsEmptyState({
           </Typography>
         </div>
 
-        {actionLabel && (
-          // 행사 목록의 "아카이빙 둘러보기"는 아카이빙 화면이 아직 없어서 onAction 없이 둔다.
-          // TODO: 아카이빙 목록 화면(billilge/stream-client-web#31)이 생기면 연결한다
+        {action && (
           <Button
             color="assistive"
-            onClick={onAction}
+            onClick={action.onClick}
             size="small"
             variant="outlined"
           >
-            {actionLabel}
+            {action.label}
           </Button>
         )}
       </div>

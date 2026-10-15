@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { ARCHIVES_PATH } from "@/features/archives/constants/archives";
 import EventsApplicationList from "@/features/events/components/EventsApplicationList";
 import EventsApplicationListSkeleton from "@/features/events/components/EventsApplicationListSkeleton";
 import EventsList from "@/features/events/components/EventsList";
@@ -98,6 +99,9 @@ function EventsListScreen({ tab }: EventsListScreenProps) {
             <EventsList
               onApply={(eventId) =>
                 navigate(`/events/${eventId}/apply`, { viewTransition: true })
+              }
+              onBrowseArchives={() =>
+                navigate(ARCHIVES_PATH, { viewTransition: true })
               }
               onSelect={(eventId) =>
                 navigate(`/events/${eventId}`, { viewTransition: true })
