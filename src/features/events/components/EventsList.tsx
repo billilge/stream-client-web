@@ -11,7 +11,7 @@ import EventsEmptyState from "@/features/events/components/EventsEmptyState";
 // 버튼은 Figma가 지정한 모집중에만 노출한다 — 모집종료 필터에서 "지난 행사를 보세요"는 모순이 된다.
 const EMPTY_STATE_BY_FILTER: Record<
   string,
-  { title: string; description: string; actionLabel?: string }
+  { title: string; description: string; hasArchivesAction?: boolean }
 > = {
   all: {
     description: "새로운 행사가 열리면 알려드릴게요",
@@ -22,7 +22,7 @@ const EMPTY_STATE_BY_FILTER: Record<
     title: "지난 행사가 없어요",
   },
   open: {
-    actionLabel: "아카이빙 둘러보기",
+    hasArchivesAction: true,
     description: "지난 행사의 활동을 확인해 보세요",
     title: "모집 중인 행사가 없어요",
   },
@@ -36,11 +36,17 @@ interface EventsListProps {
   statusFilter: string;
   onSelect: (eventId: string) => void;
   onApply: (eventId: string) => void;
+  onBrowseArchives: () => void;
 }
 
 // 행사 목록 데이터를 받아 그리는 부분. 데이터를 받는 동안은 EventsListScreen의 Suspense가
 // EventsListSkeleton을 보여준다. 이동 같은 화면 동작은 Screen이 콜백으로 넘긴다.
-function EventsList({ statusFilter, onSelect, onApply }: EventsListProps) {
+function EventsList({
+  statusFilter,
+  onSelect,
+  onApply,
+  onBrowseArchives,
+}: EventsListProps) {
   const events = use(fetchEvents());
 
   // 빌릴게 카테고리 필터와 달리 모집 상태는 목데이터에 이미 들어있어서 실제로 걸러낼 수 있다.
@@ -50,14 +56,21 @@ function EventsList({ statusFilter, onSelect, onApply }: EventsListProps) {
       : events.filter((event) => event.status === statusFilter);
 
   if (visibleEvents.length === 0) {
+    const emptyState =
+      EMPTY_STATE_BY_FILTER[statusFilter] ?? EMPTY_STATE_BY_FILTER.all;
     return (
       // Figma는 Empty State를 목록 영역(헤더·Bottom Nav 사이) 가운데에 둔다.
       // 카드 목록과 같은 gap-6 래퍼 안에 넣으면 flex-1이 높이를 못 받아 위에 붙어버려서,
       // 빈 목록일 때는 래퍼를 대체해 h-full로 가운데 정렬한다.
       <div className="flex h-full items-center justify-center">
         <EventsEmptyState
-          {...(EMPTY_STATE_BY_FILTER[statusFilter] ??
-            EMPTY_STATE_BY_FILTER.all)}
+          action={
+            emptyState.hasArchivesAction
+              ? { label: "아카이빙 둘러보기", onClick: onBrowseArchives }
+              : undefined
+          }
+          description={emptyState.description}
+          title={emptyState.title}
         />
       </div>
     );

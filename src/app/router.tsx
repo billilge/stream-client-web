@@ -13,6 +13,7 @@ import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
 import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
+import EventsApplicationDetailScreen from "@/features/events/EventsApplicationDetailScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
@@ -53,10 +54,25 @@ const routes = [
             path: "/bililge",
           },
           {
-            element: <EventsListScreen />,
+            element: <EventsListScreen tab="event" />,
             // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/events",
+          },
+          {
+            element: <EventsListScreen tab="application" />,
+            // 행사 목록의 신청내역 탭 — 같은 화면을 탭만 바꿔 그리고, 하단 탭은 "행사"가 선택된다
+            handle: {
+              background: "normal",
+              bottomNavValue: "event",
+            } satisfies ScreenRouteHandle,
+            path: "/events/applications",
+          },
+          {
+            element: <EventsApplicationDetailScreen />,
+            // 하단 탭 없이 회색 배경(기본값) — 흰 카드가 뜬다
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/events/applications/:applicationId",
           },
           {
             element: <NoticesListScreen />,
