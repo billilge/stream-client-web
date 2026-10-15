@@ -159,3 +159,10 @@ const MY_EVENT_APPLICATIONS_MOCK_STATE: MyEventApplicationsMockState = "list";
 // 신청 취소가 이 배열의 항목을 바꾼다(eventsApi의 cancelMyEventApplication) — 목록·상세에 같이 반영된다.
 export const MY_EVENT_APPLICATIONS_MOCK: MyEventApplication[] =
   MY_EVENT_APPLICATIONS_MOCK_STATE === "list" ? APPLICATIONS : [];
+
+// 목데이터 일시 형식("2026-06-04T13:00", 분 단위·현지 시각)으로 바꾼다 — 신청 취소 시각처럼 목에서 새로 만드는
+// 값에 쓴다. 화면 표기용이 아니다(표기는 lib/date). 실 API가 붙으면 서버가 시각을 정해 주므로 같이 지운다.
+export function toMockDateTime(date: Date) {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}

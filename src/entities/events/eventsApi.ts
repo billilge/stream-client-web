@@ -1,6 +1,7 @@
 import {
   EVENTS,
   MY_EVENT_APPLICATIONS_MOCK,
+  toMockDateTime,
 } from "@/entities/events/eventsMock";
 import type { EventItem, MyEventApplication } from "@/entities/events/types";
 import {
@@ -29,12 +30,6 @@ export function fetchEvent(eventId: string): Promise<EventItem | null> {
     eventsKeys.event(eventId),
     () => EVENTS.find((event) => event.id === eventId) ?? null,
   );
-}
-
-// "2026-06-04T13:00" — 목데이터의 일시 형식(분 단위, 현지 시각)
-function toLocalDateTime(date: Date) {
-  const pad = (value: number) => String(value).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 export function fetchMyEventApplications(): Promise<MyEventApplication[]> {
@@ -70,7 +65,7 @@ export async function cancelMyEventApplication(
     const next: MyEventApplication = {
       ...MY_EVENT_APPLICATIONS_MOCK[index],
       // 실 API에서는 서버가 취소 시각을 정해 돌려준다
-      cancelledAt: toLocalDateTime(new Date()),
+      cancelledAt: toMockDateTime(new Date()),
       status: "cancelled",
     };
     MY_EVENT_APPLICATIONS_MOCK[index] = next;
