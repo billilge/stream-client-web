@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import logo from "@/assets/icons/home/logo.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import { ARCHIVES_PATH } from "@/features/archives/constants/archives";
 import { BILILGE_TAB_PATHS } from "@/features/bililge/constants/bililge";
 import { useBililgeReturnRequest } from "@/features/bililge/hooks/useBililgeReturnRequest";
 import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
@@ -148,7 +149,7 @@ function HomeScreen() {
               />
             </div>
             <div className="px-5">
-              <HomeArchiveBanner />
+              <HomeArchiveBanner onSelect={() => push(ARCHIVES_PATH)} />
             </div>
           </div>
         </div>
