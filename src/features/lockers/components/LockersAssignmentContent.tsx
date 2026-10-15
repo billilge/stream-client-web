@@ -2,8 +2,8 @@ import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 import { IconChevronRight } from "@wanteddev/wds-icon";
 import { use } from "react";
 
-import emptyEventsIllustration from "@/assets/icons/events/empty-events.svg";
 import { fetchMyLockerAssignment } from "@/entities/lockers/lockersApi";
+import LockersEmptyState from "@/features/lockers/components/LockersEmptyState";
 import { LOCKER_STATUS_BADGES } from "@/features/lockers/constants/lockers";
 import { formatDate, formatDateTime } from "@/lib/date";
 
@@ -22,23 +22,11 @@ function LockersAssignmentContent({
   const assignment = use(fetchMyLockerAssignment());
 
   if (!assignment) {
+    // TODO: 연도(학기 기준)는 API가 붙으면 서버 값으로 받는다 — 지금은 기기 시계의 올해다
     const year = new Date().getFullYear();
     return (
       <div className="flex justify-center pt-50">
-        {/* Figma: Empty State (nodeId 3147:148336) — 행사 목록과 같은 그림, 타이틀만 있다 */}
-        <div className="flex w-66.75 flex-col items-center gap-3">
-          <div className="flex size-20.25 items-center justify-center">
-            <img alt="" src={emptyEventsIllustration} />
-          </div>
-          <Typography
-            align="center"
-            color="semantic.label.neutral"
-            variant="body2"
-            weight="bold"
-          >
-            {year} 사물함 신청내역이 없어요
-          </Typography>
-        </div>
+        <LockersEmptyState title={`${year} 사물함 신청내역이 없어요`} />
       </div>
     );
   }

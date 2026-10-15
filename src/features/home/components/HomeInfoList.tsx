@@ -1,7 +1,7 @@
 import { ContentBadge, Typography } from "@wanteddev/wds";
 import type { ReactNode } from "react";
 
-import arrowRight from "@/assets/icons/home/arrow-right.svg";
+import arrowRight from "@/assets/icons/common/arrow-right.svg";
 import arrowUpRight from "@/assets/icons/home/arrow-up-right.svg";
 import infoFee from "@/assets/icons/home/info-fee.svg";
 import infoFeedback from "@/assets/icons/home/info-feedback.svg";
