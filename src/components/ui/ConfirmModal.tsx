@@ -4,6 +4,7 @@ import type { KeyboardEvent } from "react";
 import { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
 
+import { NEGATIVE_BUTTON_SX } from "@/components/ui/negativeButtonSx";
 import { useScreenSheetPortal } from "@/components/ui/useScreenSheetPortal";
 
 // 모달 안에서 Tab이 돌 수 있는 요소들 — 포커스를 가둘 때 첫/마지막을 찾는 데 쓴다
@@ -192,11 +193,8 @@ function ConfirmModal({
             fullWidth
             onClick={onConfirm}
             size="medium"
-            // WDS Button 색상은 primary/assistive뿐이라 위험 버튼은 배경색만 토큰으로 덮어쓴다
             sx={{
-              backgroundColor: isNegative
-                ? "var(--color-status-negative)"
-                : undefined,
+              ...(isNegative && NEGATIVE_BUTTON_SX.solid),
               paddingBlock: "12px",
             }}
             variant="solid"

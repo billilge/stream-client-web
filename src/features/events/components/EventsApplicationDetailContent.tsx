@@ -2,6 +2,7 @@ import { Button } from "@wanteddev/wds";
 import { use } from "react";
 import { Navigate } from "react-router-dom";
 
+import { NEGATIVE_BUTTON_SX } from "@/components/ui/negativeButtonSx";
 import { fetchMyEventApplication } from "@/entities/events/eventsApi";
 import EventsApplicationSummary from "@/features/events/components/EventsApplicationSummary";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
@@ -47,18 +48,14 @@ function EventsApplicationDetailContent({
         ))}
       </div>
       {/* Figma 신청취소 상세(1133:46216)에는 버튼이 없다 — 신청완료일 때만 보인다.
-          WDS Button 색은 primary/assistive뿐이라 outlined primary(SemiBold 글자)에 글자·테두리 색만
-          Status/Negative로 덮는다(ConfirmModal의 위험 버튼과 같은 방식). */}
+          outlined primary(SemiBold 글자)에 빨간 글자·테두리를 덮는다(NEGATIVE_BUTTON_SX). */}
       {!isCancelled && (
         <Button
           color="primary"
           disabled={isCancelling}
           onClick={onCancel}
           size="medium"
-          sx={{
-            boxShadow: "inset 0 0 0 1px var(--color-status-negative)",
-            color: "var(--color-status-negative)",
-          }}
+          sx={NEGATIVE_BUTTON_SX.outlined}
           variant="outlined"
         >
           신청 취소
