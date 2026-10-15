@@ -93,9 +93,11 @@ function EventsListScreen({ tab }: EventsListScreenProps) {
       )}
 
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
-        {/* 헤더·토글·필터는 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다 */}
+        {/* 헤더·토글·필터는 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다.
+            탭 전환은 라우터 이동(transition)이라, 두 Suspense가 같은 자리의 같은 경계로 보이면 새 탭 데이터를
+            받는 동안 이전 탭 화면을 붙잡아 탭이 멈춘 것처럼 보인다 — key로 탭마다 다른 경계로 둔다. */}
         {tab === "event" ? (
-          <Suspense fallback={<EventsListSkeleton />}>
+          <Suspense fallback={<EventsListSkeleton />} key="event">
             <EventsList
               onApply={(eventId) =>
                 navigate(`/events/${eventId}/apply`, { viewTransition: true })
@@ -110,7 +112,10 @@ function EventsListScreen({ tab }: EventsListScreenProps) {
             />
           </Suspense>
         ) : (
-          <Suspense fallback={<EventsApplicationListSkeleton />}>
+          <Suspense
+            fallback={<EventsApplicationListSkeleton />}
+            key="application"
+          >
             <EventsApplicationList
               // 행사 탭은 같은 화면의 형제 탭이라 슬라이드 없이 바꾼다
               onBrowseEvents={() =>
