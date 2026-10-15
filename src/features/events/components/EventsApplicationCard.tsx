@@ -1,10 +1,8 @@
 import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 
 import type { MyEventApplication } from "@/entities/events/types";
-import {
-  EVENTS_APPLICATION_STATUS_BADGES,
-  formatApplicationDateTime,
-} from "@/features/events/constants/events";
+import { EVENTS_APPLICATION_STATUS_BADGES } from "@/features/events/constants/events";
+import { formatDateTime } from "@/lib/date";
 
 interface EventsApplicationCardProps {
   application: MyEventApplication;
@@ -24,8 +22,8 @@ function EventsApplicationCard({
   const badge = EVENTS_APPLICATION_STATUS_BADGES[application.status];
   const dateLabel =
     application.status === "cancelled"
-      ? `${formatApplicationDateTime(application.cancelledAt)} 취소`
-      : `${formatApplicationDateTime(application.appliedAt)} 신청`;
+      ? `${formatDateTime(application.cancelledAt)} 취소`
+      : `${formatDateTime(application.appliedAt)} 신청`;
 
   return (
     <div className="flex flex-col gap-4 px-5">

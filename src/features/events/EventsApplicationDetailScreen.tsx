@@ -1,7 +1,7 @@
 import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { Suspense, startTransition, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -11,13 +11,13 @@ import { cancelMyEventApplication } from "@/entities/events/eventsApi";
 import EventsApplicationDetailContent from "@/features/events/components/EventsApplicationDetailContent";
 import EventsApplicationDetailSkeleton from "@/features/events/components/EventsApplicationDetailSkeleton";
 import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 type CancelToast = "cancelled" | "failed";
 
 // Figma: 신청내역 상세 (nodeId 1133:46181), 신청취소 확인모달 (1133:46131), 신청취소 상세 + 토스트 (1133:46216)
 function EventsApplicationDetailScreen() {
   const { applicationId = "" } = useParams();
-  const navigate = useNavigate();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [toast, setToast] = useState<CancelToast | null>(null);
@@ -49,14 +49,7 @@ function EventsApplicationDetailScreen() {
   };
 
   // 바로 들어와 뒤로 갈 히스토리가 없으면 신청내역 목록으로 보낸다
-  const goBack = () => {
-    const historyIndex = (window.history.state as { idx?: number } | null)?.idx;
-    if (historyIndex !== undefined && historyIndex > 0) {
-      navigate(-1);
-      return;
-    }
-    navigate(EVENTS_TAB_PATHS.application, { replace: true });
-  };
+  const goBack = useBackNavigation(EVENTS_TAB_PATHS.application);
 
   useScreenHeader(
     <ScreenHeader
@@ -79,6 +72,7 @@ function EventsApplicationDetailScreen() {
       <Suspense fallback={<EventsApplicationDetailSkeleton />}>
         <EventsApplicationDetailContent
           applicationId={applicationId}
+          fallbackPath={EVENTS_TAB_PATHS.application}
           isCancelling={isCancelling}
           key={applicationId}
           onCancel={() => setIsConfirmOpen(true)}

@@ -1,10 +1,8 @@
 import { ContentBadge, Typography } from "@wanteddev/wds";
 
 import type { MyEventApplication } from "@/entities/events/types";
-import {
-  EVENTS_APPLICATION_STATUS_BADGES,
-  formatApplicationDateTime,
-} from "@/features/events/constants/events";
+import { EVENTS_APPLICATION_STATUS_BADGES } from "@/features/events/constants/events";
+import { formatDateTime } from "@/lib/date";
 
 // Figma: 신청내역 상세 Event Summary (nodeId 1133:46188), 신청취소 상세 (1133:46223) — Stream 로컬 카드.
 // 신청 폼·완료 화면의 EventsSummaryCard(아이콘 + 일시·장소)와 달리 "행사·신청·취소" 라벨 행이라 따로 둔다.
@@ -17,14 +15,14 @@ function EventsApplicationSummary({
   const rows = [
     {
       label: "행사",
-      value: `${formatApplicationDateTime(application.eventDateTime)} · ${application.location}`,
+      value: `${formatDateTime(application.eventDateTime)} · ${application.location}`,
     },
-    { label: "신청", value: formatApplicationDateTime(application.appliedAt) },
+    { label: "신청", value: formatDateTime(application.appliedAt) },
     ...(application.status === "cancelled"
       ? [
           {
             label: "취소",
-            value: formatApplicationDateTime(application.cancelledAt),
+            value: formatDateTime(application.cancelledAt),
           },
         ]
       : []),
