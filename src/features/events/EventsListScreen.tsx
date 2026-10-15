@@ -5,7 +5,7 @@ import {
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { Suspense, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -22,12 +22,14 @@ import {
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
+interface EventsListScreenProps {
+  /** 행사/신청내역 탭 — 탭마다 경로가 달라서 라우터가 정해 넘긴다 */
+  tab: EventsTab;
+}
+
 // Figma: 행사 (nodeId 1243:70854)
-function EventsListScreen() {
+function EventsListScreen({ tab }: EventsListScreenProps) {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const tab: EventsTab =
-    pathname === EVENTS_TAB_PATHS.application ? "application" : "event";
   const [statusFilter, setStatusFilter] = useState("all");
 
   useScreenHeader(
