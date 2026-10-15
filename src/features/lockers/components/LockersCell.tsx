@@ -3,10 +3,11 @@ import { Typography } from "@wanteddev/wds";
 import lockerUnavailableIcon from "@/assets/icons/lockers/locker-unavailable.svg";
 import type { LockersSectionLocker } from "@/features/lockers/constants/lockersSectionDetails";
 
-interface LockersLockerCellProps {
+interface LockersCellProps {
   locker: LockersSectionLocker;
   isSelected: boolean;
-  onSelect: (lockerNumber: number) => void;
+  /** 없으면 보기 전용 — 칸을 누를 수 없다(내 사물함 화면) */
+  onSelect?: (lockerNumber: number) => void;
 }
 
 // Figma: Locker Cell (nodeId 2159:110833 외) — Stream 로컬. 28px 정사각형, Orange/95 배경에
@@ -20,12 +21,14 @@ interface LockersLockerCellProps {
 // Background/Normal/Normal(흰색) SemiBold로 바꾼다.
 //
 // 내 사물함은 Figma에 상태가 없어서 임시로 초록 테두리를 둔다(이미 신청한 칸이라 고를 수 없다).
-function LockersLockerCell({
-  locker,
-  isSelected,
-  onSelect,
-}: LockersLockerCellProps) {
-  if (locker.isMine) {
+//
+// 보기 전용(onSelect 없음 — 내 사물함 화면)에서는 칸을 버튼으로 그리지 않는다. 선택된 칸은 같은
+// 선택 모양으로 그려서, 내 사물함 화면은 내 칸을 선택된 칸으로 넘기기만 하면 된다.
+// 선택된 칸에는 data-selected를 붙인다 — LockersMapView가 처음 열 때 이 칸이 보이게 스크롤한다.
+function LockersCell({ locker, isSelected, onSelect }: LockersCellProps) {
+  const isViewOnly = onSelect === undefined;
+
+  if (locker.isMine && !isViewOnly) {
     return (
       <div
         aria-label={`${locker.lockerLabel} 내 사물함`}
@@ -44,7 +47,8 @@ function LockersLockerCell({
     );
   }
 
-  if (!locker.isAvailable) {
+  // 보기 전용으로 표시하는 칸(내 칸)은 서버에서 선택 불가로 와도(이미 배정됨) 선택 모양으로 그린다
+  if (!locker.isAvailable && !isSelected) {
     return (
       <img
         alt={`${locker.lockerLabel} 선택 불가`}
@@ -54,29 +58,50 @@ function LockersLockerCell({
     );
   }
 
+  const className = `flex size-7 items-center justify-center rounded-sm ${
+    isSelected ? "bg-primary" : "bg-orange-95"
+  }`;
+  const number = (
+    <Typography
+      as="span"
+      color={
+        isSelected
+          ? "semantic.background.normal.normal"
+          : "semantic.label.neutral"
+      }
+      variant="caption2"
+      weight={isSelected ? "bold" : "regular"}
+    >
+      {locker.lockerNumber}
+    </Typography>
+  );
+
+  if (isViewOnly) {
+    return (
+      <div
+        aria-label={
+          isSelected ? `${locker.lockerLabel} 선택됨` : locker.lockerLabel
+        }
+        className={className}
+        data-selected={isSelected || undefined}
+        role="img"
+      >
+        {number}
+      </div>
+    );
+  }
+
   return (
     <button
       aria-pressed={isSelected}
-      className={`flex size-7 items-center justify-center rounded-sm ${
-        isSelected ? "bg-primary" : "bg-orange-95"
-      }`}
+      className={className}
+      data-selected={isSelected || undefined}
       onClick={() => onSelect(locker.lockerNumber)}
       type="button"
     >
-      <Typography
-        as="span"
-        color={
-          isSelected
-            ? "semantic.background.normal.normal"
-            : "semantic.label.neutral"
-        }
-        variant="caption2"
-        weight={isSelected ? "bold" : "regular"}
-      >
-        {locker.lockerNumber}
-      </Typography>
+      {number}
     </button>
   );
 }
 
-export default LockersLockerCell;
+export default LockersCell;
