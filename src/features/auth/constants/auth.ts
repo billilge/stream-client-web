@@ -1,6 +1,6 @@
-import eventsIllustration from "@/assets/images/auth/login-events.png";
-import feedbacksIllustration from "@/assets/images/auth/login-feedbacks.png";
-import noticesIllustration from "@/assets/images/auth/login-notices.png";
+import eventsIllustration from "@/assets/images/auth/login-events.webp";
+import feedbacksIllustration from "@/assets/images/auth/login-feedbacks.webp";
+import noticesIllustration from "@/assets/images/auth/login-notices.webp";
 
 // 로그인·온보딩 퍼널의 라우트 경로. 용어 사전(terminology.md)의 공통(`auth`) 아래에 둔다.
 // 연락처·약관 동의 같은 단계는 이 경로 하나 안에서 useFunnel이 `?auth.step=`으로 나눈다.
