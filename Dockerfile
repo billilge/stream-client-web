@@ -20,6 +20,10 @@ RUN --mount=type=secret,id=node_auth_token \
     mv .npmrc.bak .npmrc
 
 COPY . .
+
+# K-CONNECT client_id는 Vite가 빌드 시점에 번들에 넣는 값이라 빌드 인자로 받는다(.env.example 참고).
+# 비밀값이 아닌 공개 식별자라 시크릿이 아닌 일반 빌드 인자로 둔다. 의존성 설치 레이어 캐시가 깨지지 않도록 COPY 뒤에 둔다.
+ARG VITE_KCONNECT_CLIENT_ID
 RUN pnpm build
 
 # ---- Runtime stage ----
