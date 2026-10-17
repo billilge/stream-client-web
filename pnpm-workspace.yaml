@@ -1,0 +1,5 @@
+# @billilge/oauth-kconnect는 Expo 앱용 의존성(expo-auth-session)을 optional peer로 선언하는데, pnpm의
+# autoInstallPeers가 그것까지 설치해서 웹에 필요 없는 Expo 의존성 수백 개가 딸려 온다.
+# 이 앱은 웹용 진입점(@billilge/oauth-kconnect/react)만 쓰므로 설치에서 뺀다.
+overrides:
+  expo-auth-session: "-"

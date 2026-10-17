@@ -649,3 +649,48 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 ### 설정 화면의 "전체 알림"은 상태를 따로 두지 않는다
 
 Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독립된 값이 아니라 카테고리가 모두 켜졌는지로 파생한다. 누르면 네 카테고리를 같은 값으로 맞추고, 하나라도 끄면 전체가 꺼진다. 값은 화면 state뿐이라 새로고침하면 초기값으로 돌아간다(서버 API 연동 때 교체).
+
+## 스플래시·로그인·온보딩(`3658:112096` / `3738:73115`, 화면설계서 `3747:74283` / `3747:74298`) 구현 중 확정된 매핑
+
+코드는 `src/features/auth/`, `src/entities/auth/` 참고.
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| `Control/Checkbox` (`440:11057`) | `Checkbox size="medium"` | Figma Control이 24px(박스 18 + 패딩 3)라 **`medium`**이다. 행사 신청 폼에서 쓴 `small`(20px, 패딩 2)이 아니다 — `checkbox/style.js`의 `checkboxSizeStyle`로 확인. 라벨 `x=52`(24 + 간격 8)가 Figma와 일치한다 |
+| `Textinput/Textfield` (`445:8591`) | `TextField` | 높이 48, 모서리 12, 입력 글자 16px이 Figma와 일치한다. 숫자 키패드(`inputMode="numeric"`, `type="tel"`)와 자동 하이픈은 화면에서 처리한다 |
+| `Divider/Divider` (`445:4786`) | `Divider color="semantic.line.normal.normal"` | 약관 동의 목록의 전체 동의/개별 항목 구분선(1px, `Line/Normal/Normal`) |
+| `divider(8px)` (`1256:77295`) | `Divider color="semantic.line.normal.alternative"` | 약관 상세의 조항 구분선(1px, `Line/Normal/Alternative`). **이름이 비슷한 위 구분선과 색이 다르다** |
+| `Action Area/Action Area` | `ActionArea` + `ActionAreaButton sx={{ paddingBlock: "16px" }}` | "Action Area 메인 버튼 높이" 규칙 그대로다. 비활성(`다음`)은 WDS disabled 스타일이 Figma `Interaction/Disable` 배경과 맞는다 |
+| `Icon/Normal/Chevron Left` | `IconChevronLeft` | 뒤로가기 — 다른 `variant="normal"` 화면과 같다 |
+| `Circle Check Motion` (`1712:192849`) | `CompleteCheck` + 공용 `ResultScreen` | 가입 완료 화면은 신청 완료 화면과 같은 뼈대(닫기 X, 체크 모션, 제목·설명, 하단 버튼)다. 새로 만들지 않고 재사용했고, 체크–문구 간격 8이라 `illustrationGap={8}` |
+
+### 반례 — `Pagination/Dots`는 WDS `PaginationDots`와 크기가 다르다
+
+Figma 닷은 지름 6px·간격 6px(중심 간격 12px)이다. WDS `PaginationDots`는 `small`이 8px·간격 8px(중심 간격 16px), `medium`이 10px이고, 닷 크기를 CSS 변수(`--wds-pagination-dot-size`)로만 바꿀 수 있어 내부 오버라이드가 된다(`pagination-dots/style.js` 확인). 그래서 `AuthPaginationDots`를 로컬로 짰다 — 현재 닷은 `Label/Normal`, 나머지는 같은 색 16% 불투명도.
+
+### 반례 — `K-CONNECT로 시작하기` 버튼은 WDS `ActionAreaButton`이 아니다
+
+배경이 K-CONNECT 브랜드색 `#004F9F`(Figma에서도 변수가 아니라 raw hex)이고 높이 57px·좌측 로고가 있어 WDS 버튼의 색·크기 스케일로 만들 수 없다. `AuthKConnectButton`을 로컬로 두고 색은 `index.css`에 `--color-k-connect` 토큰으로 추가했다.
+
+### 로그인 문구 블록의 Figma 아티팩트 — `Login Copy` 프레임이 50px로 고정돼 있다
+
+문구(제목 28 + 간격 4 + 설명 22 = 54px)가 프레임보다 4px 넘친다. Figma 좌표상 문구–닷 간격이 28px로 보이지만 실제 문구 끝에서 닷까지는 24px이라, 닷 위치(y=538)를 기준으로 `gap-6`을 썼다.
+
+### 로그인 위치는 앱 WebView 영역 기준이다
+
+Figma 프레임의 상태 표시줄(54px)과 홈 바(34px)는 앱 셸 몫이라 웹에는 없다. 로그인 브랜드 헤더 y=126 → 웹에서 72 같은 식으로 그 영역을 뺀 값이다. 브라우저에서 열면(상태 표시줄 없이 화면 전체가 웹) 같은 값이 위로 치우쳐 보여서, `isInAppShell()`이 아닐 때만 로그인 본문을 버튼 위 영역의 정가운데(auto 마진)에 둔다. 앱 WebView에서는 위 Figma 값 그대로다. 스플래시는 웹에서 쓰지 않아 구현하지 않았다.
+
+### K-CONNECT 로그인은 `@billilge/oauth-kconnect`(웹용 `/react`)로 한다
+
+`K-CONNECT로 시작하기`는 `useKConnectLogin({ clientId }).login()`으로 K-CONNECT 인증 사이트로 페이지를 이동시키고(PKCE, `state`는 패키지가 sessionStorage에 보관), 인증 후 K-CONNECT가 되돌려 보내는 `/oauth/kconnect`(`KConnectCallbackScreen`)가 `useKConnectCallback()`으로 `{ code, codeVerifier, redirectUri }`를 받는다. 이 경로는 K-CONNECT에 등록한 redirect URI이자 패키지가 정한 값이라 바꾸지 않는다. 받은 값은 서버(`POST /auth/kconnect`)로 보내 서비스 로그인을 마치는데, 서버 주소·응답 형식이 아직 없어서 `entities/auth/authApi.ts`의 `exchangeKConnectCode`가 응답만 흉내 낸다. 신규 사용자는 `/auth`로 이동하면서 이름을 navigate state로 넘겨 로그인 퍼널이 `initial`(주소에 단계가 없을 때만 쓰임)로 연락처 단계에서 시작하고, 기존 사용자는 홈으로 간다. 취소·오류(국민대 학생이 아니어서 거부된 경우 포함)나 서버 실패는 `/auth`로 돌아와 실패 토스트를 띄운다. 어느 경우든 주소창에 `code`가 남지 않도록 `replace`로 이동한다.
+
+- **설정:** `client_id`는 환경 변수 `VITE_KCONNECT_CLIENT_ID`(`.env.example` 참고)로 받는다. K-CONNECT의 "허가된 Redirect URI"에 `http://localhost:5173/oauth/kconnect`(개발)와 배포 주소의 `/oauth/kconnect`가 등록돼 있어야 한다 — 폰으로 `192.168.x.x:5173`처럼 접속하면 등록되지 않은 주소라 로그인이 거부된다.
+- **설치:** 패키지는 GitHub Packages 비공개 배포라 `.npmrc`에 `@billilge:registry`가 필요하고 `read:packages` 토큰이 있어야 한다(토큰은 파일에 쓰지 않고 환경 변수·사용자 npmrc로 둔다). 패키지가 Expo용 `expo-auth-session`을 optional peer로 선언하는데 pnpm `autoInstallPeers`가 설치까지 해서 웹에 필요 없는 Expo 의존성 수백 개가 딸려 오므로, `pnpm-workspace.yaml`의 `overrides`로 뺐다.
+- **로그인 표시 지우기:** 로그아웃·회원 탈퇴처럼 계정을 떠나는 흐름은 `entities/auth/session.ts`의 `clearLoggedIn()`을 불러야 한다. 지우지 않으면 `/`의 `AuthEntryGate`를 그대로 통과해서 방금 떠난 계정으로 홈이 보인다(설정 화면 #97이 호출한다).
+- **연락처는 010 고정:** 가입 연락처는 `010`으로 시작하는 숫자 11자리여야 `다음`이 켜진다(`isValidPhoneDigits`). 설정의 전화번호 변경(#97)과 같은 기준이라, 구 번호(011·016 등)로 가입한 뒤 설정에서 같은 번호로 바꾸지 못하는 일이 없다.
+- **K-CONNECT 인증 우회(개발 서버 전용):** `/auth?mockKConnect=new`(신규 → 온보딩) 또는 `?mockKConnect=existing`(기존 → 홈)으로 열고 `K-CONNECT로 시작하기`를 누르면 인증 사이트로 가지 않고 인증된 것으로 친다. `import.meta.env.DEV`로 가려서 배포 빌드에는 들어가지 않는다(번들에 `mockKConnect`가 없음을 확인).
+- **목 QA(실 서버가 붙으면 사라짐):** 인증 후 콜백 주소에 `&mockLogin=existing`을 붙이면 기존 사용자, `&mockLogin=fail`이면 서버 실패로 처리된다. 취소·오류는 `/oauth/kconnect?error=access_denied`로 확인한다. K-CONNECT 계정으로 실제 로그인은 이 환경에서 확인하지 못했다.
+
+### 로그인·가입은 useFunnel 퍼널 하나(`AuthSignupScreen`)다
+
+로그인 → 연락처 → 약관 동의 → 약관 상세 → 가입 완료를 `@use-funnel/react-router-dom`의 `useFunnel`로 묶었다(라우트 `/auth`, 단계는 `?auth.step=`). 퍼널 파일(`AuthSignupScreen.tsx`)은 단계 전환(어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡고, 단계 화면은 `features/auth/steps/`에 파일 하나씩(`AuthLoginStep`, `AuthPhoneStep`, `AuthTermsStep`, `AuthTermsDetailStep`, `AuthCompleteStep`) 나눠 두며 전환은 콜백 prop으로 받는다. 단계·context 타입과 `guard`는 `constants/authSignupFunnel.ts`, 단계 화면이 함께 쓰는 뒤로가기 버튼·하단 버튼은 `components/`(`AuthBackButton`, `AuthBottomAction`)에 있다. 단계 사이에 넘기는 이름·연락처·약관 동의는 퍼널 context가 들고 있어서, 약관 상세(`history.push`)를 다녀와도 동의 상태가 유지된다(별도 저장소·navigate state 불필요). 동의 체크나 연락처 입력은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값이 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) 각 단계의 `guard`가 걸러서 로그인으로 돌려보낸다. 단계가 바뀌는 이동(`push`, 가입 완료로의 `replace`)에는 슬라이드(View Transition)를 켜고, 체크·연락처 입력처럼 context만 갈아 끼우는 `replace`에는 켜지 않는다. 라이브러리 기본 `useFunnel`은 옵션 이름을 `unstable_viewTransition`으로 넘기는데 React Router 7.18은 `viewTransition`만 알아서(소스에 이전 이름이 없다) 슬라이드가 무시된다. 그래서 `src/lib/useFunnel.ts`에 같은 라우터 어댑터를 `createUseFunnel`로 직접 만들고 옵션 이름만 바꿨다(라이브러리의 "라우터 직접 만들기" 가이드 방식) — 라이브러리를 올릴 때 이 이름이 고쳐졌는지 확인하고 고쳐졌다면 이 파일을 지운다.
