@@ -13,7 +13,7 @@ function FeePaymentList({ onContact }: FeePaymentListProps) {
   const payments = use(fetchFeePayments());
 
   return (
-    <div className="flex flex-col gap-3 px-5 pb-4">
+    <div className="flex flex-col gap-2 px-5 pb-4">
       {payments.map((payment) => (
         <FeePaymentCard
           key={payment.id}

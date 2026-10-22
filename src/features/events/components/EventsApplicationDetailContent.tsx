@@ -35,7 +35,7 @@ function EventsApplicationDetailContent({
 
   return (
     <div className="flex flex-col items-center gap-6 pb-6">
-      <div className="flex w-full flex-col gap-3 px-5">
+      <div className="flex w-full flex-col gap-2 px-5">
         <EventsApplicationSummary application={application} />
         {application.questions.map((question) => (
           <EventsQuestionField
