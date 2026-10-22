@@ -121,7 +121,7 @@ function EventsApplicationScreen() {
   return (
     <div className="flex h-full flex-col">
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
-        <div className="flex flex-col gap-3 px-5 pb-8">
+        <div className="flex flex-col gap-2 px-5 pb-8">
           <EventsSummaryCard
             dateTime={dateTime}
             eventName={eventName}

@@ -10,7 +10,7 @@ function FeedbacksMineSkeleton() {
   const animation = useSkeletonAnimation();
 
   return (
-    <div className="flex flex-col gap-3 overflow-hidden px-5">
+    <div className="flex flex-col gap-2 overflow-hidden px-5">
       {SKELETON_ROW_KEYS.slice(0, 3).map((key) => (
         <div
           className="flex flex-col gap-2 rounded-xl bg-background-normal p-4"
