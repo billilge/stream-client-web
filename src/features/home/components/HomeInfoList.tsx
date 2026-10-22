@@ -1,38 +1,22 @@
 import { ContentBadge, Typography } from "@wanteddev/wds";
 import type { ReactNode } from "react";
 
-import arrowRight from "@/assets/icons/home/arrow-right.svg";
+import arrowRight from "@/assets/icons/common/arrow-right.svg";
 import arrowUpRight from "@/assets/icons/home/arrow-up-right.svg";
 import infoFee from "@/assets/icons/home/info-fee.svg";
 import infoFeedback from "@/assets/icons/home/info-feedback.svg";
 import infoLocker from "@/assets/icons/home/info-locker.svg";
-import type {
-  HomeFeeStatus,
-  HomeLockerStatus,
-  HomeMyInfo,
-} from "@/features/home/constants/homeMock";
+import { FEE_STATUS_BADGES } from "@/features/fee/constants/fee";
+import type { HomeMyInfo } from "@/features/home/constants/homeMock";
+import { LOCKER_STATUS_BADGES } from "@/features/lockers/constants/lockers";
 
-type BadgeColor = "orange" | "red" | "green";
-
+// 학생회비·사물함 배지는 각 기능의 배지 표(FEE_STATUS_BADGES·LOCKER_STATUS_BADGES)를 그대로 쓴다.
+// 학생회비 미납은 배지 대신 납부 안내 줄로 바뀐다.
 interface InfoBadge {
   label: string;
   // 없으면 neutral(회색) 배지
-  color?: BadgeColor;
+  color?: "orange" | "red" | "green";
 }
-
-// Figma: 학생회비 납부 여부 뱃지 (nodeId 3147:146475). 미납은 배지 대신 납부 안내 줄로 바뀐다.
-const FEE_BADGES: Record<Exclude<HomeFeeStatus, "unpaid">, InfoBadge> = {
-  checking: { color: "orange", label: "납부확인중" },
-  "needs-check": { color: "red", label: "확인필요" },
-  paid: { color: "green", label: "납부완료" },
-};
-
-// Figma: 사물함 배정 상태 뱃지 (nodeId 3147:146479)
-const LOCKER_BADGES: Record<HomeLockerStatus, InfoBadge> = {
-  assigned: { color: "green", label: "배정완료" },
-  expired: { color: "red", label: "기간종료" },
-  none: { label: "미신청" },
-};
 
 function InfoBadgeView({ badge }: { badge: InfoBadge }) {
   return (
@@ -121,7 +105,7 @@ function HomeInfoList({ myInfo }: { myInfo: HomeMyInfo }) {
         />
       ) : (
         <InfoRow
-          badge={FEE_BADGES[feeStatus]}
+          badge={FEE_STATUS_BADGES[feeStatus]}
           icon={infoFee}
           title="학생회비 납부 여부"
         />
@@ -132,7 +116,7 @@ function HomeInfoList({ myInfo }: { myInfo: HomeMyInfo }) {
         title="열린피드백 작성내역"
       />
       <InfoRow
-        badge={LOCKER_BADGES[lockerStatus]}
+        badge={LOCKER_STATUS_BADGES[lockerStatus]}
         icon={infoLocker}
         subtitle={lockerStatus === "assigned" ? lockerLabel : undefined}
         title="사물함 배정 상태"

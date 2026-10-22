@@ -1,19 +1,19 @@
 import { type ReactNode, useLayoutEffect, useRef, useState } from "react";
 
 /** 칸 배치 전체 대비 지금 보이는 영역(0~1 비율) */
-export interface LockersLockerMinimapViewport {
+export interface LockersMinimapViewport {
   left: number;
   top: number;
   width: number;
   height: number;
 }
 
-interface LockersLockerMinimapProps {
+interface LockersMinimapProps {
   /** 본문과 같은 칸 배치 — 축소해서 그린다 */
   children: ReactNode;
   /** 본문 칸 배치의 1배 기준 폭. 같은 폭으로 그려야 "fill" 상자 비율이 본문과 같다 */
   layoutWidth: number;
-  viewport: LockersLockerMinimapViewport;
+  viewport: LockersMinimapViewport;
   /** 스크롤이 없으면(전체가 보이면) 테두리를 숨긴다 */
   isScrollable: boolean;
 }
@@ -29,12 +29,12 @@ const EDGE_EPSILON = 0.001;
 // Figma: Minimap (nodeId 2159:110757) — Stream 로컬
 // Figma는 칸·글자를 따로 줄여 그렸지만, 본문 배치를 zoom으로 줄여 그린다(배치를 두 벌 관리하지 않고,
 // 4px 글자가 브라우저 최소 글자 크기에 걸리지 않는다). 높이는 고정, 폭은 배치 비율에 맞추되 남은 폭을 넘지 않는다.
-function LockersLockerMinimap({
+function LockersMinimap({
   children,
   layoutWidth,
   viewport,
   isScrollable,
-}: LockersLockerMinimapProps) {
+}: LockersMinimapProps) {
   const areaRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState<number | null>(null);
@@ -127,4 +127,4 @@ function LockersLockerMinimap({
   );
 }
 
-export default LockersLockerMinimap;
+export default LockersMinimap;
