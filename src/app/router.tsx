@@ -9,6 +9,9 @@ import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
 import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
 import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
+import AuthEntryGate from "@/features/auth/AuthEntryGate";
+import AuthSignupScreen from "@/features/auth/AuthSignupScreen";
+import KConnectCallbackScreen from "@/features/auth/KConnectCallbackScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
@@ -40,7 +43,12 @@ const routes = [
       {
         children: [
           {
-            element: <HomeScreen />,
+            // 앱 첫 진입점 — 로그인한 기록이 없으면 로그인 화면으로 보낸다
+            element: (
+              <AuthEntryGate>
+                <HomeScreen />
+              </AuthEntryGate>
+            ),
             path: "/",
           },
           {
@@ -154,6 +162,25 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/notifications/settings",
+          },
+          {
+            element: <AuthSignupScreen />,
+            // 로그인·온보딩 퍼널 하나가 모든 단계(로그인, 연락처, 약관 동의, 약관 상세, 가입 완료)를 그린다.
+            // Figma 로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth",
+          },
+          {
+            element: <KConnectCallbackScreen />,
+            // K-CONNECT 인증 후 되돌아오는 redirect URI — 경로는 K-CONNECT에 등록한 값(@billilge/oauth-kconnect 규약)이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/oauth/kconnect",
           },
           {
             element: <ChatEntryScreen />,
