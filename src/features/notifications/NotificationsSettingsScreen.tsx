@@ -1,8 +1,6 @@
 import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import NotificationsSettingRow from "@/features/notifications/components/NotificationsSettingRow";
@@ -12,12 +10,12 @@ import {
   NOTIFICATIONS_PATH,
   type NotificationSettingKey,
 } from "@/features/notifications/constants/notifications";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 // Figma: 알림 설정 (nodeId 3628:110837)
 // 스위치 상태는 서버 API가 없어서 이 화면 state로만 들고 있다(새로고침하면 초기값으로 돌아간다).
 // "전체 알림"은 따로 값을 두지 않고 카테고리가 모두 켜졌는지로 파생한다 — 누르면 전부 같은 값으로 맞춘다.
 function NotificationsSettingsScreen() {
-  const navigate = useNavigate();
   const [settings, setSettings] = useState(INITIAL_NOTIFICATION_SETTINGS);
 
   const isAllEnabled = NOTIFICATION_SETTINGS.every(({ key }) => settings[key]);
@@ -35,15 +33,7 @@ function NotificationsSettingsScreen() {
     setSettings((prev) => ({ ...prev, [key]: enabled }));
   };
 
-  // 알림 목록을 거치지 않고 바로 들어오면(딥링크) 뒤로 갈 히스토리가 없어 알림 목록으로 보낸다.
-  const goBack = () => {
-    const historyIndex = (window.history.state as { idx?: number } | null)?.idx;
-    if (historyIndex !== undefined && historyIndex > 0) {
-      navigate(-1);
-      return;
-    }
-    navigate(NOTIFICATIONS_PATH, { replace: true });
-  };
+  const goBack = useBackNavigation(NOTIFICATIONS_PATH);
 
   useScreenHeader(
     <ScreenHeader
