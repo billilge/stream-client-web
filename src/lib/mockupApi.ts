@@ -21,3 +21,20 @@ export function mockupApi<T>(key: string, getData: () => T): Promise<T> {
   cache.set(key, promise);
   return promise;
 }
+
+// 신청 취소처럼 목데이터를 바꾸는 요청에 쓴다. 조회와 같은 지연을 주지만 캐시하지 않는다.
+// 바뀐 데이터를 다시 받게 하려면 응답 뒤 관련 조회 key를 invalidateMockupApi로 지운다.
+export async function mockupMutation<T>(mutate: () => T): Promise<T> {
+  if (import.meta.env.DEV) {
+    await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY_MS));
+  }
+  // async 함수 안이라 mutate가 던진 에러는 거부된 Promise로 돌아간다
+  return mutate();
+}
+
+// 다음 조회가 바뀐 목데이터로 새 Promise를 만들게 캐시를 지운다.
+export function invalidateMockupApi(keys: string[]) {
+  for (const key of keys) {
+    cache.delete(key);
+  }
+}
