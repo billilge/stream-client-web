@@ -14,15 +14,18 @@ interface FeeImageUploadButtonProps {
 //
 // 파일 선택은 보이지 않는 <input type="file">에 위임한다 — label로 감싸면 버튼 모양을 그대로
 // 두면서도 키보드·스크린리더에서 하나의 컨트롤로 읽힌다.
+//
+// radius만 `rounded-[10px]`로 남긴다 — Figma가 10px인데 Tailwind 단계는 8px(lg)·12px(xl)뿐이고
+// 이 버튼 하나만 쓰는 값이라 토큰까지 만들지 않았다(component-convention.md "4. 예외").
 function FeeImageUploadButton({ onSelect }: FeeImageUploadButtonProps) {
   const inputId = useId();
 
   return (
     <label
-      className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-1 rounded-[10px] border border-line-normal-neutral"
+      className="flex h-11.5 w-full cursor-pointer items-center justify-center gap-1 rounded-[10px] border border-line-normal-neutral"
       htmlFor={inputId}
     >
-      <IconUpload className="size-[18px] text-primary" />
+      <IconUpload className="size-4.5 text-primary" />
       <Typography
         as="span"
         color="semantic.primary.normal"

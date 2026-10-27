@@ -17,7 +17,8 @@ function FeeTranscriptGuide() {
     // 248px(375 기준)로 박으면 넓은 화면에서 그림 아래가 잘린다. 아래 여백 없이 그림이 카드
     // 바닥에 붙는 Figma 구조(3562:162857: 위 16px, 내용 231.76px, 합 248px) 그대로 내용이
     // 높이를 정하게 두면 설계 폭에서 자동으로 248px이 된다. 모서리 때문에 overflow만 숨긴다.
-    <div className="flex flex-col items-center gap-[13px] overflow-hidden rounded-xl bg-background-alternative px-7 pt-4">
+    // 간격 13px(gap-3.25)도 그 합(위 16 + 글자 13.76 + 13 + 그림 205 = 248)에서 나온 값이다.
+    <div className="flex flex-col items-center gap-3.25 overflow-hidden rounded-xl bg-background-alternative px-7 pt-4">
       <Typography
         as="p"
         className="w-full"
@@ -31,7 +32,7 @@ function FeeTranscriptGuide() {
           max-width:100%가 알아서 줄여준다 — 넓어져도 커지지는 않게 w-full을 쓰지 않는다. */}
       <img
         alt="학점이수현황 캡처 예시 — 학생정보와 이수학기가 보이는 화면"
-        className="w-[280px] shrink-0"
+        className="w-70 shrink-0"
         height={615}
         src={transcriptExample}
         width={840}
