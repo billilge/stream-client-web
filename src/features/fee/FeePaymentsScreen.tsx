@@ -8,6 +8,7 @@ import FeePaymentList from "@/features/fee/components/FeePaymentList";
 import FeePaymentsSkeleton from "@/features/fee/components/FeePaymentsSkeleton";
 import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
+import { openExternalLink } from "@/lib/openExternalLink";
 
 // Figma: 학생회비 납부내역 (nodeId 3147:147860 납부확인중, 3147:147879 확인필요, 3147:147841 납부완료)
 function FeePaymentsScreen() {
@@ -32,12 +33,7 @@ function FeePaymentsScreen() {
 
   // 채널 주소가 정해지기 전에는 눌러도 반응 없는 버튼이 되지 않게 문의하기를 넘기지 않는다(버튼이 숨는다)
   const openKakaoChannel = FEE_EXTERNAL_LINKS.studentCouncilKakaoChannel
-    ? () =>
-        window.open(
-          FEE_EXTERNAL_LINKS.studentCouncilKakaoChannel,
-          "_blank",
-          "noopener",
-        )
+    ? () => openExternalLink(FEE_EXTERNAL_LINKS.studentCouncilKakaoChannel)
     : undefined;
 
   return (

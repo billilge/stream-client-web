@@ -4,7 +4,6 @@ import { useState } from "react";
 import wonMotion from "@/assets/lottie/fee/won.json";
 import FeeLottieIcon from "@/features/fee/components/FeeLottieIcon";
 import FeeTransferStepLayout from "@/features/fee/components/FeeTransferStepLayout";
-import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
 
 // Figma: 계좌 송금 - 토스로 이동 안내 (nodeId 3562:163025) / 토스 이동 실패 (3562:163046)
 //
@@ -12,33 +11,31 @@ import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
 // 그래서 퍼널 단계를 나누지 않고 실패 여부 state로 토글한다.
 //
 // 토스는 딥링크라 열렸는지 브라우저가 알려주지 않는다. 그래서 실패 화면은 "링크 주소가 아직
-// 없을 때"만 띄운다 — 주소가 채워지면 열고 바로 송금 확인 단계로 넘어간다. 앱 WebView에서
-// 열기가 막히는 경우까지 가려내려면 네이티브 브리지로 결과를 받아야 한다(#107 리뷰).
+// 없을 때"(`hasTossLink`)만 띄운다 — 주소가 채워지면 열고 바로 송금 확인 단계로 넘어간다.
+// 실제로 여는 일은 퍼널(FeeTransferScreen)이 `lib/openExternalLink`로 맡는다.
 //
 // ₩ 아이콘(3562:163032)은 획이 그려지는 Figma Motion이라 Lottie로 받아 재생한다. 2초
 // 타임라인이지만 실제 움직임은 66프레임(1.1초)에 끝나고 나머지는 멈춰 있는 구간이다 —
 // json의 키프레임이 실제로 66에서 끝나는 걸 확인했다.
 function FeeTransferTossStep({
+  hasTossLink,
   onBack,
-  onTransferred,
+  onOpenToss,
 }: {
+  /** 토스 딥링크 주소가 준비됐는지 — 없으면 누를 때 이동 실패 화면으로 바꾼다 */
+  hasTossLink: boolean;
   onBack: () => void;
-  /** 토스를 연 뒤 — 다녀와서 확인을 받을 송금 확인 단계로 넘긴다 */
-  onTransferred: () => void;
+  /** 토스를 열고 송금 확인 단계로 넘긴다 */
+  onOpenToss: () => void;
 }) {
   const [hasFailed, setFailed] = useState(false);
 
   const handleOpenToss = () => {
-    if (!FEE_EXTERNAL_LINKS.tossTransfer) {
+    if (!hasTossLink) {
       setFailed(true);
       return;
     }
-    // 반환값으로 열렸는지 판정하지 않는다 — `noopener`를 주면 window.open은 스펙상 항상
-    // null을 돌려줘서, 토스가 실제로 열려도 실패로 보게 된다. 딥링크는 애초에 브라우저가
-    // 열림 여부를 알려주지도 않는다. 그래서 열기만 하고 송금 확인 단계로 넘긴다 —
-    // 송금하지 못했으면 그 단계의 "다음에 할게요"로 빠져나갈 수 있다.
-    window.open(FEE_EXTERNAL_LINKS.tossTransfer, "_blank", "noopener");
-    onTransferred();
+    onOpenToss();
   };
 
   if (hasFailed) {

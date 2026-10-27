@@ -7,7 +7,6 @@ import FeeImageUploadButton from "@/features/fee/components/FeeImageUploadButton
 import FeeTranscriptGuide from "@/features/fee/components/FeeTranscriptGuide";
 import FeeTransferStepLayout from "@/features/fee/components/FeeTransferStepLayout";
 import FeeUploadedFileCard from "@/features/fee/components/FeeUploadedFileCard";
-import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
 
 // Figma: 계좌 송금 - 이미지 업로드하기 전 (nodeId 3562:162845) / 업로드 후 (3562:162891) /
 // K-스마트멘토 이동 확인 모달 (3562:162940) / 업로드한 이미지 미리보기 (3595:70574)
@@ -15,17 +14,21 @@ import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
 // 네 프레임이 한 단계의 상태 변화라 퍼널 단계를 나누지 않고 업로드 여부·모달 열림으로 토글한다.
 // 업로드 API가 아직 없어서 고른 파일을 퍼널 context에 담아 두기만 한다 — 미리보기는 objectURL로
 // 띄우고, 연동할 때 이 자리에서 업로드 요청을 보내면 된다.
+// K-스마트멘토를 여는 일은 퍼널(FeeTransferScreen)이 맡고 여기는 `onOpenGuide`만 부른다.
 function FeeTransferTranscriptStep({
   initialTranscript,
   onBack,
   onChangeTranscript,
   onNext,
+  onOpenGuide,
 }: {
   initialTranscript: File | undefined;
   onBack: () => void;
   /** 고르거나 지울 때마다 퍼널 context에 반영한다 — 토스 단계에서 뒤로 돌아와도 파일이 남는다 */
   onChangeTranscript: (transcript: File | undefined) => void;
   onNext: (transcript: File) => void;
+  /** 이동 확인 모달에서 "이동하기"를 눌렀을 때 — K-스마트멘토를 연다 */
+  onOpenGuide: () => void;
 }) {
   const [file, setFile] = useState<File | null>(initialTranscript ?? null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -51,9 +54,7 @@ function FeeTransferTranscriptStep({
 
   const handleGuideConfirm = () => {
     setGuideModalOpen(false);
-    if (FEE_EXTERNAL_LINKS.kSmartMentor) {
-      window.open(FEE_EXTERNAL_LINKS.kSmartMentor, "_blank", "noopener");
-    }
+    onOpenGuide();
   };
 
   return (

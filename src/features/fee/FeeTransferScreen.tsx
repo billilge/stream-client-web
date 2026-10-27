@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
+import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
 import {
   FEE_TRANSFER_STEP_OPTIONS,
   type FeeTransferSteps,
@@ -9,6 +10,7 @@ import FeeTransferConfirmStep from "@/features/fee/steps/FeeTransferConfirmStep"
 import FeeTransferSemesterStep from "@/features/fee/steps/FeeTransferSemesterStep";
 import FeeTransferTossStep from "@/features/fee/steps/FeeTransferTossStep";
 import FeeTransferTranscriptStep from "@/features/fee/steps/FeeTransferTranscriptStep";
+import { openExternalLink } from "@/lib/openExternalLink";
 import { useFunnel, useFunnelExit } from "@/lib/useFunnel";
 
 // 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 토스 이동 → 송금 확인 → 확인요청 완료)을
@@ -65,8 +67,14 @@ function FeeTransferScreen() {
       )}
       toss={({ history }) => (
         <FeeTransferTossStep
+          hasTossLink={Boolean(FEE_EXTERNAL_LINKS.tossTransfer)}
           onBack={() => history.back()}
-          onTransferred={() => history.push("confirm", {}, SLIDE)}
+          onOpenToss={() => {
+            openExternalLink(FEE_EXTERNAL_LINKS.tossTransfer);
+            // 토스에 다녀오면 돌아올 화면이 송금 확인 단계다. 딥링크가 실제로 열렸는지는
+            // 알 수 없어서 열기만 하고 넘긴다 — 송금하지 못했으면 그 단계에서 빠져나간다.
+            history.push("confirm", {}, SLIDE);
+          }}
         />
       )}
       transcript={({ context, history }) => (
@@ -78,6 +86,12 @@ function FeeTransferScreen() {
             history.replace("transcript", (prev) => ({ ...prev, transcript }))
           }
           onNext={(transcript) => history.push("toss", { transcript }, SLIDE)}
+          // 주소를 아직 못 받아서 비어 있을 수 있다 — 빈 주소로 열면 빈 탭이 뜬다
+          onOpenGuide={() => {
+            if (FEE_EXTERNAL_LINKS.kSmartMentor) {
+              openExternalLink(FEE_EXTERNAL_LINKS.kSmartMentor);
+            }
+          }}
         />
       )}
     />
