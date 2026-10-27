@@ -734,3 +734,13 @@ Figma 프레임의 상태 표시줄(54px)과 홈 바(34px)는 앱 셸 몫이라 
 업로드한 이미지 카드(`3562:162918`)는 Figma에서 335×104 안에 303px 행이 들어간다. CSS `border`는
 `box-sizing: border-box` 때문에 가로·세로를 각각 2px씩 먹어서 333/102가 된다 — `outline-1`
 `-outline-offset-1`로 그려야 Figma 수치와 맞는다.
+
+### 계좌 송금은 useFunnel 퍼널 하나(`FeeTransferScreen`)다
+
+남은 학기 수 → 학점이수현황 캡처 → 토스 이동 → 송금 확인 → 확인요청 완료를 `@use-funnel/react-router-dom`의 `useFunnel`로 묶었다(라우트 `/fee/transfer`, 단계는 `?fee.step=`). 로그인·가입 퍼널(`AuthSignupScreen`)과 같은 구성이다 — 퍼널 파일(`FeeTransferScreen.tsx`)은 단계 전환만 맡고, 단계 화면은 `features/fee/steps/`에 파일 하나씩(`FeeTransferSemesterStep`, `FeeTransferTranscriptStep`, `FeeTransferTossStep`, `FeeTransferConfirmStep`, `FeeTransferCompleteStep`) 두며 전환은 콜백 prop으로 받는다. 단계·context 타입과 `guard`는 `constants/feeTransferFunnel.ts`에 있고, 단계 화면이 공유하는 뼈대는 `components/FeeTransferStepLayout.tsx`다(뒤로가기는 `onBack` prop으로 받아서 첫 단계는 플로우 밖으로, 나머지는 이전 단계로 간다).
+
+처음에는 단계마다 라우트를 따로 뒀는데(`/fee/transfer/semester` 등 5개), 그러면 단계 사이에 값을 navigate state로 넘겨야 해서 남은 학기 수가 캡처 단계에서 읽히지 않고 고른 파일도 다음 단계로 넘어가지 않았다. 퍼널 context로 바꾸면서 두 값이 플로우 끝까지 이어지고, 토스 단계에서 뒤로 돌아와도 입력이 남는다. 학기 수 입력·파일 선택은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) `guard`가 걸러서 첫 단계로 돌려보낸다.
+
+캡처 이미지는 `File`을 context에 그대로 담는다 — `File`은 구조화 복제가 되는 값이라 history.state에 실린다. 다만 history.state는 브라우저마다 크기 상한이 있어서(Firefox 16MiB) 업로드 API가 붙으면 파일 대신 서버가 준 식별자를 담는 쪽으로 바꾸는 게 안전하다. `File`이 history.state에서 되살아나지 못하는 경우도 있어 `guard`가 `instanceof File`로 확인하고, 아니면 첫 단계로 돌려보낸다.
+
+토스 이동 안내/실패(`3562:163025` / `3562:163046`)와 캡처 업로드 전/후(`3562:162845` / `3562:162891`)는 각각 **한 단계 안의 state**다. Figma가 프레임을 나눠 뒀지만 퍼널 단계로는 올리지 않았다 — 뒤로가기로 돌아갈 지점이 아니기 때문이다.
