@@ -90,15 +90,15 @@ function HomeScreen() {
             }
           />
         </div>
-        <div className="flex flex-col gap-3 pt-0.5 pb-4">
+        <div className="flex flex-col gap-2 pt-0.5 pb-4">
           <HomeNoticeBanner
             notices={HOME_MOCK_DATA.notices}
             onSelect={(noticeId) => push(`/notices/${noticeId}`)}
           />
           {/* 배너 카드(relative)가 뒤 섹션보다 나중에 그려져 그림자가 덮지 않게 뒤 섹션도 relative로 둔다 */}
-          <div className="relative flex flex-col gap-3">
+          <div className="relative flex flex-col gap-2">
             {HOME_MOCK_DATA.applyCards.length > 0 && (
-              <div className="flex flex-col gap-3 px-5">
+              <div className="flex flex-col gap-2 px-5">
                 {HOME_MOCK_DATA.applyCards.map((card) => (
                   <HomeApplyCard
                     card={card}
