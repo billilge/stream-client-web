@@ -9,7 +9,10 @@ import { ARCHIVES_PATH } from "@/features/archives/constants/archives";
 import { BILILGE_TAB_PATHS } from "@/features/bililge/constants/bililge";
 import { useBililgeReturnRequest } from "@/features/bililge/hooks/useBililgeReturnRequest";
 import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
-import { FEE_PAYMENTS_PATH } from "@/features/fee/constants/fee";
+import {
+  FEE_PAYMENTS_PATH,
+  FEE_TRANSFER_PATH,
+} from "@/features/fee/constants/fee";
 import { MY_FEEDBACKS_PATH } from "@/features/feedbacks/constants/feedbacks";
 import HomeAppliedEventSection from "@/features/home/components/HomeAppliedEventSection";
 import HomeApplyCard from "@/features/home/components/HomeApplyCard";
@@ -144,6 +147,7 @@ function HomeScreen() {
               <HomeInfoList
                 myInfo={HOME_MOCK_DATA.myInfo}
                 onSelectFee={() => push(FEE_PAYMENTS_PATH)}
+                onSelectFeeTransfer={() => push(FEE_TRANSFER_PATH)}
                 onSelectFeedbacks={() => push(MY_FEEDBACKS_PATH)}
                 onSelectLocker={() => push(LOCKER_ASSIGNMENT_PATH)}
               />
