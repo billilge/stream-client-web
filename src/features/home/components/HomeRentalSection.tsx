@@ -7,13 +7,33 @@ import type { HomeRental } from "@/features/home/constants/homeMock";
 
 const VISIBLE_COUNT = 2;
 
+interface HomeRentalSectionProps {
+  rentals: HomeRental[];
+  // 반납 신청 — 홈에서 바로 확인 모달을 띄운다
+  onReturnRequest: (rental: HomeRental) => void;
+  // 더보기 → 빌릴게 반납 탭
+  onMore: () => void;
+  // 빈 상태 → 빌릴게 대여 탭
+  onBrowse: () => void;
+}
+
 // Figma: Rental Summary 2건 (nodeId 3147:146269), 3건 이상 (3147:146326), empty (3562:163925)
-function HomeRentalSection({ rentals }: { rentals: HomeRental[] }) {
+function HomeRentalSection({
+  rentals,
+  onReturnRequest,
+  onMore,
+  onBrowse,
+}: HomeRentalSectionProps) {
   if (rentals.length === 0) {
     return (
       <HomeEmptyState
         action={
-          <Button color="assistive" size="small" variant="solid">
+          <Button
+            color="assistive"
+            onClick={onBrowse}
+            size="small"
+            variant="solid"
+          >
             대여하러 가기
           </Button>
         }
@@ -42,6 +62,7 @@ function HomeRentalSection({ rentals }: { rentals: HomeRental[] }) {
             icon={rental.icon}
             itemName={rental.name}
             key={rental.id}
+            onRentRequest={() => onReturnRequest(rental)}
             subtitle={
               rental.hoursUntilDue < 0
                 ? `반납 기한이 ${-rental.hoursUntilDue}시간 지났어요`
@@ -55,7 +76,7 @@ function HomeRentalSection({ rentals }: { rentals: HomeRental[] }) {
       {hiddenCount > 0 && (
         <>
           <Divider color="semantic.line.normal.alternative" />
-          <button type="button">
+          <button onClick={onMore} type="button">
             <Typography
               align="center"
               as="span"

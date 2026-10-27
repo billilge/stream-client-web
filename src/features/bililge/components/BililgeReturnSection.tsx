@@ -1,17 +1,16 @@
 import { Button, Divider, Typography } from "@wanteddev/wds";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 
 import rentalHistoryEmptyIllustration from "@/assets/icons/bililge-empty/rental-history.svg";
 import returnItemsEmptyIllustration from "@/assets/icons/bililge-empty/return-items.svg";
-import ScreenToast from "@/components/ui/ScreenToast";
 import BililgeEmptyState from "@/features/bililge/components/BililgeEmptyState";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
 import BililgeRentalHistoryEntry from "@/features/bililge/components/BililgeRentalHistoryEntry";
-import BililgeReturnConfirmModal from "@/features/bililge/components/BililgeReturnConfirmModal";
 import {
   BILILGE_RENTAL_HISTORY,
   BILILGE_RETURN_ITEMS,
 } from "@/features/bililge/constants/bililgeReturns";
+import { useBililgeReturnRequest } from "@/features/bililge/hooks/useBililgeReturnRequest";
 
 interface BililgeReturnSectionProps {
   onBrowseRentals?: () => void;
@@ -22,24 +21,14 @@ interface BililgeReturnSectionProps {
 // 필터를 안 그린다.
 //
 // "반납 신청" 버튼 → 확인 모달(1133:49993) → "신청하기"로 확정하면 완료 토스트(1133:50015)가
-// 뜬다("수정"은 모달만 닫는다). 실 백엔드 연동 전이라 신청 자체는 로컬 상태만 바꾸고(토스트만
+// 뜬다("닫기"는 모달만 닫는다). 실 백엔드 연동 전이라 신청 자체는 로컬 상태만 바꾸고(토스트만
 // 보여줌) 반납 대상 물품 목록·대여 내역은 그대로 둔다 — API가 붙으면 이 부분만 교체하면 된다.
 //
 // 하단 패딩을 넣지 않는다 — Content(1133:49978) 높이(542)가 두 섹션 높이(196+314)와 gap(32)의
 // 합과 정확히 같아서 Figma엔 하단 여백이 0이다. 대여 탭 목록의 pb-4는 앱 전역 스크롤 여백
 // 컨벤션이라 그대로 두지만, 반납 화면은 이번에 새로 붙이는 값이라 Figma 그대로 맞춘다.
 function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [toastOpen, setToastOpen] = useState(false);
-  // 토스트가 떠 있는 동안 다시 확인해도 스크린리더가 재안내하도록, 확인마다 값을 바꿔
-  // ScreenToast를 새로 마운트한다(EventsApplicationScreen의 실패 토스트와 같은 패턴).
-  const [toastToken, setToastToken] = useState(0);
-
-  const handleConfirm = () => {
-    setConfirmOpen(false);
-    setToastOpen(true);
-    setToastToken((token) => token + 1);
-  };
+  const { openReturnRequest, returnRequestDialogs } = useBililgeReturnRequest();
 
   return (
     <div className="flex flex-col gap-8 px-5 pt-7">
@@ -60,7 +49,7 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
                 icon={item.icon}
                 itemName={item.name}
                 key={item.id}
-                onRentRequest={() => setConfirmOpen(true)}
+                onRentRequest={openReturnRequest}
                 subtitle={`반납까지 ${item.hoursUntilDue}시간`}
               />
             ))}
@@ -118,18 +107,7 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
         )}
       </div>
 
-      <BililgeReturnConfirmModal
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={handleConfirm}
-        open={confirmOpen}
-      />
-      <ScreenToast
-        key={toastToken}
-        message="반납 신청이 완료됐어요."
-        onOpenChange={setToastOpen}
-        open={toastOpen}
-        variant="positive"
-      />
+      {returnRequestDialogs}
     </div>
   );
 }
