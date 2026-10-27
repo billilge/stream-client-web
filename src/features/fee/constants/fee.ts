@@ -1,12 +1,8 @@
 // 학생회비 계좌 송금 플로우 경로. 화면설계서(687:20584)에는 경로 표기 컬럼이 아예 없어서
 // 용어 사전(terminology.md)의 `회비 납부 → fee`와 "프론트 라우트 경로: /{코드 용어}" 규칙으로 정했다.
-export const FEE_TRANSFER_PATHS = {
-  complete: "/fee/transfer/complete",
-  confirm: "/fee/transfer/confirm",
-  semester: "/fee/transfer/semester",
-  toss: "/fee/transfer/toss",
-  transcript: "/fee/transfer/transcript",
-} as const;
+// 단계(남은 학기 수·캡처 업로드·토스 이동·송금 확인·완료)는 이 경로 하나 안에서 useFunnel이
+// `?fee.step=`으로 나눈다 — 로그인·온보딩 퍼널(`/auth`)과 같은 방식이다.
+export const FEE_TRANSFER_PATH = "/fee/transfer";
 
 // 아직 받지 못한 외부 연동 주소들. 값이 있을 때만 열도록 해서 빈 창이 뜨는 걸 막는다
 // (설정 화면의 SETTINGS_EXTERNAL_LINKS와 같은 방식).

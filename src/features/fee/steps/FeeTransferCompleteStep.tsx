@@ -1,15 +1,11 @@
-import { useNavigate } from "react-router-dom";
-
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
 
 // Figma: 송금 확인요청 완료 페이지 (nodeId 3562:163013)
 // 체크 모션이 신청 완료 화면들과 같은 메인 컴포넌트(Circle Check Motion 1712:192849)의
 // 인스턴스라 ResultScreen + CompleteCheck를 그대로 쓴다. 버튼이 하나뿐이라 secondaryAction은 없다.
-function FeeTransferCompleteScreen() {
-  const navigate = useNavigate();
-  const goHome = () => navigate("/", { replace: true });
-
+// 뒤로가기(←)가 아니라 X로 닫는 화면이라 다른 단계와 달리 FeeTransferStepLayout을 쓰지 않는다.
+function FeeTransferCompleteStep({ onGoHome }: { onGoHome: () => void }) {
   return (
     <ResultScreen
       description={
@@ -17,11 +13,11 @@ function FeeTransferCompleteScreen() {
       }
       illustration={<CompleteCheck />}
       illustrationGap={8}
-      onClose={goHome}
-      primaryAction={{ label: "홈으로 가기", onClick: goHome }}
+      onClose={onGoHome}
+      primaryAction={{ label: "홈으로 가기", onClick: onGoHome }}
       title="송금 확인을 요청했어요"
     />
   );
 }
 
-export default FeeTransferCompleteScreen;
+export default FeeTransferCompleteStep;
