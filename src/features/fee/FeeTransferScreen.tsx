@@ -1,5 +1,3 @@
-import { useNavigate } from "react-router-dom";
-
 import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
 import {
   FEE_TRANSFER_STEP_OPTIONS,
@@ -10,6 +8,7 @@ import FeeTransferConfirmStep from "@/features/fee/steps/FeeTransferConfirmStep"
 import FeeTransferSemesterStep from "@/features/fee/steps/FeeTransferSemesterStep";
 import FeeTransferTossStep from "@/features/fee/steps/FeeTransferTossStep";
 import FeeTransferTranscriptStep from "@/features/fee/steps/FeeTransferTranscriptStep";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 import { openExternalLink } from "@/lib/openExternalLink";
 import { useFunnel, useFunnelExit } from "@/lib/useFunnel";
 
@@ -29,7 +28,9 @@ const SLIDE = { viewTransition: true };
 const INITIAL_STATE = { context: {}, step: "semester" } as const;
 
 function FeeTransferScreen() {
-  const navigate = useNavigate();
+  // 첫 단계의 뒤로가기 — 타고 들어왔으면 한 단계 뒤로, 플로우로 바로 들어왔으면(딥링크·앱
+  // WebView 진입·주소 직접 입력) 홈으로 보낸다. `navigate(-1)`만 쓰면 먹통이 된다(#107 리뷰).
+  const goBackFromFlow = useBackNavigation("/");
   // 플로우를 끝내거나 미루고 나갈 때 — 쌓인 단계만큼 되돌아가서, 나간 뒤 뒤로가기로 단계가
   // 되살아나지 않게 한다(#107 리뷰). 퍼널로 바로 들어왔으면 홈으로 치환한다.
   const exitFunnel = useFunnelExit("/");
@@ -57,7 +58,7 @@ function FeeTransferScreen() {
         <FeeTransferSemesterStep
           initialSemester={context.semester}
           // 첫 단계라 뒤로가기는 이전 단계가 아니라 플로우 밖(들어온 화면)으로 나간다
-          onBack={() => navigate(-1)}
+          onBack={goBackFromFlow}
           // 단계를 바꾸지 않고 context만 갈아 끼운다(replace)
           onChangeSemester={(semester) =>
             history.replace("semester", { semester })
