@@ -79,7 +79,7 @@ function FeeTransferScreen() {
       )}
       transcript={({ context, history }) => (
         <FeeTransferTranscriptStep
-          initialTranscript={context.transcript}
+          transcript={context.transcript}
           onBack={() => history.back()}
           // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 토스를 다녀와도 고른 파일이 남는다
           onChangeTranscript={(transcript) =>

@@ -16,41 +16,39 @@ import FeeUploadedFileCard from "@/features/fee/components/FeeUploadedFileCard";
 // 띄우고, 연동할 때 이 자리에서 업로드 요청을 보내면 된다.
 // K-스마트멘토를 여는 일은 퍼널(FeeTransferScreen)이 맡고 여기는 `onOpenGuide`만 부른다.
 function FeeTransferTranscriptStep({
-  initialTranscript,
+  transcript,
   onBack,
   onChangeTranscript,
   onNext,
   onOpenGuide,
 }: {
-  initialTranscript: File | undefined;
+  /** 고른 캡처 — 퍼널 context가 들고 있는 값이 유일한 출처다 */
+  transcript: File | undefined;
   onBack: () => void;
-  /** 고르거나 지울 때마다 퍼널 context에 반영한다 — 토스 단계에서 뒤로 돌아와도 파일이 남는다 */
+  /**
+   * 고르거나 지울 때마다 퍼널 context를 갈아 끼운다 — 로컬 state에 같은 값을 또 두지 않는다.
+   * `history.replace`가 새 context로 다시 그려 주므로 이 화면은 context만 읽으면 된다.
+   */
   onChangeTranscript: (transcript: File | undefined) => void;
   onNext: (transcript: File) => void;
   /** 이동 확인 모달에서 "이동하기"를 눌렀을 때 — K-스마트멘토를 연다 */
   onOpenGuide: () => void;
 }) {
-  const [file, setFile] = useState<File | null>(initialTranscript ?? null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [isPreviewOpen, setPreviewOpen] = useState(false);
   const [isGuideModalOpen, setGuideModalOpen] = useState(false);
 
   // objectURL은 안 풀어주면 파일을 바꿔 고를 때마다 메모리에 쌓인다
   useEffect(() => {
-    if (!file) {
+    if (!transcript) {
       setPreviewUrl("");
       return;
     }
-    const url = URL.createObjectURL(file);
+    const url = URL.createObjectURL(transcript);
     setPreviewUrl(url);
 
     return () => URL.revokeObjectURL(url);
-  }, [file]);
-
-  const handleChangeFile = (nextFile: File | null) => {
-    setFile(nextFile);
-    onChangeTranscript(nextFile ?? undefined);
-  };
+  }, [transcript]);
 
   const handleGuideConfirm = () => {
     setGuideModalOpen(false);
@@ -62,8 +60,8 @@ function FeeTransferTranscriptStep({
       <FeeTransferStepLayout
         actions={
           <ActionAreaButton
-            disabled={!file}
-            onClick={() => file && onNext(file)}
+            disabled={!transcript}
+            onClick={() => transcript && onNext(transcript)}
             sx={{ paddingBlock: "16px" }}
           >
             다음
@@ -95,14 +93,14 @@ function FeeTransferTranscriptStep({
         }
       >
         <FeeTranscriptGuide />
-        {file ? (
+        {transcript ? (
           <FeeUploadedFileCard
-            fileName={file.name}
+            fileName={transcript.name}
             onPreview={() => setPreviewOpen(true)}
-            onRemove={() => handleChangeFile(null)}
+            onRemove={() => onChangeTranscript(undefined)}
           />
         ) : (
-          <FeeImageUploadButton onSelect={handleChangeFile} />
+          <FeeImageUploadButton onSelect={onChangeTranscript} />
         )}
       </FeeTransferStepLayout>
 
@@ -119,7 +117,7 @@ function FeeTransferTranscriptStep({
       />
 
       <FeeImagePreviewOverlay
-        alt={file ? `업로드한 이미지 ${file.name}` : ""}
+        alt={transcript ? `업로드한 이미지 ${transcript.name}` : ""}
         onClose={() => setPreviewOpen(false)}
         open={isPreviewOpen && Boolean(previewUrl)}
         src={previewUrl}
