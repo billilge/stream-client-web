@@ -9,7 +9,7 @@ import FeeTransferConfirmStep from "@/features/fee/steps/FeeTransferConfirmStep"
 import FeeTransferSemesterStep from "@/features/fee/steps/FeeTransferSemesterStep";
 import FeeTransferTossStep from "@/features/fee/steps/FeeTransferTossStep";
 import FeeTransferTranscriptStep from "@/features/fee/steps/FeeTransferTranscriptStep";
-import { useFunnel } from "@/lib/useFunnel";
+import { useFunnel, useFunnelExit } from "@/lib/useFunnel";
 
 // 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 토스 이동 → 송금 확인 → 확인요청 완료)을
 // useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에 하나씩 나눠 두고, 이 파일은 단계 전환
@@ -28,24 +28,27 @@ const INITIAL_STATE = { context: {}, step: "semester" } as const;
 
 function FeeTransferScreen() {
   const navigate = useNavigate();
+  // 플로우를 끝내거나 미루고 나갈 때 — 쌓인 단계만큼 되돌아가서, 나간 뒤 뒤로가기로 단계가
+  // 되살아나지 않게 한다(#107 리뷰). 퍼널로 바로 들어왔으면 홈으로 치환한다.
+  const exitFunnel = useFunnelExit("/");
   const funnel = useFunnel<FeeTransferSteps>({
     id: "fee",
     initial: INITIAL_STATE,
     steps: FEE_TRANSFER_STEP_OPTIONS,
   });
 
-  const goHome = () => navigate("/", { replace: true });
-
   return (
     <funnel.Render
-      complete={() => <FeeTransferCompleteStep onGoHome={goHome} />}
-      confirm={({ history }) => (
+      complete={({ index }) => (
+        <FeeTransferCompleteStep onGoHome={() => exitFunnel(index)} />
+      )}
+      confirm={({ history, index }) => (
         <FeeTransferConfirmStep
           onBack={() => history.back()}
           // 확인 요청을 보내면 송금 확인으로 돌아올 일이 없어서 히스토리를 대체한다
           onConfirm={() => history.replace("complete", {}, SLIDE)}
           // 송금을 미루고 나가는 길 — 다음에 들어오면 플로우를 처음부터 다시 탄다
-          onPostpone={() => navigate("/")}
+          onPostpone={() => exitFunnel(index)}
         />
       )}
       semester={({ context, history }) => (
