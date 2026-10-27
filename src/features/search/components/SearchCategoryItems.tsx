@@ -102,7 +102,13 @@ function SearchCategoryItems({
         return results.archives.map((archive) => ({
           id: archive.id,
           node: (
-            <SearchArchivingCard date={archive.date} title={archive.title} />
+            <Link
+              className="block"
+              to={`/archives/${archive.id}`}
+              viewTransition
+            >
+              <SearchArchivingCard date={archive.date} title={archive.title} />
+            </Link>
           ),
         }));
       case "bililge":

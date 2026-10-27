@@ -5,6 +5,13 @@ import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
+import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
+import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
+import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
+import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
+import AuthEntryGate from "@/features/auth/AuthEntryGate";
+import AuthSignupScreen from "@/features/auth/AuthSignupScreen";
+import KConnectCallbackScreen from "@/features/auth/KConnectCallbackScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
@@ -28,6 +35,8 @@ import LockersLockerSelectScreen from "@/features/lockers/LockersLockerSelectScr
 import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
+import NotificationsScreen from "@/features/notifications/NotificationsScreen";
+import NotificationsSettingsScreen from "@/features/notifications/NotificationsSettingsScreen";
 import SearchScreen from "@/features/search/SearchScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
@@ -39,7 +48,12 @@ const routes = [
       {
         children: [
           {
-            element: <HomeScreen />,
+            // 앱 첫 진입점 — 로그인한 기록이 없으면 로그인 화면으로 보낸다
+            element: (
+              <AuthEntryGate>
+                <HomeScreen />
+              </AuthEntryGate>
+            ),
             path: "/",
           },
           {
@@ -184,6 +198,43 @@ const routes = [
             path: "/search",
           },
           {
+            element: <NotificationsScreen />,
+            // Figma 알림 화면에는 Bottom Nav가 없고(뒤로가기로 진입한 화면에 복귀) 배경이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/notifications",
+          },
+          {
+            element: <NotificationsSettingsScreen />,
+            // 알림 화면의 설정 아이콘으로 들어가는 화면 — 알림 화면과 같은 이유로 Bottom Nav 없이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/notifications/settings",
+          },
+          {
+            element: <AuthSignupScreen />,
+            // 로그인·온보딩 퍼널 하나가 모든 단계(로그인, 연락처, 약관 동의, 약관 상세, 가입 완료)를 그린다.
+            // Figma 로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth",
+          },
+          {
+            element: <KConnectCallbackScreen />,
+            // K-CONNECT 인증 후 되돌아오는 redirect URI — 경로는 K-CONNECT에 등록한 값(@billilge/oauth-kconnect 규약)이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/oauth/kconnect",
+          },
+          {
             element: <ChatEntryScreen />,
             // Figma 챗봇 진입 화면에는 Bottom Nav가 없다(뒤로가기로 홈에 복귀). 흰 배경 위에
             // 그라데이션이 얹히는 구조라 다른 흰 배경 화면들과 같은 normal을 쓴다.
@@ -230,6 +281,28 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/lockers/apply/sections/:sectionId/failure/:reason",
+          },
+          {
+            // 아카이빙 화면은 모두 하단 탭 없이 흰 배경이라, element 없는 부모 라우트에 옵션을 모은다
+            children: [
+              { element: <ArchivesListScreen />, path: "/archives" },
+              {
+                element: <ArchivesDetailScreen />,
+                path: "/archives/:archiveId",
+              },
+              {
+                element: <ArchivesPhotosScreen />,
+                path: "/archives/:archiveId/photos",
+              },
+              {
+                element: <ArchivesPhotoViewerScreen />,
+                path: "/archives/:archiveId/photos/:photoIndex",
+              },
+            ],
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
           },
           // 라우트가 없는 경로 — 레이아웃 안에 둬서 하단 탭이 유지되고, 탭 경로(/event 등)면 그 탭이 활성으로 보인다
           {
