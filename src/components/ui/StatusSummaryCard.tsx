@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { useSkeletonAnimation } from "@/components/ui/ScreenSkeleton";
 
-export interface StatusSummaryCardRow {
+interface StatusSummaryCardRow {
   label: string;
   value: string;
 }
