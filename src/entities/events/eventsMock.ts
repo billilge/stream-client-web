@@ -166,7 +166,7 @@ const APPLICATIONS: MyEventApplication[] = [
 type MyEventApplicationsMockState = "list" | "empty";
 const MY_EVENT_APPLICATIONS_MOCK_STATE: MyEventApplicationsMockState = "list";
 
-// 신청 취소가 이 배열의 항목을 바꾼다(eventsApi의 cancelMyEventApplication) — 목록·상세에 같이 반영된다.
+// 신청 취소가 이 배열의 항목을 바꾼다(eventsApi의 useCancelEventApplicationMutation) — 목록·상세에 같이 반영된다.
 export const MY_EVENT_APPLICATIONS_MOCK: MyEventApplication[] =
   MY_EVENT_APPLICATIONS_MOCK_STATE === "list" ? APPLICATIONS : [];
 
