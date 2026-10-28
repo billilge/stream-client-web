@@ -17,7 +17,7 @@ import { useRecentSearches } from "@/features/search/hooks/useRecentSearches";
 //
 // 상태 흐름: 입력 비어 있음(진입) · 입력 중(검색 중) → 최근 검색어를 보여주고, 제출하면 응답 대기
 // (스켈레톤) → 결과(또는 empty). 입력을 다시 고치면 결과를 걷고 최근 검색어로 돌아간다.
-// 결과는 SearchResultContent가 use(fetchSearchResults())로 읽고, 응답 대기는 Suspense가 스켈레톤으로 받는다.
+// 결과는 SearchResultContent가 useSuspenseQuery(searchQueries.results())로 읽고, 응답 대기는 Suspense가 스켈레톤으로 받는다.
 // 홈·행사·게시판·빌릴게 헤더의 검색 아이콘이 `?tab=`으로 넘긴 탭을 결과의 시작 탭으로 쓴다
 // (설계서 3번: 홈 검색은 전체 탭부터, 기능 내 검색은 해당 탭부터).
 function SearchScreen() {

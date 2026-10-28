@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ContentBadge,
   type ThemeColorsToken,
@@ -5,12 +6,11 @@ import {
   Typography,
 } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
-import { use } from "react";
 
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { fetchNotice } from "@/entities/notices/noticesApi";
+import { noticesQueries } from "@/entities/notices/noticesApi";
 import type { NoticeCategory } from "@/entities/notices/types";
 
 const CATEGORY_BADGE_COLOR: Record<NoticeCategory, ThemeColorsToken> = {
@@ -27,7 +27,7 @@ interface NoticesDetailContentProps {
 // 공지 데이터를 받아 그리는 부분. 데이터를 받는 동안은 NoticesDetailScreen의 Suspense가
 // NoticesDetailSkeleton을 보여준다. 헤더 모양이 공지의 사진 유무로 갈려서 헤더도 여기서 등록한다.
 function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
-  const notice = use(fetchNotice(noticeId));
+  const { data: notice } = useSuspenseQuery(noticesQueries.detail(noticeId));
   const photoCount = notice?.photoCount ?? 0;
 
   // 사진이 있으면 행사 상세와 같은 방식으로 뒤로가기를 사진 위 오버레이로 그려서 사진이 화면
