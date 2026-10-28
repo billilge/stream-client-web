@@ -1,13 +1,18 @@
 import type { ApiResponse } from "@/lib/api/types";
 
 // 서버까지 닿지 못한 요청(오프라인·DNS·CORS 차단 등)
-export class NetworkError extends Error {}
+export class NetworkError extends Error {
+  name = "NetworkError";
+}
 
 // 정해 둔 시간 안에 응답이 오지 않은 요청
-export class TimeoutError extends Error {}
+export class TimeoutError extends Error {
+  name = "TimeoutError";
+}
 
 // 서버가 실패로 응답한 요청. 화면은 code로 분기하고 message를 사용자에게 보여 준다.
 export class ApiError extends Error {
+  name = "ApiError";
   readonly status: number;
   readonly code: string;
 

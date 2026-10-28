@@ -21,6 +21,8 @@ export function setAccessToken(token: string): void {
     window.sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
   } catch (error) {
     console.warn("액세스 토큰을 저장하지 못했어요.", error);
+    // 저장하지 못했으면 토큰이 바뀐 게 아니라 알리지 않는다
+    return;
   }
   notifyTokenListeners();
 }
@@ -35,7 +37,8 @@ export function clearAccessToken(): void {
   notifyTokenListeners();
 }
 
-// 토큰이 바뀌면 알린다 — 로그인 가드가 구독해서 토큰이 사라지면 로그인 화면으로 보낸다.
+// 토큰이 바뀌면 알린다 — 토큰이 사라지면 로그인 화면으로 보내는 가드가 구독할 자리다.
+// 가드는 로그인 실연결 때 만든다(지금은 토큰을 넣는 곳이 없어 401이 나지 않는다).
 // 요청 코드(apiClient)가 라우터를 직접 부르지 않게 하려고 둔다(router → 화면 → entities → apiClient 순환 import).
 export function subscribeTokens(listener: TokenListener): () => void {
   listeners.add(listener);
