@@ -80,14 +80,18 @@ export function useCancelEventApplicationMutation() {
         MY_EVENT_APPLICATIONS_MOCK[index] = next;
         return next;
       }),
-    // 무효화 Promise를 돌려줘서 다시 받은 데이터가 들어온 뒤에 mutation이 끝나게 한다 —
+    // Promise를 돌려줘서 다시 받은 데이터가 들어온 뒤에 mutation이 끝나게 한다 —
     // 화면은 끝난 뒤 토스트를 띄우므로 토스트가 취소된 화면과 함께 뜬다.
-    // 지금 화면에 없는 목록도 같이 다시 받는다(refetchType "all") — 안 그러면 목록으로 돌아갔을 때
-    // 취소 전 캐시가 잠깐 보였다가 바뀐다.
     onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: eventsKeys.applications(),
-        refetchType: "all",
-      }),
+      Promise.all([
+        // 목록·상세를 모두 낡은 것으로 표시하고, 지금 화면에 있는 조회(취소한 상세)만 바로 다시 받는다
+        queryClient.invalidateQueries({ queryKey: eventsKeys.applications() }),
+        // 목록은 화면에 없어도 다시 받는다 — 안 그러면 목록으로 돌아갔을 때 취소 전 캐시가 잠깐 보였다가 바뀐다.
+        // 열어 봤던 다른 상세는 취소와 상관없어 다시 받지 않는다
+        queryClient.refetchQueries({
+          exact: true,
+          queryKey: eventsKeys.applications(),
+        }),
+      ]),
   });
 }
