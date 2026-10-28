@@ -1,8 +1,18 @@
-import { FEE_PAYMENTS_MOCK } from "@/entities/fee/feeMock";
-import type { FeePayment } from "@/entities/fee/types";
-import { mockupApi } from "@/lib/mockupApi";
+import { queryOptions } from "@tanstack/react-query";
 
-// 실 API가 붙으면 함수 안쪽만 요청 코드로 바꾼다 — 화면은 이 함수로만 데이터를 받는다.
-export function fetchFeePayments(): Promise<FeePayment[]> {
-  return mockupApi("fee/payments", () => FEE_PAYMENTS_MOCK);
-}
+import { FEE_PAYMENTS_MOCK } from "@/entities/fee/feeMock";
+import { mockupResponse } from "@/lib/mockupApi";
+
+const feeKeys = {
+  root: () => ["fee"] as const,
+  payments: () => [...feeKeys.root(), "payments"] as const,
+};
+
+// 실 API가 붙으면 queryFn 안쪽만 요청 코드로 바꾼다 — 화면은 이 queryOptions로만 데이터를 받는다.
+export const feeQueries = {
+  payments: () =>
+    queryOptions({
+      queryKey: feeKeys.payments(),
+      queryFn: () => mockupResponse(() => FEE_PAYMENTS_MOCK),
+    }),
+};

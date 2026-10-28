@@ -1,10 +1,10 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button, Typography } from "@wanteddev/wds";
-import { use } from "react";
 import { Navigate } from "react-router-dom";
 
 import answerIcon from "@/assets/icons/feedbacks/answer.svg";
 import questionIcon from "@/assets/icons/feedbacks/question.svg";
-import { fetchMyFeedback } from "@/entities/feedbacks/feedbacksApi";
+import { feedbacksQueries } from "@/entities/feedbacks/feedbacksApi";
 import FeedbacksAnswerText from "@/features/feedbacks/components/FeedbacksAnswerText";
 import FeedbacksEmptyState from "@/features/feedbacks/components/FeedbacksEmptyState";
 import { hasFeedbackAnswer } from "@/features/feedbacks/constants/feedbacks";
@@ -25,7 +25,9 @@ function FeedbacksMineDetailContent({
   onBrowseFeedbacks,
   onViewRound,
 }: FeedbacksMineDetailContentProps) {
-  const feedback = use(fetchMyFeedback(feedbackId));
+  const { data: feedback } = useSuspenseQuery(
+    feedbacksQueries.myDetail(feedbackId),
+  );
 
   if (!feedback) {
     return <Navigate replace to={fallbackPath} />;

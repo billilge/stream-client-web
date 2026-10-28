@@ -22,6 +22,15 @@ export function mockupApi<T>(key: string, getData: () => T): Promise<T> {
   return promise;
 }
 
+// queryFn이 목데이터를 서버 응답처럼 늦게 돌려줄 때 쓴다. 캐시는 TanStack Query가 맡아서 여기서는 지연만 준다.
+// 실 API가 붙으면 queryFn 안쪽을 api.get(...)으로 바꾼다.
+export async function mockupResponse<T>(getData: () => T): Promise<T> {
+  if (import.meta.env.DEV) {
+    await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY_MS));
+  }
+  return getData();
+}
+
 // 신청 취소처럼 목데이터를 바꾸는 요청에 쓴다. 조회와 같은 지연을 주지만 캐시하지 않는다.
 // 바뀐 데이터를 다시 받게 하려면 응답 뒤 관련 조회 key를 invalidateMockupApi로 지운다.
 export async function mockupMutation<T>(mutate: () => T): Promise<T> {

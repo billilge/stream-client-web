@@ -1,10 +1,10 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { IconButton, Typography } from "@wanteddev/wds";
 import { IconChevronLeft, IconShare } from "@wanteddev/wds-icon";
-import { use } from "react";
 
 import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
 import ScreenHeader from "@/components/ui/ScreenHeader";
-import { fetchArchive } from "@/entities/archives/archivesApi";
+import { archivesQueries } from "@/entities/archives/archivesApi";
 import ArchivesDetailSection from "@/features/archives/components/ArchivesDetailSection";
 import ArchivesPhotoGrid from "@/features/archives/components/ArchivesPhotoGrid";
 
@@ -23,7 +23,7 @@ function ArchivesDetailContent({
   onBack,
   onMorePhotos,
 }: ArchivesDetailContentProps) {
-  const archive = use(fetchArchive(archiveId));
+  const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
 
   if (!archive) {
     return (
