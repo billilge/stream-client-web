@@ -10,6 +10,8 @@ const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? "",
   // 응답이 없을 때 화면이 스켈레톤에 오래 묶이지 않게 끊는다
   timeout: 10_000,
+  // 시간 초과를 ETIMEDOUT으로 따로 받는다 — 기본값이면 브라우저가 끊은 요청과 같은 ECONNABORTED로 온다
+  transitional: { clarifyTimeoutError: true },
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -21,16 +23,17 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(undefined, (error: unknown) => {
-  if (!axios.isAxiosError(error)) {
+  // TanStack Query가 화면을 떠나며 취소한 요청은 에러로 바꾸지 않고 그대로 넘긴다
+  if (!axios.isAxiosError(error) || axios.isCancel(error)) {
     throw error;
   }
-  if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
+  if (error.code === "ETIMEDOUT") {
     throw new TimeoutError("응답이 늦어 요청을 끊었어요.", { cause: error });
   }
   if (!error.response) {
     throw new NetworkError("서버에 연결하지 못했어요.", { cause: error });
   }
-  // 토큰이 없거나 만료됐다 — 지우면 로그인 가드가 알림을 받고 로그인 화면으로 보낸다(token.ts).
+  // 토큰이 없거나 만료됐다 — 지우고 알린다(token.ts). 로그인 화면으로 보내는 가드는 로그인 실연결 때 붙인다.
   // 서버에 재발급이 생기면 여기서 재발급하고 원래 요청을 다시 보낸다.
   if (error.response.status === 401) {
     clearAccessToken();
