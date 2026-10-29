@@ -9,18 +9,19 @@ interface ScreenToastProps {
   message: string;
   onOpenChange: (open: boolean) => void;
   /**
-   * negative: 실패 안내(느낌표, Figma 1450:93026). positive: 성공 안내(체크, Figma 1410:50080) —
-   * WDS 기본 아이콘(IconCircleCheckFill)이 Figma와 이미 일치해서 따로 넘기지 않는다.
+   * negative: 실패 안내(느낌표, Figma 1450:93026). positive: 성공 안내(체크, Figma 1410:50080).
+   * cautionary: 주의 안내(주황 삼각 느낌표, Figma 2212:160680).
+   * positive·cautionary는 WDS 기본 아이콘이 Figma와 이미 일치해서 따로 넘기지 않는다.
    */
-  variant?: "negative" | "positive";
+  variant?: "negative" | "positive" | "cautionary";
 }
 
-// Figma: Toast/Toast (nodeId 1450:93026 negative / 1410:50080 positive). 배경·흐림·여백·모서리·
-// 글자가 모두 WDS Toast 기본값이라 그대로 쓰고, 두 가지만 우리가 맡는다.
+// Figma: Toast/Toast (nodeId 1450:93026 negative / 1410:50080 positive / 2212:160680 cautionary).
+// 배경·흐림·여백·모서리·글자가 모두 WDS Toast 기본값이라 그대로 쓰고, 두 가지만 우리가 맡는다.
 // 1. 위치 — WDS 기본 배치는 자체 영역(#wds-region-manager-bottom)이라 화면 프레임을 벗어난다.
 //    화면 포털에 직접 그려서 Figma 좌표(좌우 20px, 아래에서 100px)에 놓는다.
 // 2. 아이콘 — negative variant의 기본 아이콘은 X(Circle Close)인데 Figma는 느낌표라 직접 넘긴다.
-//    positive는 기본 아이콘(체크)이 Figma와 그대로 맞아서 커스텀하지 않는다.
+//    positive(체크)·cautionary(삼각 느낌표)는 기본 아이콘이 Figma와 그대로 맞아서 커스텀하지 않는다.
 function ScreenToast({
   open,
   message,
