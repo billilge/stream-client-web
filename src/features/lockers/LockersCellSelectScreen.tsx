@@ -6,6 +6,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import ScreenToast from "@/components/ui/ScreenToast";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
@@ -41,6 +42,9 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
   >(null);
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isUnavailableToastOpen, setIsUnavailableToastOpen] = useState(false);
+  // 선택 불가 칸을 연달아 눌러도 토스트가 처음부터 다시 뜨고 스크린리더가 다시 읽도록 key로 새로 그린다
+  const [unavailableTapCount, setUnavailableTapCount] = useState(0);
   const { isSubmitting, submit } = useLockersApplySubmit(detail.section);
 
   const lockers = useMemo(
@@ -52,6 +56,16 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
     selectedLockerNumber === null
       ? undefined
       : lockers.get(selectedLockerNumber);
+
+  // 선택 불가 칸은 고르지 않고 안내 토스트만 띄운다 — 이미 고른 칸은 그대로 둔다
+  const handleSelect = (lockerNumber: number) => {
+    if (lockers.get(lockerNumber)?.isAvailable) {
+      setSelectedLockerNumber(lockerNumber);
+      return;
+    }
+    setUnavailableTapCount((count) => count + 1);
+    setIsUnavailableToastOpen(true);
+  };
 
   useScreenHeader(
     <ScreenHeader
@@ -98,7 +112,7 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
     <LockersLayoutRenderer
       layout={detail.layout}
       lockers={lockers}
-      onSelect={setSelectedLockerNumber}
+      onSelect={handleSelect}
       selectedLockerNumber={selectedLockerNumber}
     />
   );
@@ -143,6 +157,15 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
         description={LOCKERS_APPLY_SUBMITTING_TEXT.description}
         open={isSubmitting}
         title={LOCKERS_APPLY_SUBMITTING_TEXT.title}
+      />
+
+      {/* Figma: 선택 불가능한 사물함 선택 시 토스트 (nodeId 2212:160304) */}
+      <ScreenToast
+        key={unavailableTapCount}
+        message="다른 사물함을 선택해 주세요."
+        onOpenChange={setIsUnavailableToastOpen}
+        open={isUnavailableToastOpen}
+        variant="cautionary"
       />
     </div>
   );
