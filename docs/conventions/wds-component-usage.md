@@ -132,6 +132,7 @@ hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참�
   - `width` 기본값이 부모 폭을 채우지 않는다 — 안 주면 카드 폭의 절반 정도로 렌더링돼서 `width="100%"`를 줬다.
   - 높이 계산용 숨김 textarea(`readonly`, `aria-hidden`)를 하나 더 렌더링한다 — 테스트·자동화에서 `textarea` 셀렉터를 쓸 때 제외해야 한다.
   - 단답형(50자)도 같은 `TextArea`를 쓴다(Figma 텍스트 입력 예시 `1133:43105`의 디자이너 메모).
+  - 글자 스타일이 `body1-reading`(16px)으로 고정돼 있고 prop으로 못 바꾼다. Figma 입력 글자·안내 문구는 `Label 1/Reading`(14px)이라(`1658:183424`), `sx`에 `& textarea, & textarea::placeholder { typographyStyle("label1-reading", "regular") }`를 줘서 덮는다(`EventsQuestionField`의 `TEXT_AREA_TYPOGRAPHY`). 위 숨김 textarea도 같은 글자로 높이를 재야 자동 높이가 맞아서 `textarea` 전체를 잡는다. 처음엔 16px 그대로였다가 행사 신청내역(#115) `/figma-check`에서 잡혔다. 신청 폼(`1658:183424`)과 신청내역 상세 둘 다 Figma가 14px다. **WDS를 올릴 때 확인할 곳**: WDS 내부 클래스가 아니라 `textarea` 태그를 잡는 거라 WDS가 textarea를 계속 쓰는 한 유지되지만, 업데이트 뒤 신청 폼 입력 글자가 14px인지·자동 높이가 맞는지 한 번 본다.
 - **`Action Area/Action Area` → `ActionArea background` + `ActionAreaButton`**: `background`를 켜면 `::before`가 영역 위로 `margin-y`(20px)만큼 더 올라가 그라데이션 마스크로 스크롤 내용을 흐리게 덮는다(Figma `Gradient/Solid`와 일치). `divider`는 기본값이 `true`지만 `extra` 모드에서만 선을 그려서 일반 모드에는 영향 없다. Figma Action Area(110px = 위 20 + 버튼 56 + 아래 34)는 버튼 아래가 iOS **Bottom Safe Area까지 합쳐 34px**인데 WDS `ActionArea`는 아래 padding 20px만 줘서, 모자란 **14px**을 `bg-background-elevated-normal` div로 따로 붙였다(`BottomSheet`에서 14px을 더한 것과 같은 이유). 처음엔 Safe Area 34px을 통째로 더해서 버튼 아래가 54px로 벌어졌었다 — ActionArea 자체 padding과 겹치는지 먼저 확인한다. 이때 `--color-background-elevated-normal`(`--semantic-background-elevated-normal` 별칭) 토큰을 추가했다.
 - **Action Area 메인 버튼 높이**: `ActionAreaButton`(`main`)은 항상 `Button size="large"`(padding `12px 28px` → **48px**)로 그리는데, Figma `┗ Main Action`은 padding `16px 28px`(**56px**)이다. WDS에 56px 크기가 없어서 `sx={{ paddingBlock: "16px" }}`로 세로 padding만 맞췄다(`ActionAreaButton`은 `props.sx`를 내부 `Button` 스타일 맨 뒤에 붙여서 덮어쓰기가 된다). 빌릴게 대여 바텀시트 Figma(`1422:57205`)의 "대여 신청하기" 버튼도 같은 56px 스펙이지만, `BililgeRentalSheet.tsx`는 아직 `sx` 없이 48px로 렌더링된다(위 "빌릴게 대여 바텀시트" 절의 "정확히 일치" 기록은 높이까지는 대조하지 않은 것으로 보인다).
 - **기타(직접 입력) 입력칸은 WDS가 아니라 plain `<input>`**: Figma `Other Option`(`1658:183954`)은 체크박스 아래에 밑줄만 있는 입력칸이라, WDS `TextField`(배경·테두리·12px radius가 있는 박스형)와 생김새가 다르다. 밑줄은 `Primary/Normal` 0.7px(에셋 SVG의 stroke로 확인, `get_variable_defs`만으로는 선 색이 안 나온다). 글자는 `Typography as="input"`으로 Figma `Label 1/Reading - Regular`(`variant="label1-reading"`, 14px·줄 높이 22px)를 받는다(`component-convention.md` 타이포그래피 참고).
@@ -504,7 +505,7 @@ WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외
 
 | 블록 | Figma | 코드 |
 |---|---|---|
-| `lockerGroup` | Zone Area + Locker Grid | `LockersLockerGrid`(`bordered`면 `Line/Solid/Alternative` 테두리 상자) |
+| `lockerGroup` | Zone Area + Locker Grid | `LockersGrid`(`bordered`면 `Line/Solid/Alternative` 테두리 상자) |
 | `label` | Direction Label·Aisle | `LockersMapLabel` — 세로면 한 글자씩 줄바꿈하고 단어 사이에 빈 줄 |
 | `area` | Room Label·Zone Label·Stairs Area | `LockersMapArea` — 구역 선택 평면도와 같은 점선 상자 |
 | `shelfLabel` | Shelf Label | `LockersShelfLabel` |
@@ -620,7 +621,58 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 
 ### 빈 상태는 WDS `FallbackView`가 아니라 홈 로컬 `HomeEmptyState`
 
-일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/bililge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/events/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.
+일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/bililge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/common/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.
+
+### 홈에서 다른 화면으로 가는 연결(#114)
+
+| 홈에서 누르는 곳 | 이동 |
+|---|---|
+| 공지 배너 | 공지 상세 `/notices/:noticeId` (공지가 없을 때의 기본 배너는 누를 수 없다) |
+| 신청 카드(행사) | 카드(배지·제목 영역) → 행사 상세 `/events/:eventId`, `신청하기` → 행사 신청 `/events/:eventId/apply` |
+| 신청 카드(사물함) | 카드·`신청하기` 둘 다 → 사물함 신청 `/lockers/apply`(사물함은 상세 화면이 없다) |
+| 대여 현황 `반납 신청` | 이동하지 않고 홈에서 반납 신청 확인 모달 → 완료 토스트 |
+| 대여 현황 `N건 더보기` / 빈 상태 `대여하러 가기` | 빌릴게 반납 탭 `/bililge/returns` / 대여 탭 `/bililge` |
+| 신청한 행사 행 / `N건 더보기` / 빈 상태 `행사 둘러보기` | 신청내역 상세 `/events/applications/:applicationId` / 신청내역 탭 `/events/applications` / 행사 탭 `/events` |
+| 내 정보 학생회비 납부 여부·열린피드백 작성내역·사물함 배정 상태 | `FEE_PAYMENTS_PATH`·`MY_FEEDBACKS_PATH`·`LOCKER_ASSIGNMENT_PATH`(`/my/fee`·`/my/feedbacks`·`/my/locker`) |
+| 헤더 알림 | 알림 목록 `NOTIFICATIONS_PATH`(#108에서 연결) |
+| 아카이빙 배너 | 아카이빙 목록 `ARCHIVES_PATH`(`/archives`) — 배너 전체가 버튼이다 |
+
+- **탭은 경로로 연다**: 빌릴게(`/bililge`·`/bililge/returns`)와 행사(`/events`·`/events/applications`) 목록은 같은 화면을 라우터가 `tab` prop으로 골라 넘긴다(화면이 주소를 비교하지 않아 끝에 `/`가 붙어도 맞다). 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않고, 하단 탭은 두 번째 탭 라우트의 `handle.bottomNavValue`로 그 화면이 선택된다.
+- **이동 방식**: 상세·신청·내 내역처럼 화면을 쌓는 이동은 `viewTransition`(슬라이드), 하단 탭 화면과 그 탭으로는 바로 바꾼다.
+- **반납 신청은 빌릴게 반납 탭과 같은 흐름**: 확인 모달·토스트를 `useBililgeReturnRequest` 훅으로 꺼내 두 화면이 같이 쓴다. 모달 왼쪽 버튼은 Figma(`1133:50014`)대로 `닫기`다 — 처음엔 `수정`으로 잘못 들어가 있었다(사물함 칸 선택 확인 모달의 `수정`은 칸을 다시 고른다는 뜻이라 그대로다).
+- **누를 수 있는 줄·카드는 버튼으로 그린다**: 신청 카드는 버튼 안에 버튼을 둘 수 없어서 카드 선택을 배지·제목 영역에만 건다(행사 목록 카드와 같은 방식). 공지 배너의 맨 끝 복제 카드는 키보드 포커스를 받지 않는다. 화면 모양은 버튼으로 바꾸기 전과 픽셀 단위로 같다.
+- **아직 연결하지 않은 곳**: 학생회비 미납 줄의 납부하기(#105)는 송금 화면 PR(#107)이 머지된 뒤 연결한다. 헤더 설정은 설정 화면 PR(#97)이 직접 연결한다.
+
+## 내 내역 화면(열린피드백 작성내역 `3147:147748`·`3147:147818`·`3147:147756`·`3147:147779` / 학생회비 납부내역 `3147:147860`·`3147:147879`·`3147:147841` / 사물함 배정 상태 `3147:148357`·`3147:148331`) 구현 중 확정된 매핑
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| `Content Badge` (답변완료·답변대기, 납부확인중·확인필요·납부완료, 배정완료) | `ContentBadge size="small" variant="solid" color="accent"` | 홈 내 정보 목록과 같은 상태 이름·색이다. 초록 green, 주황 orange, 빨강 red. 상태→배지 매핑은 `FEE_STATUS_BADGES`(`features/fee/constants`)·`LOCKER_STATUS_BADGES`(`features/lockers/constants`) 한 곳에 두고 홈과 같이 쓴다 |
+| 작성내역 상세 `해당 회차 답변 모아보기` | `Button color="primary" size="medium" variant="outlined"` | |
+| 학생회비 `문의하기`, 사물함 `사물함 위치 보기` | `Button color="assistive" size="medium" variant="outlined" fullWidth` | 위치 보기의 꺾쇠는 `trailingContent={<IconChevronRight />}` |
+| 빈 상태 버튼 `열린피드백 작성하기` / `열린피드백 보러 가기` | `Button color="assistive" size="small" variant="solid"` | 행사 목록 빈 상태(outlined)와 variant가 다르다 |
+| 뒤로가기 헤더 | `ScreenHeader variant="normal"` + `TopNavigationButton` | `useBackNavigation(fallbackPath)`(`hooks/`) — 바로 들어와 뒤로 갈 기록이 없으면 홈(상세는 목록, 위치 보기는 배정 상태)으로 보낸다. 대비 경로는 각 기능 `constants`의 경로 상수(`FEE_PAYMENTS_PATH`·`MY_FEEDBACKS_PATH`·`LOCKER_ASSIGNMENT_PATH` 등)를 쓰고, 데이터가 없을 때의 `<Navigate>`도 화면이 넘긴 `fallbackPath`로 간다 |
+
+- **카드·빈 상태는 Stream 로컬**: 작성내역 카드(`FeedbacksHistoryCard`)와 학생회비 확인 내용 카드, 배정된 사물함 카드는 흰 바탕 `rounded-xl p-4` 로컬 카드다. 학생회비 납부 요약과 사물함 배정 요약(배지 + 제목 + 라벨/값 행)은 행사 신청내역 상세 요약과 같은 공용 `StatusSummaryCard`(`components/ui/`)를 쓴다 — 행 내용은 각 기능(`FeePaymentCard`·`LockersAssignmentContent`)이 만들어 넘긴다. 행 간격은 6px로, Figma 학생회비 카드(`3147:147860`)만 8px로 그려진 건 디자인 실수로 보고 맞췄다(#120). 로딩 중에는 같은 파일의 `StatusSummaryCardSkeleton`(행 수만큼 `rowWidths`)이 카드와 같은 높이·간격으로 자리를 채운다. 빈 상태는 행사 목록 Empty State와 같은 이유(`FallbackView`의 일러스트 크기·패딩 고정)로 로컬이다. 열린피드백은 `FeedbacksEmptyState`(그림 `icons/feedbacks/empty-feedback.svg`)를 쓰고, 사물함은 `LockersEmptyState`(그림은 행사 목록과 같은 `icons/common/empty-events.svg`)를 쓴다.
+- **답변 강조 표시는 두 상세 화면이 공유한다**: 답변 글의 `**굵게**`를 볼드 `Typography`로 바꾸는 `FeedbacksAnswerText`를 모아보기 상세와 작성내역 상세가 같이 쓴다.
+- **사물함 위치 보기(`/my/locker/location`)는 Figma에 없다**: 칸 선택 화면 배치를 보기 전용으로 쓴다. 칸 영역(미니맵·확대 스크롤)은 `LockersMapView`로 두 화면이 공유하고, 범례는 화면이 `legend`로 넘긴다(신청 `<LockersLegend />`, 위치 보기 `<LockersLegend variant="mine" />` — "내 사물함" 하나). 내 칸은 배정 정보(`lockerLabel`) 하나에서 정해서 `selectedLockerNumber`로 넘기고, 선택된 칸 모양(Primary/Normal 배경 + 흰 번호)으로 그린다. 보기 전용 여부는 `onSelect`가 없는지로만 판단하고, 이때 칸을 버튼으로 그리지 않는다. 처음 열 때 선택된 칸(`data-selected`)이 화면 밖이면 보일 만큼만 스크롤한다. 신청 화면의 내 칸(구역 목데이터 `isMine`, 초록 테두리, 선택 불가)은 보기 전용에서는 그리지 않는다.
+- **Figma와 다르게 둔 값**: 요일은 날짜로 계산해서 Figma의 요일 표기와 다를 수 있다. 사물함 번호는 칸 배치 목데이터가 있는 A-1 구역에 맞춰 A-7로 두었다(Figma는 B-25). 사물함 빈 상태 문구의 연도는 기기 시계의 올해다(API 연동 때 서버 값으로 — 코드에 TODO). 날짜는 `lib/date`의 `formatDate`·`formatDateTime`으로 맞추고, 작성내역 상세만 Figma(`3147:147756`)대로 `2026-04-25` 하이픈 표기다.
+
+## 행사 신청내역(`1133:46168` 목록 / `1165:63551` empty / `1133:46181` 상세 / `1133:46131` 신청취소 확인모달 / `1133:46216` 신청취소 상세 + 토스트) 구현 중 확정된 매핑
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| `Content Badge` (신청완료·신청취소) | `ContentBadge size="small" variant="solid" color="accent"` | 신청완료 green, 신청취소 red. 목록 카드와 상세가 `EVENTS_APPLICATION_STATUS_BADGES`를 같이 쓴다 |
+| 카드 `행사 상세` / `신청 상세` | `Button size="small" color="assistive"` | 앞은 `variant="outlined"`, 뒤는 `variant="solid"`(Fill/Normal 배경). 둘 다 padding 7/14·radius 8·Label 2/Medium이 Figma와 같다 |
+| 상세 `신청 취소` | `Button size="medium" color="primary" variant="outlined"` + `sx` | WDS Button 색이 primary/assistive뿐이라 글자·테두리(`box-shadow` inset)만 `Status/Negative`로 덮는다 — `sx={NEGATIVE_BUTTON_SX.outlined}`(`components/ui/negativeButtonSx.ts`, `ConfirmModal`의 빨간 확인 버튼은 `.solid`). outlined primary가 SemiBold 글자라 primary를 고른다 |
+| 신청취소 확인모달 | `ConfirmModal tone="negative"` | 사물함 신청 확인 모달과 같은 공용 모달이고, `tone="negative"`가 느낌표 아이콘 + 빨간 확인 버튼을 그린다 |
+| 취소 완료 토스트 | `ScreenToast variant="positive"` | 체크 아이콘이 WDS 기본값 그대로 |
+| 상세 문항 `Control/Checkbox`·`Control/Radio`·`Textinput/Textarea` | 신청 폼의 `EventsQuestionField` 재사용 | `readOnly`로 읽기 전용(선택 표시는 그대로, 바꿀 수 없음). 입력 폼은 `onAnswerChange`가 필수라 빠뜨리면 타입 검사에서 걸린다. 신청취소 상세는 `disabled`로 WDS 비활성 모양을 쓰고, 선택지 글자는 `Label/Disable`(Figma `1133:46240`) |
+
+- **카드·요약은 Stream 로컬**: 신청내역 카드(`EventsApplicationCard`, 70px 회색 썸네일 + 배지·제목·일시 + 버튼 2개)는 행사 로컬이다. 상세 요약은 공용 `StatusSummaryCard`이고, `EventsApplicationSummary`는 "행사·신청·(취소)" 행만 만들어 넘긴다. 신청 폼·완료 화면의 `EventsSummaryCard`(아이콘 + 일시·장소)와는 다른 카드다.
+- **빈 상태는 `EventsEmptyState` 재사용**: 버튼은 `action={{ label, onClick }}` 한 묶음으로 받아서 동작 없는 버튼이 생기지 않는다(신청내역 "행사 둘러보기" → `/events`, 행사 목록 모집중 "아카이빙 둘러보기" → `ARCHIVES_PATH`). 그림·버튼 모양은 행사 목록 빈 상태와 같고, 설명 굵기만 다르다(행사 목록 Medium, 신청내역 Regular) — `descriptionWeight`로 고른다. 위치는 목록 영역 가운데가 아니라 Figma대로 토글 아래 176px이다.
+- **탭은 경로로 나눈다**: 행사 `/events`, 신청내역 `/events/applications`, 상세 `/events/applications/:applicationId`. 같은 목록 화면을 라우터가 `tab` prop(`"event"`/`"application"`)으로 골라 넘기고(화면이 주소를 비교하지 않아 끝에 `/`가 붙어도 맞다), 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않는다. 신청내역 탭은 Figma에 상태 필터 행이 없어서 숨긴다. 하단 탭은 신청내역 라우트 `handle`의 `bottomNavValue: "event"`로 "행사"가 선택된다.
+- **취소는 목록까지 반영된다**: 취소 API(`cancelMyEventApplication`)가 목데이터를 바꾸고 목록·상세 조회 캐시를 지운다(조회·무효화가 같은 `eventsKeys`로 key를 만든다). 요청·토스트 상태는 `useEventsApplicationCancel` 훅이 맡고, 토스트 문구·색은 `CANCEL_TOASTS` 한 곳에 있다. 다시 그리는 업데이트를 transition으로 묶어 새 데이터를 받는 동안 스켈레톤 대신 지금 화면을 유지하고, 토스트는 취소된 화면과 함께 뜬다. 실패 토스트 문구("신청 취소에 실패했어요. 다시 시도해 주세요.")는 Figma에 없어 임의로 정했다.
 
 ## 알림(`3595:107100` 목록 / `3595:107112` empty / `3628:110837` 설정) 구현 중 확정된 매핑
 
@@ -649,6 +701,51 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 ### 설정 화면의 "전체 알림"은 상태를 따로 두지 않는다
 
 Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독립된 값이 아니라 카테고리가 모두 켜졌는지로 파생한다. 누르면 네 카테고리를 같은 값으로 맞추고, 하나라도 끄면 전체가 꺼진다. 값은 화면 state뿐이라 새로고침하면 초기값으로 돌아간다(서버 API 연동 때 교체).
+
+## 스플래시·로그인·온보딩(`3658:112096` / `3738:73115`, 화면설계서 `3747:74283` / `3747:74298`) 구현 중 확정된 매핑
+
+코드는 `src/features/auth/`, `src/entities/auth/` 참고.
+
+| Figma | 코드 | 확인 내용 |
+|---|---|---|
+| `Control/Checkbox` (`440:11057`) | `Checkbox size="medium"` | Figma Control이 24px(박스 18 + 패딩 3)라 **`medium`**이다. 행사 신청 폼에서 쓴 `small`(20px, 패딩 2)이 아니다 — `checkbox/style.js`의 `checkboxSizeStyle`로 확인. 라벨 `x=52`(24 + 간격 8)가 Figma와 일치한다 |
+| `Textinput/Textfield` (`445:8591`) | `TextField` | 높이 48, 모서리 12, 입력 글자 16px이 Figma와 일치한다. 숫자 키패드(`inputMode="numeric"`, `type="tel"`)와 자동 하이픈은 화면에서 처리한다 |
+| `Divider/Divider` (`445:4786`) | `Divider color="semantic.line.normal.normal"` | 약관 동의 목록의 전체 동의/개별 항목 구분선(1px, `Line/Normal/Normal`) |
+| `divider(8px)` (`1256:77295`) | `Divider color="semantic.line.normal.alternative"` | 약관 상세의 조항 구분선(1px, `Line/Normal/Alternative`). **이름이 비슷한 위 구분선과 색이 다르다** |
+| `Action Area/Action Area` | `ActionArea` + `ActionAreaButton sx={{ paddingBlock: "16px" }}` | "Action Area 메인 버튼 높이" 규칙 그대로다. 비활성(`다음`)은 WDS disabled 스타일이 Figma `Interaction/Disable` 배경과 맞는다 |
+| `Icon/Normal/Chevron Left` | `IconChevronLeft` | 뒤로가기 — 다른 `variant="normal"` 화면과 같다 |
+| `Circle Check Motion` (`1712:192849`) | `CompleteCheck` + 공용 `ResultScreen` | 가입 완료 화면은 신청 완료 화면과 같은 뼈대(닫기 X, 체크 모션, 제목·설명, 하단 버튼)다. 새로 만들지 않고 재사용했고, 체크–문구 간격 8이라 `illustrationGap={8}` |
+
+### 반례 — `Pagination/Dots`는 WDS `PaginationDots`와 크기가 다르다
+
+Figma 닷은 지름 6px·간격 6px(중심 간격 12px)이다. WDS `PaginationDots`는 `small`이 8px·간격 8px(중심 간격 16px), `medium`이 10px이고, 닷 크기를 CSS 변수(`--wds-pagination-dot-size`)로만 바꿀 수 있어 내부 오버라이드가 된다(`pagination-dots/style.js` 확인). 그래서 `AuthPaginationDots`를 로컬로 짰다 — 현재 닷은 `Label/Normal`, 나머지는 같은 색 16% 불투명도.
+
+### 반례 — `K-CONNECT로 시작하기` 버튼은 WDS `ActionAreaButton`이 아니다
+
+배경이 K-CONNECT 브랜드색 `#004F9F`(Figma에서도 변수가 아니라 raw hex)이고 높이 57px·좌측 로고가 있어 WDS 버튼의 색·크기 스케일로 만들 수 없다. `AuthKConnectButton`을 로컬로 두고 색은 `index.css`에 `--color-k-connect` 토큰으로 추가했다.
+
+### 로그인 문구 블록의 Figma 아티팩트 — `Login Copy` 프레임이 50px로 고정돼 있다
+
+문구(제목 28 + 간격 4 + 설명 22 = 54px)가 프레임보다 4px 넘친다. Figma 좌표상 문구–닷 간격이 28px로 보이지만 실제 문구 끝에서 닷까지는 24px이라, 닷 위치(y=538)를 기준으로 `gap-6`을 썼다.
+
+### 로그인 위치는 앱 WebView 영역 기준이다
+
+Figma 프레임의 상태 표시줄(54px)과 홈 바(34px)는 앱 셸 몫이라 웹에는 없다. 로그인 브랜드 헤더 y=126 → 웹에서 72 같은 식으로 그 영역을 뺀 값이다. 브라우저에서 열면(상태 표시줄 없이 화면 전체가 웹) 같은 값이 위로 치우쳐 보여서, `isInAppShell()`이 아닐 때만 로그인 본문을 버튼 위 영역의 정가운데(auto 마진)에 둔다. 앱 WebView에서는 위 Figma 값 그대로다. 스플래시는 웹에서 쓰지 않아 구현하지 않았다.
+
+### K-CONNECT 로그인은 `@billilge/oauth-kconnect`(웹용 `/react`)로 한다
+
+`K-CONNECT로 시작하기`는 `useKConnectLogin({ clientId }).login()`으로 K-CONNECT 인증 사이트로 페이지를 이동시키고(PKCE, `state`는 패키지가 sessionStorage에 보관), 인증 후 K-CONNECT가 되돌려 보내는 `/oauth/kconnect`(`KConnectCallbackScreen`)가 `useKConnectCallback()`으로 `{ code, codeVerifier, redirectUri }`를 받는다. 이 경로는 K-CONNECT에 등록한 redirect URI이자 패키지가 정한 값이라 바꾸지 않는다. 받은 값은 서버(`POST /auth/kconnect`)로 보내 서비스 로그인을 마치는데, 서버 주소·응답 형식이 아직 없어서 `entities/auth/authApi.ts`의 `exchangeKConnectCode`가 응답만 흉내 낸다. 신규 사용자는 `/auth`로 이동하면서 이름을 navigate state로 넘겨 로그인 퍼널이 `initial`(주소에 단계가 없을 때만 쓰임)로 연락처 단계에서 시작하고, 기존 사용자는 홈으로 간다. 취소·오류(국민대 학생이 아니어서 거부된 경우 포함)나 서버 실패는 `/auth`로 돌아와 실패 토스트를 띄운다. 어느 경우든 주소창에 `code`가 남지 않도록 `replace`로 이동한다.
+
+- **설정:** `client_id`는 환경 변수 `VITE_KCONNECT_CLIENT_ID`(`.env.example` 참고)로 받는다. K-CONNECT의 "허가된 Redirect URI"에 `http://localhost:5173/oauth/kconnect`(개발)와 배포 주소의 `/oauth/kconnect`가 등록돼 있어야 한다 — 폰으로 `192.168.x.x:5173`처럼 접속하면 등록되지 않은 주소라 로그인이 거부된다.
+- **설치:** 패키지는 GitHub Packages 비공개 배포라 `.npmrc`에 `@billilge:registry`가 필요하고 `read:packages` 토큰이 있어야 한다(토큰은 파일에 쓰지 않고 환경 변수·사용자 npmrc로 둔다). 패키지가 Expo용 `expo-auth-session`을 optional peer로 선언하는데 pnpm `autoInstallPeers`가 설치까지 해서 웹에 필요 없는 Expo 의존성 수백 개가 딸려 오므로, `pnpm-workspace.yaml`의 `overrides`로 뺐다.
+- **로그인 표시 지우기:** 로그아웃·회원 탈퇴처럼 계정을 떠나는 흐름은 `entities/auth/session.ts`의 `clearLoggedIn()`을 불러야 한다. 지우지 않으면 `/`의 `AuthEntryGate`를 그대로 통과해서 방금 떠난 계정으로 홈이 보인다(설정 화면 #97이 호출한다).
+- **연락처는 010 고정:** 가입 연락처는 `010`으로 시작하는 숫자 11자리여야 `다음`이 켜진다(`isValidPhoneDigits`). 설정의 전화번호 변경(#97)과 같은 기준이라, 구 번호(011·016 등)로 가입한 뒤 설정에서 같은 번호로 바꾸지 못하는 일이 없다.
+- **K-CONNECT 인증 우회(개발 서버 전용):** `/auth?mockKConnect=new`(신규 → 온보딩) 또는 `?mockKConnect=existing`(기존 → 홈)으로 열고 `K-CONNECT로 시작하기`를 누르면 인증 사이트로 가지 않고 인증된 것으로 친다. `import.meta.env.DEV`로 가려서 배포 빌드에는 들어가지 않는다(번들에 `mockKConnect`가 없음을 확인).
+- **목 QA(실 서버가 붙으면 사라짐):** 인증 후 콜백 주소에 `&mockLogin=existing`을 붙이면 기존 사용자, `&mockLogin=fail`이면 서버 실패로 처리된다. 취소·오류는 `/oauth/kconnect?error=access_denied`로 확인한다. K-CONNECT 계정으로 실제 로그인은 이 환경에서 확인하지 못했다.
+
+### 로그인·가입은 useFunnel 퍼널 하나(`AuthSignupScreen`)다
+
+로그인 → 연락처 → 약관 동의 → 약관 상세 → 가입 완료를 `@use-funnel/react-router-dom`의 `useFunnel`로 묶었다(라우트 `/auth`, 단계는 `?auth.step=`). 퍼널 파일(`AuthSignupScreen.tsx`)은 단계 전환(어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡고, 단계 화면은 `features/auth/steps/`에 파일 하나씩(`AuthLoginStep`, `AuthPhoneStep`, `AuthTermsStep`, `AuthTermsDetailStep`, `AuthCompleteStep`) 나눠 두며 전환은 콜백 prop으로 받는다. 단계·context 타입과 `guard`는 `constants/authSignupFunnel.ts`, 단계 화면이 함께 쓰는 뒤로가기 버튼·하단 버튼은 `components/`(`AuthBackButton`, `AuthBottomAction`)에 있다. 단계 사이에 넘기는 이름·연락처·약관 동의는 퍼널 context가 들고 있어서, 약관 상세(`history.push`)를 다녀와도 동의 상태가 유지된다(별도 저장소·navigate state 불필요). 동의 체크나 연락처 입력은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값이 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) 각 단계의 `guard`가 걸러서 로그인으로 돌려보낸다. 단계가 바뀌는 이동(`push`, 가입 완료로의 `replace`)에는 슬라이드(View Transition)를 켜고, 체크·연락처 입력처럼 context만 갈아 끼우는 `replace`에는 켜지 않는다. 라이브러리 기본 `useFunnel`은 옵션 이름을 `unstable_viewTransition`으로 넘기는데 React Router 7.18은 `viewTransition`만 알아서(소스에 이전 이름이 없다) 슬라이드가 무시된다. 그래서 `src/lib/useFunnel.ts`에 같은 라우터 어댑터를 `createUseFunnel`로 직접 만들고 옵션 이름만 바꿨다(라이브러리의 "라우터 직접 만들기" 가이드 방식) — 라이브러리를 올릴 때 이 이름이 고쳐졌는지 확인하고 고쳐졌다면 이 파일을 지운다.
 
 ## 설정 화면 (설정 `3524:152322` / 전화번호 변경 `3524:152450` / 회원 탈퇴 `3524:152473`)
 

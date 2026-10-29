@@ -3,19 +3,9 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
+import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import type { LockersApplyCompleteState } from "@/features/lockers/hooks/useLockersApplySubmit";
-
-// 신청내역 화면은 아직 없다 — 행사 완료 화면과 같은 주소로 보내 준비 중 화면이 뜬다.
-const APPLICATION_HISTORY_PATH = "/my/applications";
-
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
-
-// "2026-09-01" → "2026.09.01(화)". 시간대에 따라 날짜가 밀리지 않게 문자열을 직접 나눠 읽는다.
-function formatUsageDate(date: string) {
-  const [year, month, day] = date.split("-").map(Number);
-  const weekday = WEEKDAYS[new Date(year, month - 1, day).getDay()];
-  return `${date.replaceAll("-", ".")}(${weekday})`;
-}
+import { formatDate } from "@/lib/date";
 
 // Figma: 사물함 신청 완료 페이지 (nodeId 1737:218058)
 function LockersApplyCompleteScreen() {
@@ -37,7 +27,8 @@ function LockersApplyCompleteScreen() {
       primaryAction={{ label: "홈으로 가기", onClick: () => navigate("/") }}
       secondaryAction={{
         label: "신청내역 보기",
-        onClick: () => navigate(APPLICATION_HISTORY_PATH),
+        // 사물함 신청내역은 사물함 배정 상태 화면이다
+        onClick: () => navigate(LOCKER_ASSIGNMENT_PATH),
       }}
       title="신청이 완료됐어요"
     >
@@ -74,7 +65,8 @@ function LockersApplyCompleteScreen() {
             variant="label2"
             weight="medium"
           >
-            {formatUsageDate(usageStartDate)} - {formatUsageDate(usageEndDate)}
+            {formatDate(usageStartDate, { weekday: true })} -{" "}
+            {formatDate(usageEndDate, { weekday: true })}
           </Typography>
         </div>
       </div>
