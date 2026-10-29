@@ -58,7 +58,8 @@ function LockersMinimap({
   const contentRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState<number | null>(null);
   const [layoutHeight, setLayoutHeight] = useState(0);
-  const isDraggingRef = useRef(false);
+  // 끄고 있는 손가락(포인터) — 두 번째 손가락이 닿거나 떨어져도 처음 손가락만 따라간다
+  const dragPointerIdRef = useRef<number | null>(null);
 
   useLayoutEffect(() => {
     const area = areaRef.current;
@@ -104,23 +105,26 @@ function LockersMinimap({
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (!isScrollable) {
+    // 오른쪽·가운데 클릭은 무시한다(터치·펜은 button이 0이다)
+    if (!isScrollable || !event.isPrimary || event.button !== 0) {
       return;
     }
     // 손가락이 미니맵 밖으로 나가도 끄는 동안은 계속 따라가게 잡아 둔다
     event.currentTarget.setPointerCapture(event.pointerId);
-    isDraggingRef.current = true;
+    dragPointerIdRef.current = event.pointerId;
     navigateTo(event);
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (isDraggingRef.current) {
+    if (event.pointerId === dragPointerIdRef.current) {
       navigateTo(event);
     }
   };
 
-  const handlePointerEnd = () => {
-    isDraggingRef.current = false;
+  const handlePointerEnd = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerId === dragPointerIdRef.current) {
+      dragPointerIdRef.current = null;
+    }
   };
 
   // 끝에 닿은 쪽은 Figma처럼 상자 밖(가로는 상자 끝, 세로는 9px 바깥)까지 늘린다
