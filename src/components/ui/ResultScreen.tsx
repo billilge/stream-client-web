@@ -26,9 +26,19 @@ const ILLUSTRATION_GAP_CLASS_NAMES: Record<
   16: "gap-4",
 };
 
+// 그림·문구 묶음의 세로 위치. top은 Figma대로 헤더 아래 104px에 고정하고, center는 헤더와
+// 하단 버튼 사이 가운데에 둔다 — 화면이 길면 top은 내용이 위로 붙어 보여서 오류 화면은 center를 쓴다.
+type ResultScreenContentAlign = "top" | "center";
+
+const CONTENT_ALIGN_CLASS_NAMES: Record<ResultScreenContentAlign, string> = {
+  center: "flex-1 justify-center",
+  top: "pt-[104px]",
+};
+
 interface ResultScreenProps {
   illustration: ReactNode;
   illustrationGap?: ResultScreenIllustrationGap;
+  contentAlign?: ResultScreenContentAlign;
   title: string;
   description: string;
   /** 문구 아래에 붙는 내용(완료 화면의 신청 요약 카드 등) */
@@ -44,6 +54,7 @@ interface ResultScreenProps {
 function ResultScreen({
   illustration,
   illustrationGap = 16,
+  contentAlign = "top",
   title,
   description,
   children,
@@ -64,7 +75,9 @@ function ResultScreen({
 
   return (
     <div className="flex h-full flex-col justify-between bg-background-normal">
-      <div className="flex flex-col gap-6 px-5 pt-[104px]">
+      <div
+        className={`flex flex-col gap-6 px-5 ${CONTENT_ALIGN_CLASS_NAMES[contentAlign]}`}
+      >
         <div
           className={`flex flex-col items-center ${ILLUSTRATION_GAP_CLASS_NAMES[illustrationGap]}`}
         >
