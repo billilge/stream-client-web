@@ -10,6 +10,7 @@ function EventsApplicationClosedScreen() {
 
   return (
     <ResultScreen
+      contentAlign="center"
       description="다음 행사에서 만나요!"
       illustration={
         <img alt="" className="h-[72.317px] w-[62.963px]" src={documentLock} />

@@ -130,6 +130,7 @@ function LockersApplyFailureScreen() {
   return (
     <>
       <ResultScreen
+        contentAlign="center"
         description={content.description}
         illustration={content.illustration}
         onClose={() => navigate("/")}

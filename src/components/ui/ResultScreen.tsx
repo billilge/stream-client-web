@@ -27,7 +27,9 @@ const ILLUSTRATION_GAP_CLASS_NAMES: Record<
 };
 
 // 그림·문구 묶음의 세로 위치. top은 Figma대로 헤더 아래 104px에 고정하고, center는 헤더와
-// 하단 버튼 사이 가운데에 둔다 — 화면이 길면 top은 내용이 위로 붙어 보여서 오류 화면은 center를 쓴다.
+// 하단 버튼 사이 가운데에 둔다 — 화면이 길면 top은 내용이 위로 붙어 보여서, 그림·문구·버튼만 있는
+// 오류·마감 화면(공통 오류, 사물함 신청 실패, 행사 신청 중 마감)은 center를 쓴다.
+// 체크 모션·요약 카드가 있는 완료 화면은 형식이 달라 Figma대로 top이다.
 type ResultScreenContentAlign = "top" | "center";
 
 const CONTENT_ALIGN_CLASS_NAMES: Record<ResultScreenContentAlign, string> = {

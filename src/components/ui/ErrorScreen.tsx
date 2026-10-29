@@ -48,7 +48,6 @@ function ErrorScreen({ variant, onRetry }: ErrorScreenProps) {
 
   return (
     <ResultScreen
-      // Figma는 헤더 아래 104px 고정이지만, 긴 화면에서 위로 붙어 보여서 가운데에 둔다
       contentAlign="center"
       description={content.description}
       illustration={content.illustration}
