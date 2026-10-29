@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 
 import documentLock from "@/assets/icons/common/document-lock.svg";
-import networkOffline from "@/assets/icons/lockers/network-offline.svg";
+import networkOffline from "@/assets/icons/common/network-offline.svg";
 import ResultScreen from "@/components/ui/ResultScreen";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import {
