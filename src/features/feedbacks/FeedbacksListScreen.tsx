@@ -14,14 +14,14 @@ import {
   useState,
 } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import { FEEDBACKS } from "@/entities/feedbacks/feedbacksMock";
 import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
+import FeedbacksFilter from "@/features/feedbacks/components/FeedbacksFilter";
 import FeedbacksQaCard from "@/features/feedbacks/components/FeedbacksQaCard";
-import { FEEDBACK_ROUND_FILTERS } from "@/features/feedbacks/constants/feedbacks";
+import { FEEDBACK_FILTER_ALL } from "@/features/feedbacks/constants/feedbacks";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
@@ -45,6 +45,11 @@ const TOTAL_CAROUSEL_PAGES = FEEDBACKS.filter(
   (feedback) => feedback.answer,
 ).length;
 
+// "전체 피드백" 연도 메뉴 — 피드백이 있는 연도만 최신순으로 보여준다
+const FEEDBACK_YEARS = [
+  ...new Set(FEEDBACKS.map((feedback) => feedback.year)),
+].sort((a, b) => b.localeCompare(a));
+
 // 스와이프/드래그로 인정할 최소 이동 비율(카드 폭 대비). 이보다 짧게 움직이면 그대로
 // 원래 카드로 되돌아간다.
 const CAROUSEL_DRAG_COMMIT_RATIO = 0.2;
@@ -58,7 +63,8 @@ const CAROUSEL_FLICK_VELOCITY_PX_MS = 0.35;
 function FeedbacksListScreen() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [roundFilter, setRoundFilter] = useState("all");
+  const [yearFilter, setYearFilter] = useState(FEEDBACK_FILTER_ALL);
+  const [roundFilter, setRoundFilter] = useState(FEEDBACK_FILTER_ALL);
   const answeredFeedbacks = FEEDBACKS.filter((feedback) => feedback.answer);
 
   // "최근 피드백" 캐러셀. 기본은 평범한 가로 스크롤(snap)이라 마우스 휠·트랙패드는 브라우저
@@ -386,8 +392,16 @@ function FeedbacksListScreen() {
   );
 
   const feedbacks = FEEDBACKS.filter(
-    (feedback) => roundFilter === "all" || feedback.round === roundFilter,
+    (feedback) =>
+      (yearFilter === FEEDBACK_FILTER_ALL || feedback.year === yearFilter) &&
+      (roundFilter === FEEDBACK_FILTER_ALL || feedback.round === roundFilter),
   );
+
+  // 연도 메뉴는 "전체 차수" 칩에 붙어 있어서, 연도를 고르면 그 연도의 모든 차수를 보여준다
+  const handleYearChange = (year: string) => {
+    setYearFilter(year);
+    setRoundFilter(FEEDBACK_FILTER_ALL);
+  };
 
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden">
@@ -447,10 +461,12 @@ function FeedbacksListScreen() {
               </Typography>
             </div>
             <div className="px-5">
-              <FilterChipGroup
-                onChange={setRoundFilter}
-                options={FEEDBACK_ROUND_FILTERS}
-                value={roundFilter}
+              <FeedbacksFilter
+                onRoundChange={setRoundFilter}
+                onYearChange={handleYearChange}
+                round={roundFilter}
+                year={yearFilter}
+                years={FEEDBACK_YEARS}
               />
             </div>
           </div>
