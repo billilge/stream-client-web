@@ -774,3 +774,53 @@ Figma는 같은 알림 설정 화면을 **설정 섹션(`3524:152367`)과 알림
 ### Figma 노드 ID가 통째로 갈린 적이 있다
 
 설정 섹션은 한 번 통째로 다시 만들어졌다. 옛 ID(`1799:85920` 섹션, 설정 `3013:116135`, 알림 설정 `3013:116182`, 전화번호 변경 `1799:87220`, 로그아웃 모달 `1799:87183`)는 **파일에서 삭제되어 조회되지 않는다.** 탈퇴 계열(`3524:152473`·`3524:152505`·`3524:152517`)만 그대로다. 주석의 nodeId가 `get_design_context`에서 "not found"로 나오면 먼저 섹션이 다시 만들어졌는지 확인한다.
+
+## 학생회비 계좌 송금 플로우(`3562:162833` 외 5종) 구현 중 확정된 매핑
+
+| Figma 인스턴스 | 코드 | 확정 근거 |
+|---|---|---|
+| `Textinput/Textfield` | `TextField`(`@wanteddev/wds`) | 메인 컴포넌트 Node ID `445:8591` + [공식 문서](https://montage.wanted.co.kr/docs/components/selection-and-input/text-field/design). 남은 학기 수 입력칸(`3562:162844`)이 335×48·radius 12px로 실측 일치 |
+| `Icon/Normal/Upload` | `IconUpload`(`@wanteddev/wds-icon`) | 메인 컴포넌트 Node ID `3716:22984`("내용을 업로드할 때 사용합니다") |
+| `Icon/Normal/Trash` | `IconTrash`(`@wanteddev/wds-icon`) | 메인 컴포넌트 Node ID `3562:162692`("내용을 삭제할 때 사용합니다") |
+| `Modal`(`3562:162972`) | 공용 `ConfirmModal` | 311×190·radius 24px·버튼 2개로 기존 `Modal`(`995:34701`)과 같은 인스턴스다 |
+
+### `Image Upload Button`은 WDS가 아니다
+
+업로드 버튼(`3716:23609`, 335×46·radius 10px·1px `Line/Normal/Neutral` 테두리 + primary 라벨)은
+`search_design_system`에 같은 모양이 없다. 안쪽 아이콘만 WDS `Icon/Normal/Upload`고 껍데기는 Stream
+로컬이다 — WDS `Button`의 outlined는 radius·높이가 달라서 쓰지 않았다.
+
+### 파일 행 아이콘(`fa7-solid:image`)도 WDS가 아니다
+
+업로드한 파일 행의 28px 이미지 아이콘(`3562:162924`)은 이름 그대로 FontAwesome 글리프다. WDS
+`IconImage`는 외곽선 스타일이라 **이름은 비슷해도 모양이 달라서** SVG를 받아
+`src/assets/icons/fee/image-file.svg`로 커밋했다.
+
+### 48px 일러스트는 `export`로 받고 캔버스 배경을 걷어내야 한다
+
+`Won Icon`(`3562:163032`)·`Send Fast Icon`(`3562:162980`)은 `svgAssets`가 레이어별로 쪼개져 나와
+`download_assets`의 `export`(format `svg`)를 써야 한다. 그때 붙는 `<rect fill="#EFEFEF">`와 캔버스
+전체를 덮는 `<g id="UI">` 조상 path들을 지우고 아이콘 그룹만 남겼다(사물함 유의사항 일러스트와 같은 처리).
+
+### 송금 확인 화면의 Sub Action은 `ActionArea variant="strong"`이다
+
+주 버튼 아래 텍스트 버튼을 세로로 쌓는 배치(`3562:162974`)는 WDS가 `variant="strong"`일 때만
+`flex-direction: column` + `gap: 8px`가 된다(기본값은 가로 12px). 다만 `ActionAreaButton variant="sub"`가
+세로 margin 8px을 따로 갖고 있어 그대로 두면 간격이 16px이 되므로 `sx`로 `marginBlock: 0`을 준다.
+높이도 Figma가 44px인데 WDS는 28px이라 `paddingBlock: "12px"`로 보정한다.
+
+### 카드 테두리를 `border`로 그리면 안쪽 폭이 2px 깎인다
+
+업로드한 이미지 카드(`3562:162918`)는 Figma에서 335×104 안에 303px 행이 들어간다. CSS `border`는
+`box-sizing: border-box` 때문에 가로·세로를 각각 2px씩 먹어서 333/102가 된다 — `outline-1`
+`-outline-offset-1`로 그려야 Figma 수치와 맞는다.
+
+### 계좌 송금은 useFunnel 퍼널 하나(`FeeTransferScreen`)다
+
+남은 학기 수 → 학점이수현황 캡처 → 토스 이동 → 송금 확인 → 확인요청 완료를 `@use-funnel/react-router-dom`의 `useFunnel`로 묶었다(라우트 `/fee/transfer`, 단계는 `?fee.step=`). 로그인·가입 퍼널(`AuthSignupScreen`)과 같은 구성이다 — 퍼널 파일(`FeeTransferScreen.tsx`)은 단계 전환만 맡고, 단계 화면은 `features/fee/steps/`에 파일 하나씩(`FeeTransferSemesterStep`, `FeeTransferTranscriptStep`, `FeeTransferTossStep`, `FeeTransferConfirmStep`, `FeeTransferCompleteStep`) 두며 전환은 콜백 prop으로 받는다. 단계·context 타입과 `guard`는 `constants/feeTransferFunnel.ts`에 있고, 단계 화면이 공유하는 뼈대는 `components/FeeTransferStepLayout.tsx`다(뒤로가기는 `onBack` prop으로 받아서 첫 단계는 플로우 밖으로, 나머지는 이전 단계로 간다).
+
+처음에는 단계마다 라우트를 따로 뒀는데(`/fee/transfer/semester` 등 5개), 그러면 단계 사이에 값을 navigate state로 넘겨야 해서 남은 학기 수가 캡처 단계에서 읽히지 않고 고른 파일도 다음 단계로 넘어가지 않았다. 퍼널 context로 바꾸면서 두 값이 플로우 끝까지 이어지고, 토스 단계에서 뒤로 돌아와도 입력이 남는다. 학기 수 입력·파일 선택은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) `guard`가 걸러서 첫 단계로 돌려보낸다.
+
+캡처 이미지는 `File`을 context에 그대로 담는다 — `File`은 구조화 복제가 되는 값이라 history.state에 실린다. 다만 history.state는 브라우저마다 크기 상한이 있어서(Firefox 16MiB) 업로드 API가 붙으면 파일 대신 서버가 준 식별자를 담는 쪽으로 바꾸는 게 안전하다. `File`이 history.state에서 되살아나지 못하는 경우도 있어 `guard`가 `instanceof File`로 확인하고, 아니면 첫 단계로 돌려보낸다.
+
+토스 이동 안내/실패(`3562:163025` / `3562:163046`)와 캡처 업로드 전/후(`3562:162845` / `3562:162891`)는 각각 **한 단계 안의 state**다. Figma가 프레임을 나눠 뒀지만 퍼널 단계로는 올리지 않았다 — 뒤로가기로 돌아갈 지점이 아니기 때문이다.

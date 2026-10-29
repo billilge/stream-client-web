@@ -41,7 +41,7 @@ interface InfoRowProps {
   badge?: InfoBadge;
   // 학생회비 납부하기는 앱 밖(송금)으로 나가서 ↗ 화살표다
   isExternal?: boolean;
-  // 없으면 누를 수 없는 줄로 그린다(아직 화면이 없는 학생회비 납부하기)
+  // 없으면 누를 수 없는 줄로 그린다
   onSelect?: () => void;
 }
 
@@ -115,6 +115,8 @@ function InfoRow({
 interface HomeInfoListProps {
   myInfo: HomeMyInfo;
   onSelectFee: () => void;
+  /** 미납 상태의 "학생회비 납부하기" — 계좌 송금 플로우로 보낸다 */
+  onSelectFeeTransfer: () => void;
   onSelectFeedbacks: () => void;
   onSelectLocker: () => void;
 }
@@ -122,6 +124,7 @@ interface HomeInfoListProps {
 function HomeInfoList({
   myInfo,
   onSelectFee,
+  onSelectFeeTransfer,
   onSelectFeedbacks,
   onSelectLocker,
 }: HomeInfoListProps) {
@@ -130,10 +133,11 @@ function HomeInfoList({
   return (
     <div className="flex flex-col gap-4 rounded-xl bg-background-normal p-4">
       {feeStatus === "unpaid" ? (
-        // TODO: 학생회비 계좌 송금 화면(#105)이 머지되면 onSelect로 연결한다
         <InfoRow
           icon={infoFee}
+          // 플로우 끝에서 토스(앱 밖)로 나가는 길이라 Figma가 ↗ 화살표를 쓴다
           isExternal
+          onSelect={onSelectFeeTransfer}
           subtitle="계좌 입력 없이 바로 이체할 수 있어요"
           title="학생회비 납부하기"
         />

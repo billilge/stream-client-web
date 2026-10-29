@@ -1,6 +1,8 @@
 import { createUseFunnel } from "@use-funnel/react-router-dom";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+
+import { getHistoryIndex } from "@/lib/historyIndex";
 
 interface FunnelRouteOption {
   preventScrollReset?: boolean;
@@ -125,3 +127,32 @@ export const useFunnel = createUseFunnel<FunnelRouteOption>(
     );
   },
 );
+
+/**
+ * 퍼널을 빠져나가는 이동. 퍼널이 쌓아 둔 단계 수(`index + 1`)만큼 한 번에 되돌아가서, 나간 뒤
+ * 브라우저 뒤로가기를 눌러도 단계가 되살아나지 않게 한다. 퍼널로 바로 들어와(딥링크·앱 WebView
+ * 진입·주소 직접 입력) 되돌아갈 기록이 없으면 `fallbackPath`로 치환한다.
+ *
+ * `navigate(fallbackPath, { replace: true })`만으로는 안 된다 — 지금 단계만 치환해서 앞 단계들이
+ * 앞으로가기 기록이 아니라 **뒤로가기** 기록에 그대로 남는다. 플로우를 끝내고 나간 뒤 뒤로가기를
+ * 누르면 중간 단계가 context째 되살아나서 같은 흐름을 다시 탈 수 있다.
+ *
+ * 단계 수는 호출하는 쪽이 넘긴다 — `funnel.Render`의 단계별 `index`를 그대로 주면 된다.
+ * `history.replace`로 단계를 바꾼 경우(완료 단계)는 히스토리가 늘지 않아 `index`도 그대로다.
+ */
+export function useFunnelExit(fallbackPath: string) {
+  const navigate = useNavigate();
+
+  return useCallback(
+    (stepIndex: number) => {
+      const stepCount = stepIndex + 1;
+      const historyIndex = getHistoryIndex();
+      if (historyIndex !== null && historyIndex - stepCount >= 0) {
+        navigate(-stepCount);
+        return;
+      }
+      navigate(fallbackPath, { replace: true });
+    },
+    [navigate, fallbackPath],
+  );
+}

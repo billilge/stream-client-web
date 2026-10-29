@@ -21,6 +21,7 @@ import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
 import FeePaymentsScreen from "@/features/fee/FeePaymentsScreen";
+import FeeTransferScreen from "@/features/fee/FeeTransferScreen";
 import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import FeedbacksMineDetailScreen from "@/features/feedbacks/FeedbacksMineDetailScreen";
@@ -239,6 +240,17 @@ const routes = [
             element: <LockersApplyScreen />,
             // 시트만 있는 화면이라 뒤에 Bottom Nav가 비쳐도 Figma(홈 위에 뜨는 시트)와 같다
             path: "/lockers/apply",
+          },
+          {
+            element: <FeeTransferScreen />,
+            // 학생회비 계좌 송금 퍼널 하나가 모든 단계(남은 학기 수, 학점이수현황 캡처, 토스 이동,
+            // 송금 확인, 확인요청 완료)를 그린다 — 단계는 `?fee.step=`으로 나뉜다.
+            // 전부 하단 고정 버튼(Action Area)이 있는 흰 배경 화면이라 Bottom Nav가 없다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/fee/transfer",
           },
           {
             element: <SearchScreen />,
