@@ -10,7 +10,7 @@ export const MOCK_EXISTING_USER: KConnectUser = {
   name: "이예담",
 };
 
-// 개발 서버에서는 화면의 로딩 상태를 확인할 수 있게 일부러 늦게 응답하고, 배포 빌드에서는 바로 응답한다(mockupApi와 같다).
+// 개발 서버에서는 화면의 로딩 상태를 확인할 수 있게 일부러 늦게 응답하고, 배포 빌드에서는 바로 응답한다(lib/mockupApi의 mockupResponse와 같다).
 export function mockDelay(): Promise<void> {
   if (!import.meta.env.DEV) {
     return Promise.resolve();

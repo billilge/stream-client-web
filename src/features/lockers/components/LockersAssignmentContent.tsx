@@ -1,9 +1,9 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button, Typography } from "@wanteddev/wds";
 import { IconChevronRight } from "@wanteddev/wds-icon";
-import { use } from "react";
 
 import StatusSummaryCard from "@/components/ui/StatusSummaryCard";
-import { fetchMyLockerAssignment } from "@/entities/lockers/lockersApi";
+import { lockersQueries } from "@/entities/lockers/lockersApi";
 import LockersEmptyState from "@/features/lockers/components/LockersEmptyState";
 import { LOCKER_STATUS_BADGES } from "@/features/lockers/constants/lockers";
 import { formatDate, formatDateTime } from "@/lib/date";
@@ -20,7 +20,7 @@ interface LockersAssignmentContentProps {
 function LockersAssignmentContent({
   onViewLocation,
 }: LockersAssignmentContentProps) {
-  const assignment = use(fetchMyLockerAssignment());
+  const { data: assignment } = useSuspenseQuery(lockersQueries.myAssignment());
 
   if (!assignment) {
     // TODO: 연도(학기 기준)는 API가 붙으면 서버 값으로 받는다 — 지금은 기기 시계의 올해다

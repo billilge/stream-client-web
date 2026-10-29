@@ -674,7 +674,7 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 - **카드·요약은 Stream 로컬**: 신청내역 카드(`EventsApplicationCard`, 70px 회색 썸네일 + 배지·제목·일시 + 버튼 2개)는 행사 로컬이다. 상세 요약은 공용 `StatusSummaryCard`이고, `EventsApplicationSummary`는 "행사·신청·(취소)" 행만 만들어 넘긴다. 신청 폼·완료 화면의 `EventsSummaryCard`(아이콘 + 일시·장소)와는 다른 카드다.
 - **빈 상태는 `EventsEmptyState` 재사용**: 버튼은 `action={{ label, onClick }}` 한 묶음으로 받아서 동작 없는 버튼이 생기지 않는다(신청내역 "행사 둘러보기" → `/events`, 행사 목록 모집중 "아카이빙 둘러보기" → `ARCHIVES_PATH`). 그림·버튼 모양은 행사 목록 빈 상태와 같고, 설명 굵기만 다르다(행사 목록 Medium, 신청내역 Regular) — `descriptionWeight`로 고른다. 위치는 목록 영역 가운데가 아니라 Figma대로 토글 아래 176px이다.
 - **탭은 경로로 나눈다**: 행사 `/events`, 신청내역 `/events/applications`, 상세 `/events/applications/:applicationId`. 같은 목록 화면을 라우터가 `tab` prop(`"event"`/`"application"`)으로 골라 넘기고(화면이 주소를 비교하지 않아 끝에 `/`가 붙어도 맞다), 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않는다. 신청내역 탭은 Figma에 상태 필터 행이 없어서 숨긴다. 하단 탭은 신청내역 라우트 `handle`의 `bottomNavValue: "event"`로 "행사"가 선택된다.
-- **취소는 목록까지 반영된다**: 취소 API(`cancelMyEventApplication`)가 목데이터를 바꾸고 목록·상세 조회 캐시를 지운다(조회·무효화가 같은 `eventsKeys`로 key를 만든다). 요청·토스트 상태는 `useEventsApplicationCancel` 훅이 맡고, 토스트 문구·색은 `CANCEL_TOASTS` 한 곳에 있다. 다시 그리는 업데이트를 transition으로 묶어 새 데이터를 받는 동안 스켈레톤 대신 지금 화면을 유지하고, 토스트는 취소된 화면과 함께 뜬다. 실패 토스트 문구("신청 취소에 실패했어요. 다시 시도해 주세요.")는 Figma에 없어 임의로 정했다.
+- **취소는 목록까지 반영된다**: 취소 mutation(`useCancelEventApplicationMutation`)이 목데이터를 바꾸고 신청내역 목록·상세 조회를 무효화한다(상세 key가 목록 key `eventsKeys.applications()` 아래라 한 번에 낡은 것으로 표시되고, 지금 보는 상세와 화면에 없는 목록만 바로 다시 받는다). 요청·토스트 상태는 `useEventsApplicationCancel` 훅이 맡고, 토스트 문구·색은 `CANCEL_TOASTS` 한 곳에 있다. 다시 받는 동안 상세는 스켈레톤 대신 지금 화면을 유지하고, mutation이 다시 받기까지 기다려서 토스트는 취소된 화면과 함께 뜬다. 실패 토스트 문구("신청 취소에 실패했어요. 다시 시도해 주세요.")는 Figma에 없어 임의로 정했다.
 
 ## 알림(`3595:107100` 목록 / `3595:107112` empty / `3628:110837` 설정) 구현 중 확정된 매핑
 

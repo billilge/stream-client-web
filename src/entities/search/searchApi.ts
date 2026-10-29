@@ -1,10 +1,12 @@
+import { queryOptions } from "@tanstack/react-query";
+
 import { ARCHIVES } from "@/entities/archives/archivesMock";
 import { BILILGE_ITEMS } from "@/entities/bililge/bililgeMock";
 import { EVENTS } from "@/entities/events/eventsMock";
 import { FEEDBACKS } from "@/entities/feedbacks/feedbacksMock";
 import { NOTICES } from "@/entities/notices/noticesMock";
 import type { SearchResults } from "@/entities/search/types";
-import { mockupApi } from "@/lib/mockupApi";
+import { mockupResponse } from "@/lib/mockupApi";
 
 function includesKeyword(text: string, keyword: string): boolean {
   return text.toLowerCase().includes(keyword);
@@ -26,9 +28,20 @@ function searchMocks(keyword: string): SearchResults {
   };
 }
 
-// 실 API가 붙으면 함수 안쪽만 요청 코드로 바꾼다(`/api/search`) — 화면은 이 함수로만 데이터를 받는다.
+const searchKeys = {
+  root: () => ["search"] as const,
+  results: (keyword: string) => [...searchKeys.root(), keyword] as const,
+};
+
+// 실 API가 붙으면 queryFn 안쪽만 요청 코드로 바꾼다(`/api/search`) — 화면은 이 queryOptions로만 데이터를 받는다.
 // 열린피드백은 아직 entities로 옮겨지지 않아 features의 목데이터를 직접 읽는다.
-export function fetchSearchResults(rawKeyword: string): Promise<SearchResults> {
-  const keyword = rawKeyword.trim().toLowerCase();
-  return mockupApi(`search/${keyword}`, () => searchMocks(keyword));
-}
+export const searchQueries = {
+  // 대소문자·앞뒤 공백만 다른 검색어는 같은 결과라 정리한 검색어로 key를 만든다
+  results: (rawKeyword: string) => {
+    const keyword = rawKeyword.trim().toLowerCase();
+    return queryOptions({
+      queryKey: searchKeys.results(keyword),
+      queryFn: () => mockupResponse(() => searchMocks(keyword)),
+    });
+  },
+};

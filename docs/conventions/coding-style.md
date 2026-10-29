@@ -48,17 +48,19 @@
 
 ## 데이터 로딩
 
-- 서버 데이터를 받는 API 함수와 타입은 `entities/<도메인>/`에 둔다(`<도메인>Api.ts`·`types.ts`). 화면은 데이터 컴포넌트에서 `use(fetchEvents())`처럼 API 함수의 Promise를 React `use()`로 읽는다. 서버 상태 라이브러리(TanStack Query)는 실 API를 연동할 때 도입하고, 그때 `use(...)`를 `useSuspenseQuery`로 바꾼다.
-- 실 API 전까지 API 함수는 `<도메인>Mock.ts`의 목데이터를 `mockupApi(key, () => data)`(`lib/mockupApi.ts`)로 돌려준다. 개발 서버에서는 스켈레톤을 확인할 수 있게 500ms 늦게 응답하고, 배포 빌드에서는 바로 응답한다. 같은 key의 Promise는 재사용되므로(렌더마다 새로 만들면 `use()`가 계속 서스펜드된다) key는 요청마다 겹치지 않게 `"events"`, `` `events/${id}` ``처럼 정한다. API가 붙으면 API 함수 안쪽만 바꾼다.
-- 데이터를 바꾸고 조회 캐시를 무효화하는 도메인은 조회 key를 API 파일 안 key 함수 하나(`eventsKeys.application(id)` 등)로 만들고 조회와 무효화가 같이 쓴다. 각자 문자열을 이어 붙이면 한쪽만 바뀌었을 때 무효화가 조용히 빗나간다. 무효화가 없는 도메인은 문자열 key 그대로 둬도 된다.
-- 데이터를 바꾸는 요청(신청 취소 등)은 `mockupMutation(() => ...)`으로 목데이터를 바꾸고, 응답 뒤 바뀐 조회 key를 `invalidateMockupApi([...])`로 지운다(API 함수 안에서 — 화면은 무효화를 모른다). 실 API에서는 TanStack Query의 `useMutation` + `invalidateQueries`가 이 자리를 맡는다.
-- 무효화된 데이터를 다시 그리는 상태 업데이트는 `startTransition`으로 감싼다. 캐시가 지워진 조회는 새로 서스펜드되는데, transition 안이면 스켈레톤 대신 지금 화면을 유지한 채 새 데이터로 바뀐다(예: `useEventsApplicationCancel`).
-- 화면(`<화면>Screen.tsx`)은 헤더 등록, UI 상태, 이동 같은 동작을 맡고, 데이터를 받는 영역만 `<Suspense fallback={<전용 스켈레톤 />}>`으로 감싼다. `use()`로 데이터를 읽고 그리는 부분은 `features/<기능>/components/`의 컴포넌트(`EventsList`, `EventsDetailContent` 등)로 분리하고, 이동 같은 동작은 콜백 prop으로 받는다.
+- 서버 데이터는 TanStack Query로 받는다. 조회 정의와 타입은 `entities/<도메인>/`에 둔다(`<도메인>Api.ts`·`types.ts`). API 파일은 `<도메인>Queries` 객체에 조회마다 `queryOptions`를 돌려주는 함수를 두고(`eventsQueries.detail(id)`), 화면은 데이터 컴포넌트에서 `const { data } = useSuspenseQuery(eventsQueries.detail(id))`로 읽는다. 화면 모양으로 바꿔야 하면 화면 쪽에서 `select`를 더한다 — 캐시에는 응답 그대로 둔다.
+- 조회 key는 API 파일 안 key 함수 하나(`eventsKeys`)로 만든다. 도메인 이름으로 시작하는 배열을 쌓아서(`root()` → `["events"]`, `application(id)` → `["events", "applications", id]`) 앞부분 key 하나로 아래 조회를 함께 무효화할 수 있게 한다. 조회와 무효화가 같은 key 함수를 써야 한쪽만 바뀌어 무효화가 조용히 빗나가지 않는다.
+- 요청은 `lib/api/client.ts`의 `api.get<T>(url, { signal })`·`api.post<T>(url, body)` 등으로 보낸다. 서버 응답 봉투(`{ success, code, message, data }`)를 벗겨 `data`만 돌려주고, 실패는 `ApiError`(`status`·`code`·`message`)·`NetworkError`·`TimeoutError`로 던진다(`lib/api/errors.ts`). 화면은 `api`를 직접 부르지 않고 entities의 `queryOptions`·mutation 훅만 쓴다.
+- 인증 토큰은 `lib/api/token.ts`로만 읽고 쓴다. 요청마다 `Authorization: Bearer`가 붙고, 서버가 401을 주면 토큰을 지운 뒤 `subscribeTokens`로 알린다 — 로그인 화면 이동은 알림을 구독하는 가드가 맡는다(요청 코드가 라우터를 import하면 router → 화면 → entities → client 순환이 생긴다). 가드는 로그인 실연결 때 붙인다.
+- 조회 기본값은 `lib/queryClient.ts`에 있다: 1분 안에 다시 들어온 화면은 요청 없이 캐시를 쓰고(`staleTime`), 실패는 네트워크·5xx만 한 번 더 시도한다(4xx는 다시 보내도 같다). 도메인마다 다르게 해야 하면 그 `queryOptions`에 덮어쓴다.
+- 실 API 전까지 `queryFn`은 `<도메인>Mock.ts`의 목데이터를 `mockupResponse(() => data)`(`lib/mockupApi.ts`)로 돌려준다. 개발 서버에서는 스켈레톤을 확인할 수 있게 500ms 늦게 응답하고, 배포 빌드에서는 바로 응답한다. API가 붙으면 `queryFn` 안쪽만 `api.get(...)`으로 바꾼다.
+- 데이터를 바꾸는 요청(신청 취소 등)은 API 파일에 `use<동작>Mutation` 훅(`useCancelEventApplicationMutation`)으로 두고, `onSuccess`에서 바뀐 조회 key를 `invalidateQueries`로 무효화한다(화면은 무효화를 모른다). 무효화 Promise를 돌려줘서 다시 받은 데이터가 들어온 뒤에 mutation이 끝나게 한다. 지금 화면에 없는데 돌아갔을 때 바로 보여야 하는 조회(신청내역 목록 등)는 `refetchQueries({ queryKey, exact: true })`로 그것만 같이 받는다 — `refetchType: "all"`은 열어 봤던 상세까지 전부 다시 받는다. 데이터가 이미 있는 조회는 다시 받는 동안 서스펜드되지 않고 지금 화면을 유지한다.
+- 화면(`<화면>Screen.tsx`)은 헤더 등록, UI 상태, 이동 같은 동작을 맡고, 데이터를 받는 영역만 `<Suspense fallback={<전용 스켈레톤 />}>`으로 감싼다. `useSuspenseQuery`로 데이터를 읽고 그리는 부분은 `features/<기능>/components/`의 컴포넌트(`EventsList`, `EventsDetailContent` 등)로 분리하고, 이동 같은 동작은 콜백 prop으로 받는다.
 - 데이터와 무관한 헤더·탭·필터는 Suspense 밖에서 바로 그리고, 스켈레톤은 데이터 영역의 배치만 따라 그린다. 전용 스켈레톤은 `features/<기능>/components/<화면>Skeleton.tsx`에 두고 WDS `Skeleton`으로 그린다. 헤더가 데이터에 따라 달라지는 화면(공지 상세)은 헤더도 데이터 컴포넌트가 등록하고, 스켈레톤이 `useScreenHeaderSkeleton`으로 헤더 자리를 채운다.
 
 ## 에러 / 비동기
 
-- async는 try/catch 또는 서버 상태 라이브러리(도입 시)의 에러 상태로 다룬다. **빈 catch 금지**.
+- async는 try/catch 또는 TanStack Query의 에러 상태(mutation `onError` 등)로 다룬다. **빈 catch 금지**.
 - 사용자에게 보이는 메시지와 개발 로깅을 구분한다.
 
 ## 주석
