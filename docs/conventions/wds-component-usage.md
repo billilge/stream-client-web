@@ -294,6 +294,8 @@ Figma 상세는 뒤로가기 버튼이 Hero 이미지 **위에 떠 있는** 오�
 
 이때 **흰 바탕을 같이 깔아야 한다.** WDS `*Fill` 아이콘의 안쪽 기호는 칠한 게 아니라 뚫린 자리(`fill-rule: evenodd`)라, 반투명한 토스트 배경 위에서는 느낌표가 하얗게 보이지 않고 배경이 그대로 비친다. WDS 기본 아이콘도 같은 이유로 `toastCircleIconWrapperStyle`에서 `::before`로 8×10 흰 pill을 뒤에 깐다 — 직접 넘길 때는 그 처리가 빠지므로 우리가 같은 걸 넣는다. Figma도 아이콘 안에 `Filler`(Static/White) 레이어를 같은 목적으로 두고 있다.
 
+`variant="cautionary"`(사물함 선택 불가 토스트 `2212:160680`)는 기본 아이콘이 Figma와 같다 — 둘 다 `Triangle Exclamation` + `Atomic/Orange/60`(#FFA938)이라 `positive`처럼 `ToastIcon`을 비워 둔다. 다만 WDS는 cautionary만 `role="alert"`로 그려서(나머지는 `status`) 스크린리더가 바로 끼어들어 읽는다.
+
 ### 2. 기본 배치·최소 폭이 375 프레임 밖을 전제로 한다
 
 - `container` 기본값이 `#wds-region-manager-bottom`이라, 그대로 쓰면 앱 프레임이 아니라 브라우저 화면 하단에 붙는다 → `disablePortal`로 끄고 화면 포털(`useScreenSheetPortal`)에 직접 그린다.
