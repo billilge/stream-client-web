@@ -9,7 +9,10 @@ import { ARCHIVES_PATH } from "@/features/archives/constants/archives";
 import { BILILGE_TAB_PATHS } from "@/features/bililge/constants/bililge";
 import { useBililgeReturnRequest } from "@/features/bililge/hooks/useBililgeReturnRequest";
 import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
-import { FEE_PAYMENTS_PATH } from "@/features/fee/constants/fee";
+import {
+  FEE_PAYMENTS_PATH,
+  FEE_TRANSFER_PATH,
+} from "@/features/fee/constants/fee";
 import { MY_FEEDBACKS_PATH } from "@/features/feedbacks/constants/feedbacks";
 import HomeAppliedEventSection from "@/features/home/components/HomeAppliedEventSection";
 import HomeApplyCard from "@/features/home/components/HomeApplyCard";
@@ -24,6 +27,7 @@ import {
 import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
+import { SETTINGS_PATHS } from "@/features/settings/constants/settings";
 
 // Figma: 홈 2건 이하 (nodeId 3147:146240), 3건 이상 (3147:146297), empty (3147:146366)
 // 챗봇 FAB(Figma nodeId 2443:178457 등, 홈 화면 variant마다 우하단에 고정) —
@@ -61,7 +65,13 @@ function HomeScreen() {
             }
             trailing={
               <>
-                <TopNavigationButton aria-label="설정" variant="icon">
+                <TopNavigationButton
+                  aria-label="설정"
+                  onClick={() =>
+                    navigate(SETTINGS_PATHS.root, { viewTransition: true })
+                  }
+                  variant="icon"
+                >
                   <IconSetting />
                 </TopNavigationButton>
                 <TopNavigationButton
@@ -144,6 +154,7 @@ function HomeScreen() {
               <HomeInfoList
                 myInfo={HOME_MOCK_DATA.myInfo}
                 onSelectFee={() => push(FEE_PAYMENTS_PATH)}
+                onSelectFeeTransfer={() => push(FEE_TRANSFER_PATH)}
                 onSelectFeedbacks={() => push(MY_FEEDBACKS_PATH)}
                 onSelectLocker={() => push(LOCKER_ASSIGNMENT_PATH)}
               />

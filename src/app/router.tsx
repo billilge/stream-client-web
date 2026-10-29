@@ -21,6 +21,7 @@ import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
 import FeePaymentsScreen from "@/features/fee/FeePaymentsScreen";
+import FeeTransferScreen from "@/features/fee/FeeTransferScreen";
 import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import FeedbacksMineDetailScreen from "@/features/feedbacks/FeedbacksMineDetailScreen";
@@ -39,6 +40,10 @@ import NoticesListScreen from "@/features/notices/NoticesListScreen";
 import NotificationsScreen from "@/features/notifications/NotificationsScreen";
 import NotificationsSettingsScreen from "@/features/notifications/NotificationsSettingsScreen";
 import SearchScreen from "@/features/search/SearchScreen";
+import PhoneChangeScreen from "@/features/settings/PhoneChangeScreen";
+import SettingsScreen from "@/features/settings/SettingsScreen";
+import WithdrawalCompleteScreen from "@/features/settings/WithdrawalCompleteScreen";
+import WithdrawalScreen from "@/features/settings/WithdrawalScreen";
 
 // 앱의 모든 라우트는 이 객체 배열 한곳에서 정의한다 — 새 화면은 여기에 라우트를 추가한다.
 // satisfies로 선언 시점에 RouteObject 형태를 검사한다.
@@ -195,9 +200,57 @@ const routes = [
             path: "/notices/:noticeId",
           },
           {
+            element: <SettingsScreen />,
+            // 흰 카드가 회색 배경 위에 쌓이는 화면이라 background는 기본값(alternative)을 쓴다.
+            // 설정은 뒤로가기로만 빠져나가는 흐름이라 Bottom Nav를 안 보여준다(Figma 3524:152322).
+            // 설정의 "알림 설정" 행은 알림 화면이 이미 가진 /notifications/settings로 보낸다 —
+            // Figma는 설정·알림 두 섹션에 같은 화면을 복제해 뒀지만 코드에서는 한 벌만 둔다.
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/settings",
+          },
+          {
+            element: <PhoneChangeScreen />,
+            // 입력칸 하나 + 하단 고정 버튼(Action Area)이 있는 흰 배경 화면(Figma 3524:152450)
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/settings/phone",
+          },
+          {
+            element: <WithdrawalScreen />,
+            // 안내 카드가 회색이라 화면은 흰 면이어야 한다(Figma 3524:152473).
+            // 하단 고정 버튼(Action Area)이 있어 Bottom Nav는 없다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/settings/withdrawal",
+          },
+          {
+            element: <WithdrawalCompleteScreen />,
+            // 완료 화면 — 하단 탭 없이 흰 배경 전체 화면이다(Figma 3524:152505)
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/settings/withdrawal/complete",
+          },
+          {
             element: <LockersApplyScreen />,
             // 시트만 있는 화면이라 뒤에 Bottom Nav가 비쳐도 Figma(홈 위에 뜨는 시트)와 같다
             path: "/lockers/apply",
+          },
+          {
+            element: <FeeTransferScreen />,
+            // 학생회비 계좌 송금 퍼널 하나가 모든 단계(남은 학기 수, 학점이수현황 캡처, 토스 이동,
+            // 송금 확인, 확인요청 완료)를 그린다 — 단계는 `?fee.step=`으로 나뉜다.
+            // 전부 하단 고정 버튼(Action Area)이 있는 흰 배경 화면이라 Bottom Nav가 없다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/fee/transfer",
           },
           {
             element: <SearchScreen />,
