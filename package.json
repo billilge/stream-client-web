@@ -15,9 +15,11 @@
   "dependencies": {
     "@billilge/oauth-kconnect": "^0.2.0",
     "@ncdai/react-wheel-picker": "^1.2.3",
+    "@tanstack/react-query": "^5.104.2",
     "@use-funnel/react-router-dom": "^0.0.16",
     "@wanteddev/wds": "^3.12.0",
     "@wanteddev/wds-icon": "^3.12.0",
+    "axios": "^1.20.0",
     "lottie-react": "^3.1.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
