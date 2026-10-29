@@ -746,3 +746,31 @@ Figma 프레임의 상태 표시줄(54px)과 홈 바(34px)는 앱 셸 몫이라 
 ### 로그인·가입은 useFunnel 퍼널 하나(`AuthSignupScreen`)다
 
 로그인 → 연락처 → 약관 동의 → 약관 상세 → 가입 완료를 `@use-funnel/react-router-dom`의 `useFunnel`로 묶었다(라우트 `/auth`, 단계는 `?auth.step=`). 퍼널 파일(`AuthSignupScreen.tsx`)은 단계 전환(어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡고, 단계 화면은 `features/auth/steps/`에 파일 하나씩(`AuthLoginStep`, `AuthPhoneStep`, `AuthTermsStep`, `AuthTermsDetailStep`, `AuthCompleteStep`) 나눠 두며 전환은 콜백 prop으로 받는다. 단계·context 타입과 `guard`는 `constants/authSignupFunnel.ts`, 단계 화면이 함께 쓰는 뒤로가기 버튼·하단 버튼은 `components/`(`AuthBackButton`, `AuthBottomAction`)에 있다. 단계 사이에 넘기는 이름·연락처·약관 동의는 퍼널 context가 들고 있어서, 약관 상세(`history.push`)를 다녀와도 동의 상태가 유지된다(별도 저장소·navigate state 불필요). 동의 체크나 연락처 입력은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값이 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) 각 단계의 `guard`가 걸러서 로그인으로 돌려보낸다. 단계가 바뀌는 이동(`push`, 가입 완료로의 `replace`)에는 슬라이드(View Transition)를 켜고, 체크·연락처 입력처럼 context만 갈아 끼우는 `replace`에는 켜지 않는다. 라이브러리 기본 `useFunnel`은 옵션 이름을 `unstable_viewTransition`으로 넘기는데 React Router 7.18은 `viewTransition`만 알아서(소스에 이전 이름이 없다) 슬라이드가 무시된다. 그래서 `src/lib/useFunnel.ts`에 같은 라우터 어댑터를 `createUseFunnel`로 직접 만들고 옵션 이름만 바꿨다(라이브러리의 "라우터 직접 만들기" 가이드 방식) — 라이브러리를 올릴 때 이 이름이 고쳐졌는지 확인하고 고쳐졌다면 이 파일을 지운다.
+
+## 설정 화면 (설정 `3524:152322` / 전화번호 변경 `3524:152450` / 회원 탈퇴 `3524:152473`)
+
+코드는 `src/features/settings/` 참고.
+
+### 알림 설정 화면은 설정이 아니라 알림 기능이 갖는다
+
+Figma는 같은 알림 설정 화면을 **설정 섹션(`3524:152367`)과 알림 섹션(`3628:110837`) 두 군데에 복제**해 뒀다(노드 구조·좌표·문구가 완전히 같다). 디자인이 둘이라고 화면을 둘 만들면 안 된다 — 코드는 `features/notifications/NotificationsSettingsScreen`(`/notifications/settings`) 한 벌만 두고, 설정 화면의 "알림 설정" 행과 알림 목록 헤더의 설정 버튼이 **같은 경로로** 들어간다. 카테고리 문구·초기값도 `features/notifications/constants/notifications.ts`가 단일 출처다.
+
+### 새로 확정된 WDS 매핑
+
+| Figma 인스턴스 | 코드 | 확정 근거 |
+|---|---|---|
+| `Textinput/Textfield` | `TextField`(`@wanteddev/wds`) | 메인 컴포넌트 Node ID `445:8591` + [공식 문서](https://montage.wanted.co.kr/docs/components/selection-and-input/text-field/design). radius 12px·padding 12px 실측 일치 |
+
+`Switch/Switch`·`Icon/Normal/Setting`·`Divider(new)` 8px은 위 "알림" 절에서 이미 확정한 매핑을 그대로 쓴다.
+
+**`TextField`는 입력 박스만 그린다** — Figma `Textinput/Textfield`는 라벨(Heading) + 입력칸 + 안내 문구를 한 컴포넌트로 묶고 있지만, 코드 쪽 `TextField`에는 label·helper 슬롯이 없다. 그래서 "새 전화번호" 라벨과 "행사 신청 시 사용돼요." 안내는 Figma 구조대로 형제 요소로 따로 그린다. WDS `Label`은 required `*`만 더해주는 `Typography` 래퍼라 쓸 이유가 없다(행사 신청 폼 절의 선례와 같은 판단). 값이 있을 때 뜨는 지움(X) 버튼은 `TextField`가 기본으로 그려서 Figma 입력 중 상태(`3524:152465`)와 그대로 맞는다.
+
+### 설정 행의 `Arrow`는 WDS가 아니다
+
+설정 화면 모든 행 끝의 화살표(`445:12456` "Arrow")는 `search_design_system`으로 WDS를 뒤져도 같은 이름이 없다(WDS는 `Icon/Normal/Arrow *`·`Icon/Normal/Chevron *` 네이밍). 133번째 줄 "제외됨" 목록의 `Icon/Arrow`와 같은 Stream 전용 아이콘이라 SVG를 받아 `src/assets/icons/settings/arrow-right.svg`로 커밋했다. 색(`#C2C4C8` = `Atomic/Cool Neutral/90`)이 에셋에 구워져 있어 토큰은 새로 추가하지 않았다.
+
+**에셋은 12×12인데 슬롯은 8×12다.** Figma도 12×12 뷰박스를 `width: 8px; height: 12px` 자리에 `preserveAspectRatio="none"`으로 넣어 가로를 눌러 쓴다. 내려받은 SVG를 그대로 `className="h-3 w-2"`로 쓰는 게 Figma와 같은 결과다 — 8×12로 다시 내보내거나 종횡비를 맞추려 들면 오히려 어긋난다.
+
+### Figma 노드 ID가 통째로 갈린 적이 있다
+
+설정 섹션은 한 번 통째로 다시 만들어졌다. 옛 ID(`1799:85920` 섹션, 설정 `3013:116135`, 알림 설정 `3013:116182`, 전화번호 변경 `1799:87220`, 로그아웃 모달 `1799:87183`)는 **파일에서 삭제되어 조회되지 않는다.** 탈퇴 계열(`3524:152473`·`3524:152505`·`3524:152517`)만 그대로다. 주석의 nodeId가 `get_design_context`에서 "not found"로 나오면 먼저 섹션이 다시 만들어졌는지 확인한다.
