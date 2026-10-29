@@ -1,12 +1,14 @@
 import { Button, Typography } from "@wanteddev/wds";
 
-import emptyEventsIllustration from "@/assets/icons/events/empty-events.svg";
+import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 
 interface EventsEmptyStateProps {
   title: string;
   description: string;
-  /** 있을 때만 버튼을 노출한다 — Figma는 모집중 필터에만 "아카이빙 둘러보기"를 둔다 */
-  actionLabel?: string;
+  /** 있을 때만 버튼을 노출한다 — 문구와 동작을 한 묶음으로 받아, 동작 없는 버튼이 그려지지 않게 한다 */
+  action?: { label: string; onClick: () => void };
+  /** 설명 굵기 — 행사 목록 empty(1165:62725)는 Medium, 신청내역 empty(1410:52742)는 Regular다 */
+  descriptionWeight?: "medium" | "regular";
 }
 
 // Figma: 행사 모집중 empty > Empty State (nodeId 1165:62725)
@@ -17,17 +19,14 @@ interface EventsEmptyStateProps {
 function EventsEmptyState({
   title,
   description,
-  actionLabel,
+  action,
+  descriptionWeight = "medium",
 }: EventsEmptyStateProps) {
   return (
-    <div className="flex w-[203px] flex-col items-center gap-3">
-      {/* Figma는 81px 박스 안에 71×70.109 아트를 left 7 / top 8로 얹는다 */}
-      <div className="relative size-[81px] shrink-0">
-        <img
-          alt=""
-          className="absolute top-[8px] left-[7px] h-[70.109px] w-[71px]"
-          src={emptyEventsIllustration}
-        />
+    <div className="flex w-50.75 flex-col items-center gap-3">
+      {/* Figma 그림 자리 81px(size-20.25). 그림(71×70.109)은 SVG 자체 크기로 가운데 둔다 */}
+      <div className="flex size-20.25 shrink-0 items-center justify-center">
+        <img alt="" src={emptyEventsIllustration} />
       </div>
 
       <div className="flex w-full flex-col items-center gap-5">
@@ -44,17 +43,20 @@ function EventsEmptyState({
             align="center"
             color="semantic.label.alternative"
             variant="label1"
-            weight="medium"
+            weight={descriptionWeight}
           >
             {description}
           </Typography>
         </div>
 
-        {actionLabel && (
-          // 아카이빙 화면이 아직 없어서 동작은 보류다.
-          // TODO: 아카이빙 목록 화면(billilge/stream-client-web#31)이 생기면 onClick을 연결한다
-          <Button color="assistive" size="small" variant="outlined">
-            {actionLabel}
+        {action && (
+          <Button
+            color="assistive"
+            onClick={action.onClick}
+            size="small"
+            variant="outlined"
+          >
+            {action.label}
           </Button>
         )}
       </div>

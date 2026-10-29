@@ -47,6 +47,8 @@ const BACKGROUND_CLASS_NAMES: Record<ScreenBackground, string> = {
 interface ScreenLayoutProps {
   hasBottomNav?: boolean;
   background?: ScreenBackground;
+  /** 선택돼 보일 하단 탭. 없으면 주소로 정한다(라우트 handle의 bottomNavValue) */
+  bottomNavValue?: BottomNavValue;
 }
 
 // 모든 화면이 공유하는 라우트 레이아웃 — router.tsx에서 부모 route로 두고 화면들을
@@ -78,6 +80,7 @@ interface ScreenLayoutProps {
 function ScreenLayout({
   hasBottomNav = true,
   background = "alternative",
+  bottomNavValue: bottomNavValueProp,
 }: ScreenLayoutProps) {
   const [header, setHeader] = useState<ReactNode>(null);
   const [sheetPortalEl, setSheetPortalEl] = useState<HTMLDivElement | null>(
@@ -87,7 +90,8 @@ function ScreenLayout({
     useState<HTMLDivElement | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const bottomNavValue = getBottomNavValueFromPath(location.pathname);
+  const bottomNavValue =
+    bottomNavValueProp ?? getBottomNavValueFromPath(location.pathname);
 
   useNativeSafeAreaColors(background, hasBottomNav);
 

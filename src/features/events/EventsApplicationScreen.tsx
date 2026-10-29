@@ -11,12 +11,12 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import type { EventsAnswer } from "@/entities/events/types";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
 import EventsSummaryCard from "@/features/events/components/EventsSummaryCard";
 import {
   EVENTS_APPLICATION,
   EVENTS_OTHER_OPTION_LABEL,
-  type EventsAnswer,
 } from "@/features/events/constants/eventsApplication";
 import { submitEventsApplication } from "@/features/events/constants/eventsApplicationSubmit";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
@@ -111,7 +111,7 @@ function EventsApplicationScreen() {
   return (
     <div className="flex h-full flex-col">
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
-        <div className="flex flex-col gap-3 px-5 pb-8">
+        <div className="flex flex-col gap-2 px-5 pb-8">
           <EventsSummaryCard
             dateTime={dateTime}
             eventName={eventName}

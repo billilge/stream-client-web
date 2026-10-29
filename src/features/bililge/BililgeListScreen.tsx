@@ -15,13 +15,24 @@ import BililgeItemList from "@/features/bililge/components/BililgeItemList";
 import BililgeListSkeleton from "@/features/bililge/components/BililgeListSkeleton";
 import BililgeRentalSheet from "@/features/bililge/components/BililgeRentalSheet";
 import BililgeReturnSection from "@/features/bililge/components/BililgeReturnSection";
+import {
+  BILILGE_TAB_PATHS,
+  type BililgeTab,
+} from "@/features/bililge/constants/bililge";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
+interface BililgeListScreenProps {
+  /** 대여/반납 탭 — 탭마다 경로가 달라서 라우터가 정해 넘긴다 */
+  tab: BililgeTab;
+}
+
 // Figma: 빌릴게 (nodeId 1243:73331)
-function BililgeListScreen() {
+function BililgeListScreen({ tab }: BililgeListScreenProps) {
   const navigate = useNavigate();
-  const [tab, setTab] = useState("rent");
+  // 탭을 바꿀 때마다 히스토리가 쌓이지 않게 replace로 바꾼다
+  const changeTab = (next: BililgeTab) =>
+    navigate(BILILGE_TAB_PATHS[next], { replace: true });
   const [category, setCategory] = useState("전체");
   const [rentalItem, setRentalItem] = useState<BililgeItem | null>(null);
   const [rentalSheetOpen, setRentalSheetOpen] = useState(false);
@@ -59,7 +70,11 @@ function BililgeListScreen() {
           Figma Tool 프레임(56~88)은 높이 32에 위아래 여백이 없다 — 세로 패딩을 주면
           토글과 그 아래 필터 행이 함께 밀린다(행사·게시판 화면과 같은 규칙). */}
       <div className="shrink-0 px-5">
-        <SegmentedControl onValueChange={setTab} size="small" value={tab}>
+        <SegmentedControl
+          onValueChange={(value) => changeTab(value as BililgeTab)}
+          size="small"
+          value={tab}
+        >
           <SegmentedControlItem value="rent">대여</SegmentedControlItem>
           <SegmentedControlItem value="return">반납</SegmentedControlItem>
         </SegmentedControl>
@@ -91,7 +106,7 @@ function BililgeListScreen() {
             />
           </Suspense>
         ) : (
-          <BililgeReturnSection onBrowseRentals={() => setTab("rent")} />
+          <BililgeReturnSection onBrowseRentals={() => changeTab("rent")} />
         )}
       </div>
 

@@ -1,4 +1,8 @@
-import type { EventItem } from "@/entities/events/types";
+import type {
+  EventItem,
+  EventsQuestion,
+  MyEventApplication,
+} from "@/entities/events/types";
 
 // Figma 상세(1133:42433 모집중 / 1156:53992 모집예정)의 메타데이터·본문은 목업이라 행사별로 다르지 않다.
 // 목록 카드가 같은 행사명 4개를 상태만 바꿔 보여주는 것과 같은 이유로, 상세 내용도 공통 상수로 두고
@@ -34,14 +38,24 @@ const MOCK_DESCRIPTION = `안녕하십니까, 제10대 소프트웨어융합대�
 // Figma: 행사 Event List (nodeId 1243:70866) 문구를 그대로 옮긴 목데이터 — 실 API 연동 전까지 사용.
 //
 // Figma 목업은 같은 행사명 4개(모집중 1 / 모집예정 1 / 모집종료 2)를 상태만 바꿔 보여주는데,
-// 여기서는 모집중을 비우고 모집종료 중복도 하나로 줄였다(모집예정 1 / 모집종료 1).
+// 여기서는 모집종료 중복을 하나로 줄였다(모집중 1 / 모집예정 1 / 모집종료 1).
 //
-// Empty State(1165:62713)는 Figma가 "모집중" 필터 버전으로만 그려져 있고, 일러스트·문구와
-// "아카이빙 둘러보기" 버튼이 그 조합의 스펙이다. 목데이터에 모집중 항목이 있으면 이 화면을
-// 아예 볼 수 없어서 모집중을 비웠다. 대신 모집중 상세(1133:42433)는 카드로 진입할 수 없다 —
-// 실 API가 붙으면 사라질 제약이고, 지금 확인이 필요하면 아래 항목 하나의 status를 "open"으로
-// 되돌리면 된다. 모집예정은 상세 디자인(1156:53992)이 있어 진입 가능하게 남겼다.
+// 모집중은 홈 신청 카드가 가리키는 행사라 남겨 둔다(#114). 그래서 모집중 필터의 Empty State(1165:62713,
+// "아카이빙 둘러보기" 버튼)는 아래 모집중 항목을 빼야 볼 수 있다.
 export const EVENTS: EventItem[] = [
+  {
+    actionLabel: "신청하기",
+    audience: MOCK_AUDIENCE,
+    description: MOCK_DESCRIPTION,
+    eventDate: "행사일 2026.06.04",
+    id: "sw-sports-day-open",
+    imageCount: 7,
+    location: MOCK_LOCATION,
+    schedule: MOCK_SCHEDULE,
+    status: "open",
+    statusLabel: "신청마감 D-2",
+    title: "소프트웨어융합대학 체육대회",
+  },
   {
     actionLabel: "모집종료",
     audience: MOCK_AUDIENCE,
@@ -69,3 +83,96 @@ export const EVENTS: EventItem[] = [
     title: "소프트웨어융합대학 체육대회",
   },
 ];
+
+// Figma: 행사 신청내역 (nodeId 1133:46168 목록, 1133:46181 상세, 1133:46216 신청취소 상세)
+// 행사 상세로 이동할 수 있게 eventId는 위 EVENTS에 있는 행사로 맞춘다.
+
+// 신청 폼(EVENTS_APPLICATION)과 같은 문항 — 신청 당시 문항을 그대로 들고 있는 모양을 흉내 낸다.
+const QUESTIONS: EventsQuestion[] = [
+  {
+    hasOtherOption: true,
+    id: "interest",
+    isRequired: true,
+    options: ["개발", "디자인", "기획"],
+    title: "관심 분야를 선택해 주세요.",
+    type: "multipleChoice",
+  },
+  {
+    id: "afterParty",
+    isRequired: true,
+    options: ["참여해요", "참여하지 않아요"],
+    title: "뒤풀이에 참여하시나요?",
+    type: "singleChoice",
+  },
+  {
+    id: "question",
+    isRequired: false,
+    title: "궁금한 점이 있다면 자유롭게 남겨 주세요.",
+    type: "longAnswer",
+  },
+];
+
+const APPLICATIONS: MyEventApplication[] = [
+  {
+    answers: {
+      afterParty: "참여해요",
+      interest: { otherText: "", selected: ["개발", "디자인"] },
+      question:
+        "궁금한 점이 하나 있습니다. 행사 당일 학생증을 꼭 챙겨야 하나요?",
+    },
+    appliedAt: "2026-06-04T13:00",
+    cancelledAt: null,
+    eventDateTime: "2026-06-04T18:30",
+    eventId: "sw-sports-day-closed",
+    eventTitle: "소프트웨어융합대학 체육대회",
+    id: "application-1",
+    location: "미래관 4층 신관 입구",
+    questions: QUESTIONS,
+    status: "applied",
+  },
+  {
+    answers: {
+      afterParty: "참여하지 않아요",
+      interest: { otherText: "", selected: ["기획"] },
+    },
+    appliedAt: "2026-06-04T13:00",
+    cancelledAt: null,
+    eventDateTime: "2026-06-04T18:30",
+    eventId: "sw-sports-day-upcoming",
+    eventTitle: "소프트웨어융합대학 체육대회",
+    id: "application-2",
+    location: "미래관 4층 신관 입구",
+    questions: QUESTIONS,
+    status: "applied",
+  },
+  {
+    answers: {
+      afterParty: "참여해요",
+      interest: { otherText: "", selected: ["개발"] },
+    },
+    appliedAt: "2026-06-03T11:49",
+    cancelledAt: "2026-06-04T13:00",
+    eventDateTime: "2026-06-04T18:30",
+    eventId: "sw-sports-day-closed",
+    eventTitle: "소프트웨어융합대학 체육대회",
+    id: "application-3",
+    location: "미래관 4층 신관 입구",
+    questions: QUESTIONS,
+    status: "cancelled",
+  },
+];
+
+// 상태를 바꿔 신청내역 화면을 확인한다
+type MyEventApplicationsMockState = "list" | "empty";
+const MY_EVENT_APPLICATIONS_MOCK_STATE: MyEventApplicationsMockState = "list";
+
+// 신청 취소가 이 배열의 항목을 바꾼다(eventsApi의 cancelMyEventApplication) — 목록·상세에 같이 반영된다.
+export const MY_EVENT_APPLICATIONS_MOCK: MyEventApplication[] =
+  MY_EVENT_APPLICATIONS_MOCK_STATE === "list" ? APPLICATIONS : [];
+
+// 목데이터 일시 형식("2026-06-04T13:00", 분 단위·현지 시각)으로 바꾼다 — 신청 취소 시각처럼 목에서 새로 만드는
+// 값에 쓴다. 화면 표기용이 아니다(표기는 lib/date). 실 API가 붙으면 서버가 시각을 정해 주므로 같이 지운다.
+export function toMockDateTime(date: Date) {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}

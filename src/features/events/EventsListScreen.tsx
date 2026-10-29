@@ -2,7 +2,6 @@ import {
   SegmentedControl,
   SegmentedControlItem,
   TopNavigationButton,
-  Typography,
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
 import { Suspense, useState } from "react";
@@ -11,16 +10,27 @@ import { useNavigate } from "react-router-dom";
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { ARCHIVES_PATH } from "@/features/archives/constants/archives";
+import EventsApplicationList from "@/features/events/components/EventsApplicationList";
+import EventsApplicationListSkeleton from "@/features/events/components/EventsApplicationListSkeleton";
 import EventsList from "@/features/events/components/EventsList";
 import EventsListSkeleton from "@/features/events/components/EventsListSkeleton";
-import { EVENT_STATUS_FILTERS } from "@/features/events/constants/events";
+import {
+  EVENT_STATUS_FILTERS,
+  EVENTS_TAB_PATHS,
+  type EventsTab,
+} from "@/features/events/constants/events";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
+interface EventsListScreenProps {
+  /** 행사/신청내역 탭 — 탭마다 경로가 달라서 라우터가 정해 넘긴다 */
+  tab: EventsTab;
+}
+
 // Figma: 행사 (nodeId 1243:70854)
-function EventsListScreen() {
+function EventsListScreen({ tab }: EventsListScreenProps) {
   const navigate = useNavigate();
-  const [tab, setTab] = useState("event");
   const [statusFilter, setStatusFilter] = useState("all");
 
   useScreenHeader(
@@ -56,7 +66,14 @@ function EventsListScreen() {
           Figma Tool 프레임(56~88)은 높이 32에 위아래 여백이 없다 — 세로 패딩을 주면
           토글과 그 아래 필터 행이 함께 밀린다. */}
       <div className="shrink-0 px-5">
-        <SegmentedControl onValueChange={setTab} size="small" value={tab}>
+        <SegmentedControl
+          // 탭을 바꿀 때마다 히스토리가 쌓이지 않게 replace로 바꾼다
+          onValueChange={(value) =>
+            navigate(EVENTS_TAB_PATHS[value as EventsTab], { replace: true })
+          }
+          size="small"
+          value={tab}
+        >
           <SegmentedControlItem value="event">행사</SegmentedControlItem>
           <SegmentedControlItem value="application">
             신청내역
@@ -64,22 +81,29 @@ function EventsListScreen() {
         </SegmentedControl>
       </div>
 
-      {/* 필터는 고정하고 목록만 스크롤된다 */}
-      <div className="shrink-0 px-5 pt-4 pb-6">
-        <FilterChipGroup
-          onChange={setStatusFilter}
-          options={EVENT_STATUS_FILTERS}
-          value={statusFilter}
-        />
-      </div>
+      {/* 필터는 고정하고 목록만 스크롤된다. 신청내역 탭은 Figma(1133:46168)에 필터 행이 없다 */}
+      {tab === "event" && (
+        <div className="shrink-0 px-5 pt-4 pb-6">
+          <FilterChipGroup
+            onChange={setStatusFilter}
+            options={EVENT_STATUS_FILTERS}
+            value={statusFilter}
+          />
+        </div>
+      )}
 
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
-        {/* 헤더·토글·필터는 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다 */}
+        {/* 헤더·토글·필터는 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다.
+            탭 전환은 라우터 이동(transition)이라, 두 Suspense가 같은 자리의 같은 경계로 보이면 새 탭 데이터를
+            받는 동안 이전 탭 화면을 붙잡아 탭이 멈춘 것처럼 보인다 — key로 탭마다 다른 경계로 둔다. */}
         {tab === "event" ? (
-          <Suspense fallback={<EventsListSkeleton />}>
+          <Suspense fallback={<EventsListSkeleton />} key="event">
             <EventsList
               onApply={(eventId) =>
                 navigate(`/events/${eventId}/apply`, { viewTransition: true })
+              }
+              onBrowseArchives={() =>
+                navigate(ARCHIVES_PATH, { viewTransition: true })
               }
               onSelect={(eventId) =>
                 navigate(`/events/${eventId}`, { viewTransition: true })
@@ -88,15 +112,25 @@ function EventsListScreen() {
             />
           </Suspense>
         ) : (
-          <div className="flex items-center justify-center py-20">
-            <Typography
-              color="semantic.label.alternative"
-              variant="label2"
-              weight="regular"
-            >
-              신청내역은 아직 준비 중이에요
-            </Typography>
-          </div>
+          <Suspense
+            fallback={<EventsApplicationListSkeleton />}
+            key="application"
+          >
+            <EventsApplicationList
+              // 행사 탭은 같은 화면의 형제 탭이라 슬라이드 없이 바꾼다
+              onBrowseEvents={() =>
+                navigate(EVENTS_TAB_PATHS.event, { replace: true })
+              }
+              onSelectApplication={(applicationId) =>
+                navigate(`${EVENTS_TAB_PATHS.application}/${applicationId}`, {
+                  viewTransition: true,
+                })
+              }
+              onSelectEvent={(eventId) =>
+                navigate(`/events/${eventId}`, { viewTransition: true })
+              }
+            />
+          </Suspense>
         )}
       </div>
     </>

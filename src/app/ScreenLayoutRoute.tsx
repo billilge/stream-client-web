@@ -1,5 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import { useLocation, useMatches, useNavigationType } from "react-router-dom";
+
+import type { BottomNavValue } from "@/components/ui/BottomNav";
 import ScreenLayout, {
   type ScreenBackground,
 } from "@/components/ui/ScreenLayout";
@@ -12,6 +14,9 @@ export interface ScreenRouteHandle {
   // 화면 프레임 자체의 배경 — 헤더 뒤까지 포함이라 화면 본문에서 칠할 수 없다.
   // 기본은 회색(alternative)이고, 완료 화면처럼 Figma가 흰 배경으로 그린 화면만 normal을 지정한다.
   background?: ScreenBackground;
+  // 하단 탭에서 선택돼 보일 탭. 하단 탭 경로와 주소가 다른 탭 화면(행사 신청내역 등)만 지정하고,
+  // 지정하지 않으면 ScreenLayout이 주소로 정한다.
+  bottomNavValue?: BottomNavValue;
 }
 
 // useMatches()는 handle을 unknown으로 준다. ScreenRouteHandle은 필드가 전부 선택이라 객체면 이 타입으로 본다.
@@ -69,6 +74,7 @@ function ScreenLayoutRoute() {
       background={
         resolveScreenRouteOption(handles, "background") ?? "alternative"
       }
+      bottomNavValue={resolveScreenRouteOption(handles, "bottomNavValue")}
       hasBottomNav={resolveScreenRouteOption(handles, "hasBottomNav") ?? true}
     />
   );

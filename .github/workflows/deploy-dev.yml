@@ -55,9 +55,12 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          # @wanteddev 사설 패키지 설치용 토큰 (read:packages)
+          # @wanteddev·@billilge 사설 패키지 설치용 토큰 (read:packages)
           secrets: |
             node_auth_token=${{ secrets.WDS_NPM_TOKEN }}
+          # K-CONNECT client_id (저장소 Actions 변수 VITE_KCONNECT_CLIENT_ID) — 번들에 들어가는 공개 값이라 시크릿이 아니다
+          build-args: |
+            VITE_KCONNECT_CLIENT_ID=${{ vars.VITE_KCONNECT_CLIENT_ID }}
 
       - name: Deploy to Coolify
         run: |

@@ -20,8 +20,24 @@ function LegendItem({ icon, label }: { icon: ReactNode; label: string }) {
   );
 }
 
+interface LockersLegendProps {
+  /** select: 칸 선택 화면(선택 가능·불가), mine: 내 사물함 화면(내 칸 표시만) */
+  variant?: "select" | "mine";
+}
+
 // Figma: Legend (nodeId 2159:110814) — Stream 로컬. 칸 색이 무엇을 뜻하는지 알려준다.
-function LockersLockerLegend() {
+function LockersLegend({ variant = "select" }: LockersLegendProps) {
+  if (variant === "mine") {
+    return (
+      <div className="flex flex-col gap-2">
+        <LegendItem
+          icon={<span className="size-3.75 rounded-xs bg-primary" />}
+          label="내 사물함"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <LegendItem
@@ -38,4 +54,4 @@ function LockersLockerLegend() {
   );
 }
 
-export default LockersLockerLegend;
+export default LockersLegend;

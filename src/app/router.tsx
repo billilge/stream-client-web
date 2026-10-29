@@ -9,21 +9,30 @@ import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
 import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
 import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
+import AuthEntryGate from "@/features/auth/AuthEntryGate";
+import AuthSignupScreen from "@/features/auth/AuthSignupScreen";
+import KConnectCallbackScreen from "@/features/auth/KConnectCallbackScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
 import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
+import EventsApplicationDetailScreen from "@/features/events/EventsApplicationDetailScreen";
 import EventsApplicationScreen from "@/features/events/EventsApplicationScreen";
 import EventsDetailScreen from "@/features/events/EventsDetailScreen";
 import EventsListScreen from "@/features/events/EventsListScreen";
+import FeePaymentsScreen from "@/features/fee/FeePaymentsScreen";
 import FeedbacksDetailScreen from "@/features/feedbacks/FeedbacksDetailScreen";
 import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
+import FeedbacksMineDetailScreen from "@/features/feedbacks/FeedbacksMineDetailScreen";
+import FeedbacksMineScreen from "@/features/feedbacks/FeedbacksMineScreen";
 import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
 import HomeScreen from "@/features/home/HomeScreen";
 import LockersApplyCompleteScreen from "@/features/lockers/LockersApplyCompleteScreen";
 import LockersApplyFailureScreen from "@/features/lockers/LockersApplyFailureScreen";
 import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
-import LockersLockerSelectScreen from "@/features/lockers/LockersLockerSelectScreen";
+import LockersAssignmentScreen from "@/features/lockers/LockersAssignmentScreen";
+import LockersCellSelectScreen from "@/features/lockers/LockersCellSelectScreen";
+import LockersMineScreen from "@/features/lockers/LockersMineScreen";
 import LockersSectionSelectScreen from "@/features/lockers/LockersSectionSelectScreen";
 import NoticesDetailScreen from "@/features/notices/NoticesDetailScreen";
 import NoticesListScreen from "@/features/notices/NoticesListScreen";
@@ -40,18 +49,44 @@ const routes = [
       {
         children: [
           {
-            element: <HomeScreen />,
+            // 앱 첫 진입점 — 로그인한 기록이 없으면 로그인 화면으로 보낸다
+            element: (
+              <AuthEntryGate>
+                <HomeScreen />
+              </AuthEntryGate>
+            ),
             path: "/",
           },
           {
-            element: <BililgeListScreen />,
+            element: <BililgeListScreen tab="rent" />,
             path: "/bililge",
           },
           {
-            element: <EventsListScreen />,
+            element: <BililgeListScreen tab="return" />,
+            // 빌릴게의 반납 탭 — 같은 화면을 탭만 바꿔 그리고, 하단 탭은 "빌릴게"가 선택된다
+            handle: { bottomNavValue: "bililge" } satisfies ScreenRouteHandle,
+            path: "/bililge/returns",
+          },
+          {
+            element: <EventsListScreen tab="event" />,
             // 카드 없이 구분선으로만 나뉘는 목록이라 화면 전체가 흰 면이다
             handle: { background: "normal" } satisfies ScreenRouteHandle,
             path: "/events",
+          },
+          {
+            element: <EventsListScreen tab="application" />,
+            // 행사 목록의 신청내역 탭 — 같은 화면을 탭만 바꿔 그리고, 하단 탭은 "행사"가 선택된다
+            handle: {
+              background: "normal",
+              bottomNavValue: "event",
+            } satisfies ScreenRouteHandle,
+            path: "/events/applications",
+          },
+          {
+            element: <EventsApplicationDetailScreen />,
+            // 하단 탭 없이 회색 배경(기본값) — 흰 카드가 뜬다
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/events/applications/:applicationId",
           },
           {
             element: <NoticesListScreen />,
@@ -82,6 +117,42 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/feedbacks/:feedbackId",
+          },
+          {
+            element: <FeedbacksMineScreen />,
+            // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/my/feedbacks",
+          },
+          {
+            element: <FeedbacksMineDetailScreen />,
+            // 작성내역 상세 — 열린피드백 상세와 같은 흰 배경, 하단 탭 없음
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/my/feedbacks/:feedbackId",
+          },
+          {
+            element: <FeePaymentsScreen />,
+            // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/my/fee",
+          },
+          {
+            element: <LockersAssignmentScreen />,
+            // 내 내역 화면 — 하단 탭 없이 회색 배경(기본값)
+            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            path: "/my/locker",
+          },
+          {
+            element: <LockersMineScreen />,
+            // 칸 선택 화면과 같은 흰 배경
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/my/locker/location",
           },
           {
             element: <EventsDetailScreen />,
@@ -156,6 +227,25 @@ const routes = [
             path: "/notifications/settings",
           },
           {
+            element: <AuthSignupScreen />,
+            // 로그인·온보딩 퍼널 하나가 모든 단계(로그인, 연락처, 약관 동의, 약관 상세, 가입 완료)를 그린다.
+            // Figma 로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/auth",
+          },
+          {
+            element: <KConnectCallbackScreen />,
+            // K-CONNECT 인증 후 되돌아오는 redirect URI — 경로는 K-CONNECT에 등록한 값(@billilge/oauth-kconnect 규약)이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/oauth/kconnect",
+          },
+          {
             element: <ChatEntryScreen />,
             // Figma 챗봇 진입 화면에는 Bottom Nav가 없다(뒤로가기로 홈에 복귀). 흰 배경 위에
             // 그라데이션이 얹히는 구조라 다른 흰 배경 화면들과 같은 normal을 쓴다.
@@ -177,7 +267,7 @@ const routes = [
             path: "/lockers/apply/sections",
           },
           {
-            element: <LockersLockerSelectScreen />,
+            element: <LockersCellSelectScreen />,
             // 구역 선택 화면과 같다 — 하단 고정 선택 영역이 있고, 칸 배경이 흰 면 위에 놓인다
             handle: {
               background: "normal",
