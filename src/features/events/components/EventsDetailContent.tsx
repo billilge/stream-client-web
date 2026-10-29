@@ -12,6 +12,7 @@ import PhotoGallery from "@/components/ui/PhotoGallery";
 import { fetchEvent } from "@/entities/events/eventsApi";
 import EventsEmptyState from "@/features/events/components/EventsEmptyState";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
+import { getEventAudience } from "@/features/events/constants/events";
 
 interface EventsDetailContentProps {
   eventId: string;
@@ -133,7 +134,7 @@ function EventsDetailContent({
                 </Typography>
                 {/* 대상만 여러 줄 — Figma도 한 값 안에서 줄을 나눠 놨다 */}
                 <div className="flex flex-col">
-                  {event.audience.map((line) => (
+                  {getEventAudience(event).map((line) => (
                     <Typography
                       color="semantic.label.neutral"
                       key={line}

@@ -1,3 +1,5 @@
+import type { EventItem } from "@/entities/events/types";
+
 // 모집 상태 필터. value는 EventStatus + "all"이고, 라벨은 Figma Filter Chips(1243:70861) 그대로.
 export const EVENT_STATUS_FILTERS = [
   { label: "전체", value: "all" },
@@ -20,3 +22,14 @@ export const EVENTS_APPLICATION_STATUS_BADGES = {
   applied: { color: "green", label: "신청완료" },
   cancelled: { color: "red", label: "신청취소" },
 } as const;
+
+// 행사 상세 "대상" 문구 — 서버는 신청 조건 값만 주고 문구는 프론트가 조합한다(stream-server#190).
+// Figma(2849:61152)의 "소프트웨어융합대학 과학생회비 납부자 선착순 150명"이 두 줄로 나뉘어 보여서
+// 줄 단위로 돌려준다. 납부자 전용이 아니면 "학생", 상시 모집이면 정원 줄이 빠진다.
+export function getEventAudience(event: EventItem): string[] {
+  const audience = `소프트웨어융합대학 ${event.feePaidOnly ? "과학생회비 납부자" : "학생"}`;
+
+  return event.recruitType === "first-come"
+    ? [audience, `선착순 ${event.capacity}명`]
+    : [audience];
+}

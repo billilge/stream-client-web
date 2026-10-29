@@ -1,6 +1,6 @@
 export type EventStatus = "open" | "upcoming" | "closed";
 
-export interface EventItem {
+interface EventItemBase {
   id: string;
   title: string;
   eventDate: string;
@@ -13,11 +13,19 @@ export interface EventItem {
   schedule: string;
   /** 상세 메타데이터 "장소" */
   location: string;
-  /** 상세 메타데이터 "대상" — Figma가 두 줄로 쪼개 보여줘서 줄 단위로 들고 있는다 */
-  audience: string[];
+  /** 학생회비 납부자만 신청할 수 있는 행사인지 */
+  feePaidOnly: boolean;
   /** 상세 본문. 줄바꿈을 그대로 살려 렌더링한다 */
   description: string;
 }
+
+// 모집 방식(서버 RecruitType FIRST_COME·OPEN). 정원은 선착순일 때만 있다 — 모집 방식으로 갈라 두어
+// "선착순인데 정원이 없는" 경우를 타입에서 막는다. 상세 "대상" 문구는 이 값들로 프론트가 조합한다.
+export type EventItem = EventItemBase &
+  (
+    | { recruitType: "first-come"; capacity: number }
+    | { recruitType: "open"; capacity: null }
+  );
 
 // 행사 신청 문항·답변 — 신청 폼과 신청내역 상세가 같이 쓴다.
 interface EventsQuestionBase {
