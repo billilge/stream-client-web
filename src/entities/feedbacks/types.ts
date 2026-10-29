@@ -3,6 +3,8 @@ export type FeedbackRound = "1차" | "2차" | "3차" | "4차";
 export interface Feedback {
   id: string;
   question: string;
+  // 몇 년도 차수인지("2026") — 차수는 해마다 1차부터 다시 열려서 연도와 같이 봐야 한다
+  year: string;
   round: FeedbackRound;
   answer?: string;
   // 상세페이지(모아보기)의 "학생회 답변" 날짜. 답변이 없으면 의미가 없어 answer와 함께 옵셔널이다.
