@@ -4,8 +4,8 @@ import { ApiError, NetworkError, TimeoutError } from "@/lib/api/errors";
 import { clearAccessToken, getAccessToken } from "@/lib/api/token";
 import type { ApiResponse } from "@/lib/api/types";
 
-// 개발 서버는 비워 둔다 — `/v1/...`가 같은 주소로 나가고 Vite 프록시가 서버로 넘긴다(vite.config.ts).
-// 배포 빌드는 서버 주소를 넣는다(.env.example).
+// 서버 주소는 로컬·배포 모두 환경변수로 넣는다(.env.example). 비어 있으면 `/v1/...`가 웹 주소로 나가
+// 웹의 index.html이 돌아오고, 아래 unwrap이 에러로 만든다.
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? "",
   // 응답이 없을 때 화면이 스켈레톤에 오래 묶이지 않게 끊는다
