@@ -5,10 +5,10 @@ import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { HOME_PATH } from "@/constants/paths";
 import FeedbacksMineList from "@/features/feedbacks/components/FeedbacksMineList";
 import FeedbacksMineSkeleton from "@/features/feedbacks/components/FeedbacksMineSkeleton";
 import { getMyFeedbackPath } from "@/features/feedbacks/constants/feedbacks";
+import { HOME_PATH } from "@/features/home/constants/home";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 // Figma: 열린피드백 작성내역 (nodeId 3147:147748)

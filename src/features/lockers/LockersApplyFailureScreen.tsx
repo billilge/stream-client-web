@@ -11,7 +11,7 @@ import documentLock from "@/assets/icons/common/document-lock.svg";
 import networkOffline from "@/assets/icons/lockers/network-offline.svg";
 import ResultScreen from "@/components/ui/ResultScreen";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
-import { HOME_PATH } from "@/constants/paths";
+import { HOME_PATH } from "@/features/home/constants/home";
 import {
   LOCKERS_APPLY_SUBMITTING_TEXT,
   type LockersApplyFailureReason,

@@ -4,10 +4,10 @@ import { Suspense } from "react";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { HOME_PATH } from "@/constants/paths";
 import FeePaymentList from "@/features/fee/components/FeePaymentList";
 import FeePaymentsSkeleton from "@/features/fee/components/FeePaymentsSkeleton";
 import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
+import { HOME_PATH } from "@/features/home/constants/home";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
 import { openExternalLink } from "@/lib/openExternalLink";
 

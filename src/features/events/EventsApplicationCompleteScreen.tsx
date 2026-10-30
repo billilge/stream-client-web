@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom";
 
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
-import { HOME_PATH } from "@/constants/paths";
 import EventsSummaryCard from "@/features/events/components/EventsSummaryCard";
 import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
 import { EVENTS_APPLICATION } from "@/features/events/constants/eventsApplication";
+import { HOME_PATH } from "@/features/home/constants/home";
 
 // Figma: 행사 신청 완료 페이지 (nodeId 1712:192283)
 // 행사 정보는 신청 폼과 마찬가지로 API 연동 전까지 목업 하나를 보여준다.

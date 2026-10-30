@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { Navigate, useMatches } from "react-router-dom";
 
-import { LOGIN_PATH } from "@/constants/paths";
 import { isLoggedIn } from "@/entities/auth/session";
+import { LOGIN_PATH } from "@/features/auth/constants/auth";
 
 // 로그인 없이 열 수 있는 라우트의 표시 — router.tsx에서 `handle: { isPublic: true } satisfies AuthRouteHandle`로 지정한다
 // (레이아웃 옵션 handle과 한 객체에 같이 쓰면 `ScreenRouteHandle & AuthRouteHandle`로 검사한다).

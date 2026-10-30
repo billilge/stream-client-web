@@ -2,7 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
-import { HOME_PATH } from "@/constants/paths";
+import { HOME_PATH } from "@/features/home/constants/home";
 import { useAccountExit } from "@/features/settings/hooks/useAccountExit";
 import type { WithdrawalCompleteState } from "@/features/settings/types";
 

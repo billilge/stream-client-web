@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { HOME_PATH } from "@/constants/paths";
+import { HOME_PATH } from "@/features/home/constants/home";
 import SearchHeader from "@/features/search/components/SearchHeader";
 import SearchRecentList from "@/features/search/components/SearchRecentList";
 import SearchResultContent from "@/features/search/components/SearchResultContent";

@@ -3,7 +3,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
-import { HOME_PATH } from "@/constants/paths";
+import { HOME_PATH } from "@/features/home/constants/home";
 import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import type { LockersApplyCompleteState } from "@/features/lockers/hooks/useLockersApplySubmit";
 import { formatDate } from "@/lib/date";

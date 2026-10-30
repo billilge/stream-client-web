@@ -37,7 +37,7 @@
 
 ## 예외
 
-- 홈(`/home`)과 로그인(`/login`)은 백엔드 엔드포인트와 짝이 있는 도메인이 아니라 화면 진입 경로라서, `/{코드 용어}` 규칙 대신 일반적인 경로 이름을 쓴다. 두 경로는 `src/constants/paths.ts`의 `HOME_PATH`·`LOGIN_PATH`로 한곳에서 관리하고, 코드 폴더는 용어 사전대로 `features/auth/`를 쓴다. K-CONNECT redirect URI `/oauth/kconnect`는 K-CONNECT에 등록한 값이라 바꾸지 않는다.
+- 홈(`/home`)과 로그인(`/login`)은 백엔드 엔드포인트와 짝이 있는 도메인이 아니라 화면 진입 경로라서, `/{코드 용어}` 규칙 대신 일반적인 경로 이름을 쓴다. 두 경로는 상수 `HOME_PATH`(`features/home/constants/home.ts`)·`LOGIN_PATH`(`features/auth/constants/auth.ts`)로 관리하고, 코드 폴더는 용어 사전대로 `features/auth/`를 쓴다. K-CONNECT redirect URI `/oauth/kconnect`는 K-CONNECT에 등록한 값이라 바꾸지 않는다.
 
 ## 반영 사례
 

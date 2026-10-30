@@ -1,4 +1,3 @@
-import { HOME_PATH } from "@/constants/paths";
 import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
 import {
   FEE_TRANSFER_STEP_OPTIONS,
@@ -9,6 +8,7 @@ import FeeTransferConfirmStep from "@/features/fee/steps/FeeTransferConfirmStep"
 import FeeTransferSemesterStep from "@/features/fee/steps/FeeTransferSemesterStep";
 import FeeTransferTossStep from "@/features/fee/steps/FeeTransferTossStep";
 import FeeTransferTranscriptStep from "@/features/fee/steps/FeeTransferTranscriptStep";
+import { HOME_PATH } from "@/features/home/constants/home";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
 import { openExternalLink } from "@/lib/openExternalLink";
 import { useFunnel, useFunnelExit } from "@/lib/useFunnel";

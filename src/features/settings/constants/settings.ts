@@ -1,4 +1,4 @@
-import { LOGIN_PATH } from "@/constants/paths";
+import { LOGIN_PATH } from "@/features/auth/constants/auth";
 
 // 설정 화면들의 경로 — 홈 헤더·설정 화면이 같이 쓰므로 문자열을 흩지 않고 한곳에 둔다
 // (알림의 `NOTIFICATIONS_PATH`와 같은 방식). 경로와 컴포넌트 이름의 형태를 맞춘다

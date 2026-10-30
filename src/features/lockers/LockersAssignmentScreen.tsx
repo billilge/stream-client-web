@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { HOME_PATH } from "@/constants/paths";
+import { HOME_PATH } from "@/features/home/constants/home";
 import LockersAssignmentContent from "@/features/lockers/components/LockersAssignmentContent";
 import LockersAssignmentSkeleton from "@/features/lockers/components/LockersAssignmentSkeleton";
 import { MY_LOCKER_LOCATION_PATH } from "@/features/lockers/constants/lockers";

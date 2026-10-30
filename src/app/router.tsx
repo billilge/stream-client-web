@@ -9,7 +9,6 @@ import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
-import { HOME_PATH, LOGIN_PATH } from "@/constants/paths";
 import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
 import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
@@ -18,6 +17,7 @@ import AuthEntryGate, {
   type AuthRouteHandle,
 } from "@/features/auth/AuthEntryGate";
 import AuthSignupScreen from "@/features/auth/AuthSignupScreen";
+import { LOGIN_PATH } from "@/features/auth/constants/auth";
 import KConnectCallbackScreen from "@/features/auth/KConnectCallbackScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
@@ -34,6 +34,7 @@ import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import FeedbacksMineDetailScreen from "@/features/feedbacks/FeedbacksMineDetailScreen";
 import FeedbacksMineScreen from "@/features/feedbacks/FeedbacksMineScreen";
 import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
+import { HOME_PATH } from "@/features/home/constants/home";
 import HomeScreen from "@/features/home/HomeScreen";
 import LockersApplyCompleteScreen from "@/features/lockers/LockersApplyCompleteScreen";
 import LockersApplyFailureScreen from "@/features/lockers/LockersApplyFailureScreen";

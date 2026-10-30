@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { HOME_PATH } from "@/constants/paths";
+import { HOME_PATH } from "@/features/home/constants/home";
 import NotificationsList from "@/features/notifications/components/NotificationsList";
 import NotificationsListSkeleton from "@/features/notifications/components/NotificationsListSkeleton";
 import { NOTIFICATIONS_SETTINGS_PATH } from "@/features/notifications/constants/notifications";
