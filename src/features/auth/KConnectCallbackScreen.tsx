@@ -2,6 +2,7 @@ import { useKConnectCallback } from "@billilge/oauth-kconnect/react";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { HOME_PATH } from "@/constants/paths";
 import { exchangeKConnectCode } from "@/entities/auth/authApi";
 import { markLoggedIn } from "@/entities/auth/session";
 import {
@@ -53,7 +54,7 @@ function KConnectCallbackScreen() {
           return;
         }
         markLoggedIn();
-        navigate("/", { replace: true });
+        navigate(HOME_PATH, { replace: true });
       })
       .catch((error: unknown) => {
         console.warn(LOGIN_FAILURE_MESSAGE, error);

@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
+import { HOME_PATH } from "@/constants/paths";
 import { submitOnboarding } from "@/entities/auth/authApi";
 import { isLoggedIn, markLoggedIn } from "@/entities/auth/session";
 import { INITIAL_TERMS_AGREEMENTS } from "@/features/auth/constants/auth";
@@ -60,10 +61,10 @@ function AuthSignupScreen() {
   // 로그인한 상태로 이 퍼널에 들어오면 홈으로 보낸다 — 가입을 마친 뒤 홈에서 뒤로가기를 눌러 연락처 단계로 돌아와
   // 가입을 한 번 더 진행하는 일을 막는다. 가입 완료 단계는 로그인 표시를 남긴 직후에 보여 주는 화면이라 예외다.
   if (funnel.step !== "complete" && isLoggedIn()) {
-    return <Navigate replace to="/" />;
+    return <Navigate replace to={HOME_PATH} />;
   }
 
-  const goHome = () => navigate("/", { replace: true });
+  const goHome = () => navigate(HOME_PATH, { replace: true });
 
   return (
     <funnel.Render

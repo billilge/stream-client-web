@@ -1,10 +1,15 @@
-import { createBrowserRouter, type RouteObject } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  type RouteObject,
+} from "react-router-dom";
 
 import App from "@/app/App";
 import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
+import { HOME_PATH } from "@/constants/paths";
 import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
 import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
@@ -60,6 +65,11 @@ const routes = [
                 <HomeScreen />
               </AuthEntryGate>
             ),
+            path: HOME_PATH,
+          },
+          {
+            // 앱 WebView 진입 주소·북마크가 아직 `/`일 수 있어서 홈으로 보낸다(replace라 뒤로가기로 돌아오지 않는다)
+            element: <Navigate replace to={HOME_PATH} />,
             path: "/",
           },
           {

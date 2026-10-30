@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { HOME_PATH } from "@/constants/paths";
 import SearchHeader from "@/features/search/components/SearchHeader";
 import SearchRecentList from "@/features/search/components/SearchRecentList";
 import SearchResultContent from "@/features/search/components/SearchResultContent";
@@ -63,7 +64,7 @@ function SearchScreen() {
     setKeyword(null);
   };
 
-  const goBack = useBackNavigation("/");
+  const goBack = useBackNavigation(HOME_PATH);
 
   return (
     <>

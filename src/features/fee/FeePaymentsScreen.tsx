@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { HOME_PATH } from "@/constants/paths";
 import FeePaymentList from "@/features/fee/components/FeePaymentList";
 import FeePaymentsSkeleton from "@/features/fee/components/FeePaymentsSkeleton";
 import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
@@ -13,7 +14,7 @@ import { openExternalLink } from "@/lib/openExternalLink";
 // Figma: 학생회비 납부내역 (nodeId 3147:147860 납부확인중, 3147:147879 확인필요, 3147:147841 납부완료)
 function FeePaymentsScreen() {
   // 바로 들어와 뒤로 갈 히스토리가 없으면 홈으로 보낸다
-  const goBack = useBackNavigation("/");
+  const goBack = useBackNavigation(HOME_PATH);
 
   useScreenHeader(
     <ScreenHeader

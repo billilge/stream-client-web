@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
+import { HOME_PATH } from "@/constants/paths";
 import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import type { LockersApplyCompleteState } from "@/features/lockers/hooks/useLockersApplySubmit";
 import { formatDate } from "@/lib/date";
@@ -14,7 +15,7 @@ function LockersApplyCompleteScreen() {
 
   // 신청 직후에만 오는 화면이라, 주소로 바로 들어와 신청 결과가 없으면 홈으로 보낸다
   if (!state?.application) {
-    return <Navigate replace to="/" />;
+    return <Navigate replace to={HOME_PATH} />;
   }
   const { lockerLabel, usageStartDate, usageEndDate } = state.application;
 
@@ -23,8 +24,11 @@ function LockersApplyCompleteScreen() {
       description="신청 정보를 확인해 보세요"
       illustration={<CompleteCheck />}
       illustrationGap={8}
-      onClose={() => navigate("/")}
-      primaryAction={{ label: "홈으로 가기", onClick: () => navigate("/") }}
+      onClose={() => navigate(HOME_PATH)}
+      primaryAction={{
+        label: "홈으로 가기",
+        onClick: () => navigate(HOME_PATH),
+      }}
       secondaryAction={{
         label: "신청내역 보기",
         // 사물함 신청내역은 사물함 배정 상태 화면이다

@@ -1,3 +1,4 @@
+import { HOME_PATH } from "@/constants/paths";
 import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
 import {
   FEE_TRANSFER_STEP_OPTIONS,
@@ -30,10 +31,10 @@ const INITIAL_STATE = { context: {}, step: "semester" } as const;
 function FeeTransferScreen() {
   // 첫 단계의 뒤로가기 — 타고 들어왔으면 한 단계 뒤로, 플로우로 바로 들어왔으면(딥링크·앱
   // WebView 진입·주소 직접 입력) 홈으로 보낸다. `navigate(-1)`만 쓰면 먹통이 된다(#107 리뷰).
-  const goBackFromFlow = useBackNavigation("/");
+  const goBackFromFlow = useBackNavigation(HOME_PATH);
   // 플로우를 끝내거나 미루고 나갈 때 — 쌓인 단계만큼 되돌아가서, 나간 뒤 뒤로가기로 단계가
   // 되살아나지 않게 한다(#107 리뷰). 퍼널로 바로 들어왔으면 홈으로 치환한다.
-  const exitFunnel = useFunnelExit("/");
+  const exitFunnel = useFunnelExit(HOME_PATH);
   const funnel = useFunnel<FeeTransferSteps>({
     id: "fee",
     initial: INITIAL_STATE,

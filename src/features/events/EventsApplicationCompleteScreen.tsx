@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
+import { HOME_PATH } from "@/constants/paths";
 import EventsSummaryCard from "@/features/events/components/EventsSummaryCard";
 import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
 import { EVENTS_APPLICATION } from "@/features/events/constants/eventsApplication";
@@ -18,8 +19,11 @@ function EventsApplicationCompleteScreen() {
       illustration={<CompleteCheck />}
       illustrationGap={8}
       // 신청이 끝난 화면이라 닫으면 폼으로 돌아가지 않고 홈으로 나간다
-      onClose={() => navigate("/")}
-      primaryAction={{ label: "홈으로 가기", onClick: () => navigate("/") }}
+      onClose={() => navigate(HOME_PATH)}
+      primaryAction={{
+        label: "홈으로 가기",
+        onClick: () => navigate(HOME_PATH),
+      }}
       secondaryAction={{
         label: "신청내역 보기",
         onClick: () => navigate(EVENTS_TAB_PATHS.application),
