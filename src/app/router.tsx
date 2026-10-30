@@ -14,7 +14,9 @@ import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
 import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
 import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerScreen";
-import AuthEntryGate from "@/features/auth/AuthEntryGate";
+import AuthEntryGate, {
+  type AuthRouteHandle,
+} from "@/features/auth/AuthEntryGate";
 import AuthSignupScreen from "@/features/auth/AuthSignupScreen";
 import KConnectCallbackScreen from "@/features/auth/KConnectCallbackScreen";
 import BililgeListScreen from "@/features/bililge/BililgeListScreen";
@@ -59,12 +61,7 @@ const routes = [
       {
         children: [
           {
-            // 앱 첫 진입점 — 로그인한 기록이 없으면 로그인 화면으로 보낸다
-            element: (
-              <AuthEntryGate>
-                <HomeScreen />
-              </AuthEntryGate>
-            ),
+            element: <HomeScreen />,
             path: HOME_PATH,
           },
           {
@@ -292,20 +289,23 @@ const routes = [
           {
             element: <AuthSignupScreen />,
             // 로그인·온보딩 퍼널 하나가 모든 단계(로그인, 연락처, 약관 동의, 약관 상세, 가입 완료)를 그린다.
-            // Figma 로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다
+            // Figma 로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다. 로그인 전에도 열려야 해서 공개 라우트다
             handle: {
               background: "normal",
               hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
+              isPublic: true,
+            } satisfies ScreenRouteHandle & AuthRouteHandle,
             path: LOGIN_PATH,
           },
           {
             element: <KConnectCallbackScreen />,
-            // K-CONNECT 인증 후 되돌아오는 redirect URI — 경로는 K-CONNECT에 등록한 값(@billilge/oauth-kconnect 규약)이다
+            // K-CONNECT 인증 후 되돌아오는 redirect URI — 경로는 K-CONNECT에 등록한 값(@billilge/oauth-kconnect 규약)이다.
+            // 로그인을 마치기 전에 도착하는 화면이라 공개 라우트다
             handle: {
               background: "normal",
               hasBottomNav: false,
-            } satisfies ScreenRouteHandle,
+              isPublic: true,
+            } satisfies ScreenRouteHandle & AuthRouteHandle,
             path: "/oauth/kconnect",
           },
           {
@@ -384,7 +384,12 @@ const routes = [
             path: "*",
           },
         ],
-        element: <ScreenLayoutRoute />,
+        // 로그인 가드를 레이아웃 라우트 바깥에서 감싸 모든 화면에 건다(공개 라우트는 handle의 isPublic으로 표시)
+        element: (
+          <AuthEntryGate>
+            <ScreenLayoutRoute />
+          </AuthEntryGate>
+        ),
       },
     ],
     element: <App />,
