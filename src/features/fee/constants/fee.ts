@@ -3,7 +3,7 @@ import type { FeePaymentStatus } from "@/entities/fee/types";
 // 학생회비 계좌 송금 플로우 경로. 화면설계서(687:20584)에는 경로 표기 컬럼이 아예 없어서
 // 용어 사전(terminology.md)의 `회비 납부 → fee`와 "프론트 라우트 경로: /{코드 용어}" 규칙으로 정했다.
 // 단계(남은 학기 수·캡처 업로드·토스 이동·송금 확인·완료)는 이 경로 하나 안에서 useFunnel이
-// `?fee.step=`으로 나눈다 — 로그인·온보딩 퍼널(`/auth`)과 같은 방식이다.
+// `?fee.step=`으로 나눈다 — 로그인·온보딩 퍼널(`/login`)과 같은 방식이다.
 export const FEE_TRANSFER_PATH = "/fee/transfer";
 
 // 학생회비 납부내역 화면 경로

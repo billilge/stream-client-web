@@ -2,13 +2,10 @@ import { useKConnectCallback } from "@billilge/oauth-kconnect/react";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { HOME_PATH } from "@/constants/paths";
+import { HOME_PATH, LOGIN_PATH } from "@/constants/paths";
 import { exchangeKConnectCode } from "@/entities/auth/authApi";
 import { markLoggedIn } from "@/entities/auth/session";
-import {
-  AUTH_PATH,
-  LOGIN_FAILURE_MESSAGE,
-} from "@/features/auth/constants/auth";
+import { LOGIN_FAILURE_MESSAGE } from "@/features/auth/constants/auth";
 import type { AuthLocationState } from "@/features/auth/utils/authLocationState";
 
 // K-CONNECT가 인증을 마치고 되돌려 보내는 redirect URI 라우트(`/oauth/kconnect`) — 경로는 K-CONNECT에 등록한
@@ -29,7 +26,7 @@ function KConnectCallbackScreen() {
     hasHandled.current = true;
 
     const goBackToLogin = () =>
-      navigate(AUTH_PATH, {
+      navigate(LOGIN_PATH, {
         replace: true,
         state: { loginFailed: true } satisfies AuthLocationState,
       });
@@ -47,7 +44,7 @@ function KConnectCallbackScreen() {
     exchangeKConnectCode({ code, codeVerifier, redirectUri })
       .then((user) => {
         if (user.isNewUser) {
-          navigate(AUTH_PATH, {
+          navigate(LOGIN_PATH, {
             replace: true,
             state: { kConnectName: user.name } satisfies AuthLocationState,
           });

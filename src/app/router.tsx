@@ -9,7 +9,7 @@ import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenLayoutRoute, {
   type ScreenRouteHandle,
 } from "@/app/ScreenLayoutRoute";
-import { HOME_PATH } from "@/constants/paths";
+import { HOME_PATH, LOGIN_PATH } from "@/constants/paths";
 import ArchivesDetailScreen from "@/features/archives/ArchivesDetailScreen";
 import ArchivesListScreen from "@/features/archives/ArchivesListScreen";
 import ArchivesPhotosScreen from "@/features/archives/ArchivesPhotosScreen";
@@ -297,7 +297,7 @@ const routes = [
               background: "normal",
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
-            path: "/auth",
+            path: LOGIN_PATH,
           },
           {
             element: <KConnectCallbackScreen />,

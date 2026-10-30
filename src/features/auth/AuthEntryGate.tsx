@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 
+import { LOGIN_PATH } from "@/constants/paths";
 import { isLoggedIn } from "@/entities/auth/session";
-import { AUTH_PATH } from "@/features/auth/constants/auth";
 
 interface AuthEntryGateProps {
   children: ReactNode;
@@ -15,7 +15,7 @@ interface AuthEntryGateProps {
 // 이 가드가 로그인 화면으로 보낸다.
 function AuthEntryGate({ children }: AuthEntryGateProps) {
   if (!isLoggedIn()) {
-    return <Navigate replace to={AUTH_PATH} />;
+    return <Navigate replace to={LOGIN_PATH} />;
   }
   return children;
 }
