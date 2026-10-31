@@ -260,7 +260,7 @@ WDS에 `FallbackView`/`FallbackViewImage`/`FallbackViewContent`/`FallbackViewTex
 | 컨테이너 폭 | 335 / 400 | 203px |
 | 타이틀 색 | `label.normal` | `label/neutral` |
 
-내부 패딩·폭·색을 오버라이드해야 맞출 수 있어서(`component-convention.md` "WDS 컴포넌트 내부를 임의로 오버라이드하지 않는다") 바깥 레이아웃만 로컬로 짜고 내부 요소(`Typography`, `Button`)는 WDS로 채웠다. `src/features/events/components/EventsEmptyState.tsx` 참고.
+내부 패딩·폭·색을 오버라이드해야 맞출 수 있어서(`component-convention.md` "WDS 컴포넌트 내부를 임의로 오버라이드하지 않는다") 바깥 레이아웃만 로컬로 짜고 내부 요소(`Typography`, `Button`)는 WDS로 채웠다. 행사·열린피드백·알림·검색·사물함이 각자 만들어 쓰던 것을 #147에서 공용 `src/components/ui/EmptyState.tsx` 하나로 합쳤다 — 그림·제목·설명·버튼을 받고, 화면마다 다른 점은 `descriptionWeight`(행사 목록만 Medium)·`action.variant`(행사 outlined / 열린피드백 solid)·`titleVariant`(사물함 배정 상태만 body2)로 고른다. 그림 자리는 81px로 통일했다(알림·검색은 Figma가 80px이라 1px 차이).
 
 ### Empty State 버튼은 `Button variant="outlined" color="assistive"`가 정확히 일치한다
 
@@ -658,7 +658,7 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 | 빈 상태 버튼 `열린피드백 작성하기` / `열린피드백 보러 가기` | `Button color="assistive" size="small" variant="solid"` | 행사 목록 빈 상태(outlined)와 variant가 다르다 |
 | 뒤로가기 헤더 | `ScreenHeader variant="normal"` + `TopNavigationButton` | `useBackNavigation(fallbackPath)`(`hooks/`) — 바로 들어와 뒤로 갈 기록이 없으면 홈(상세는 목록, 위치 보기는 배정 상태)으로 보낸다. 대비 경로는 각 기능 `constants`의 경로 상수(`FEE_PAYMENTS_PATH`·`MY_FEEDBACKS_PATH`·`LOCKER_ASSIGNMENT_PATH` 등)를 쓰고, 데이터가 없을 때의 `<Navigate>`도 화면이 넘긴 `fallbackPath`로 간다 |
 
-- **카드·빈 상태는 Stream 로컬**: 작성내역 카드(`FeedbacksHistoryCard`)와 학생회비 확인 내용 카드, 배정된 사물함 카드는 흰 바탕 `rounded-xl p-4` 로컬 카드다. 학생회비 납부 요약과 사물함 배정 요약(배지 + 제목 + 라벨/값 행)은 행사 신청내역 상세 요약과 같은 공용 `StatusSummaryCard`(`components/ui/`)를 쓴다 — 행 내용은 각 기능(`FeePaymentCard`·`LockersAssignmentContent`)이 만들어 넘긴다. 행 간격은 6px로, Figma 학생회비 카드(`3147:147860`)만 8px로 그려진 건 디자인 실수로 보고 맞췄다(#120). 로딩 중에는 같은 파일의 `StatusSummaryCardSkeleton`(행 수만큼 `rowWidths`)이 카드와 같은 높이·간격으로 자리를 채운다. 빈 상태는 행사 목록 Empty State와 같은 이유(`FallbackView`의 일러스트 크기·패딩 고정)로 로컬이다. 열린피드백은 `FeedbacksEmptyState`(그림 `icons/feedbacks/empty-feedback.svg`)를 쓰고, 사물함은 `LockersEmptyState`(그림은 행사 목록과 같은 `icons/common/empty-events.svg`)를 쓴다.
+- **카드·빈 상태는 Stream 로컬**: 작성내역 카드(`FeedbacksHistoryCard`)와 학생회비 확인 내용 카드, 배정된 사물함 카드는 흰 바탕 `rounded-xl p-4` 로컬 카드다. 학생회비 납부 요약과 사물함 배정 요약(배지 + 제목 + 라벨/값 행)은 행사 신청내역 상세 요약과 같은 공용 `StatusSummaryCard`(`components/ui/`)를 쓴다 — 행 내용은 각 기능(`FeePaymentCard`·`LockersAssignmentContent`)이 만들어 넘긴다. 행 간격은 6px로, Figma 학생회비 카드(`3147:147860`)만 8px로 그려진 건 디자인 실수로 보고 맞췄다(#120). 로딩 중에는 같은 파일의 `StatusSummaryCardSkeleton`(행 수만큼 `rowWidths`)이 카드와 같은 높이·간격으로 자리를 채운다. 빈 상태는 행사 목록 Empty State와 같은 이유(`FallbackView`의 일러스트 크기·패딩 고정)로 로컬이다. 둘 다 공용 `EmptyState`를 쓴다 — 열린피드백은 그림 `icons/feedbacks/empty-feedback.svg` + solid 버튼, 사물함은 행사 목록과 같은 `icons/common/empty-events.svg`에 제목만(`titleVariant="body2"`).
 - **답변 강조 표시는 두 상세 화면이 공유한다**: 답변 글의 `**굵게**`를 볼드 `Typography`로 바꾸는 `FeedbacksAnswerText`를 모아보기 상세와 작성내역 상세가 같이 쓴다.
 - **사물함 위치 보기(`/my/locker/location`)는 Figma에 없다**: 칸 선택 화면 배치를 보기 전용으로 쓴다. 칸 영역(미니맵·확대 스크롤)은 `LockersMapView`로 두 화면이 공유하고, 범례는 화면이 `legend`로 넘긴다(신청 `<LockersLegend />`, 위치 보기 `<LockersLegend variant="mine" />` — "내 사물함" 하나). 내 칸은 배정 정보(`lockerLabel`) 하나에서 정해서 `selectedLockerNumber`로 넘기고, 선택된 칸 모양(Primary/Normal 배경 + 흰 번호)으로 그린다. 보기 전용 여부는 `onSelect`가 없는지로만 판단하고, 이때 칸을 버튼으로 그리지 않는다. 처음 열 때 선택된 칸(`data-selected`)이 화면 밖이면 보일 만큼만 스크롤한다. 신청 화면의 내 칸(구역 목데이터 `isMine`, 초록 테두리, 선택 불가)은 보기 전용에서는 그리지 않는다.
 - **Figma와 다르게 둔 값**: 요일은 날짜로 계산해서 Figma의 요일 표기와 다를 수 있다. 사물함 번호는 칸 배치 목데이터가 있는 A-1 구역에 맞춰 A-7로 두었다(Figma는 B-25). 사물함 빈 상태 문구의 연도는 기기 시계의 올해다(API 연동 때 서버 값으로 — 코드에 TODO). 날짜는 `lib/date`의 `formatDate`·`formatDateTime`으로 맞추고, 작성내역 상세만 Figma(`3147:147756`)대로 `2026-04-25` 하이픈 표기다.
@@ -675,7 +675,7 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 | 상세 문항 `Control/Checkbox`·`Control/Radio`·`Textinput/Textarea` | 신청 폼의 `EventsQuestionField` 재사용 | `readOnly`로 읽기 전용(선택 표시는 그대로, 바꿀 수 없음). 입력 폼은 `onAnswerChange`가 필수라 빠뜨리면 타입 검사에서 걸린다. 신청취소 상세는 `disabled`로 WDS 비활성 모양을 쓰고, 선택지 글자는 `Label/Disable`(Figma `1133:46240`) |
 
 - **카드·요약은 Stream 로컬**: 신청내역 카드(`EventsApplicationCard`, 70px 회색 썸네일 + 배지·제목·일시 + 버튼 2개)는 행사 로컬이다. 상세 요약은 공용 `StatusSummaryCard`이고, `EventsApplicationSummary`는 "행사·신청·(취소)" 행만 만들어 넘긴다. 신청 폼·완료 화면의 `EventsSummaryCard`(아이콘 + 일시·장소)와는 다른 카드다.
-- **빈 상태는 `EventsEmptyState` 재사용**: 버튼은 `action={{ label, onClick }}` 한 묶음으로 받아서 동작 없는 버튼이 생기지 않는다(신청내역 "행사 둘러보기" → `/events`, 행사 목록 모집중 "아카이빙 둘러보기" → `ARCHIVES_PATH`). 그림·버튼 모양은 행사 목록 빈 상태와 같고, 설명 굵기만 다르다(행사 목록 Medium, 신청내역 Regular) — `descriptionWeight`로 고른다. 위치는 목록 영역 가운데가 아니라 Figma대로 토글 아래 176px이다.
+- **빈 상태는 공용 `EmptyState`**: 버튼은 `action={{ label, onClick }}` 한 묶음으로 받아서 동작 없는 버튼이 생기지 않는다(신청내역 "행사 둘러보기" → `/events`, 행사 목록 모집중 "아카이빙 둘러보기" → `ARCHIVES_PATH`). 그림·버튼 모양은 행사 목록 빈 상태와 같고, 설명 굵기만 다르다(행사 목록 Medium, 신청내역 Regular) — `descriptionWeight`로 고른다. 위치는 목록 영역 가운데가 아니라 Figma대로 토글 아래 176px이다.
 - **탭은 경로로 나눈다**: 행사 `/events`, 신청내역 `/events/applications`, 상세 `/events/applications/:applicationId`. 같은 목록 화면을 라우터가 `tab` prop(`"event"`/`"application"`)으로 골라 넘기고(화면이 주소를 비교하지 않아 끝에 `/`가 붙어도 맞다), 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않는다. 신청내역 탭은 Figma에 상태 필터 행이 없어서 숨긴다. 하단 탭은 신청내역 라우트 `handle`의 `bottomNavValue: "event"`로 "행사"가 선택된다.
 - **취소는 목록까지 반영된다**: 취소 API(`cancelMyEventApplication`)가 목데이터를 바꾸고 목록·상세 조회 캐시를 지운다(조회·무효화가 같은 `eventsKeys`로 key를 만든다). 요청·토스트 상태는 `useEventsApplicationCancel` 훅이 맡고, 토스트 문구·색은 `CANCEL_TOASTS` 한 곳에 있다. 다시 그리는 업데이트를 transition으로 묶어 새 데이터를 받는 동안 스켈레톤 대신 지금 화면을 유지하고, 토스트는 취소된 화면과 함께 뜬다. 실패 토스트 문구("신청 취소에 실패했어요. 다시 시도해 주세요.")는 Figma에 없어 임의로 정했다.
 
@@ -701,7 +701,7 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 
 ### Empty State는 폭을 고정하지 않는다
 
-행사·검색 empty와 같은 뼈대지만 Figma 컨테이너 폭 203px은 가장 긴 문구("새로운 소식이 있으면 알려 드릴게요.")에 맞춘 값이다. `w-[203px]`로 고정하면 폰트 폭이 0.2px만 넓어도(Pretendard를 못 불러온 환경에서 실제로 203.2px) 마지막 글자 "요."가 다음 줄로 넘어간다 — 문구 폭에 맡긴다. 수직 위치는 프레임 전체 높이 기준 가운데(헤더 56px만큼 `pb-14`로 올림)이고, 812px 뷰포트에서 중심이 406px로 Figma와 같다.
+공용 `EmptyState`의 규칙이다(처음엔 알림 빈 상태에서만 고쳤다가 #147에서 공용으로 합치며 행사·검색에도 적용됐다). Figma 컨테이너 폭 203px은 가장 긴 문구("새로운 소식이 있으면 알려 드릴게요.")에 맞춘 값이다. `w-[203px]`로 고정하면 폰트 폭이 0.2px만 넓어도(Pretendard를 못 불러온 환경에서 실제로 203.2px) 마지막 글자 "요."가 다음 줄로 넘어간다 — 문구 폭에 맡긴다. 수직 위치는 프레임 전체 높이 기준 가운데(헤더 56px만큼 `pb-14`로 올림)이고, 812px 뷰포트에서 중심이 406px로 Figma와 같다.
 
 ### 설정 화면의 "전체 알림"은 상태를 따로 두지 않는다
 
