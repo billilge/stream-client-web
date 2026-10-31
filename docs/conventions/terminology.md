@@ -35,6 +35,10 @@
 - 그 안의 컴포넌트/타입/상수 이름의 도메인 접두사 — 코드 용어를 PascalCase로 바꿔서 쓴다 (예: `bililge` → `Bililge...`, `bililgeItems` 같은 camelCase 변수명도 동일)
 - Figma 노드/화면 이름은 그대로 한글을 쓴다(디자이너와의 소통 채널이라 번역하지 않음) — 코드 파일 최상단의 `// Figma: ...` 주석에서만 한글 화면명을 남긴다.
 
+## 예외
+
+- 홈(`/home`)과 로그인(`/login`)은 백엔드 엔드포인트와 짝이 있는 도메인이 아니라 화면 진입 경로라서, `/{코드 용어}` 규칙 대신 일반적인 경로 이름을 쓴다. 두 경로는 상수 `HOME_PATH`(`features/home/constants/home.ts`)·`LOGIN_PATH`(`features/auth/constants/auth.ts`)로 관리하고, 코드 폴더는 용어 사전대로 `features/auth/`를 쓴다. K-CONNECT redirect URI `/oauth/kconnect`는 K-CONNECT에 등록한 값이라 바꾸지 않는다.
+
 ## 반영 사례
 
 - "빌릴게" 기능: 처음엔 `rental`로 임의 명명했다가, 이 사전을 도입하면서 `src/features/rental/` → `src/features/bililge/`로 전체 리네이밍했다(#18).

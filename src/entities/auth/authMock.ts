@@ -33,7 +33,7 @@ export function readMockLogin(): string | null {
 }
 
 // 개발 서버에서 K-CONNECT 인증을 거치지 않고 "인증된 것으로 치고" 로그인 이후 흐름을 확인하는 우회다.
-// `/auth?mockKConnect=new`(신규 사용자 → 온보딩), `/auth?mockKConnect=existing`(기존 사용자 → 홈).
+// `/login?mockKConnect=new`(신규 사용자 → 온보딩), `/login?mockKConnect=existing`(기존 사용자 → 홈).
 // 호출하는 쪽이 `import.meta.env.DEV`일 때만 부르므로 배포 빌드에는 들어가지 않는다.
 export type MockKConnectKind = "new" | "existing";
 

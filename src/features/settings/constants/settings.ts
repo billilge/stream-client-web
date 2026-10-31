@@ -1,3 +1,5 @@
+import { LOGIN_PATH } from "@/features/auth/constants/auth";
+
 // 설정 화면들의 경로 — 홈 헤더·설정 화면이 같이 쓰므로 문자열을 흩지 않고 한곳에 둔다
 // (알림의 `NOTIFICATIONS_PATH`와 같은 방식). 경로와 컴포넌트 이름의 형태를 맞춘다
 // (`/withdrawal` ↔ `Withdrawal*`).
@@ -13,10 +15,8 @@ export const SETTINGS_PATHS = {
   withdrawalComplete: "/settings/withdrawal/complete",
 };
 
-// 로그아웃·회원 탈퇴로 계정을 떠난 뒤 나갈 곳. 둘 다 로그아웃 상태라 로그인/온보딩으로 가야
-// 하는데 그 화면이 아직 없어서(#110에서 들어온다) 지금은 홈으로 보낸다.
-// 바꿀 때는 이 값과 함께 useAccountExit 안쪽만 보면 된다.
-export const ACCOUNT_EXIT_PATH = "/";
+// 로그아웃·회원 탈퇴로 계정을 떠난 뒤 나갈 곳 — 둘 다 로그아웃 상태라 로그인 화면으로 간다.
+export const ACCOUNT_EXIT_PATH = LOGIN_PATH;
 
 // 의견 보내기·개인정보 처리방침은 화면을 따로 만들지 않고 구글폼으로 연결한다. 폼 주소가 아직
 // 없어서 빈 문자열로 두고, 값이 채워졌을 때만 새 탭으로 열도록 호출부에서 분기한다.

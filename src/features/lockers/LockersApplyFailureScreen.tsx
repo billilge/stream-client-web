@@ -11,6 +11,7 @@ import documentLock from "@/assets/icons/common/document-lock.svg";
 import networkOffline from "@/assets/icons/common/network-offline.svg";
 import ResultScreen from "@/components/ui/ResultScreen";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
+import { HOME_PATH } from "@/features/home/constants/home";
 import {
   LOCKERS_APPLY_SUBMITTING_TEXT,
   type LockersApplyFailureReason,
@@ -53,7 +54,7 @@ const FAILURE_CONTENTS: Record<
     description: "다음 기회에 다시 이용해 주세요.",
     hasHomeAction: false,
     illustration: LOCK_ILLUSTRATION,
-    primaryAction: { label: "홈으로 가기", onClick: () => navigate("/") },
+    primaryAction: { label: "홈으로 가기", onClick: () => navigate(HOME_PATH) },
     title: "사물함 신청이 모두 마감됐어요",
   }),
   network: ({ retry }) => ({
@@ -109,7 +110,7 @@ function LockersApplyFailureScreen() {
   const { isSubmitting, submit } = useLockersApplySubmit(sectionId);
 
   if (!isFailureReason(reason)) {
-    return <Navigate replace to="/" />;
+    return <Navigate replace to={HOME_PATH} />;
   }
 
   const content = FAILURE_CONTENTS[reason]({
@@ -124,7 +125,7 @@ function LockersApplyFailureScreen() {
 
   // 신청 직후에만 오는 화면이라, 주소로 바로 들어와 다시 신청할 사물함을 모르면 홈으로 보낸다
   if (content.needsRetryRequest && !state?.request) {
-    return <Navigate replace to="/" />;
+    return <Navigate replace to={HOME_PATH} />;
   }
 
   return (
@@ -133,11 +134,11 @@ function LockersApplyFailureScreen() {
         contentAlign="center"
         description={content.description}
         illustration={content.illustration}
-        onClose={() => navigate("/")}
+        onClose={() => navigate(HOME_PATH)}
         primaryAction={content.primaryAction}
         secondaryAction={
           content.hasHomeAction
-            ? { label: "홈으로 가기", onClick: () => navigate("/") }
+            ? { label: "홈으로 가기", onClick: () => navigate(HOME_PATH) }
             : undefined
         }
         title={content.title}

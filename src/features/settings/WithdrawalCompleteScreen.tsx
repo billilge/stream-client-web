@@ -2,6 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 
 import CompleteCheck from "@/components/ui/CompleteCheck";
 import ResultScreen from "@/components/ui/ResultScreen";
+import { HOME_PATH } from "@/features/home/constants/home";
 import { useAccountExit } from "@/features/settings/hooks/useAccountExit";
 import type { WithdrawalCompleteState } from "@/features/settings/types";
 
@@ -20,7 +21,7 @@ function WithdrawalCompleteScreen() {
   // 보여 주는 내용 자체는 민감하지 않지만, 뒤이어 붙을 "탈퇴 처리" 호출은 반드시 서버가
   // 세션으로 본인 확인을 해야 한다. 백엔드 연동 때 같이 확인할 것.
   if (!state?.withdrawn) {
-    return <Navigate replace to="/" />;
+    return <Navigate replace to={HOME_PATH} />;
   }
 
   return (
