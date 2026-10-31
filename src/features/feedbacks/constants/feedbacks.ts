@@ -1,12 +1,13 @@
-import type { FilterChipOption } from "@/components/ui/FilterChipGroup";
-import type { Feedback } from "@/entities/feedbacks/types";
+import type { Feedback, FeedbackRound } from "@/entities/feedbacks/types";
 
-export const FEEDBACK_ROUND_FILTERS: FilterChipOption[] = [
-  { label: "전체", value: "all" },
-  { label: "1차", value: "1차" },
-  { label: "2차", value: "2차" },
-  { label: "3차", value: "3차" },
-  { label: "4차", value: "4차" },
+// "전체 피드백" 필터는 연도와 차수를 같이 건다. 이 값이면 그 조건으로는 거르지 않는다.
+export const FEEDBACK_FILTER_ALL = "all";
+
+export const FEEDBACK_ROUNDS: readonly FeedbackRound[] = [
+  "1차",
+  "2차",
+  "3차",
+  "4차",
 ];
 
 // 열린피드백 작성내역 목록·상세 경로

@@ -69,6 +69,7 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 | `Icon/Normal/Chevron Down` | 아카이빙 목록 화면 연도 필터 "~2023" 칩 트레일링 아이콘 | `487:18965` |
 | `Menu/Menu` | 아카이빙 목록 - 이전 연도 드롭다운(`1529:172165`) 연도 목록 | `820:40656` — [문서](https://montage.wanted.co.kr/docs/components/presentation/menu/design) |
 | `List Cell/List Cell` | 위 `Menu/Menu` 안의 각 연도 항목 | `445:5923` — [문서](https://montage.wanted.co.kr/docs/components/contents/list-cell/design) |
+| `Menu/Menu` (Variant=Normal, Cell Padding=8px) | 열린피드백 "전체" 칩 연도 드롭다운(`1524:167867`) | `820:40657` — 항목 높이 40px(위아래 8px). WDS `MenuItem` 기본 `verticalPadding`은 `medium`(12px → 48px)이라 `verticalPadding="small"`(8px)을 준다 |
 | `Top Navigation/Resource/Contents` (타이틀 없는 투명 헤더) | 아카이빙 상세(`1526:171215`) 대표 사진 위 뒤로가기·공유 버튼 | `ScreenHeader variant="floating"` → `TopNavigation variant="floating" background={false}` |
 | `Icon/Normal/Share` | 아카이빙 상세 Top Navigation 트레일링 공유 버튼 | `1490:167136` |
 | `Page Indicator/Counter` (Size=Small, Alternative=True) | 현장 사진 뷰어(`1526:171364`) 하단 "4 / 23" 카운터 | `471:13818` — [문서](https://montage.wanted.co.kr/docs/components/navigations/page-counter/design), 코드 `PageCounter size="small" alternative` |

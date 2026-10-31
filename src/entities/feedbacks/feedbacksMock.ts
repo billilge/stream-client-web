@@ -19,6 +19,7 @@ export const FEEDBACKS: Feedback[] = [
     id: "1",
     question: "MT 참가 비용이 다소 비싼 편이라 부담스러웠어요.",
     round: "2차",
+    year: "2026",
   },
   {
     answer:
@@ -27,6 +28,7 @@ export const FEEDBACKS: Feedback[] = [
     id: "2",
     question: "목요일에 개강총회를 진행해서 다음 날 부담이 적어 좋았습니다.",
     round: "2차",
+    year: "2026",
   },
   {
     answer: "건의해주신 내용은 다음 학생회 운영위에서 함께 논의하겠습니다.",
@@ -34,6 +36,7 @@ export const FEEDBACKS: Feedback[] = [
     id: "3",
     question: "동아리방 냉난방기 가동 시간을 조금 더 늘려주시면 좋겠습니다.",
     round: "1차",
+    year: "2026",
   },
   {
     answer: "안내드린 대로 다음 공지에 상세 시간표를 함께 첨부하겠습니다.",
@@ -42,6 +45,7 @@ export const FEEDBACKS: Feedback[] = [
     question:
       "축제 공연 시간표를 미리 공지해주시면 일정을 맞추기 편할 것 같아요.",
     round: "3차",
+    year: "2026",
   },
   {
     answer: "학생증 재발급 신청 절차를 학과 사무실과 다시 공유드리겠습니다.",
@@ -49,6 +53,27 @@ export const FEEDBACKS: Feedback[] = [
     id: "5",
     question: "학생증 재발급 절차가 헷갈려서 안내가 더 필요해요.",
     round: "4차",
+    year: "2026",
+  },
+  // 연도 드롭다운(1524:167569)으로 거를 수 있게 지난 연도 피드백을 둔다. 답변이 없어서
+  // "최근 피드백" 캐러셀에는 안 나오고 전체 피드백 목록에만 보인다.
+  {
+    id: "6",
+    question: "시험 기간에 과방을 늦게까지 열어주시면 좋겠어요.",
+    round: "2차",
+    year: "2025",
+  },
+  {
+    id: "7",
+    question: "신입생 OT 일정이 너무 늦게 공지돼서 아쉬웠어요.",
+    round: "1차",
+    year: "2025",
+  },
+  {
+    id: "8",
+    question: "졸업 사진 촬영 날짜를 미리 알려주시면 좋겠습니다.",
+    round: "3차",
+    year: "2024",
   },
 ];
 
@@ -63,6 +88,7 @@ const MY_FEEDBACKS: MyFeedback[] = [
     question:
       "다양한 학과 전공 관련 대회나 활동을 통해 포트폴리오를 채워나갈 수 있는 활동이 좋았습니다. 3~5명 정도의 원하는 사람들과 팀을 구성해서 나갈 수 있는 대회나 공모전 정보가 더 많았으면 좋겠어요.",
     round: "2차",
+    year: "2026",
   },
 ];
 
