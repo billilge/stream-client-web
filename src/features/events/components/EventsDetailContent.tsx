@@ -10,8 +10,13 @@ import { use } from "react";
 
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import { fetchEvent } from "@/entities/events/eventsApi";
+import { fetchMyFeeStatus } from "@/entities/fee/feeApi";
 import EventsEmptyState from "@/features/events/components/EventsEmptyState";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
+import {
+  EVENTS_FEE_PAID_ONLY_LABEL,
+  getEventAudience,
+} from "@/features/events/constants/events";
 
 interface EventsDetailContentProps {
   eventId: string;
@@ -19,7 +24,7 @@ interface EventsDetailContentProps {
   onApply: (eventId: string) => void;
 }
 
-// Figma: 행사 상세 (nodeId 1133:42433 모집중 / 1156:53992 모집예정)
+// Figma: 행사 상세 (nodeId 1133:42433 모집중 / 1156:53992 모집예정 / 1156:54125 모집종료)
 // 행사 데이터를 받아 그리는 부분. 데이터를 받는 동안은 EventsDetailScreen의 Suspense가
 // EventsDetailSkeleton을 보여준다. 이동 같은 화면 동작은 Screen이 콜백으로 넘긴다.
 //
@@ -28,13 +33,17 @@ interface EventsDetailContentProps {
 // 훅을 호출하지 않으면 슬롯이 null(0px)로 남아서, Hero가 화면 최상단부터 시작한다.
 // 공용 ScreenHeader에 overlay 옵션을 넣는 방안도 검토했지만 다른 화면에 영향이 가서 로컬로 뒀다.
 //
-// 상태별로 갈리는 건 뱃지와 하단 CTA뿐이다 — 모집중만 활성이고 나머지는 disabled에
-// 목데이터의 actionLabel("8월 10일 오픈" / "모집종료")이 그대로 들어간다(목록 카드와 같은 규칙).
+// 상태별로 갈리는 건 뱃지와 하단 CTA뿐이다.
+// - 모집중: 활성. 단 학생회비 납부자 전용인데 미납이면 disabled에 "학생회비 납부자만 신청할 수 있어요"
+// - 모집예정: disabled에 목데이터의 actionLabel("8월 10일 오픈")
+// - 모집종료: Figma "CTA 없음"(1156:54125)대로 하단 버튼(Action Area)을 그리지 않는다
 function EventsDetailContent({
   eventId,
   onBack,
   onApply,
 }: EventsDetailContentProps) {
+  // 납부 상태는 행사 응답을 기다리지 않고 같이 요청해 두고, 납부자 전용 행사일 때만 읽는다
+  const feeStatusPromise = fetchMyFeeStatus();
   const event = use(fetchEvent(eventId));
 
   if (!event) {
@@ -48,7 +57,13 @@ function EventsDetailContent({
     );
   }
 
-  const isOpen = event.status === "open";
+  const isFeeRequired = event.feePaidOnly && use(feeStatusPromise) !== "paid";
+  const canApply = event.status === "open" && !isFeeRequired;
+  const actionLabel =
+    event.status === "open" && isFeeRequired
+      ? EVENTS_FEE_PAID_ONLY_LABEL
+      : event.actionLabel;
+  const hasActionArea = event.status !== "closed";
   const hasMultipleImages = event.imageCount > 1;
 
   return (
@@ -133,7 +148,7 @@ function EventsDetailContent({
                 </Typography>
                 {/* 대상만 여러 줄 — Figma도 한 값 안에서 줄을 나눠 놨다 */}
                 <div className="flex flex-col">
-                  {event.audience.map((line) => (
+                  {getEventAudience(event).map((line) => (
                     <Typography
                       color="semantic.label.neutral"
                       key={line}
@@ -164,27 +179,30 @@ function EventsDetailContent({
 
         {/* Action Area가 본문을 덮으므로 끝부분이 영구히 가리지 않도록 같은 높이를 비워둔다.
             96px = Action Area 위아래 padding 20+20 + 버튼 56. 데스크톱 프레임에서는
-            홈 인디케이터 여백 14px이 더 붙는다(아래 filler와 같은 규칙). */}
-        <div className="h-24 sm:h-[110px]" />
+            홈 인디케이터 여백 14px이 더 붙는다(아래 filler와 같은 규칙).
+            모집종료는 Action Area가 없어서 이 여백도 두지 않는다 — Figma(1156:54125)도 본문에서 끝난다. */}
+        {hasActionArea && <div className="h-24 sm:h-[110px]" />}
       </div>
 
-      <div className="absolute inset-x-0 bottom-0">
-        <ActionArea background>
-          {/* WDS ActionAreaButton은 항상 Button size="large"(padding 12px 28px → 48px)로 그리는데,
-              Figma Main Action은 padding 16px 28px(56px)이라 세로 padding만 sx로 맞춘다. */}
-          <ActionAreaButton
-            disabled={!isOpen}
-            onClick={() => onApply(event.id)}
-            sx={{ paddingBlock: "16px" }}
-          >
-            {event.actionLabel}
-          </ActionAreaButton>
-        </ActionArea>
-        {/* Figma Action Area(110px)는 버튼 아래가 iOS Home Bar 여백까지 합쳐 34px인데,
-            WDS ActionArea는 아래 padding 20px만 준다 — 모자란 14px을 여기서 더한다.
-            앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다(BottomNav와 같은 규칙). */}
-        <div className="h-safe-bottom-extra bg-background-elevated-normal sm:h-[14px]" />
-      </div>
+      {hasActionArea && (
+        <div className="absolute inset-x-0 bottom-0">
+          <ActionArea background>
+            {/* WDS ActionAreaButton은 항상 Button size="large"(padding 12px 28px → 48px)로 그리는데,
+                Figma Main Action은 padding 16px 28px(56px)이라 세로 padding만 sx로 맞춘다. */}
+            <ActionAreaButton
+              disabled={!canApply}
+              onClick={() => onApply(event.id)}
+              sx={{ paddingBlock: "16px" }}
+            >
+              {actionLabel}
+            </ActionAreaButton>
+          </ActionArea>
+          {/* Figma Action Area(110px)는 버튼 아래가 iOS Home Bar 여백까지 합쳐 34px인데,
+              WDS ActionArea는 아래 padding 20px만 준다 — 모자란 14px을 여기서 더한다.
+              앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다(BottomNav와 같은 규칙). */}
+          <div className="h-safe-bottom-extra bg-background-elevated-normal sm:h-[14px]" />
+        </div>
+      )}
     </div>
   );
 }
