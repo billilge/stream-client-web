@@ -1,9 +1,10 @@
 import { Divider } from "@wanteddev/wds";
 import { Fragment, use } from "react";
 
+import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
+import EmptyState from "@/components/ui/EmptyState";
 import { fetchEvents } from "@/entities/events/eventsApi";
 import EventsCard from "@/features/events/components/EventsCard";
-import EventsEmptyState from "@/features/events/components/EventsEmptyState";
 
 // Figma: 행사 모집중 empty (nodeId 1165:62713)는 "모집중" 필터 버전만 준다 —
 // 일러스트·레이아웃·"아카이빙 둘러보기" 버튼이 이 조합의 스펙이다.
@@ -63,13 +64,15 @@ function EventsList({
       // 카드 목록과 같은 gap-6 래퍼 안에 넣으면 flex-1이 높이를 못 받아 위에 붙어버려서,
       // 빈 목록일 때는 래퍼를 대체해 h-full로 가운데 정렬한다.
       <div className="flex h-full items-center justify-center">
-        <EventsEmptyState
+        <EmptyState
           action={
             emptyState.hasArchivesAction
               ? { label: "아카이빙 둘러보기", onClick: onBrowseArchives }
               : undefined
           }
           description={emptyState.description}
+          descriptionWeight="medium"
+          illustration={emptyEventsIllustration}
           title={emptyState.title}
         />
       </div>
