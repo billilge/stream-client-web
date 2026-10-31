@@ -2,9 +2,10 @@ import { Button, Typography } from "@wanteddev/wds";
 import { IconChevronRight } from "@wanteddev/wds-icon";
 import { use } from "react";
 
+import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
+import EmptyState from "@/components/ui/EmptyState";
 import StatusSummaryCard from "@/components/ui/StatusSummaryCard";
 import { fetchMyLockerAssignment } from "@/entities/lockers/lockersApi";
-import LockersEmptyState from "@/features/lockers/components/LockersEmptyState";
 import { LOCKER_STATUS_BADGES } from "@/features/lockers/constants/lockers";
 import { formatDate, formatDateTime } from "@/lib/date";
 
@@ -27,7 +28,11 @@ function LockersAssignmentContent({
     const year = new Date().getFullYear();
     return (
       <div className="flex justify-center pt-50">
-        <LockersEmptyState title={`${year} 사물함 신청내역이 없어요`} />
+        <EmptyState
+          illustration={emptyEventsIllustration}
+          title={`${year} 사물함 신청내역이 없어요`}
+          titleVariant="body2"
+        />
       </div>
     );
   }
