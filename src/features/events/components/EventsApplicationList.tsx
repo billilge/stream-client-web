@@ -1,9 +1,10 @@
 import { Divider } from "@wanteddev/wds";
 import { Fragment, use } from "react";
 
+import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
+import EmptyState from "@/components/ui/EmptyState";
 import { fetchMyEventApplications } from "@/entities/events/eventsApi";
 import EventsApplicationCard from "@/features/events/components/EventsApplicationCard";
-import EventsEmptyState from "@/features/events/components/EventsEmptyState";
 
 interface EventsApplicationListProps {
   onSelectEvent: (eventId: string) => void;
@@ -24,10 +25,10 @@ function EventsApplicationList({
     return (
       // Figma는 가운데가 아니라 토글 아래 176px에 둔다(1165:63551, Empty State y=318)
       <div className="flex justify-center pt-44">
-        <EventsEmptyState
+        <EmptyState
           action={{ label: "행사 둘러보기", onClick: onBrowseEvents }}
           description="관심 있는 행사를 신청해 보세요"
-          descriptionWeight="regular"
+          illustration={emptyEventsIllustration}
           title="아직 신청한 행사가 없어요"
         />
       </div>

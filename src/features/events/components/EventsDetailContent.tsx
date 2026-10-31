@@ -8,10 +8,11 @@ import {
 import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { use } from "react";
 
+import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
+import EmptyState from "@/components/ui/EmptyState";
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import { fetchEvent } from "@/entities/events/eventsApi";
 import { fetchMyFeeStatus } from "@/entities/fee/feeApi";
-import EventsEmptyState from "@/features/events/components/EventsEmptyState";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
 import {
   EVENTS_FEE_PAID_ONLY_LABEL,
@@ -49,8 +50,10 @@ function EventsDetailContent({
   if (!event) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <EventsEmptyState
+        <EmptyState
           description="목록에서 다시 선택해 주세요"
+          descriptionWeight="medium"
+          illustration={emptyEventsIllustration}
           title="행사를 찾을 수 없어요"
         />
       </div>
