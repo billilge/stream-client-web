@@ -49,12 +49,28 @@ function LockersCell({ locker, isSelected, onSelect }: LockersCellProps) {
 
   // 보기 전용으로 표시하는 칸(내 칸)은 서버에서 선택 불가로 와도(이미 배정됨) 선택 모양으로 그린다
   if (!locker.isAvailable && !isSelected) {
+    if (isViewOnly) {
+      return (
+        <img
+          alt={`${locker.lockerLabel} 선택 불가`}
+          className="size-7"
+          src={lockerUnavailableIcon}
+        />
+      );
+    }
+
+    // 선택 불가 칸도 누를 수는 있다 — Figma "선택 불가능한 사물함 선택 시 토스트"(2212:160304)처럼
+    // 화면이 안내 토스트를 띄운다. 고를 수 없는 칸이라는 건 aria-disabled로 알린다(disabled를 쓰면 눌리지 않는다).
     return (
-      <img
-        alt={`${locker.lockerLabel} 선택 불가`}
+      <button
+        aria-disabled
+        aria-label={`${locker.lockerLabel} 선택 불가`}
         className="size-7"
-        src={lockerUnavailableIcon}
-      />
+        onClick={() => onSelect(locker.lockerNumber)}
+        type="button"
+      >
+        <img alt="" className="size-7" src={lockerUnavailableIcon} />
+      </button>
     );
   }
 
