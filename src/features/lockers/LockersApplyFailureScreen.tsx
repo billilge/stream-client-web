@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 
 import documentLock from "@/assets/icons/common/document-lock.svg";
-import networkOffline from "@/assets/icons/common/network-offline.svg";
+import ErrorScreen from "@/components/ui/ErrorScreen";
 import ResultScreen from "@/components/ui/ResultScreen";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import {
@@ -27,10 +27,18 @@ const LOCK_ILLUSTRATION = (
   </div>
 );
 
+// 네트워크 오류 (nodeId 3013:99162)·서버 오류 (3013:99183)는 공통 오류 화면(ErrorScreen)과 같은 화면이라
+// 그쪽을 그리고, "다시 시도"만 사물함 신청을 다시 보낸다
+type ErrorScreenReason = Extract<
+  LockersApplyFailureReason,
+  "network" | "server"
+>;
+
+type ClosedReason = Exclude<LockersApplyFailureReason, ErrorScreenReason>;
+
 interface FailureContentContext {
   sectionId: string;
   navigate: NavigateFunction;
-  retry: () => void;
 }
 
 interface FailureContent {
@@ -39,14 +47,11 @@ interface FailureContent {
   description: string;
   primaryAction: { label: string; onClick: () => void };
   hasHomeAction: boolean;
-  // 다시 시도할 사물함이 있어야 화면이 동작한다(network·server)
-  needsRetryRequest?: boolean;
 }
 
-// Figma: 다른 사용자와 겹침 (nodeId 3013:99093), 전체 마감 (3013:99116), 구역 마감 (3013:99139),
-// 네트워크 오류 (3013:99162), 서버 오류 (3013:99183)
+// Figma: 다른 사용자와 겹침 (nodeId 3013:99093), 전체 마감 (3013:99116), 구역 마감 (3013:99139)
 const FAILURE_CONTENTS: Record<
-  LockersApplyFailureReason,
+  ClosedReason,
   (context: FailureContentContext) => FailureContent
 > = {
   "all-closed": ({ navigate }) => ({
@@ -55,14 +60,6 @@ const FAILURE_CONTENTS: Record<
     illustration: LOCK_ILLUSTRATION,
     primaryAction: { label: "홈으로 가기", onClick: () => navigate("/") },
     title: "사물함 신청이 모두 마감됐어요",
-  }),
-  network: ({ retry }) => ({
-    description: "연결 상태를 확인한 후 다시 시도해 주세요.",
-    hasHomeAction: true,
-    illustration: <img alt="" className="size-20" src={networkOffline} />,
-    needsRetryRequest: true,
-    primaryAction: { label: "다시 시도", onClick: retry },
-    title: "인터넷 연결이 원활하지 않아요",
   }),
   "section-closed": ({ sectionId, navigate }) => ({
     description: "다른 구역의 사물함을 확인해 보세요.",
@@ -73,14 +70,6 @@ const FAILURE_CONTENTS: Record<
       onClick: () => navigate("/lockers/apply/sections", { replace: true }),
     },
     title: `${sectionId} 구역의 사물함이 마감됐어요`,
-  }),
-  server: ({ retry }) => ({
-    description: "잠시 후 다시 시도해 주세요.",
-    hasHomeAction: true,
-    illustration: LOCK_ILLUSTRATION,
-    needsRetryRequest: true,
-    primaryAction: { label: "다시 시도", onClick: retry },
-    title: "일시적인 오류가 발생했어요",
   }),
   taken: ({ sectionId, navigate }) => ({
     description: "다른 사물함으로 다시 신청해 주세요.",
@@ -95,9 +84,13 @@ const FAILURE_CONTENTS: Record<
   }),
 };
 
-function isFailureReason(
+function isErrorScreenReason(
   reason: string | undefined,
-): reason is LockersApplyFailureReason {
+): reason is ErrorScreenReason {
+  return reason === "network" || reason === "server";
+}
+
+function isClosedReason(reason: string | undefined): reason is ClosedReason {
   // in은 constructor·toString 같은 기본 속성까지 통과시켜서 직접 정의한 키만 본다
   return reason !== undefined && Object.hasOwn(FAILURE_CONTENTS, reason);
 }
@@ -108,24 +101,34 @@ function LockersApplyFailureScreen() {
   const state = useLocation().state as LockersApplyFailureState | null;
   const { isSubmitting, submit } = useLockersApplySubmit(sectionId);
 
-  if (!isFailureReason(reason)) {
+  const submittingOverlay = (
+    <SubmittingOverlay
+      description={LOCKERS_APPLY_SUBMITTING_TEXT.description}
+      open={isSubmitting}
+      title={LOCKERS_APPLY_SUBMITTING_TEXT.title}
+    />
+  );
+
+  if (isErrorScreenReason(reason)) {
+    const request = state?.request;
+    // 신청 직후에만 오는 화면이라, 주소로 바로 들어와 다시 신청할 사물함을 모르면 홈으로 보낸다
+    if (!request) {
+      return <Navigate replace to="/" />;
+    }
+
+    return (
+      <>
+        <ErrorScreen onRetry={() => submit(request)} variant={reason} />
+        {submittingOverlay}
+      </>
+    );
+  }
+
+  if (!isClosedReason(reason)) {
     return <Navigate replace to="/" />;
   }
 
-  const content = FAILURE_CONTENTS[reason]({
-    navigate,
-    retry: () => {
-      if (state?.request) {
-        submit(state.request);
-      }
-    },
-    sectionId,
-  });
-
-  // 신청 직후에만 오는 화면이라, 주소로 바로 들어와 다시 신청할 사물함을 모르면 홈으로 보낸다
-  if (content.needsRetryRequest && !state?.request) {
-    return <Navigate replace to="/" />;
-  }
+  const content = FAILURE_CONTENTS[reason]({ navigate, sectionId });
 
   return (
     <>
@@ -142,11 +145,7 @@ function LockersApplyFailureScreen() {
         }
         title={content.title}
       />
-      <SubmittingOverlay
-        description={LOCKERS_APPLY_SUBMITTING_TEXT.description}
-        open={isSubmitting}
-        title={LOCKERS_APPLY_SUBMITTING_TEXT.title}
-      />
+      {submittingOverlay}
     </>
   );
 }
