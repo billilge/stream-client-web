@@ -1,7 +1,8 @@
 import { use } from "react";
 
+import emptyFeedbackIllustration from "@/assets/icons/feedbacks/empty-feedback.svg";
+import EmptyState from "@/components/ui/EmptyState";
 import { fetchMyFeedbacks } from "@/entities/feedbacks/feedbacksApi";
-import FeedbacksEmptyState from "@/features/feedbacks/components/FeedbacksEmptyState";
 import FeedbacksHistoryCard from "@/features/feedbacks/components/FeedbacksHistoryCard";
 
 interface FeedbacksMineListProps {
@@ -17,10 +18,14 @@ function FeedbacksMineList({ onSelect, onWrite }: FeedbacksMineListProps) {
     // Figma는 헤더 아래 200px 지점에 빈 상태를 둔다
     return (
       <div className="flex justify-center pt-50">
-        <FeedbacksEmptyState
-          actionLabel="열린피드백 작성하기"
+        <EmptyState
+          action={{
+            label: "열린피드백 작성하기",
+            onClick: onWrite,
+            variant: "solid",
+          }}
           description="학생회에 전하고 싶은 의견을 남겨 보세요."
-          onAction={onWrite}
+          illustration={emptyFeedbackIllustration}
           title="작성한 피드백이 없어요"
         />
       </div>
