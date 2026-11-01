@@ -1,4 +1,4 @@
-import type { FeePayment } from "@/entities/fee/types";
+import type { FeePayment, MyFeeStatus } from "@/entities/fee/types";
 
 const TITLE = "소프트웨어융합대학 학생회비";
 
@@ -55,3 +55,6 @@ const FEE_PAYMENTS: Record<FeeMockState, FeePayment[]> = {
 };
 
 export const FEE_PAYMENTS_MOCK = FEE_PAYMENTS[FEE_MOCK_STATE];
+
+// 상태를 바꿔 행사 상세의 학생회비 납부자 전용 처리를 확인한다. unpaid·pending이면 신청 버튼이 막힌다.
+export const MY_FEE_STATUS_MOCK: MyFeeStatus = "paid";

@@ -7,6 +7,7 @@ import {
 } from "react";
 
 import LockersMinimap, {
+  type LockersMinimapPoint,
   type LockersMinimapViewport,
 } from "@/features/lockers/components/LockersMinimap";
 import { useLockersPinchZoom } from "@/features/lockers/hooks/useLockersPinchZoom";
@@ -82,6 +83,23 @@ function LockersMapView({ map, legend }: LockersMapViewProps) {
     return () => observer.disconnect();
   }, [updateViewport]);
 
+  // 미니맵에서 누른 지점이 본문 가운데로 오게 스크롤한다(updateViewport의 역계산).
+  // 끝을 넘는 값은 브라우저가 스크롤 범위로 자르고, 스크롤 이벤트로 테두리가 따라온다
+  const handleMinimapNavigate = useCallback(({ x, y }: LockersMinimapPoint) => {
+    const scroller = scrollRef.current;
+    const content = contentRef.current;
+    if (!scroller || !content) {
+      return;
+    }
+    const zoom = Number(content.style.zoom) || 1;
+    const rect = content.getBoundingClientRect();
+    const layoutWidth = rect.width / zoom - CONTENT_PADDING * 2;
+    const layoutHeight = rect.height / zoom - CONTENT_PADDING;
+    scroller.scrollLeft =
+      (CONTENT_PADDING + x * layoutWidth) * zoom - scroller.clientWidth / 2;
+    scroller.scrollTop = y * layoutHeight * zoom - scroller.clientHeight / 2;
+  }, []);
+
   const zoom = useLockersPinchZoom(scrollRef, contentRef, updateViewport);
 
   // 확대 훅이 처음에 가운데로 맞춘 뒤에 돌아야 해서 훅 호출 아래에 둔다.
@@ -122,6 +140,7 @@ function LockersMapView({ map, legend }: LockersMapViewProps) {
           <LockersMinimap
             isScrollable={minimap.isScrollable}
             layoutWidth={minimap.layoutWidth}
+            onNavigate={handleMinimapNavigate}
             viewport={minimap.viewport}
           >
             {map}
