@@ -44,7 +44,7 @@ interface ErrorScreenProps {
 function ErrorScreen({ variant, onRetry }: ErrorScreenProps) {
   const navigate = useNavigate();
   const content = ERROR_SCREEN_CONTENTS[variant];
-  const goHome = () => navigate("/");
+  const goHome = () => navigate("/home");
 
   return (
     <ResultScreen
