@@ -1,7 +1,8 @@
-import { use, useMemo } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Navigate } from "react-router-dom";
 
-import { fetchMyLockerAssignment } from "@/entities/lockers/lockersApi";
+import { lockersQueries } from "@/entities/lockers/lockersApi";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
 import LockersLegend from "@/features/lockers/components/LockersLegend";
 import LockersMapView from "@/features/lockers/components/LockersMapView";
@@ -24,7 +25,7 @@ function LockersMineContent({
   isPhotoOpen,
   onClosePhoto,
 }: LockersMineContentProps) {
-  const assignment = use(fetchMyLockerAssignment());
+  const { data: assignment } = useSuspenseQuery(lockersQueries.myAssignment());
   const detail = assignment
     ? LOCKERS_SECTION_DETAILS[assignment.sectionId]
     : undefined;

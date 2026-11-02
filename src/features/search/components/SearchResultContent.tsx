@@ -1,6 +1,6 @@
-import { use } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { fetchSearchResults } from "@/entities/search/searchApi";
+import { searchQueries } from "@/entities/search/searchApi";
 import SearchEmptyState from "@/features/search/components/SearchEmptyState";
 import SearchResultView from "@/features/search/components/SearchResultView";
 import {
@@ -14,13 +14,13 @@ interface SearchResultContentProps {
   onTabChange: (tab: SearchTab) => void;
 }
 
-// 검색 결과를 use()로 읽는 데이터 컴포넌트 — 응답을 기다리는 동안은 바깥 Suspense가 스켈레톤을 보여준다.
+// 검색 결과를 useSuspenseQuery로 읽는 데이터 컴포넌트 — 응답을 기다리는 동안은 바깥 Suspense가 스켈레톤을 보여준다.
 function SearchResultContent({
   keyword,
   activeTab,
   onTabChange,
 }: SearchResultContentProps) {
-  const results = use(fetchSearchResults(keyword));
+  const { data: results } = useSuspenseQuery(searchQueries.results(keyword));
 
   // 전체 결과가 하나도 없으면 탭 없이 empty만 보여준다(Figma empty 프레임에 탭이 없다)
   if (getSearchResultCount(results, "all") === 0) {

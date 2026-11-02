@@ -1,8 +1,18 @@
-import { NOTIFICATIONS } from "@/entities/notifications/notificationsMock";
-import type { NotificationItem } from "@/entities/notifications/types";
-import { mockupApi } from "@/lib/mockupApi";
+import { queryOptions } from "@tanstack/react-query";
 
-// 실 API가 붙으면 함수 안쪽만 요청 코드로 바꾼다 — 화면은 이 함수로만 데이터를 받는다.
-export function fetchNotifications(): Promise<NotificationItem[]> {
-  return mockupApi("notifications", () => NOTIFICATIONS);
-}
+import { NOTIFICATIONS } from "@/entities/notifications/notificationsMock";
+import { mockupResponse } from "@/lib/mockupApi";
+
+const notificationsKeys = {
+  root: () => ["notifications"] as const,
+  list: () => [...notificationsKeys.root(), "list"] as const,
+};
+
+// 실 API가 붙으면 queryFn 안쪽만 요청 코드로 바꾼다 — 화면은 이 queryOptions로만 데이터를 받는다.
+export const notificationsQueries = {
+  list: () =>
+    queryOptions({
+      queryKey: notificationsKeys.list(),
+      queryFn: () => mockupResponse(() => NOTIFICATIONS),
+    }),
+};

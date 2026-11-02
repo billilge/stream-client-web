@@ -1,9 +1,9 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Divider } from "@wanteddev/wds";
-import { Fragment, use } from "react";
-
+import { Fragment } from "react";
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
-import { fetchEvents } from "@/entities/events/eventsApi";
+import { eventsQueries } from "@/entities/events/eventsApi";
 import EventsCard from "@/features/events/components/EventsCard";
 
 // Figma: 행사 모집중 empty (nodeId 1165:62713)는 "모집중" 필터 버전만 준다 —
@@ -48,7 +48,7 @@ function EventsList({
   onApply,
   onBrowseArchives,
 }: EventsListProps) {
-  const events = use(fetchEvents());
+  const { data: events } = useSuspenseQuery(eventsQueries.list());
 
   // 빌릴게 카테고리 필터와 달리 모집 상태는 목데이터에 이미 들어있어서 실제로 걸러낼 수 있다.
   const visibleEvents =

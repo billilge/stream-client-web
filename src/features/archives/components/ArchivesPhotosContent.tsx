@@ -1,8 +1,8 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Typography } from "@wanteddev/wds";
-import { use } from "react";
 
 import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
-import { fetchArchive } from "@/entities/archives/archivesApi";
+import { archivesQueries } from "@/entities/archives/archivesApi";
 
 interface ArchivesPhotosContentProps {
   archiveId: string;
@@ -15,7 +15,7 @@ function ArchivesPhotosContent({
   archiveId,
   onSelect,
 }: ArchivesPhotosContentProps) {
-  const archive = use(fetchArchive(archiveId));
+  const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
 
   if (!archive) {
     return (

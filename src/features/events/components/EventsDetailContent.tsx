@@ -1,3 +1,4 @@
+import { useSuspenseQueries } from "@tanstack/react-query";
 import {
   ActionArea,
   ActionAreaButton,
@@ -6,13 +7,12 @@ import {
   Typography,
 } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
-import { use } from "react";
 
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
 import PhotoGallery from "@/components/ui/PhotoGallery";
-import { fetchEvent } from "@/entities/events/eventsApi";
-import { fetchMyFeeStatus } from "@/entities/fee/feeApi";
+import { eventsQueries } from "@/entities/events/eventsApi";
+import { feeQueries } from "@/entities/fee/feeApi";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
 import {
   EVENTS_FEE_PAID_ONLY_LABEL,
@@ -43,9 +43,11 @@ function EventsDetailContent({
   onBack,
   onApply,
 }: EventsDetailContentProps) {
-  // 납부 상태는 행사 응답을 기다리지 않고 같이 요청해 두고, 납부자 전용 행사일 때만 읽는다
-  const feeStatusPromise = fetchMyFeeStatus();
-  const event = use(fetchEvent(eventId));
+  // 납부 상태는 행사와 따로 기다리지 않게(요청이 줄줄이 이어지지 않게) 한 번에 같이 받는다.
+  // 납부자 전용이 아닌 행사에서는 쓰지 않는다.
+  const [{ data: event }, { data: feeStatus }] = useSuspenseQueries({
+    queries: [eventsQueries.detail(eventId), feeQueries.myStatus()],
+  });
 
   if (!event) {
     return (
@@ -60,7 +62,7 @@ function EventsDetailContent({
     );
   }
 
-  const isFeeRequired = event.feePaidOnly && use(feeStatusPromise) !== "paid";
+  const isFeeRequired = event.feePaidOnly && feeStatus !== "paid";
   const canApply = event.status === "open" && !isFeeRequired;
   const actionLabel =
     event.status === "open" && isFeeRequired

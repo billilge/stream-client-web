@@ -1,9 +1,9 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@wanteddev/wds";
-import { use } from "react";
 import { Navigate } from "react-router-dom";
 
 import { NEGATIVE_BUTTON_SX } from "@/components/ui/negativeButtonSx";
-import { fetchMyEventApplication } from "@/entities/events/eventsApi";
+import { eventsQueries } from "@/entities/events/eventsApi";
 import EventsApplicationSummary from "@/features/events/components/EventsApplicationSummary";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
 
@@ -24,7 +24,9 @@ function EventsApplicationDetailContent({
   isCancelling,
   onCancel,
 }: EventsApplicationDetailContentProps) {
-  const application = use(fetchMyEventApplication(applicationId));
+  const { data: application } = useSuspenseQuery(
+    eventsQueries.application(applicationId),
+  );
 
   // 없는 신청내역이면 볼 내용이 없어서 화면이 정한 곳(신청내역 목록)으로 돌려보낸다
   if (!application) {

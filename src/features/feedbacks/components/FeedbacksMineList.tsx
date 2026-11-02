@@ -1,8 +1,7 @@
-import { use } from "react";
-
+import { useSuspenseQuery } from "@tanstack/react-query";
 import emptyFeedbackIllustration from "@/assets/icons/feedbacks/empty-feedback.svg";
 import EmptyState from "@/components/ui/EmptyState";
-import { fetchMyFeedbacks } from "@/entities/feedbacks/feedbacksApi";
+import { feedbacksQueries } from "@/entities/feedbacks/feedbacksApi";
 import FeedbacksHistoryCard from "@/features/feedbacks/components/FeedbacksHistoryCard";
 
 interface FeedbacksMineListProps {
@@ -12,7 +11,7 @@ interface FeedbacksMineListProps {
 
 // Figma: 열린피드백 작성내역 (nodeId 3147:147748), empty (3147:147818)
 function FeedbacksMineList({ onSelect, onWrite }: FeedbacksMineListProps) {
-  const feedbacks = use(fetchMyFeedbacks());
+  const { data: feedbacks } = useSuspenseQuery(feedbacksQueries.mine());
 
   if (feedbacks.length === 0) {
     // Figma는 헤더 아래 200px 지점에 빈 상태를 둔다

@@ -1,9 +1,10 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { IconButton, PageCounter, Typography } from "@wanteddev/wds";
 import { IconClose } from "@wanteddev/wds-icon";
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
-import { fetchArchive } from "@/entities/archives/archivesApi";
+import { archivesQueries } from "@/entities/archives/archivesApi";
 
 interface ArchivesPhotoViewerContentProps {
   archiveId: string;
@@ -20,7 +21,7 @@ function ArchivesPhotoViewerContent({
   photoIndex,
   onClose,
 }: ArchivesPhotoViewerContentProps) {
-  const archive = use(fetchArchive(archiveId));
+  const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
   const photos = archive?.photos ?? [];
   const scrollerRef = useRef<HTMLDivElement>(null);
 

@@ -1,9 +1,9 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Divider } from "@wanteddev/wds";
-import { Fragment, use } from "react";
-
+import { Fragment } from "react";
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
-import { fetchMyEventApplications } from "@/entities/events/eventsApi";
+import { eventsQueries } from "@/entities/events/eventsApi";
 import EventsApplicationCard from "@/features/events/components/EventsApplicationCard";
 
 interface EventsApplicationListProps {
@@ -19,7 +19,7 @@ function EventsApplicationList({
   onSelectApplication,
   onBrowseEvents,
 }: EventsApplicationListProps) {
-  const applications = use(fetchMyEventApplications());
+  const { data: applications } = useSuspenseQuery(eventsQueries.applications());
 
   if (applications.length === 0) {
     return (
