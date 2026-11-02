@@ -1,9 +1,10 @@
 import { useState } from "react";
 
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenToast from "@/components/ui/ScreenToast";
-import BililgeReturnConfirmModal from "@/features/bililge/components/BililgeReturnConfirmModal";
 
 // 반납 신청 흐름 — "반납 신청" → 확인 모달(1133:49993) → "신청하기"로 확정하면 완료 토스트(1133:50015).
+// 확인 모달은 Figma에서 공용 Modal 인스턴스(1133:50014)라 ConfirmModal을 그대로 쓴다.
 // "닫기"는 모달만 닫는다.
 // 빌릴게 반납 탭과 홈 대여 현황이 같이 쓴다. 실 백엔드 연동 전이라 신청 자체는 토스트만 보여 준다 —
 // API가 붙으면 confirm 안에서 요청을 보낸다.
@@ -24,10 +25,14 @@ export function useBililgeReturnRequest() {
 
   const returnRequestDialogs = (
     <>
-      <BililgeReturnConfirmModal
+      <ConfirmModal
+        cancelLabel="닫기"
+        confirmLabel="신청하기"
+        description="승인 알림을 받은 후 학생회실에 반납해 주세요."
         onCancel={() => setConfirmOpen(false)}
         onConfirm={confirm}
         open={confirmOpen}
+        title="반납을 신청할까요?"
       />
       <ScreenToast
         key={toastToken}

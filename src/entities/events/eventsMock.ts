@@ -9,7 +9,6 @@ import type {
 // 상태별로 갈리는 값(뱃지 문구, CTA 문구)만 항목마다 다르게 준다.
 const MOCK_SCHEDULE = "4월 15일 (수) 18:30 ~";
 const MOCK_LOCATION = "미래관 4층 신관 입구 (예대 방면)";
-const MOCK_AUDIENCE = ["소프트웨어융합대학 과학생회비 납부자", "선착순 150명"];
 const MOCK_DESCRIPTION = `안녕하십니까, 제10대 소프트웨어융합대학 학생회 ‘에코’입니다.
 
 기말고사를 준비하고 계신 학우 여러분을 응원하기 위해 간식행사를 진행합니다 🍱✨
@@ -40,17 +39,22 @@ const MOCK_DESCRIPTION = `안녕하십니까, 제10대 소프트웨어융합대�
 // Figma 목업은 같은 행사명 4개(모집중 1 / 모집예정 1 / 모집종료 2)를 상태만 바꿔 보여주는데,
 // 여기서는 모집종료 중복을 하나로 줄였다(모집중 1 / 모집예정 1 / 모집종료 1).
 //
+// 신청 조건(납부자 전용·모집 방식·정원)은 Figma 대상 문구("과학생회비 납부자 선착순 150명")에 맞추고,
+// 모집종료만 "학생"·상시 모집으로 둬서 대상 문구가 갈리는 경우도 볼 수 있게 했다.
+//
 // 모집중은 홈 신청 카드가 가리키는 행사라 남겨 둔다(#114). 그래서 모집중 필터의 Empty State(1165:62713,
 // "아카이빙 둘러보기" 버튼)는 아래 모집중 항목을 빼야 볼 수 있다.
 export const EVENTS: EventItem[] = [
   {
     actionLabel: "신청하기",
-    audience: MOCK_AUDIENCE,
+    capacity: 150,
     description: MOCK_DESCRIPTION,
     eventDate: "행사일 2026.06.04",
     id: "sw-sports-day-open",
+    feePaidOnly: true,
     imageCount: 7,
     location: MOCK_LOCATION,
+    recruitType: "first-come",
     schedule: MOCK_SCHEDULE,
     status: "open",
     statusLabel: "신청마감 D-2",
@@ -58,12 +62,14 @@ export const EVENTS: EventItem[] = [
   },
   {
     actionLabel: "모집종료",
-    audience: MOCK_AUDIENCE,
+    capacity: null,
     description: MOCK_DESCRIPTION,
     eventDate: "행사일 2026.06.04",
     id: "sw-sports-day-closed",
+    feePaidOnly: false,
     imageCount: 7,
     location: MOCK_LOCATION,
+    recruitType: "open",
     schedule: MOCK_SCHEDULE,
     status: "closed",
     statusLabel: "모집종료",
@@ -71,12 +77,14 @@ export const EVENTS: EventItem[] = [
   },
   {
     actionLabel: "8월 10일 오픈",
-    audience: MOCK_AUDIENCE,
+    capacity: 150,
     description: MOCK_DESCRIPTION,
     eventDate: "행사일 2026.06.04",
     id: "sw-sports-day-upcoming",
+    feePaidOnly: true,
     imageCount: 7,
     location: MOCK_LOCATION,
+    recruitType: "first-come",
     schedule: MOCK_SCHEDULE,
     status: "upcoming",
     statusLabel: "모집예정",
