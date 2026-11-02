@@ -3,10 +3,11 @@ import { Button, Typography } from "@wanteddev/wds";
 import { Navigate } from "react-router-dom";
 
 import answerIcon from "@/assets/icons/feedbacks/answer.svg";
+import emptyFeedbackIllustration from "@/assets/icons/feedbacks/empty-feedback.svg";
 import questionIcon from "@/assets/icons/feedbacks/question.svg";
+import EmptyState from "@/components/ui/EmptyState";
 import { feedbacksQueries } from "@/entities/feedbacks/feedbacksApi";
 import FeedbacksAnswerText from "@/features/feedbacks/components/FeedbacksAnswerText";
-import FeedbacksEmptyState from "@/features/feedbacks/components/FeedbacksEmptyState";
 import { hasFeedbackAnswer } from "@/features/feedbacks/constants/feedbacks";
 
 interface FeedbacksMineDetailContentProps {
@@ -109,10 +110,14 @@ function FeedbacksMineDetailContent({
           </div>
         ) : (
           <div className="flex justify-center">
-            <FeedbacksEmptyState
-              actionLabel="열린피드백 보러 가기"
+            <EmptyState
+              action={{
+                label: "열린피드백 보러 가기",
+                onClick: onBrowseFeedbacks,
+                variant: "solid",
+              }}
               description="다른 피드백 답변을 구경해 보세요"
-              onAction={onBrowseFeedbacks}
+              illustration={emptyFeedbackIllustration}
               title="학생회에서 답변을 준비 중이에요"
             />
           </div>

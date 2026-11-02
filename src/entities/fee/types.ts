@@ -16,3 +16,7 @@ export type FeePayment = FeePaymentBase &
     | { status: "checking" | "paid" }
     | { status: "needs-check"; reviewNote: string }
   );
+
+// 학생 본인의 학생회비 납부 상태 — GET /v1/app/fee/me의 feeStatus(UNPAID·PENDING·PAID).
+// 납부확인중(pending)은 아직 납부로 보지 않는다.
+export type MyFeeStatus = "unpaid" | "pending" | "paid";

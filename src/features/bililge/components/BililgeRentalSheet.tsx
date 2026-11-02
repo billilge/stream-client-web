@@ -9,6 +9,7 @@ import { IconCircleInfo } from "@wanteddev/wds-icon";
 import { useEffect, useState } from "react";
 
 import BottomSheet from "@/components/ui/BottomSheet";
+import ScreenToast from "@/components/ui/ScreenToast";
 import type { BililgeItem } from "@/entities/bililge/types";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
 import BililgeRentalConfirmModal from "@/features/bililge/components/BililgeRentalConfirmModal";
@@ -86,6 +87,10 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
   const [stepperValue, setStepperValue] = useState(1);
   const [time, setTime] = useState(getDefaultStartTime);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+  // 토스트가 떠 있는 동안 또 신청해도 스크린리더가 재안내하도록, 확인마다 값을 바꿔
+  // ScreenToast를 새로 마운트한다(반납 신청 완료 토스트와 같은 패턴).
+  const [toastToken, setToastToken] = useState(0);
 
   useEffect(() => {
     if (item) {
@@ -95,132 +100,145 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
     }
   }, [item]);
 
+  // 실 백엔드 연동 전이라 신청 자체는 완료 토스트(1133:49895)만 보여 준다 — API가 붙으면 여기서 요청을 보낸다
   const handleConfirm = () => {
     setConfirmOpen(false);
     onClose();
+    setToastOpen(true);
+    setToastToken((token) => token + 1);
   };
 
   return (
-    <BottomSheet onClose={onClose} open={open}>
-      {item && (
-        <div className="flex flex-col gap-7 px-5">
-          <div className="flex flex-col gap-3">
-            <Typography
-              as="p"
-              color="semantic.label.normal"
-              variant="headline2"
-              weight="bold"
-            >
-              대여할 물품
-            </Typography>
-            <BililgeItemCard
-              icon={item.icon}
-              itemName={item.name}
-              onStepperDecrease={() =>
-                setStepperValue((value) => Math.max(1, value - 1))
-              }
-              onStepperIncrease={() =>
-                setStepperValue((value) => Math.min(item.quantity, value + 1))
-              }
-              // Figma: 대여할 물품 카드(nodeId 1422:57184, 3013:114608)에 "수량 28 · 오늘
-              // 17시까지 반납" / "수량 28 · 9/29까지 반납"처럼 수량 뒤에 반납 기한이 강조
-              // 서체(SemiBold)로 붙는다 — 기한 라벨(returnDeadlineLabel)은 서버가 오늘/내일/
-              // 날짜를 미리 판단해 내려주는 완성된 문자열이라 여기서는 이어붙이기만 한다.
-              stepperValue={stepperValue}
-              subtitle={`수량 ${item.quantity} · `}
-              subtitleEmphasis={item.returnDeadlineLabel}
-              trailingControl="stepper"
-            />
-          </div>
+    <>
+      <BottomSheet onClose={onClose} open={open}>
+        {item && (
+          <div className="flex flex-col gap-7 px-5">
+            <div className="flex flex-col gap-3">
+              <Typography
+                as="p"
+                color="semantic.label.normal"
+                variant="headline2"
+                weight="bold"
+              >
+                대여할 물품
+              </Typography>
+              <BililgeItemCard
+                icon={item.icon}
+                itemName={item.name}
+                onStepperDecrease={() =>
+                  setStepperValue((value) => Math.max(1, value - 1))
+                }
+                onStepperIncrease={() =>
+                  setStepperValue((value) => Math.min(item.quantity, value + 1))
+                }
+                // Figma: 대여할 물품 카드(nodeId 1422:57184, 3013:114608)에 "수량 28 · 오늘
+                // 17시까지 반납" / "수량 28 · 9/29까지 반납"처럼 수량 뒤에 반납 기한이 강조
+                // 서체(SemiBold)로 붙는다 — 기한 라벨(returnDeadlineLabel)은 서버가 오늘/내일/
+                // 날짜를 미리 판단해 내려주는 완성된 문자열이라 여기서는 이어붙이기만 한다.
+                stepperValue={stepperValue}
+                subtitle={`수량 ${item.quantity} · `}
+                subtitleEmphasis={item.returnDeadlineLabel}
+                trailingControl="stepper"
+              />
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <Typography
-              as="p"
-              color="semantic.label.normal"
-              variant="headline2"
-              weight="bold"
-            >
-              대여 시작 시간
-            </Typography>
-            <div className="relative">
-              <div className="absolute inset-x-0 top-1/2 h-[38px] -translate-y-1/2 rounded-xl bg-background-alternative" />
-              <WheelPickerWrapper className="relative justify-center gap-7">
-                <div className="w-8">
-                  <WheelPicker
-                    classNames={WHEEL_CLASS_NAMES}
-                    onValueChange={(period) =>
-                      setTime((prev) => ({ ...prev, period }))
-                    }
-                    optionItemHeight={OPTION_ITEM_HEIGHT}
-                    options={PERIOD_OPTIONS}
-                    value={time.period}
-                    visibleCount={12}
-                  />
-                </div>
-                <div className="w-7">
-                  <WheelPicker
-                    classNames={WHEEL_CLASS_NAMES}
-                    onValueChange={(hour) =>
-                      setTime((prev) => ({ ...prev, hour }))
-                    }
-                    optionItemHeight={OPTION_ITEM_HEIGHT}
-                    options={HOUR_OPTIONS}
-                    value={time.hour}
-                    visibleCount={12}
-                  />
-                </div>
-                <div className="w-7">
-                  <WheelPicker
-                    classNames={WHEEL_CLASS_NAMES}
-                    onValueChange={(minute) =>
-                      setTime((prev) => ({ ...prev, minute }))
-                    }
-                    optionItemHeight={OPTION_ITEM_HEIGHT}
-                    options={MINUTE_OPTIONS}
-                    value={time.minute}
-                    visibleCount={12}
-                  />
-                </div>
-              </WheelPickerWrapper>
+            <div className="flex flex-col gap-2">
+              <Typography
+                as="p"
+                color="semantic.label.normal"
+                variant="headline2"
+                weight="bold"
+              >
+                대여 시작 시간
+              </Typography>
+              <div className="relative">
+                <div className="absolute inset-x-0 top-1/2 h-[38px] -translate-y-1/2 rounded-xl bg-background-alternative" />
+                <WheelPickerWrapper className="relative justify-center gap-7">
+                  <div className="w-8">
+                    <WheelPicker
+                      classNames={WHEEL_CLASS_NAMES}
+                      onValueChange={(period) =>
+                        setTime((prev) => ({ ...prev, period }))
+                      }
+                      optionItemHeight={OPTION_ITEM_HEIGHT}
+                      options={PERIOD_OPTIONS}
+                      value={time.period}
+                      visibleCount={12}
+                    />
+                  </div>
+                  <div className="w-7">
+                    <WheelPicker
+                      classNames={WHEEL_CLASS_NAMES}
+                      onValueChange={(hour) =>
+                        setTime((prev) => ({ ...prev, hour }))
+                      }
+                      optionItemHeight={OPTION_ITEM_HEIGHT}
+                      options={HOUR_OPTIONS}
+                      value={time.hour}
+                      visibleCount={12}
+                    />
+                  </div>
+                  <div className="w-7">
+                    <WheelPicker
+                      classNames={WHEEL_CLASS_NAMES}
+                      onValueChange={(minute) =>
+                        setTime((prev) => ({ ...prev, minute }))
+                      }
+                      optionItemHeight={OPTION_ITEM_HEIGHT}
+                      options={MINUTE_OPTIONS}
+                      value={time.minute}
+                      visibleCount={12}
+                    />
+                  </div>
+                </WheelPickerWrapper>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <IconCircleInfo className="size-5 shrink-0 text-primary" />
+              <Typography
+                as="p"
+                color="semantic.primary.normal"
+                variant="caption1"
+                weight="medium"
+              >
+                대여 시작 시간은 최소 5분 뒤부터 선택할 수 있어요
+              </Typography>
             </div>
           </div>
+        )}
 
-          <div className="flex items-center gap-2">
-            <IconCircleInfo className="size-5 shrink-0 text-primary" />
-            <Typography
-              as="p"
-              color="semantic.primary.normal"
-              variant="caption1"
-              weight="medium"
-            >
-              대여 시작 시간은 최소 5분 뒤부터 선택할 수 있어요
-            </Typography>
-          </div>
-        </div>
-      )}
-
-      <ActionArea>
-        {/* Figma Main Action(1422:...;16215:35710)은 56px인데 ActionAreaButton의 size="large"
+        <ActionArea>
+          {/* Figma Main Action(1422:...;16215:35710)은 56px인데 ActionAreaButton의 size="large"
             Button은 padding(12px×2)+body1 line-height(24px)라 48px이 된다. WDS Button엔 large보다
             큰 사이즈가 없어 sx로 높이만 보정한다. */}
-        <ActionAreaButton
-          onClick={() => setConfirmOpen(true)}
-          sx={{ height: "56px" }}
-        >
-          대여 신청하기
-        </ActionAreaButton>
-      </ActionArea>
-      {item && (
-        <BililgeRentalConfirmModal
-          itemName={item.name}
-          onCancel={() => setConfirmOpen(false)}
-          onConfirm={handleConfirm}
-          open={confirmOpen}
-          quantity={stepperValue}
-          timeLabel={formatTimeLabel(time)}
-        />
-      )}
-    </BottomSheet>
+          <ActionAreaButton
+            onClick={() => setConfirmOpen(true)}
+            sx={{ height: "56px" }}
+          >
+            대여 신청하기
+          </ActionAreaButton>
+        </ActionArea>
+        {item && (
+          <BililgeRentalConfirmModal
+            itemName={item.name}
+            onCancel={() => setConfirmOpen(false)}
+            onConfirm={handleConfirm}
+            open={confirmOpen}
+            quantity={stepperValue}
+            timeLabel={formatTimeLabel(time)}
+          />
+        )}
+      </BottomSheet>
+      {/* 시트가 닫힌 뒤에 뜨는 토스트라 시트 밖에 둔다 */}
+      <ScreenToast
+        key={toastToken}
+        message="대여 신청이 완료됐어요."
+        onOpenChange={setToastOpen}
+        open={toastOpen}
+        variant="positive"
+      />
+    </>
   );
 }
 
