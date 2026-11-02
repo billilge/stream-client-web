@@ -14,11 +14,12 @@ import AuthPhoneStep from "@/features/auth/steps/AuthPhoneStep";
 import AuthTermsDetailStep from "@/features/auth/steps/AuthTermsDetailStep";
 import AuthTermsStep from "@/features/auth/steps/AuthTermsStep";
 import { readAuthLocationState } from "@/features/auth/utils/authLocationState";
+import { HOME_PATH } from "@/features/home/constants/home";
 import { useFunnel } from "@/lib/useFunnel";
 
 // 로그인과 가입(연락처 → 약관 동의 → 약관 상세 → 가입 완료)을 useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에
 // 하나씩 나눠 두고, 이 파일은 단계 전환(어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다.
-// 단계는 `/auth?auth.step=...`으로 나뉘고 단계마다 브라우저 뒤로가기가 한 단계씩 돌아간다. 단계 사이에 넘기는 값
+// 단계는 `/login?auth.step=...`으로 나뉘고 단계마다 브라우저 뒤로가기가 한 단계씩 돌아간다. 단계 사이에 넘기는 값
 // (이름·연락처·약관 동의)은 퍼널 context가 들고 있어서 약관 상세에서 돌아와도 유지된다.
 // 스플래시는 웹에서 쓰지 않아 이 퍼널에 없다.
 
@@ -60,10 +61,10 @@ function AuthSignupScreen() {
   // 로그인한 상태로 이 퍼널에 들어오면 홈으로 보낸다 — 가입을 마친 뒤 홈에서 뒤로가기를 눌러 연락처 단계로 돌아와
   // 가입을 한 번 더 진행하는 일을 막는다. 가입 완료 단계는 로그인 표시를 남긴 직후에 보여 주는 화면이라 예외다.
   if (funnel.step !== "complete" && isLoggedIn()) {
-    return <Navigate replace to="/" />;
+    return <Navigate replace to={HOME_PATH} />;
   }
 
-  const goHome = () => navigate("/", { replace: true });
+  const goHome = () => navigate(HOME_PATH, { replace: true });
 
   return (
     <funnel.Render

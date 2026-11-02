@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { HOME_PATH } from "@/features/home/constants/home";
 import LockersAssignmentContent from "@/features/lockers/components/LockersAssignmentContent";
 import LockersAssignmentSkeleton from "@/features/lockers/components/LockersAssignmentSkeleton";
 import { MY_LOCKER_LOCATION_PATH } from "@/features/lockers/constants/lockers";
@@ -15,7 +16,7 @@ function LockersAssignmentScreen() {
   const navigate = useNavigate();
 
   // 바로 들어와 뒤로 갈 히스토리가 없으면 홈으로 보낸다
-  const goBack = useBackNavigation("/");
+  const goBack = useBackNavigation(HOME_PATH);
 
   useScreenHeader(
     <ScreenHeader

@@ -8,6 +8,7 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import FeedbacksMineList from "@/features/feedbacks/components/FeedbacksMineList";
 import FeedbacksMineSkeleton from "@/features/feedbacks/components/FeedbacksMineSkeleton";
 import { getMyFeedbackPath } from "@/features/feedbacks/constants/feedbacks";
+import { HOME_PATH } from "@/features/home/constants/home";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 // Figma: 열린피드백 작성내역 (nodeId 3147:147748)
@@ -15,7 +16,7 @@ function FeedbacksMineScreen() {
   const navigate = useNavigate();
 
   // 바로 들어와 뒤로 갈 히스토리가 없으면 홈으로 보낸다
-  const goBack = useBackNavigation("/");
+  const goBack = useBackNavigation(HOME_PATH);
 
   useScreenHeader(
     <ScreenHeader

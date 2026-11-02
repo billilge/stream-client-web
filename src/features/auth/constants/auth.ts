@@ -2,9 +2,9 @@ import eventsIllustration from "@/assets/images/auth/login-events.webp";
 import feedbacksIllustration from "@/assets/images/auth/login-feedbacks.webp";
 import noticesIllustration from "@/assets/images/auth/login-notices.webp";
 
-// 로그인·온보딩 퍼널의 라우트 경로. 용어 사전(terminology.md)의 공통(`auth`) 아래에 둔다.
+// 로그인·가입 퍼널의 라우트 경로 — 로그인 가드, K-CONNECT 콜백, 계정 나가기(설정)가 같이 쓰므로 한곳에 둔다.
 // 연락처·약관 동의 같은 단계는 이 경로 하나 안에서 useFunnel이 `?auth.step=`으로 나눈다.
-export const AUTH_PATH = "/auth";
+export const LOGIN_PATH = "/login";
 
 // K-CONNECT에 등록한 앱의 client_id — 환경 변수 `VITE_KCONNECT_CLIENT_ID`(.env.example 참고)로 받는다.
 export const KCONNECT_CLIENT_ID: string =

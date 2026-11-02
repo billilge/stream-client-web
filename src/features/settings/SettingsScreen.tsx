@@ -125,7 +125,7 @@ function SettingsScreen() {
         confirmLabel="로그아웃"
         onCancel={() => setLogoutOpen(false)}
         // 로그아웃하면 돌아올 화면이 아니라 설정을 히스토리에서 치우고 나간다.
-        // 실제 세션 정리는 인증이 붙을 때 여기에 함께 붙인다(ACCOUNT_EXIT_PATH 주석 참고).
+        // 로그인 표시 정리와 로그인 화면 이동은 useAccountExit가 맡는다.
         onConfirm={() => {
           setLogoutOpen(false);
           exitAccount();
