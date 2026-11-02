@@ -18,6 +18,7 @@ import {
   CHAT_SEND_FAILURE_TRIGGER,
 } from "@/features/chat/constants/chat";
 import { CHAT_SUGGESTED_QUESTIONS } from "@/features/chat/constants/chatSuggestedQuestions";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 interface ChatMessage {
   id: number;
@@ -87,13 +88,16 @@ function ChatEntryScreen() {
   // (행사 신청 화면이 작성한 답이 있을 때만 모달을 띄우는 것과 같은 기준).
   // "종료하기"는 대화를 끝내는 행동이라 들어온 화면이 아니라 홈으로 보낸다.
   const leaveChat = () => navigate("/");
+  // 대화 전 뒤로가기 — 타고 들어왔으면 한 단계 뒤로, /chat으로 바로 들어왔으면(딥링크·새로고침·
+  // 주소 직접 입력) 홈으로 보낸다. navigate(-1)만 쓰면 돌아갈 곳이 없어 먹통이 된다.
+  const goBack = useBackNavigation("/");
 
   useScreenHeader(
     <ScreenHeader
       leading={
         <TopNavigationButton
           aria-label="뒤로가기"
-          onClick={() => (chatStarted ? setIsLeaveOpen(true) : navigate(-1))}
+          onClick={() => (chatStarted ? setIsLeaveOpen(true) : goBack())}
           variant="icon"
         >
           <IconChevronLeft />
