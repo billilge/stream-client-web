@@ -3,7 +3,9 @@ import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import ChatBotMessageBubble from "@/features/chat/components/ChatBotMessageBubble";
 import ChatGradientBackground from "@/features/chat/components/ChatGradientBackground";
@@ -11,7 +13,12 @@ import ChatInput from "@/features/chat/components/ChatInput";
 import ChatLoadingDots from "@/features/chat/components/ChatLoadingDots";
 import ChatMessageBubble from "@/features/chat/components/ChatMessageBubble";
 import SuggestedQuestion from "@/features/chat/components/SuggestedQuestion";
+import {
+  CHAT_SEND_FAILURE_MESSAGE,
+  CHAT_SEND_FAILURE_TRIGGER,
+} from "@/features/chat/constants/chat";
 import { CHAT_SUGGESTED_QUESTIONS } from "@/features/chat/constants/chatSuggestedQuestions";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 interface ChatMessage {
   id: number;
@@ -33,6 +40,11 @@ function ChatEntryScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isBotLoading, setIsBotLoading] = useState(false);
+  const [isLeaveOpen, setIsLeaveOpen] = useState(false);
+  const [isFailureToastOpen, setIsFailureToastOpen] = useState(false);
+  // 연달아 실패해도 스크린리더가 토스트를 다시 안내하도록 실패마다 새로 마운트한다 — 아래 key다
+  // (행사 신청 화면의 실패 토스트와 같은 패턴)
+  const [failureCount, setFailureCount] = useState(0);
   const nextMessageIdRef = useRef(0);
   const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
@@ -58,20 +70,34 @@ function ChatEntryScreen() {
 
   // 봇 응답 대기 중에는 입력창이 disabled되며 포커스가 풀린다 — 응답이 오면(대기 종료 시점)
   // 바로 이어서 타이핑할 수 있도록 입력창에 포커스를 되돌린다.
+  //
+  // 단 나가기 모달이 떠 있으면 건너뛴다. 메시지를 보내자마자 뒤로가기를 누르면 응답을 기다리는
+  // 동안 모달이 열리는데, 그때 이 포커스 이동이 일어나면 초점이 모달 밖 입력창으로 빠져서
+  // 타이핑이 뒤 화면으로 들어가고 Esc로도 모달이 닫히지 않는다(모달의 Esc 핸들러가 모달
+  // 엘리먼트에 붙어 있다). 모달을 닫을 때 ConfirmModal이 직전 초점으로 되돌려 준다.
   const wasBotLoadingRef = useRef(false);
   useEffect(() => {
-    if (wasBotLoadingRef.current && !isBotLoading) {
+    if (wasBotLoadingRef.current && !isBotLoading && !isLeaveOpen) {
       inputRef.current?.focus();
     }
     wasBotLoadingRef.current = isBotLoading;
-  }, [isBotLoading]);
+  }, [isBotLoading, isLeaveOpen]);
+
+  // Figma: 챗봇 뒤로가기 확인 모달(2036:102030). 나가면 대화가 사라지니 확인을 받는데,
+  // 아직 아무 말도 안 한 상태에서는 잃을 게 없어서 바로 나간다
+  // (행사 신청 화면이 작성한 답이 있을 때만 모달을 띄우는 것과 같은 기준).
+  // "종료하기"는 대화를 끝내는 행동이라 들어온 화면이 아니라 홈으로 보낸다.
+  const leaveChat = () => navigate("/");
+  // 대화 전 뒤로가기 — 타고 들어왔으면 한 단계 뒤로, /chat으로 바로 들어왔으면(딥링크·새로고침·
+  // 주소 직접 입력) 홈으로 보낸다. navigate(-1)만 쓰면 돌아갈 곳이 없어 먹통이 된다.
+  const goBack = useBackNavigation("/");
 
   useScreenHeader(
     <ScreenHeader
       leading={
         <TopNavigationButton
           aria-label="뒤로가기"
-          onClick={() => navigate(-1)}
+          onClick={() => (chatStarted ? setIsLeaveOpen(true) : goBack())}
           variant="icon"
         >
           <IconChevronLeft />
@@ -87,6 +113,12 @@ function ChatEntryScreen() {
     // 봇 응답을 기다리는 동안 새 메시지를 보내면 대기 중이던 타이머가 취소돼 그 메시지의
     // 응답이 영영 안 온다(코드리뷰 지적) — 응답이 올 때까지는 전송 자체를 막는다.
     if (!trimmed || isBotLoading) {
+      return;
+    }
+    // 목업 실패 분기 — 전송에 실패하면 메시지를 올리지 않고 입력도 그대로 둔다(다시 시도용)
+    if (trimmed === CHAT_SEND_FAILURE_TRIGGER) {
+      setFailureCount((prev) => prev + 1);
+      setIsFailureToastOpen(true);
       return;
     }
     nextMessageIdRef.current += 1;
@@ -175,6 +207,23 @@ function ChatEntryScreen() {
           value={inputValue}
         />
       </div>
+
+      <ConfirmModal
+        cancelLabel="계속 대화하기"
+        confirmLabel="종료하기"
+        description="현재 대화는 저장되지 않아요."
+        onCancel={() => setIsLeaveOpen(false)}
+        onConfirm={leaveChat}
+        open={isLeaveOpen}
+        title="대화를 종료할까요?"
+      />
+
+      <ScreenToast
+        key={failureCount}
+        message={CHAT_SEND_FAILURE_MESSAGE}
+        onOpenChange={setIsFailureToastOpen}
+        open={isFailureToastOpen}
+      />
     </div>
   );
 }
