@@ -20,7 +20,7 @@ export function markLoggedIn(): void {
   }
 }
 
-// 로그아웃·회원 탈퇴처럼 계정을 떠날 때 부른다 — 표시를 지우지 않으면 `/`의 로그인 가드(AuthEntryGate)를 그대로 통과해서
+// 로그아웃·회원 탈퇴처럼 계정을 떠날 때 부른다 — 표시를 지우지 않으면 로그인 가드(AuthEntryGate)를 그대로 통과해서
 // 방금 떠난 계정으로 홈이 보인다.
 export function clearLoggedIn(): void {
   try {
