@@ -69,13 +69,18 @@ function ChatEntryScreen() {
 
   // 봇 응답 대기 중에는 입력창이 disabled되며 포커스가 풀린다 — 응답이 오면(대기 종료 시점)
   // 바로 이어서 타이핑할 수 있도록 입력창에 포커스를 되돌린다.
+  //
+  // 단 나가기 모달이 떠 있으면 건너뛴다. 메시지를 보내자마자 뒤로가기를 누르면 응답을 기다리는
+  // 동안 모달이 열리는데, 그때 이 포커스 이동이 일어나면 초점이 모달 밖 입력창으로 빠져서
+  // 타이핑이 뒤 화면으로 들어가고 Esc로도 모달이 닫히지 않는다(모달의 Esc 핸들러가 모달
+  // 엘리먼트에 붙어 있다). 모달을 닫을 때 ConfirmModal이 직전 초점으로 되돌려 준다.
   const wasBotLoadingRef = useRef(false);
   useEffect(() => {
-    if (wasBotLoadingRef.current && !isBotLoading) {
+    if (wasBotLoadingRef.current && !isBotLoading && !isLeaveOpen) {
       inputRef.current?.focus();
     }
     wasBotLoadingRef.current = isBotLoading;
-  }, [isBotLoading]);
+  }, [isBotLoading, isLeaveOpen]);
 
   // Figma: 챗봇 뒤로가기 확인 모달(2036:102030). 나가면 대화가 사라지니 확인을 받는데,
   // 아직 아무 말도 안 한 상태에서는 잃을 게 없어서 바로 나간다
