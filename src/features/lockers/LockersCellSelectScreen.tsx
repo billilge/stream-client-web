@@ -141,13 +141,15 @@ function SectionLockerSelect({
       title={`${detail.section}구역 사물함 선택`}
       trailing={
         <>
-          <TopNavigationButton
-            aria-label="실제 사진 보기"
-            onClick={() => setIsPhotoOpen(true)}
-            variant="icon"
-          >
-            <IconImage />
-          </TopNavigationButton>
+          {detail.photoUrls.length > 0 && (
+            <TopNavigationButton
+              aria-label="실제 사진 보기"
+              onClick={() => setIsPhotoOpen(true)}
+              variant="icon"
+            >
+              <IconImage />
+            </TopNavigationButton>
+          )}
           <TopNavigationButton
             aria-label="새로고침"
             onClick={() =>
@@ -201,7 +203,7 @@ function SectionLockerSelect({
       <LockersSectionPhotoModal
         onClose={() => setIsPhotoOpen(false)}
         open={isPhotoOpen}
-        photoUrl={detail.photoUrls[0] ?? ""}
+        photoUrls={detail.photoUrls}
         sectionName={detail.section}
       />
 

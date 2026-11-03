@@ -61,7 +61,7 @@ function LockersMineContent({
       <LockersSectionPhotoModal
         onClose={onClosePhoto}
         open={isPhotoOpen}
-        photoUrl={detail.photoUrls[0] ?? ""}
+        photoUrls={detail.photoUrls}
         sectionName={detail.section}
       />
     </>
