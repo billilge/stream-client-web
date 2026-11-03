@@ -9,6 +9,9 @@ export const FEE_TRANSFER_PATH = "/fee/transfer";
 // 학생회비 납부내역 화면 경로
 export const FEE_PAYMENTS_PATH = "/my/fee";
 
+// 납부내역 카드 제목 — 서버 응답에 없는 값이라 화면이 들고 있는다
+export const FEE_TITLE = "소프트웨어융합대학 학생회비";
+
 // 아직 받지 못한 외부 연동 주소들. 값이 있을 때만 열도록 해서 빈 창이 뜨는 걸 막는다.
 //
 // - kSmartMentor: 학점이수현황을 확인하는 국민대 K-스마트멘토 주소

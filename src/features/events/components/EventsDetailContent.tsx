@@ -13,6 +13,7 @@ import EmptyState from "@/components/ui/EmptyState";
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import { eventsQueries } from "@/entities/events/eventsApi";
 import { feeQueries } from "@/entities/fee/feeApi";
+import type { FeeResponse } from "@/entities/fee/types";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
 import {
   EVENTS_FEE_PAID_ONLY_LABEL,
@@ -45,8 +46,15 @@ function EventsDetailContent({
 }: EventsDetailContentProps) {
   // 납부 상태는 행사와 따로 기다리지 않게(요청이 줄줄이 이어지지 않게) 한 번에 같이 받는다.
   // 납부자 전용이 아닌 행사에서는 쓰지 않는다.
-  const [{ data: event }, { data: feeStatus }] = useSuspenseQueries({
-    queries: [eventsQueries.detail(eventId), feeQueries.myStatus()],
+  const [{ data: event }, { data: isFeePaid }] = useSuspenseQueries({
+    queries: [
+      eventsQueries.detail(eventId),
+      // 납부완료만 납부로 본다 — 납부확인중·확인필요는 아직 아니다
+      {
+        ...feeQueries.me(),
+        select: (fee: FeeResponse) => fee.feeStatus === "PAID",
+      },
+    ],
   });
 
   if (!event) {
@@ -62,7 +70,7 @@ function EventsDetailContent({
     );
   }
 
-  const isFeeRequired = event.feePaidOnly && feeStatus !== "PAID";
+  const isFeeRequired = event.feePaidOnly && !isFeePaid;
   const canApply = event.status === "open" && !isFeeRequired;
   const actionLabel =
     event.status === "open" && isFeeRequired

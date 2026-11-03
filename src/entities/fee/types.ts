@@ -5,15 +5,22 @@ export type FeeStatus = "UNPAID" | "PENDING" | "PAID" | "REJECTED";
 // 납부를 요청한 뒤의 상태(납부확인중 · 확인필요 · 납부완료) — 미납이면 내역이 없다(홈에서 납부하기로 안내)
 export type FeePaymentStatus = Exclude<FeeStatus, "UNPAID">;
 
-interface FeePaymentBase {
-  id: string;
-  title: string;
-  // 확인 전이거나 입금자를 확인하지 못하면 금액·확인일시가 비어 있다
-  amount: number | null;
-  paidAt: string;
+// 내 학생회비 납부 현황(서버 FeeResponse). 학생회비 조회·납부 요청이 같은 모양으로 준다.
+// 금액·송금 링크는 지금 낼 수 있을 때(UNPAID·REJECTED에 남은 학기 수를 보냈을 때)만 계산해 주고,
+// PENDING·PAID면 요청 때 남긴 금액만 준다(링크는 null). 일시는 시간대 없는 서버 시각("2026-09-04T11:49:00")이다.
+export interface FeeResponse {
+  /** 한 번도 요청하지 않았으면 null */
+  studentTransferStatusId: number | null;
+  feeStatus: FeeStatus;
+  bank: string;
+  accountNo: string;
+  remainingSemesters: number | null;
+  transferAmount: number | null;
+  /** 금액이 채워진 토스 송금 딥링크(supertoss://send?…) */
+  transferLinkUrl: string | null;
+  requestedAt: string | null;
+  /** 납부완료(PAID)일 때만 있다 */
   confirmedAt: string | null;
+  /** 확인필요(REJECTED)일 때만 있다 — 그때는 서버가 항상 채운다 */
+  rejectReason: string | null;
 }
-
-// 학생회 확인 내용은 확인필요일 때만 온다 — 상태로 갈라 두어 화면이 상태만 보고 판단하게 한다
-export type FeePayment = FeePaymentBase &
-  ({ status: "PENDING" | "PAID" } | { status: "REJECTED"; reviewNote: string });
