@@ -34,10 +34,11 @@ import { useFunnel, useFunnelExit } from "@/lib/useFunnel";
 // useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에 하나씩 나눠 두고, 이 파일은 단계 전환
 // (어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다 — 로그인·온보딩 퍼널(AuthSignupScreen)과 같은 구성이다.
 // 단계는 `/fee/transfer?fee.step=...`으로 나뉘고 단계마다 브라우저 뒤로가기가 한 단계씩 돌아간다.
-// 단계 사이에 넘기는 값(남은 학기 수·캡처 이미지와 그 파일 키·송금 링크)은 퍼널 context가 들고 있어서
-// 뒤로 돌아와도 유지된다.
+// 단계 사이에 넘기는 값(남은 학기 수·올린 캡처의 파일 키·송금 링크)은 퍼널 context가 들고 있어서
+// 뒤로 돌아와도 유지된다. 고른 캡처 파일만은 context(history.state)에 담지 못해서 이 화면이 메모리에 들고
+// 있는다(feeTransferFunnel.ts 참고) — 새로고침하면 캡처만 다시 고르면 된다.
 
-// 단계가 바뀌는 이동에만 슬라이드를 켠다 — 학기 수 입력·파일 선택처럼 같은 단계의 context만
+// 단계가 바뀌는 이동에만 슬라이드를 켠다 — 학기 수 입력처럼 같은 단계의 context만
 // 갈아 끼우는 replace에는 켜지 않는다. 뒤로가기는 React Router가 앞선 이동을 기억해 반대 방향으로
 // 자동 적용한다(coding-style.md 라우팅).
 const SLIDE = { viewTransition: true };
@@ -54,13 +55,6 @@ const TOAST_MESSAGES = {
   prepareTossFailed: "다음 단계로 넘어가지 못했어요. 다시 시도해 주세요.",
   submitFailed: "납부 확인 요청에 실패했어요. 다시 시도해 주세요.",
 } as const;
-
-// history.state에서 되살아난 File은 고를 때와 다른 객체라 이름·크기·수정 시각으로 같은 파일인지 본다
-function isSameFile(a: File, b: File) {
-  return (
-    a.name === b.name && a.size === b.size && a.lastModified === b.lastModified
-  );
-}
 
 function FeeTransferFunnel() {
   const { data: entryFeeStatus } = useSuspenseQuery({
@@ -86,6 +80,8 @@ function FeeTransferFunnel() {
   const queryClient = useQueryClient();
   const { mutateAsync: uploadFile } = useUploadFileMutation();
   const { mutate: submitFee, isPending: isSubmitting } = useSubmitFeeMutation();
+  // 고른 캡처 — 단계를 오가도 이 화면은 그대로 떠 있어서 토스에서 돌아와도 남는다
+  const [transcript, setTranscript] = useState<File>();
   // 캡처 단계의 "다음" — 캡처를 올리고 송금 링크를 받는 동안 버튼을 막는다
   const [isPreparingToss, setPreparingToss] = useState(false);
   // 마지막으로 올린 캡처와 그 키 — 토스에서 돌아와 같은 파일로 다시 "다음"을 누르면 또 올리지 않는다
@@ -99,7 +95,7 @@ function FeeTransferFunnel() {
 
   const uploadTranscript = async (file: File) => {
     const lastUpload = lastUploadRef.current;
-    if (lastUpload && isSameFile(lastUpload.file, file)) {
+    if (lastUpload?.file === file) {
       return lastUpload.fileKey;
     }
     const fileKey = await uploadFile({
@@ -195,25 +191,21 @@ function FeeTransferFunnel() {
         transcript={({ context, history }) => (
           <FeeTransferTranscriptStep
             isNextPending={isPreparingToss}
-            transcript={context.transcript}
+            transcript={transcript}
             onBack={() => history.back()}
-            // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 토스를 다녀와도 고른 파일이 남는다
-            onChangeTranscript={(transcript) => {
-              if (transcript && !isAcceptableTranscript(transcript)) {
+            onChangeTranscript={(nextTranscript) => {
+              if (nextTranscript && !isAcceptableTranscript(nextTranscript)) {
                 showToast(TOAST_MESSAGES.invalidTranscript);
                 return;
               }
-              history.replace("transcript", (prev) => ({
-                ...prev,
-                transcript,
-              }));
+              setTranscript(nextTranscript);
             }}
             // 송금하러 가기 전에 캡처를 올려 둔다 — 업로드가 실패하면 송금 전에 알 수 있다.
             // 송금 링크는 남은 학기 수마다 금액이 달라서 이때 같이 받는다
-            onNext={(transcript) => {
+            onNext={(file) => {
               setPreparingToss(true);
               Promise.all([
-                uploadTranscript(transcript),
+                uploadTranscript(file),
                 queryClient.fetchQuery(
                   feeQueries.transferGuide(context.semester),
                 ),
@@ -221,7 +213,7 @@ function FeeTransferFunnel() {
                 .then(([proofImageKey, { transferLinkUrl }]) =>
                   history.push(
                     "toss",
-                    { proofImageKey, transcript, transferLinkUrl },
+                    { proofImageKey, transferLinkUrl },
                     SLIDE,
                   ),
                 )
