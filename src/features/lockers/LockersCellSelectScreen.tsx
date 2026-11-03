@@ -17,9 +17,9 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import LockersCellSelectSkeleton from "@/features/lockers/components/LockersCellSelectSkeleton";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
 import LockersLegend from "@/features/lockers/components/LockersLegend";
+import LockersMapSkeleton from "@/features/lockers/components/LockersMapSkeleton";
 import LockersMapView from "@/features/lockers/components/LockersMapView";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelectedLockerBar";
@@ -42,7 +42,7 @@ function LockersCellSelectScreen() {
 
   // 구역이 바뀌면 고른 칸·스크롤을 처음부터 다시 잡는다
   return (
-    <Suspense fallback={<LockersCellSelectSkeleton />} key={sectionId}>
+    <Suspense fallback={<LockersMapSkeleton />} key={sectionId}>
       <SectionPeriod sectionId={sectionId} />
     </Suspense>
   );

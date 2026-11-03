@@ -7,10 +7,10 @@ import EmptyState from "@/components/ui/EmptyState";
 import StatusSummaryCard from "@/components/ui/StatusSummaryCard";
 import { LOCKER_STATUS_BADGES } from "@/features/lockers/constants/lockers";
 import { formatDate, formatDateTime } from "@/lib/date";
-import { lockersQueries } from "@/shared/entities/lockers/lockersQueries";
-
-// 이 화면에 오는 배정은 항상 배정완료다(기간종료·미신청은 홈 배지에서만 쓴다)
-const ASSIGNED_BADGE = LOCKER_STATUS_BADGES.assigned;
+import {
+  lockersQueries,
+  toLockerAssignment,
+} from "@/shared/entities/lockers/lockersQueries";
 
 interface LockersAssignmentContentProps {
   onViewLocation: () => void;
@@ -21,7 +21,10 @@ interface LockersAssignmentContentProps {
 function LockersAssignmentContent({
   onViewLocation,
 }: LockersAssignmentContentProps) {
-  const { data: assignment } = useSuspenseQuery(lockersQueries.myAssignment());
+  const { data: assignment } = useSuspenseQuery({
+    ...lockersQueries.myApplications(),
+    select: toLockerAssignment,
+  });
 
   if (!assignment) {
     // TODO: 연도(학기 기준)는 API가 붙으면 서버 값으로 받는다 — 지금은 기기 시계의 올해다
@@ -51,7 +54,7 @@ function LockersAssignmentContent({
   return (
     <div className="flex flex-col gap-2 px-5 pb-4">
       <StatusSummaryCard
-        badge={ASSIGNED_BADGE}
+        badge={LOCKER_STATUS_BADGES[assignment.status]}
         rows={rows}
         title={`${assignment.semester} 사물함`}
       />

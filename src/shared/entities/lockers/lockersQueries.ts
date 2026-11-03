@@ -5,10 +5,12 @@ import {
 } from "@tanstack/react-query";
 import { z } from "zod";
 
-import { mockupResponse } from "@/lib/mockupApi";
 import { api } from "@/shared/api";
 import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
-import { LOCKER_ASSIGNMENT_MOCK } from "@/shared/entities/lockers/lockersMock";
+import type {
+  LockerAssignment,
+  MyLockerApplicationListResponse,
+} from "@/shared/entities/lockers/lockersTypes";
 
 const LOCKERS_PATH = "/v1/app/lockers";
 
@@ -134,13 +136,28 @@ export const lockersQueries = {
           await api.get<unknown>(`${LOCKERS_PATH}/applications`, { signal }),
         ),
     }),
-  // 배정 상태·위치 보기 화면이 myApplications로 옮겨 가면 지운다(구현 7단계)
-  myAssignment: () =>
-    queryOptions({
-      queryKey: lockersKeys.myAssignment(),
-      queryFn: () => mockupResponse(() => LOCKER_ASSIGNMENT_MOCK),
-    }),
 };
+
+// 배정 상태·위치 보기가 같이 쓰는 select. 신청 일시 최신순이라 첫 건이 지금 배정이다.
+export function toLockerAssignment(
+  response: MyLockerApplicationListResponse,
+): LockerAssignment | null {
+  const application = response?.applications[0];
+  if (!application) {
+    return null;
+  }
+  return {
+    appliedAt: application.appliedAt,
+    lockerLabel: application.lockerLabel,
+    lockerPeriodId: application.lockerPeriodId,
+    sectionId: application.sectionId,
+    semester: application.lockerPeriodName,
+    status:
+      application.applicationStatus === "EXPIRED" ? "expired" : "assigned",
+    usageEndDate: application.usageEndDate,
+    usageStartDate: application.usageStartDate,
+  };
+}
 
 // 신청에서 화면이 갈라 처리하는 서버 에러 코드(LockerErrorCode)
 export const LOCKERS_ERROR_CODES = {

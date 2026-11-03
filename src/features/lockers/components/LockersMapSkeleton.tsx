@@ -1,10 +1,15 @@
 import { Skeleton } from "@wanteddev/wds";
 
-import { useSkeletonAnimation } from "@/components/ui/ScreenSkeleton";
+import {
+  useScreenHeaderSkeleton,
+  useSkeletonAnimation,
+} from "@/components/ui/ScreenSkeleton";
 
-// 배정 정보를 받는 동안 보이는 스켈레톤 — 미니맵 자리와 칸 배치 영역만 따른다.
-function LockersMineSkeleton() {
+// 칸 선택·위치 보기가 구역 상세를 받는 동안 보이는 스켈레톤 — 헤더(사진 버튼이 데이터에 따라 달라진다)와
+// 미니맵 자리, 칸 배치 영역만 따른다.
+function LockersMapSkeleton() {
   const animation = useSkeletonAnimation();
+  useScreenHeaderSkeleton();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-10 px-5">
@@ -28,4 +33,4 @@ function LockersMineSkeleton() {
   );
 }
 
-export default LockersMineSkeleton;
+export default LockersMapSkeleton;

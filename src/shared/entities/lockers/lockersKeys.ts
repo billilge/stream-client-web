@@ -8,5 +8,4 @@ export const lockersKeys = {
   sectionDetail: (lockerPeriodId: number, sectionId: number) =>
     [...lockersKeys.sections(), lockerPeriodId, sectionId] as const,
   myApplications: () => [...lockersKeys.root(), "applications"] as const,
-  myAssignment: () => [...lockersKeys.root(), "assignment"] as const,
 };
