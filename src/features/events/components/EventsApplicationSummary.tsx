@@ -1,7 +1,7 @@
 import StatusSummaryCard from "@/components/ui/StatusSummaryCard";
 import { EVENTS_APPLICATION_STATUS_BADGES } from "@/features/events/constants/events";
 import { formatDateTime } from "@/lib/date";
-import type { MyEventApplication } from "@/shared/entities/events/eventsTypes";
+import type { MyEventApplicationDetail } from "@/shared/entities/events/eventsTypes";
 
 // Figma: 신청내역 상세 Event Summary (nodeId 1133:46188), 신청취소 상세 (1133:46223).
 // 신청내역에서 "행사·신청·(취소)" 행을 만들어 공용 StatusSummaryCard에 넘긴다 — 취소 행은 취소된 신청에만 있다.
@@ -9,29 +9,37 @@ import type { MyEventApplication } from "@/shared/entities/events/eventsTypes";
 function EventsApplicationSummary({
   application,
 }: {
-  application: MyEventApplication;
+  application: Pick<
+    MyEventApplicationDetail,
+    | "title"
+    | "eventStartAt"
+    | "place"
+    | "applicationStatus"
+    | "appliedAt"
+    | "canceledAt"
+  >;
 }) {
   const rows = [
     {
       label: "행사",
-      value: `${formatDateTime(application.eventDateTime)} · ${application.location}`,
+      value: `${formatDateTime(application.eventStartAt)} · ${application.place}`,
     },
     { label: "신청", value: formatDateTime(application.appliedAt) },
-    ...(application.status === "cancelled"
-      ? [
+    ...(application.canceledAt === null
+      ? []
+      : [
           {
             label: "취소",
-            value: formatDateTime(application.cancelledAt),
+            value: formatDateTime(application.canceledAt),
           },
-        ]
-      : []),
+        ]),
   ];
 
   return (
     <StatusSummaryCard
-      badge={EVENTS_APPLICATION_STATUS_BADGES[application.status]}
+      badge={EVENTS_APPLICATION_STATUS_BADGES[application.applicationStatus]}
       rows={rows}
-      title={application.eventTitle}
+      title={application.title}
     />
   );
 }

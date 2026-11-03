@@ -2,10 +2,10 @@ import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 
 import { EVENTS_APPLICATION_STATUS_BADGES } from "@/features/events/constants/events";
 import { formatDateTime } from "@/lib/date";
-import type { MyEventApplication } from "@/shared/entities/events/eventsTypes";
+import type { MyEventApplicationListItem } from "@/shared/entities/events/eventsTypes";
 
 interface EventsApplicationCardProps {
-  application: MyEventApplication;
+  application: MyEventApplicationListItem;
   onSelectEvent: () => void;
   onSelectApplication: () => void;
 }
@@ -19,16 +19,17 @@ function EventsApplicationCard({
   onSelectEvent,
   onSelectApplication,
 }: EventsApplicationCardProps) {
-  const badge = EVENTS_APPLICATION_STATUS_BADGES[application.status];
+  const badge = EVENTS_APPLICATION_STATUS_BADGES[application.applicationStatus];
+  // 취소 일시는 취소한 신청에만 있다
   const dateLabel =
-    application.status === "cancelled"
-      ? `${formatDateTime(application.cancelledAt)} 취소`
-      : `${formatDateTime(application.appliedAt)} 신청`;
+    application.canceledAt === null
+      ? `${formatDateTime(application.appliedAt)} 신청`
+      : `${formatDateTime(application.canceledAt)} 취소`;
 
   return (
     <div className="flex flex-col gap-4 px-5">
       <div className="flex items-center gap-3">
-        {/* 행사 이미지 API 전까지는 행사 목록 카드와 같은 단색 자리 */}
+        {/* 썸네일(thumbnailUrl)을 그리기 전까지는 행사 목록 카드와 같은 단색 자리 */}
         <div className="size-17.5 shrink-0 rounded-xl bg-thumbnail-placeholder" />
         <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
           <ContentBadge
@@ -46,7 +47,7 @@ function EventsApplicationCard({
               variant="body2"
               weight="bold"
             >
-              {application.eventTitle}
+              {application.title}
             </Typography>
             <Typography
               as="p"
@@ -63,7 +64,7 @@ function EventsApplicationCard({
         <div className="flex-1">
           <Button
             // 카드마다 같은 문구라, 스크린리더가 어느 행사의 버튼인지 구분하도록 행사명을 붙인다
-            aria-label={`${application.eventTitle} 행사 상세`}
+            aria-label={`${application.title} 행사 상세`}
             color="assistive"
             fullWidth
             onClick={onSelectEvent}
@@ -75,7 +76,7 @@ function EventsApplicationCard({
         </div>
         <div className="flex-1">
           <Button
-            aria-label={`${application.eventTitle} 신청 상세`}
+            aria-label={`${application.title} 신청 상세`}
             color="assistive"
             fullWidth
             onClick={onSelectApplication}

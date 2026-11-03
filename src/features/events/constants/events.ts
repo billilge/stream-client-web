@@ -60,8 +60,8 @@ export type EventsTab = keyof typeof EVENTS_TAB_PATHS;
 
 // 신청내역 상태 배지 — 목록 카드와 상세가 같이 쓴다
 export const EVENTS_APPLICATION_STATUS_BADGES = {
-  applied: { color: "green", label: "신청완료" },
-  cancelled: { color: "red", label: "신청취소" },
+  APPLIED: { color: "green", label: "신청완료" },
+  CANCELED: { color: "red", label: "신청취소" },
 } as const;
 
 // 학생회비 납부자 전용 행사인데 미납(납부확인중 포함)이면 하단 버튼을 막고 라벨로 보여주는 문구.

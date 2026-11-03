@@ -1,4 +1,5 @@
 import type {
+  EventAnsweredQuestion,
   EventApplyAnswer,
   EventQuestionContent,
   EventQuestionType,
@@ -33,6 +34,30 @@ export function toEventsQuestions(
         ? { ...base, options: question.options, type }
         : { ...base, type };
     });
+}
+
+// 신청 상세의 답변을 질문 id → 화면 답변으로 바꾼다. 답하지 않은 질문은 빠진다.
+export function toEventsAnswers(
+  questions: EventAnsweredQuestion[],
+): Record<string, EventsAnswer> {
+  return Object.fromEntries(
+    questions.flatMap((question): [string, EventsAnswer][] => {
+      const id = String(question.questionId);
+      // 선택지가 바뀌어 범위를 벗어난 번호는 건너뛴다(서버가 선택지 문구를 찾을 때와 같은 기준)
+      const selected = question.selectedOptions
+        .filter((index) => index >= 0 && index < question.options.length)
+        .map((index) => question.options[index]);
+
+      switch (question.questionType) {
+        case "MULTIPLE_CHOICE":
+          return selected.length > 0 ? [[id, { otherText: "", selected }]] : [];
+        case "SINGLE_CHOICE":
+          return selected.length > 0 ? [[id, selected[0]]] : [];
+        default:
+          return question.answerText ? [[id, question.answerText]] : [];
+      }
+    }),
+  );
 }
 
 // 화면 답변을 신청 요청 모양으로 바꾼다. 답하지 않은 질문은 뺀다 — 서버는 선택 질문의 생략을 빈 답변과 같게 본다.

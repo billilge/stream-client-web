@@ -1,9 +1,10 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Divider } from "@wanteddev/wds";
 import { Fragment } from "react";
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
 import EventsApplicationCard from "@/features/events/components/EventsApplicationCard";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { eventsQueries } from "@/shared/entities/events/eventsQueries";
 
 interface EventsApplicationListProps {
@@ -19,7 +20,22 @@ function EventsApplicationList({
   onSelectApplication,
   onBrowseEvents,
 }: EventsApplicationListProps) {
-  const { data: applications } = useSuspenseQuery(eventsQueries.applications());
+  const {
+    data: applications,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useSuspenseInfiniteQuery({
+    ...eventsQueries.applications(),
+    select: (data) => data.pages.flatMap((page) => page.content),
+  });
+  const nextPageTriggerRef = useInfiniteScroll({
+    fetchNextPage,
+    hasNextPage,
+    isFetchNextPageError,
+    isFetchingNextPage,
+  });
 
   if (applications.length === 0) {
     return (
@@ -36,21 +52,27 @@ function EventsApplicationList({
   }
 
   return (
-    <div className="flex flex-col gap-6 pt-6 pb-4">
-      {applications.map((application, index) => (
-        <Fragment key={application.id}>
-          {index > 0 && (
-            <div className="px-5">
-              <Divider color="semantic.line.normal.alternative" />
-            </div>
-          )}
-          <EventsApplicationCard
-            application={application}
-            onSelectApplication={() => onSelectApplication(application.id)}
-            onSelectEvent={() => onSelectEvent(application.eventId)}
-          />
-        </Fragment>
-      ))}
+    <div className="pt-6 pb-4">
+      <div className="flex flex-col gap-6">
+        {applications.map((application, index) => (
+          <Fragment key={application.applicationId}>
+            {index > 0 && (
+              <div className="px-5">
+                <Divider color="semantic.line.normal.alternative" />
+              </div>
+            )}
+            <EventsApplicationCard
+              application={application}
+              onSelectApplication={() =>
+                onSelectApplication(String(application.applicationId))
+              }
+              onSelectEvent={() => onSelectEvent(String(application.eventId))}
+            />
+          </Fragment>
+        ))}
+      </div>
+      {/* 카드 사이 gap이 붙지 않게 목록 밖에 둔다 */}
+      <div ref={nextPageTriggerRef} />
     </div>
   );
 }

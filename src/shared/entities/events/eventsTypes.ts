@@ -88,6 +88,42 @@ export interface EventApplyResult {
   place: string;
 }
 
+// 신청 상태(EventApplicationStatus). 취소해도 기록은 남고 상태만 CANCELED가 된다
+export type EventApplicationStatus = "APPLIED" | "CANCELED";
+
+// 내 신청내역 한 건(GET /v1/app/events/applications)
+export interface MyEventApplicationListItem {
+  applicationId: number;
+  eventId: number;
+  title: string;
+  thumbnailUrl: string | null;
+  applicationStatus: EventApplicationStatus;
+  appliedAt: string;
+  /** 취소한 신청만 있다 */
+  canceledAt: string | null;
+}
+
+// 신청서 질문 한 건과 그 신청에서 제출한 답변
+export interface EventAnsweredQuestion extends EventQuestionContent {
+  /** 텍스트형 답변. 답하지 않은 선택 질문은 null */
+  answerText: string | null;
+  /** 고른 선택지의 순서 번호(0부터). 답하지 않은 선택 질문은 빈 배열 */
+  selectedOptions: number[];
+}
+
+// 내 신청 상세(GET /v1/app/events/applications/{applicationId}) — 행사 질문 전체에 이 신청의 답변을 붙여 준다
+export interface MyEventApplicationDetail {
+  eventId: number;
+  title: string;
+  place: string;
+  applicationStatus: EventApplicationStatus;
+  eventStartAt: string;
+  appliedAt: string;
+  /** 취소한 신청만 있다 */
+  canceledAt: string | null;
+  questions: EventAnsweredQuestion[];
+}
+
 // 화면(EventsQuestionField)이 그리는 문항·답변 — 신청 폼과 신청내역 상세가 같이 쓴다.
 // 서버 질문(EventQuestionContent)은 eventsQuestions.ts에서 이 모양으로 바꾼다.
 interface EventsQuestionBase {
@@ -118,26 +154,3 @@ export interface EventsChoiceAnswer {
 }
 
 export type EventsAnswer = string | EventsChoiceAnswer;
-
-export type MyEventApplicationStatus = "applied" | "cancelled";
-
-interface MyEventApplicationBase {
-  id: string;
-  eventId: string;
-  eventTitle: string;
-  // "2026-05-12T12:00"
-  eventDateTime: string;
-  location: string;
-  appliedAt: string;
-  questions: EventsQuestion[];
-  // 문항 id → 답변. 답하지 않은 선택 문항은 빠진다
-  answers: Record<string, EventsAnswer>;
-}
-
-// 내 행사 신청내역. 행사 쪽 문항이 나중에 바뀌어도 내가 답한 그대로 보여 주려고 신청 당시 문항을 같이 들고 있다.
-// 취소 일시는 신청취소일 때만 있다 — 상태로 갈라 두어 "취소인데 취소 일시가 없는" 경우를 타입에서 막는다.
-export type MyEventApplication = MyEventApplicationBase &
-  (
-    | { status: "applied"; cancelledAt: null }
-    | { status: "cancelled"; cancelledAt: string }
-  );

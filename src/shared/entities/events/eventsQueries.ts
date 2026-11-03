@@ -5,13 +5,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { mockupResponse } from "@/lib/mockupApi";
 import { api, type CursorSliceResponse, isApiError } from "@/shared/api";
 import { eventsKeys } from "@/shared/entities/events/eventsKeys";
-import {
-  MY_EVENT_APPLICATIONS_MOCK,
-  toMockDateTime,
-} from "@/shared/entities/events/eventsMock";
 import type {
   EventApplyAnswer,
   EventApplyResult,
@@ -19,14 +14,19 @@ import type {
   EventForm,
   EventListItem,
   EventRecruitStatus,
-  MyEventApplication,
+  MyEventApplicationDetail,
+  MyEventApplicationListItem,
 } from "@/shared/entities/events/eventsTypes";
 
 // 화면이 갈라 처리하는 서버 에러 코드(EventErrorCode)
 export const EVENTS_ERROR_CODES = {
   alreadyApplied: "ALREADY_APPLIED",
+  alreadyCanceled: "ALREADY_CANCELED",
   // 신청 기간이 끝났다
   alreadyClosed: "ALREADY_CLOSED",
+  applicationNotFound: "APPLICATION_NOT_FOUND",
+  // 신청 기간이 끝나 취소할 수 없다
+  cancelDeadlinePassed: "CANCEL_DEADLINE_PASSED",
   // 선착순 정원이 다 찼다
   capacityFull: "CAPACITY_FULL",
   eventNotFound: "EVENT_NOT_FOUND",
@@ -53,6 +53,11 @@ async function nullOnErrorCode<T>(
   }
 }
 
+// 커서 목록의 다음 페이지 — 마지막 페이지면 null이라 더 받지 않는다
+function getNextCursor(lastPage: CursorSliceResponse<unknown>) {
+  return lastPage.hasNext ? lastPage.nextCursor : null;
+}
+
 // 화면은 이 queryOptions로만 데이터를 받는다. 화면 모양으로 바꿔야 하면 화면 쪽에서 select를 더한다.
 export const eventsQueries = {
   // 행사 목록을 커서로 이어 받는다(GET /v1/app/events). recruitStatus가 null이면 거르지 않는다.
@@ -66,8 +71,7 @@ export const eventsQueries = {
           signal,
         }),
       initialPageParam: null as string | null,
-      getNextPageParam: (lastPage) =>
-        lastPage.hasNext ? lastPage.nextCursor : null,
+      getNextPageParam: getNextCursor,
     }),
   // 없는 행사는 null — 상세 화면이 "행사를 찾을 수 없어요" 빈 상태를 그린다.
   detail: (eventId: string) =>
@@ -89,21 +93,32 @@ export const eventsQueries = {
           EVENTS_CLOSED_ERROR_CODES,
         ),
     }),
+  // 내 신청내역을 커서로 이어 받는다(GET /v1/app/events/applications)
   applications: () =>
-    queryOptions({
+    infiniteQueryOptions({
       queryKey: eventsKeys.applications(),
-      queryFn: () => mockupResponse(() => [...MY_EVENT_APPLICATIONS_MOCK]),
+      queryFn: ({ pageParam, signal }) =>
+        api.get<CursorSliceResponse<MyEventApplicationListItem>>(
+          "/v1/app/events/applications",
+          { params: { cursor: pageParam }, signal },
+        ),
+      initialPageParam: null as string | null,
+      getNextPageParam: getNextCursor,
     }),
-  // 없는 신청내역은 null
+  // 없는 신청내역(행사가 지워진 경우 포함)은 null — 상세 화면이 신청내역 목록으로 돌려보낸다
   application: (applicationId: string) =>
     queryOptions({
       queryKey: eventsKeys.application(applicationId),
-      queryFn: () =>
-        mockupResponse(
-          () =>
-            MY_EVENT_APPLICATIONS_MOCK.find(
-              (application) => application.id === applicationId,
-            ) ?? null,
+      queryFn: ({ signal }) =>
+        nullOnErrorCode(
+          api.get<MyEventApplicationDetail>(
+            `/v1/app/events/applications/${applicationId}`,
+            { signal },
+          ),
+          [
+            EVENTS_ERROR_CODES.applicationNotFound,
+            EVENTS_ERROR_CODES.eventNotFound,
+          ],
         ),
     }),
 };
@@ -139,39 +154,36 @@ export function useApplyEventMutation(eventId: string) {
   });
 }
 
-// 신청을 취소하고 바뀐 신청내역을 돌려준다. 성공하면 신청내역 목록·상세 캐시를 무효화해 취소 상태를 다시 받는다.
+// 신청 취소(PATCH /v1/app/events/applications/{applicationId}/cancel). 신청 기록은 남고 상태만 취소로 바뀐다.
+// 성공하면 신청내역 목록·상세를 다시 받아 취소 상태를 보여 준다. 이미 취소된 신청이었다면 지금 캐시가 낡았다는
+// 뜻이라 똑같이 다시 받는다.
 export function useCancelEventApplicationMutation() {
   const queryClient = useQueryClient();
+  // Promise를 돌려줘서 다시 받은 데이터가 들어온 뒤에 mutation이 끝나게 한다 —
+  // 화면은 끝난 뒤 토스트를 띄우므로 토스트가 취소된 화면과 함께 뜬다.
+  const refetchApplications = () =>
+    Promise.all([
+      // 목록·상세를 모두 낡은 것으로 표시하고, 지금 화면에 있는 조회(취소한 상세)만 바로 다시 받는다
+      queryClient.invalidateQueries({ queryKey: eventsKeys.applications() }),
+      // 목록은 화면에 없어도 다시 받는다 — 안 그러면 목록으로 돌아갔을 때 취소 전 캐시가 잠깐 보였다가 바뀐다.
+      // 열어 봤던 다른 상세는 취소와 상관없어 다시 받지 않는다
+      queryClient.refetchQueries({
+        exact: true,
+        queryKey: eventsKeys.applications(),
+      }),
+    ]);
+
   return useMutation({
     mutationFn: (applicationId: string) =>
-      mockupResponse(() => {
-        const index = MY_EVENT_APPLICATIONS_MOCK.findIndex(
-          (application) => application.id === applicationId,
-        );
-        if (index === -1) {
-          throw new Error(`신청내역을 찾을 수 없어요: ${applicationId}`);
-        }
-        const next: MyEventApplication = {
-          ...MY_EVENT_APPLICATIONS_MOCK[index],
-          // 실 API에서는 서버가 취소 시각을 정해 돌려준다
-          cancelledAt: toMockDateTime(new Date()),
-          status: "cancelled",
-        };
-        MY_EVENT_APPLICATIONS_MOCK[index] = next;
-        return next;
-      }),
-    // Promise를 돌려줘서 다시 받은 데이터가 들어온 뒤에 mutation이 끝나게 한다 —
-    // 화면은 끝난 뒤 토스트를 띄우므로 토스트가 취소된 화면과 함께 뜬다.
-    onSuccess: () =>
-      Promise.all([
-        // 목록·상세를 모두 낡은 것으로 표시하고, 지금 화면에 있는 조회(취소한 상세)만 바로 다시 받는다
-        queryClient.invalidateQueries({ queryKey: eventsKeys.applications() }),
-        // 목록은 화면에 없어도 다시 받는다 — 안 그러면 목록으로 돌아갔을 때 취소 전 캐시가 잠깐 보였다가 바뀐다.
-        // 열어 봤던 다른 상세는 취소와 상관없어 다시 받지 않는다
-        queryClient.refetchQueries({
-          exact: true,
-          queryKey: eventsKeys.applications(),
-        }),
-      ]),
+      api.patch<null>(`/v1/app/events/applications/${applicationId}/cancel`),
+    onSuccess: refetchApplications,
+    onError: (error) => {
+      if (
+        isApiError(error) &&
+        error.code === EVENTS_ERROR_CODES.alreadyCanceled
+      ) {
+        return refetchApplications();
+      }
+    },
   });
 }
