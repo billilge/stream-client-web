@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import LockersNoticeSheet from "@/features/lockers/components/LockersNoticeSheet";
-import { IS_LOCKERS_APPLY_PERIOD } from "@/features/lockers/constants/lockersNotice";
 
 // BottomSheet의 시트 내려가는 시간(duration-[380ms])과 맞춘다 — 다 내려간 뒤에 화면을 떠난다
 const SHEET_CLOSE_MS = 380;
@@ -33,7 +32,6 @@ function LockersApplyScreen() {
 
   return (
     <LockersNoticeSheet
-      isApplyPeriod={IS_LOCKERS_APPLY_PERIOD}
       onClose={handleClose}
       onConfirm={() => navigate("/lockers/apply/sections")}
       open={isOpen}
