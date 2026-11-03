@@ -654,7 +654,7 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 |---|---|---|
 | `Content Badge` (답변완료·답변대기, 납부확인중·확인필요·납부완료, 배정완료) | `ContentBadge size="small" variant="solid" color="accent"` | 홈 내 정보 목록과 같은 상태 이름·색이다. 초록 green, 주황 orange, 빨강 red. 상태→배지 매핑은 `FEE_STATUS_BADGES`(`features/fee/constants`)·`LOCKER_STATUS_BADGES`(`features/lockers/constants`) 한 곳에 두고 홈과 같이 쓴다 |
 | 작성내역 상세 `해당 회차 답변 모아보기` | `Button color="primary" size="medium" variant="outlined"` | |
-| 학생회비 `문의하기`, 사물함 `사물함 위치 보기` | `Button color="assistive" size="medium" variant="outlined" fullWidth` | 위치 보기의 꺾쇠는 `trailingContent={<IconChevronRight />}` |
+| 학생회비 `문의하기`·`다시 납부하기`, 사물함 `사물함 위치 보기` | `Button color="assistive" size="medium" variant="outlined" fullWidth` | 위치 보기의 꺾쇠는 `trailingContent={<IconChevronRight />}` |
 | 빈 상태 버튼 `열린피드백 작성하기` / `열린피드백 보러 가기` | `Button color="assistive" size="small" variant="solid"` | 행사 목록 빈 상태(outlined)와 variant가 다르다 |
 | 뒤로가기 헤더 | `ScreenHeader variant="normal"` + `TopNavigationButton` | `useBackNavigation(fallbackPath)`(`hooks/`) — 바로 들어와 뒤로 갈 기록이 없으면 홈(상세는 목록, 위치 보기는 배정 상태)으로 보낸다. 대비 경로는 각 기능 `constants`의 경로 상수(`FEE_PAYMENTS_PATH`·`MY_FEEDBACKS_PATH`·`LOCKER_ASSIGNMENT_PATH` 등)를 쓰고, 데이터가 없을 때의 `<Navigate>`도 화면이 넘긴 `fallbackPath`로 간다 |
 
@@ -827,6 +827,8 @@ Figma는 같은 알림 설정 화면을 **설정 섹션(`3524:152367`)과 알림
 
 처음에는 단계마다 라우트를 따로 뒀는데(`/fee/transfer/semester` 등 5개), 그러면 단계 사이에 값을 navigate state로 넘겨야 해서 남은 학기 수가 캡처 단계에서 읽히지 않고 고른 파일도 다음 단계로 넘어가지 않았다. 퍼널 context로 바꾸면서 두 값이 플로우 끝까지 이어지고, 토스 단계에서 뒤로 돌아와도 입력이 남는다. 학기 수 입력·파일 선택은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) `guard`가 걸러서 첫 단계로 돌려보낸다.
 
-캡처 이미지는 `File`을 context에 그대로 담는다 — `File`은 구조화 복제가 되는 값이라 history.state에 실린다. 다만 history.state는 브라우저마다 크기 상한이 있어서(Firefox 16MiB) 업로드 API가 붙으면 파일 대신 서버가 준 식별자를 담는 쪽으로 바꾸는 게 안전하다. `File`이 history.state에서 되살아나지 못하는 경우도 있어 `guard`가 `instanceof File`로 확인하고, 아니면 첫 단계로 돌려보낸다.
+캡처 이미지는 `File`을 context에 그대로 담는다 — `File`은 구조화 복제가 되는 값이라 history.state에 실린다(브라우저 상한 Firefox 16MiB가 서버 업로드 상한 10MB보다 크다). 캡처 단계에서 "다음"을 누르면 퍼널이 캡처를 올리고(`useUploadFileMutation`) 송금 링크를 받아(`feeQueries.transferGuide`) 파일 키(`proofImageKey`)와 링크(`transferLinkUrl`)를 다음 단계 context에 함께 싣는다 — 업로드 실패를 송금하기 **전에** 알리기 위해서다. 토스에서 돌아와 같은 파일로 다시 누르면 또 올리지 않는다. `File`이 history.state에서 되살아나지 못하는 경우도 있어 `guard`가 `instanceof File`로 확인하고, 아니면 첫 단계로 돌려보낸다.
+
+퍼널은 들어올 때 내 납부 상태(`feeQueries.me`)를 한 번만 보고, 미납·확인필요가 아니면 납부내역으로 보낸다. 들어올 때의 값만 보는 이유는 납부 요청을 보내면 상태가 납부확인중으로 바뀌는데, 그때 완료 단계에서 쫓겨나면 안 되기 때문이다. 단계를 넘기지 못한 실패(업로드·송금 링크·납부 요청)는 퍼널이 토스트 하나로 알린다 — 송금 확인 단계의 실패는 이미 송금한 뒤라 "다시 송금하라"로 읽히지 않게 요청 실패로만 안내한다.
 
 토스 이동 안내/실패(`3562:163025` / `3562:163046`)와 캡처 업로드 전/후(`3562:162845` / `3562:162891`)는 각각 **한 단계 안의 state**다. Figma가 프레임을 나눠 뒀지만 퍼널 단계로는 올리지 않았다 — 뒤로가기로 돌아갈 지점이 아니기 때문이다.
