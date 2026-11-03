@@ -31,7 +31,7 @@ export const FEE_STATUS_BADGES: Record<
   FeePaymentStatus,
   { label: string; color: "orange" | "red" | "green" }
 > = {
-  checking: { color: "orange", label: "납부확인중" },
-  "needs-check": { color: "red", label: "확인필요" },
-  paid: { color: "green", label: "납부완료" },
+  PAID: { color: "green", label: "납부완료" },
+  PENDING: { color: "orange", label: "납부확인중" },
+  REJECTED: { color: "red", label: "확인필요" },
 };

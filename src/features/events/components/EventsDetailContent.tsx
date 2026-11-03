@@ -62,7 +62,7 @@ function EventsDetailContent({
     );
   }
 
-  const isFeeRequired = event.feePaidOnly && feeStatus !== "paid";
+  const isFeeRequired = event.feePaidOnly && feeStatus !== "PAID";
   const canApply = event.status === "open" && !isFeeRequired;
   const actionLabel =
     event.status === "open" && isFeeRequired

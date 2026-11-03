@@ -1,4 +1,4 @@
-import type { FeePayment, MyFeeStatus } from "@/entities/fee/types";
+import type { FeePayment, FeeStatus } from "@/entities/fee/types";
 
 const TITLE = "소프트웨어융합대학 학생회비";
 
@@ -8,7 +8,7 @@ const CHECKING: FeePayment = {
   confirmedAt: null,
   id: "2026-2",
   paidAt: "2026-09-04T11:49",
-  status: "checking",
+  status: "PENDING",
   title: TITLE,
 };
 
@@ -19,7 +19,7 @@ const NEEDS_CHECK: FeePayment = {
   paidAt: "2026-09-04T11:49",
   reviewNote:
     "입금자 정보를 확인하지 못했어요. 문제가 있을 경우 학생회에 문의해 주세요.",
-  status: "needs-check",
+  status: "REJECTED",
   title: TITLE,
 };
 
@@ -28,7 +28,7 @@ const PAID: FeePayment = {
   confirmedAt: "2026-09-05T13:30",
   id: "2026-2",
   paidAt: "2026-09-04T11:49",
-  status: "paid",
+  status: "PAID",
   title: TITLE,
 };
 
@@ -56,5 +56,5 @@ const FEE_PAYMENTS: Record<FeeMockState, FeePayment[]> = {
 
 export const FEE_PAYMENTS_MOCK = FEE_PAYMENTS[FEE_MOCK_STATE];
 
-// 상태를 바꿔 행사 상세의 학생회비 납부자 전용 처리를 확인한다. unpaid·pending이면 신청 버튼이 막힌다.
-export const MY_FEE_STATUS_MOCK: MyFeeStatus = "paid";
+// 상태를 바꿔 행사 상세의 학생회비 납부자 전용 처리를 확인한다. PAID가 아니면 신청 버튼이 막힌다.
+export const MY_FEE_STATUS_MOCK: FeeStatus = "PAID";

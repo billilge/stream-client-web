@@ -36,7 +36,7 @@ function FeePaymentCard({ payment, onContact }: FeePaymentCardProps) {
         title={payment.title}
       />
 
-      {payment.status === "needs-check" && (
+      {payment.status === "REJECTED" && (
         <div className="flex flex-col gap-3 rounded-xl bg-background-normal p-4">
           <div className="flex flex-col gap-2">
             <Typography
