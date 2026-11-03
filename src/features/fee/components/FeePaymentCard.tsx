@@ -10,6 +10,8 @@ interface FeePaymentCardProps {
   payment: FeeResponse & { feeStatus: FeePaymentStatus };
   /** 없으면 문의하기 버튼을 그리지 않는다(채널 주소가 아직 없을 때) */
   onContact?: () => void;
+  /** 확인필요일 때 "다시 납부하기" — 송금 플로우를 처음(남은 학기 수)부터 다시 탄다 */
+  onRepay: () => void;
 }
 
 function formatAmount(value: number | null) {
@@ -19,7 +21,8 @@ function formatAmount(value: number | null) {
 // Figma: 학생회비 납부내역 납부확인중 (nodeId 3147:147860), 확인필요 (3147:147879), 납부완료 (3147:147841)
 // 납부 요약은 공용 StatusSummaryCard이고, 그 아래에 확인필요일 때만 학생회 확인 내용 카드(학생회비 로컬)가 붙는다.
 // 행 간격은 Figma(8px)가 아니라 다른 요약 카드와 같은 6px다 — Figma 쪽 실수로 보고 맞췄다(#120).
-function FeePaymentCard({ payment, onContact }: FeePaymentCardProps) {
+// "다시 납부하기"는 Figma에 없는 버튼이라 같은 카드의 "문의하기"와 같은 모양으로 그 아래에 둔다.
+function FeePaymentCard({ payment, onContact, onRepay }: FeePaymentCardProps) {
   // 확인필요면 서버가 금액을 비워서 준다(다시 낼 때 학기 수부터 새로 받기 때문) — 그때는 "-"다
   const rows = [
     { label: "납부금액", value: formatAmount(payment.transferAmount) },
@@ -72,6 +75,15 @@ function FeePaymentCard({ payment, onContact }: FeePaymentCardProps) {
               문의하기
             </Button>
           )}
+          <Button
+            color="assistive"
+            fullWidth
+            onClick={onRepay}
+            size="medium"
+            variant="outlined"
+          >
+            다시 납부하기
+          </Button>
         </div>
       )}
     </div>

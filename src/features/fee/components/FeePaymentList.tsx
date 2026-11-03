@@ -8,10 +8,11 @@ import FeePaymentCard from "@/features/fee/components/FeePaymentCard";
 interface FeePaymentListProps {
   /** 없으면 문의하기 버튼을 그리지 않는다(채널 주소가 아직 없을 때) */
   onContact?: () => void;
+  onRepay: () => void;
 }
 
 // 서버가 학생의 최신 납부 요청 한 건만 주므로 카드도 한 장만 그린다.
-function FeePaymentList({ onContact }: FeePaymentListProps) {
+function FeePaymentList({ onContact, onRepay }: FeePaymentListProps) {
   const { data: payment } = useSuspenseQuery({
     ...feeQueries.me(),
     // 한 번도 요청하지 않았으면(UNPAID) 그릴 내역이 없다
@@ -35,7 +36,11 @@ function FeePaymentList({ onContact }: FeePaymentListProps) {
 
   return (
     <div className="flex flex-col px-5 pb-4">
-      <FeePaymentCard onContact={onContact} payment={payment} />
+      <FeePaymentCard
+        onContact={onContact}
+        onRepay={onRepay}
+        payment={payment}
+      />
     </div>
   );
 }
