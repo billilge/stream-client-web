@@ -3,12 +3,6 @@ import { Suspense, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
 
 import ScreenToast from "@/components/ui/ScreenToast";
-import {
-  FEE_ERROR_CODES,
-  feeQueries,
-  useSubmitFeeMutation,
-} from "@/entities/fee/feeApi";
-import { useUploadFileMutation } from "@/entities/files/filesApi";
 import FeeTransferSkeleton from "@/features/fee/components/FeeTransferSkeleton";
 import {
   FEE_EXTERNAL_LINKS,
@@ -26,9 +20,15 @@ import FeeTransferTossStep from "@/features/fee/steps/FeeTransferTossStep";
 import FeeTransferTranscriptStep from "@/features/fee/steps/FeeTransferTranscriptStep";
 import { HOME_PATH } from "@/features/home/constants/home";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
-import { isApiError } from "@/lib/api/errors";
 import { openExternalLink } from "@/lib/openExternalLink";
 import { useFunnel, useFunnelExit } from "@/lib/useFunnel";
+import { isApiError } from "@/shared/api";
+import {
+  FEE_ERROR_CODES,
+  feeQueries,
+  useSubmitFeeMutation,
+} from "@/shared/entities/fee/feeQueries";
+import { useUploadFileMutation } from "@/shared/entities/files/filesQueries";
 
 // 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 토스 이동 → 송금 확인 → 확인요청 완료)을
 // useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에 하나씩 나눠 두고, 이 파일은 단계 전환

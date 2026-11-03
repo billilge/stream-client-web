@@ -1,8 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 
-import type { FileCategory, FileUploadUrl } from "@/entities/files/types";
-import { api } from "@/lib/api/client";
+import { api } from "@/shared/api";
+import type {
+  FileCategory,
+  FileUploadUrl,
+} from "@/shared/entities/files/filesTypes";
 
 interface UploadFileVariables {
   file: File;
