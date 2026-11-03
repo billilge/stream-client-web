@@ -1,8 +1,8 @@
 import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 
-import type { MyEventApplication } from "@/entities/events/types";
 import { EVENTS_APPLICATION_STATUS_BADGES } from "@/features/events/constants/events";
 import { formatDateTime } from "@/lib/date";
+import type { MyEventApplication } from "@/shared/entities/events/types";
 
 interface EventsApplicationCardProps {
   application: MyEventApplication;

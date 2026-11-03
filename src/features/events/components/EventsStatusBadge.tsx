@@ -1,6 +1,6 @@
 import { ContentBadge } from "@wanteddev/wds";
 
-import type { EventStatus } from "@/entities/events/types";
+import type { EventStatus } from "@/shared/entities/events/types";
 
 interface EventsStatusBadgeProps {
   status: EventStatus;

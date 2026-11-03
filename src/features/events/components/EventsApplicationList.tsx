@@ -3,8 +3,8 @@ import { Divider } from "@wanteddev/wds";
 import { Fragment } from "react";
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
-import { eventsQueries } from "@/entities/events/eventsApi";
 import EventsApplicationCard from "@/features/events/components/EventsApplicationCard";
+import { eventsQueries } from "@/shared/entities/events/eventsApi";
 
 interface EventsApplicationListProps {
   onSelectEvent: (eventId: string) => void;

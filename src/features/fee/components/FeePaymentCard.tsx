@@ -1,9 +1,9 @@
 import { Button, Typography } from "@wanteddev/wds";
 
 import StatusSummaryCard from "@/components/ui/StatusSummaryCard";
-import type { FeePayment } from "@/entities/fee/types";
 import { FEE_STATUS_BADGES } from "@/features/fee/constants/fee";
 import { formatDateTime } from "@/lib/date";
+import type { FeePayment } from "@/shared/entities/fee/types";
 
 interface FeePaymentCardProps {
   payment: FeePayment;

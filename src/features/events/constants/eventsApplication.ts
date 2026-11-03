@@ -2,7 +2,7 @@ import filePencil from "@/assets/icons/events/file-pencil.svg";
 import type {
   EventsQuestion,
   EventsTextQuestion,
-} from "@/entities/events/types";
+} from "@/shared/entities/events/types";
 
 export interface EventsApplication {
   eventName: string;

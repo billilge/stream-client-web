@@ -3,8 +3,8 @@ import { Divider } from "@wanteddev/wds";
 import { Fragment } from "react";
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
-import { eventsQueries } from "@/entities/events/eventsApi";
 import EventsCard from "@/features/events/components/EventsCard";
+import { eventsQueries } from "@/shared/entities/events/eventsApi";
 
 // Figma: 행사 모집중 empty (nodeId 1165:62713)는 "모집중" 필터 버전만 준다 —
 // 일러스트·레이아웃·"아카이빙 둘러보기" 버튼이 이 조합의 스펙이다.

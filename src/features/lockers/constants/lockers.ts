@@ -1,4 +1,4 @@
-import type { LockerAssignmentStatus } from "@/entities/lockers/types";
+import type { LockerAssignmentStatus } from "@/shared/entities/lockers/types";
 
 // 사물함 배정 상태 배지 — 사물함 배정 상태 화면과 홈 내 정보 목록(HomeInfoList)이 같이 쓴다.
 // color가 없으면 회색(neutral) 배지다.

@@ -1,4 +1,4 @@
-import type { EventItem } from "@/entities/events/types";
+import type { EventItem } from "@/shared/entities/events/types";
 
 // 모집 상태 필터. value는 EventStatus + "all"이고, 라벨은 Figma Filter Chips(1243:70861) 그대로.
 export const EVENT_STATUS_FILTERS = [

@@ -1,9 +1,9 @@
 import { ContentBadge, Typography } from "@wanteddev/wds";
 
 import arrowRight from "@/assets/icons/common/arrow-right.svg";
-import type { MyFeedback } from "@/entities/feedbacks/types";
 import { hasFeedbackAnswer } from "@/features/feedbacks/constants/feedbacks";
 import { formatDate } from "@/lib/date";
+import type { MyFeedback } from "@/shared/entities/feedbacks/types";
 
 interface FeedbacksHistoryCardProps {
   feedback: MyFeedback;

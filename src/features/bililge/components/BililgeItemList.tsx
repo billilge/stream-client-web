@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { bililgeQueries } from "@/entities/bililge/bililgeApi";
-import type { BililgeItem } from "@/entities/bililge/types";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
+import { bililgeQueries } from "@/shared/entities/bililge/bililgeApi";
+import type { BililgeItem } from "@/shared/entities/bililge/types";
 
 interface BililgeItemListProps {
   // "전체"는 필터 없음, 그 외는 BililgeCategory 값(BililgeCategoryFilter 칩 값)

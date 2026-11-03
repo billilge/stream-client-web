@@ -3,9 +3,9 @@ import { Button } from "@wanteddev/wds";
 import { Navigate } from "react-router-dom";
 
 import { NEGATIVE_BUTTON_SX } from "@/components/ui/negativeButtonSx";
-import { eventsQueries } from "@/entities/events/eventsApi";
 import EventsApplicationSummary from "@/features/events/components/EventsApplicationSummary";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
+import { eventsQueries } from "@/shared/entities/events/eventsApi";
 
 interface EventsApplicationDetailContentProps {
   applicationId: string;

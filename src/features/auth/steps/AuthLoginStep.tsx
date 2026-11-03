@@ -2,11 +2,6 @@ import { useKConnectLogin } from "@billilge/oauth-kconnect/react";
 import { useEffect, useState } from "react";
 
 import ScreenToast from "@/components/ui/ScreenToast";
-import {
-  isMockKConnectKind,
-  mockKConnectLogin,
-} from "@/entities/auth/authMock";
-import type { KConnectUser } from "@/entities/auth/types";
 import AuthBrandHeader from "@/features/auth/components/AuthBrandHeader";
 import AuthKConnectButton from "@/features/auth/components/AuthKConnectButton";
 import AuthLoginCarousel from "@/features/auth/components/AuthLoginCarousel";
@@ -15,6 +10,11 @@ import {
   LOGIN_FAILURE_MESSAGE,
 } from "@/features/auth/constants/auth";
 import { isInAppShell } from "@/lib/bridge/bridge";
+import {
+  isMockKConnectKind,
+  mockKConnectLogin,
+} from "@/shared/entities/auth/authMock";
+import type { KConnectUser } from "@/shared/entities/auth/types";
 
 // 로그인 — 화면설계서 2·3번. `K-CONNECT로 시작하기`를 누르면 K-CONNECT 인증 사이트로 페이지가 이동하고(@billilge/oauth-kconnect),
 // 인증을 마치면 `/oauth/kconnect`(KConnectCallbackScreen)가 결과를 받아 신규 사용자는 연락처 단계로, 기존 사용자는 홈으로 보낸다.

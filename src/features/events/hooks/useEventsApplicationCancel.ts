@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { useCancelEventApplicationMutation } from "@/entities/events/eventsApi";
+import { useCancelEventApplicationMutation } from "@/shared/entities/events/eventsApi";
 
 // 취소 결과 토스트 — 문구와 색을 결과마다 한 번에 고른다
 const CANCEL_TOASTS = {

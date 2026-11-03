@@ -4,7 +4,7 @@ import eventIcon from "@/assets/icons/notifications/event.svg";
 import feedbackIcon from "@/assets/icons/notifications/feedback.svg";
 import lockerIcon from "@/assets/icons/notifications/locker.svg";
 import noticeIcon from "@/assets/icons/notifications/notice.svg";
-import type { NotificationType } from "@/entities/notifications/types";
+import type { NotificationType } from "@/shared/entities/notifications/types";
 
 // Figma Notification Category — 24px 아이콘 + 라벨. 빌릴게는 대여·반납이 같은 라벨에 아이콘만 다르다.
 export const NOTIFICATION_TYPE_META = {
