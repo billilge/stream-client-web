@@ -1,32 +1,68 @@
 import {
+  infiniteQueryOptions,
   queryOptions,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
 
 import { mockupResponse } from "@/lib/mockupApi";
+import { api, type CursorSliceResponse, isApiError } from "@/shared/api";
 import { eventsKeys } from "@/shared/entities/events/eventsKeys";
 import {
-  EVENTS,
   MY_EVENT_APPLICATIONS_MOCK,
   toMockDateTime,
 } from "@/shared/entities/events/eventsMock";
-import type { MyEventApplication } from "@/shared/entities/events/eventsTypes";
+import type {
+  EventDetail,
+  EventListItem,
+  EventRecruitStatus,
+  MyEventApplication,
+} from "@/shared/entities/events/eventsTypes";
 
-// 실 API가 붙으면 queryFn 안쪽만 요청 코드로 바꾼다 — 화면은 이 queryOptions로만 데이터를 받는다.
+// 화면이 갈라 처리하는 서버 에러 코드(EventErrorCode)
+export const EVENTS_ERROR_CODES = {
+  eventNotFound: "EVENT_NOT_FOUND",
+} as const;
+
+// 화면이 빈 상태로 그리는 실패(없는 행사 등)는 null로 돌려준다. 그 밖의 실패는 그대로 던진다.
+async function nullOnErrorCode<T>(
+  request: Promise<T>,
+  codes: readonly string[],
+): Promise<T | null> {
+  try {
+    return await request;
+  } catch (error) {
+    if (isApiError(error) && codes.includes(error.code)) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+// 화면은 이 queryOptions로만 데이터를 받는다. 화면 모양으로 바꿔야 하면 화면 쪽에서 select를 더한다.
 export const eventsQueries = {
-  list: () =>
-    queryOptions({
-      queryKey: eventsKeys.list(),
-      queryFn: () => mockupResponse(() => EVENTS),
+  // 행사 목록을 커서로 이어 받는다(GET /v1/app/events). recruitStatus가 null이면 거르지 않는다.
+  list: (recruitStatus: EventRecruitStatus | null) =>
+    infiniteQueryOptions({
+      queryKey: eventsKeys.list(recruitStatus),
+      queryFn: ({ pageParam, signal }) =>
+        api.get<CursorSliceResponse<EventListItem>>("/v1/app/events", {
+          // axios는 null인 파라미터를 보내지 않는다 — 첫 페이지는 cursor 없이, 전체는 recruitStatus 없이 간다
+          params: { cursor: pageParam, recruitStatus },
+          signal,
+        }),
+      initialPageParam: null as string | null,
+      getNextPageParam: (lastPage) =>
+        lastPage.hasNext ? lastPage.nextCursor : null,
     }),
   // 없는 행사는 null — 상세 화면이 "행사를 찾을 수 없어요" 빈 상태를 그린다.
   detail: (eventId: string) =>
     queryOptions({
       queryKey: eventsKeys.detail(eventId),
-      queryFn: () =>
-        mockupResponse(
-          () => EVENTS.find((event) => event.id === eventId) ?? null,
+      queryFn: ({ signal }) =>
+        nullOnErrorCode(
+          api.get<EventDetail>(`/v1/app/events/${eventId}`, { signal }),
+          [EVENTS_ERROR_CODES.eventNotFound],
         ),
     }),
   applications: () =>

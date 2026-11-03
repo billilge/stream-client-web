@@ -1,31 +1,46 @@
-export type EventStatus = "open" | "upcoming" | "closed";
+// stream-server 학생 앱 행사 API(AppEventController) 응답 모양이다.
+// 일시는 서버 LocalDateTime 문자열("2026-06-04T18:30:00", 소수 초가 붙을 수 있다)이다.
 
-interface EventItemBase {
-  id: string;
+// 모집 상태(RecruitStatus). 서버가 조회 시점 기준으로 계산하고, 정원이 다 차도 CLOSED다
+export type EventRecruitStatus = "BEFORE_OPEN" | "OPEN" | "CLOSED";
+
+// 모집 방식(RecruitType). 정원은 선착순(FIRST_COME)일 때만 있다
+export type EventRecruitType = "FIRST_COME" | "OPEN";
+
+// 행사 목록 한 건(GET /v1/app/events)
+export interface EventListItem {
+  eventId: number;
   title: string;
-  eventDate: string;
-  status: EventStatus;
-  statusLabel: string;
-  actionLabel: string;
-  /** 상세 상단 Hero 이미지 개수 — 실 이미지 API 전까지 PageCounter 표기용 */
-  imageCount: number;
-  /** 상세 메타데이터 "일시" */
-  schedule: string;
-  /** 상세 메타데이터 "장소" */
-  location: string;
-  /** 학생회비 납부자만 신청할 수 있는 행사인지 */
-  feePaidOnly: boolean;
-  /** 상세 본문. 줄바꿈을 그대로 살려 렌더링한다 */
-  description: string;
+  eventStartAt: string;
+  thumbnailUrl: string | null;
+  applyStartAt: string;
+  applyEndAt: string;
+  recruitStatus: EventRecruitStatus;
+  /** 신청 마감일까지 남은 날 수(0이면 오늘 마감). 모집중일 때만 있다 */
+  daysUntilDeadline: number | null;
 }
 
-// 모집 방식(서버 RecruitType FIRST_COME·OPEN). 정원은 선착순일 때만 있다 — 모집 방식으로 갈라 두어
-// "선착순인데 정원이 없는" 경우를 타입에서 막는다. 상세 "대상" 문구는 이 값들로 프론트가 조합한다.
-export type EventItem = EventItemBase &
-  (
-    | { recruitType: "first-come"; capacity: number }
-    | { recruitType: "open"; capacity: null }
-  );
+// 행사 상세(GET /v1/app/events/{eventId})
+export interface EventDetail {
+  eventId: number;
+  title: string;
+  /** 본문. 줄바꿈을 그대로 살려 렌더링한다 */
+  description: string;
+  place: string;
+  eventStartAt: string;
+  eventEndAt: string;
+  applyStartAt: string;
+  applyEndAt: string;
+  recruitStatus: EventRecruitStatus;
+  daysUntilDeadline: number | null;
+  images: { fileId: number; fileUrl: string }[];
+  // 신청 조건 — stream-server#190에서 응답에 더해지는 값이라 그전에는 없다. 없으면 납부자 전용이 아니고
+  // 정원 없이 모집하는 것으로 본다. 상세 "대상" 문구는 서버가 만들지 않고 이 값들로 프론트가 조합한다.
+  feePaidOnly?: boolean;
+  recruitType?: EventRecruitType;
+  /** 선착순일 때만 있다 */
+  capacity?: number | null;
+}
 
 // 행사 신청 문항·답변 — 신청 폼과 신청내역 상세가 같이 쓴다.
 interface EventsQuestionBase {

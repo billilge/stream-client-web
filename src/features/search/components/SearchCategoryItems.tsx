@@ -52,16 +52,12 @@ function SearchCategoryItems({
     switch (category) {
       case "events":
         return results.events.map((event) => ({
-          id: event.id,
+          id: String(event.eventId),
           node: (
             <EventsCard
-              actionLabel={event.actionLabel}
-              eventDate={event.eventDate}
-              onApply={() => navigate(`/events/${event.id}/apply`)}
-              onSelect={() => navigate(`/events/${event.id}`)}
-              status={event.status}
-              statusLabel={event.statusLabel}
-              title={event.title}
+              event={event}
+              onApply={() => navigate(`/events/${event.eventId}/apply`)}
+              onSelect={() => navigate(`/events/${event.eventId}`)}
             />
           ),
         }));

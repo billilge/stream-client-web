@@ -56,6 +56,16 @@ export function getTimeUntil(value: string, now: Date = new Date()): TimeUntil {
   };
 }
 
+// "2026-08-10"(일시면 날짜 부분) → "8월 10일", weekday면 "8월 10일 (월)"
+export function formatMonthDay(value: string, options: DateFormatOptions = {}) {
+  const [year, month, day] = value.slice(0, 10).split("-").map(Number);
+  const monthDay = `${month}월 ${day}일`;
+  if (!options.weekday) {
+    return monthDay;
+  }
+  return `${monthDay} (${WEEKDAYS[new Date(year, month - 1, day).getDay()]})`;
+}
+
 // "2026-09-05T13:59" → "2026.09.05 13:59", weekday면 "2026.09.05(토) 13:59"
 // 서버(LocalDateTime)는 초와 소수 초까지 내려 주므로("13:59:00.123456") 시:분까지만 남긴다
 export function formatDateTime(value: string, options: DateFormatOptions = {}) {
