@@ -10,9 +10,9 @@ import { useEffect, useState } from "react";
 
 import BottomSheet from "@/components/ui/BottomSheet";
 import ScreenToast from "@/components/ui/ScreenToast";
-import type { BililgeItem } from "@/entities/bililge/types";
 import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
 import BililgeRentalConfirmModal from "@/features/bililge/components/BililgeRentalConfirmModal";
+import type { BililgeItem } from "@/shared/entities/bililge/bililgeTypes";
 
 interface BililgeRentalSheetProps {
   item: BililgeItem | null;

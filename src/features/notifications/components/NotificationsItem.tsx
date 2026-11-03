@@ -1,7 +1,7 @@
 import { Typography } from "@wanteddev/wds";
 
-import type { NotificationType } from "@/entities/notifications/types";
 import { NOTIFICATION_TYPE_META } from "@/features/notifications/constants/notifications";
+import type { NotificationType } from "@/shared/entities/notifications/notificationsTypes";
 
 interface NotificationsItemProps {
   type: NotificationType;

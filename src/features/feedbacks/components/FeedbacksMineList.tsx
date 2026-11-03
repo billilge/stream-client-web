@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import emptyFeedbackIllustration from "@/assets/icons/feedbacks/empty-feedback.svg";
 import EmptyState from "@/components/ui/EmptyState";
-import { feedbacksQueries } from "@/entities/feedbacks/feedbacksApi";
 import FeedbacksHistoryCard from "@/features/feedbacks/components/FeedbacksHistoryCard";
+import { feedbacksQueries } from "@/shared/entities/feedbacks/feedbacksQueries";
 
 interface FeedbacksMineListProps {
   onSelect: (feedbackId: string) => void;

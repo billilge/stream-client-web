@@ -11,14 +11,14 @@ import { IconChevronLeft } from "@wanteddev/wds-icon";
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
 import PhotoGallery from "@/components/ui/PhotoGallery";
-import { eventsQueries } from "@/entities/events/eventsApi";
-import { feeQueries } from "@/entities/fee/feeApi";
-import type { FeeResponse } from "@/entities/fee/types";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
 import {
   EVENTS_FEE_PAID_ONLY_LABEL,
   getEventAudience,
 } from "@/features/events/constants/events";
+import { eventsQueries } from "@/shared/entities/events/eventsQueries";
+import { feeQueries } from "@/shared/entities/fee/feeQueries";
+import type { FeeResponse } from "@/shared/entities/fee/feeTypes";
 
 interface EventsDetailContentProps {
   eventId: string;

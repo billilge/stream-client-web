@@ -1,9 +1,12 @@
 import { Button, Typography } from "@wanteddev/wds";
 
 import StatusSummaryCard from "@/components/ui/StatusSummaryCard";
-import type { FeePaymentStatus, FeeResponse } from "@/entities/fee/types";
 import { FEE_STATUS_BADGES, FEE_TITLE } from "@/features/fee/constants/fee";
 import { formatDateTime } from "@/lib/date";
+import type {
+  FeePaymentStatus,
+  FeeResponse,
+} from "@/shared/entities/fee/feeTypes";
 
 interface FeePaymentCardProps {
   /** 납부를 요청한 적이 있는 응답 — 미납(UNPAID)은 그릴 내역이 없어서 목록이 거른다 */

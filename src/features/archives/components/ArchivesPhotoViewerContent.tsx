@@ -4,7 +4,7 @@ import { IconClose } from "@wanteddev/wds-icon";
 import { useEffect, useRef, useState } from "react";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
-import { archivesQueries } from "@/entities/archives/archivesApi";
+import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotoViewerContentProps {
   archiveId: string;

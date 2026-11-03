@@ -1,4 +1,4 @@
-import type { FeePaymentStatus } from "@/entities/fee/types";
+import type { FeePaymentStatus } from "@/shared/entities/fee/feeTypes";
 
 // 학생회비 계좌 송금 플로우 경로. 화면설계서(687:20584)에는 경로 표기 컬럼이 아예 없어서
 // 용어 사전(terminology.md)의 `회비 납부 → fee`와 "프론트 라우트 경로: /{코드 용어}" 규칙으로 정했다.

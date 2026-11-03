@@ -12,8 +12,8 @@ import answerIcon from "@/assets/icons/feedbacks/answer.svg";
 import questionIcon from "@/assets/icons/feedbacks/question.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { FEEDBACKS } from "@/entities/feedbacks/feedbacksMock";
 import FeedbacksAnswerText from "@/features/feedbacks/components/FeedbacksAnswerText";
+import { FEEDBACKS } from "@/shared/entities/feedbacks/feedbacksMock";
 
 // Figma: 열린피드백 상세페이지 (nodeId 1410:49988)
 // 제목·진행 바는 같은 회차(round)의 답변된 피드백들을 한데 묶어 보여준다는 뜻에서

@@ -709,7 +709,7 @@ Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독
 
 ## 스플래시·로그인·온보딩(`3658:112096` / `3738:73115`, 화면설계서 `3747:74283` / `3747:74298`) 구현 중 확정된 매핑
 
-코드는 `src/features/auth/`, `src/entities/auth/` 참고.
+코드는 `src/features/auth/`, `src/shared/entities/auth/` 참고.
 
 | Figma | 코드 | 확인 내용 |
 |---|---|---|
@@ -739,11 +739,11 @@ Figma 프레임의 상태 표시줄(54px)과 홈 바(34px)는 앱 셸 몫이라 
 
 ### K-CONNECT 로그인은 `@billilge/oauth-kconnect`(웹용 `/react`)로 한다
 
-`K-CONNECT로 시작하기`는 `useKConnectLogin({ clientId }).login()`으로 K-CONNECT 인증 사이트로 페이지를 이동시키고(PKCE, `state`는 패키지가 sessionStorage에 보관), 인증 후 K-CONNECT가 되돌려 보내는 `/oauth/kconnect`(`KConnectCallbackScreen`)가 `useKConnectCallback()`으로 `{ code, codeVerifier, redirectUri }`를 받는다. 이 경로는 K-CONNECT에 등록한 redirect URI이자 패키지가 정한 값이라 바꾸지 않는다. 받은 값은 서버(`POST /auth/kconnect`)로 보내 서비스 로그인을 마치는데, 서버 주소·응답 형식이 아직 없어서 `entities/auth/authApi.ts`의 `exchangeKConnectCode`가 응답만 흉내 낸다. 신규 사용자는 `/login`으로 이동하면서 이름을 navigate state로 넘겨 로그인 퍼널이 `initial`(주소에 단계가 없을 때만 쓰임)로 연락처 단계에서 시작하고, 기존 사용자는 홈으로 간다. 취소·오류(국민대 학생이 아니어서 거부된 경우 포함)나 서버 실패는 `/login`으로 돌아와 실패 토스트를 띄운다. 어느 경우든 주소창에 `code`가 남지 않도록 `replace`로 이동한다.
+`K-CONNECT로 시작하기`는 `useKConnectLogin({ clientId }).login()`으로 K-CONNECT 인증 사이트로 페이지를 이동시키고(PKCE, `state`는 패키지가 sessionStorage에 보관), 인증 후 K-CONNECT가 되돌려 보내는 `/oauth/kconnect`(`KConnectCallbackScreen`)가 `useKConnectCallback()`으로 `{ code, codeVerifier, redirectUri }`를 받는다. 이 경로는 K-CONNECT에 등록한 redirect URI이자 패키지가 정한 값이라 바꾸지 않는다. 받은 값은 서버(`POST /auth/kconnect`)로 보내 서비스 로그인을 마치는데, 서버 주소·응답 형식이 아직 없어서 `shared/entities/auth/authQueries.ts`의 `exchangeKConnectCode`가 응답만 흉내 낸다. 신규 사용자는 `/login`으로 이동하면서 이름을 navigate state로 넘겨 로그인 퍼널이 `initial`(주소에 단계가 없을 때만 쓰임)로 연락처 단계에서 시작하고, 기존 사용자는 홈으로 간다. 취소·오류(국민대 학생이 아니어서 거부된 경우 포함)나 서버 실패는 `/login`으로 돌아와 실패 토스트를 띄운다. 어느 경우든 주소창에 `code`가 남지 않도록 `replace`로 이동한다.
 
 - **설정:** `client_id`는 환경 변수 `VITE_KCONNECT_CLIENT_ID`(`.env.example` 참고)로 받는다. K-CONNECT의 "허가된 Redirect URI"에 `http://localhost:5173/oauth/kconnect`(개발)와 배포 주소의 `/oauth/kconnect`가 등록돼 있어야 한다 — 폰으로 `192.168.x.x:5173`처럼 접속하면 등록되지 않은 주소라 로그인이 거부된다.
 - **설치:** 패키지는 GitHub Packages 비공개 배포라 `.npmrc`에 `@billilge:registry`가 필요하고 `read:packages` 토큰이 있어야 한다(토큰은 파일에 쓰지 않고 환경 변수·사용자 npmrc로 둔다). 패키지가 Expo용 `expo-auth-session`을 optional peer로 선언하는데 pnpm `autoInstallPeers`가 설치까지 해서 웹에 필요 없는 Expo 의존성 수백 개가 딸려 오므로, `pnpm-workspace.yaml`의 `overrides`로 뺐다.
-- **로그인 표시 지우기:** 로그아웃·회원 탈퇴처럼 계정을 떠나는 흐름은 `entities/auth/session.ts`의 `clearLoggedIn()`을 불러야 한다. 지우지 않으면 `AuthEntryGate`를 그대로 통과해서 방금 떠난 계정으로 화면이 열린다. 설정 화면의 로그아웃·회원 탈퇴는 `useAccountExit` 훅이 이 함수를 부르고 로그인 화면으로 보낸다.
+- **로그인 표시 지우기:** 로그아웃·회원 탈퇴처럼 계정을 떠나는 흐름은 `shared/entities/auth/session.ts`의 `clearLoggedIn()`을 불러야 한다. 지우지 않으면 `AuthEntryGate`를 그대로 통과해서 방금 떠난 계정으로 화면이 열린다. 설정 화면의 로그아웃·회원 탈퇴는 `useAccountExit` 훅이 이 함수를 부르고 로그인 화면으로 보낸다.
 - **연락처는 010 고정:** 가입 연락처는 `010`으로 시작하는 숫자 11자리여야 `다음`이 켜진다(`isValidPhoneDigits`). 설정의 전화번호 변경(#97)과 같은 기준이라, 구 번호(011·016 등)로 가입한 뒤 설정에서 같은 번호로 바꾸지 못하는 일이 없다.
 - **로그인 가드는 모든 화면에 걸린다:** `AuthEntryGate`가 레이아웃 라우트(`ScreenLayoutRoute`)를 감싸서, 이 탭에 로그인 표시가 없으면 `/login`으로 `replace`한다(모르는 경로 `*`도 마찬가지). 로그인 없이 열려야 하는 화면은 라우트 `handle`에 `isPublic: true`(`AuthRouteHandle`)로 표시하며 지금은 `/login`과 `/oauth/kconnect` 둘이다. 표시가 없으면 보호 화면으로 보므로 새 화면을 추가해도 가드가 자동으로 걸린다. 로그인한 상태로 `/login`에 오면 퍼널이 홈(`/home`)으로 보낸다. 홈은 `/home`이고 `/`는 `/home`으로 리다이렉트한다(앱 WebView 진입 주소 호환). 이 가드는 화면 이동을 정리할 뿐이고, 표시는 클라이언트가 바꿀 수 있어서 실제 인증은 서버 API가 검증해야 한다. 로그인 후 원래 가려던 화면으로 돌아가는 동작은 없고 항상 홈으로 간다.
 - **K-CONNECT 인증 우회(개발 서버 전용):** `/login?mockKConnect=new`(신규 → 온보딩) 또는 `?mockKConnect=existing`(기존 → 홈)으로 열고 `K-CONNECT로 시작하기`를 누르면 인증 사이트로 가지 않고 인증된 것으로 친다. `import.meta.env.DEV`로 가려서 배포 빌드에는 들어가지 않는다(번들에 `mockKConnect`가 없음을 확인).

@@ -2,8 +2,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
-import { feeQueries } from "@/entities/fee/feeApi";
 import FeePaymentCard from "@/features/fee/components/FeePaymentCard";
+import { feeQueries } from "@/shared/entities/fee/feeQueries";
 
 interface FeePaymentListProps {
   /** 없으면 문의하기 버튼을 그리지 않는다(채널 주소가 아직 없을 때) */
