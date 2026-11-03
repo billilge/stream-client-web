@@ -2,7 +2,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
 import ScreenToast from "@/components/ui/ScreenToast";
-import { feeQueries } from "@/entities/fee/feeApi";
+import {
+  FEE_ERROR_CODES,
+  feeQueries,
+  useSubmitFeeMutation,
+} from "@/entities/fee/feeApi";
 import { useUploadFileMutation } from "@/entities/files/filesApi";
 import {
   FEE_EXTERNAL_LINKS,
@@ -19,6 +23,7 @@ import FeeTransferTossStep from "@/features/fee/steps/FeeTransferTossStep";
 import FeeTransferTranscriptStep from "@/features/fee/steps/FeeTransferTranscriptStep";
 import { HOME_PATH } from "@/features/home/constants/home";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
+import { isApiError } from "@/lib/api/errors";
 import { openExternalLink } from "@/lib/openExternalLink";
 import { useFunnel, useFunnelExit } from "@/lib/useFunnel";
 
@@ -39,9 +44,12 @@ const SLIDE = { viewTransition: true };
 const INITIAL_STATE = { context: {}, step: "semester" } as const;
 
 // 단계를 넘기지 못했을 때 띄우는 토스트 문구
+// 송금 확인 단계의 실패는 이미 송금한 뒤라 "다시 송금하라"로 읽히지 않게 요청 실패로만 안내한다
 const TOAST_MESSAGES = {
+  invalidProofImage: "캡처를 확인하지 못했어요. 다시 올려 주세요.",
   invalidTranscript: "10MB 이하의 PNG·JPG·WEBP 이미지만 올릴 수 있어요.",
   prepareTossFailed: "다음 단계로 넘어가지 못했어요. 다시 시도해 주세요.",
+  submitFailed: "납부 확인 요청에 실패했어요. 다시 시도해 주세요.",
 } as const;
 
 // history.state에서 되살아난 File은 고를 때와 다른 객체라 이름·크기·수정 시각으로 같은 파일인지 본다
@@ -65,6 +73,7 @@ function FeeTransferScreen() {
   });
   const queryClient = useQueryClient();
   const { mutateAsync: uploadFile } = useUploadFileMutation();
+  const { mutate: submitFee, isPending: isSubmitting } = useSubmitFeeMutation();
   // 캡처 단계의 "다음" — 캡처를 올리고 송금 링크를 받는 동안 버튼을 막는다
   const [isPreparingToss, setPreparingToss] = useState(false);
   // 마지막으로 올린 캡처와 그 키 — 토스에서 돌아와 같은 파일로 다시 "다음"을 누르면 또 올리지 않는다
@@ -95,11 +104,44 @@ function FeeTransferScreen() {
         complete={({ index }) => (
           <FeeTransferCompleteStep onGoHome={() => exitFunnel(index)} />
         )}
-        confirm={({ history, index }) => (
+        confirm={({ context, history, index }) => (
           <FeeTransferConfirmStep
+            isSubmitting={isSubmitting}
             onBack={() => history.back()}
-            // 확인 요청을 보내면 송금 확인으로 돌아올 일이 없어서 히스토리를 대체한다
-            onConfirm={() => history.replace("complete", {}, SLIDE)}
+            onConfirm={() =>
+              submitFee(
+                {
+                  proofImageKey: context.proofImageKey,
+                  remainingSemesters: context.semester,
+                },
+                {
+                  // 확인 요청을 보내면 송금 확인으로 돌아올 일이 없어서 히스토리를 대체한다
+                  onSuccess: () => history.replace("complete", {}, SLIDE),
+                  onError: (error) => {
+                    // 이미 요청이 들어가 있다 — 응답을 못 받고 다시 누른 경우라 요청은 된 것으로 본다
+                    if (
+                      isApiError(error) &&
+                      error.code === FEE_ERROR_CODES.alreadyRequested
+                    ) {
+                      history.replace("complete", {}, SLIDE);
+                      return;
+                    }
+                    console.error(error);
+                    // 올린 캡처를 서버가 못 찾았다 — 같은 키를 다시 쓰지 않게 비우고 캡처 단계로 돌려보낸다
+                    if (
+                      isApiError(error) &&
+                      error.code === FEE_ERROR_CODES.invalidProofImage
+                    ) {
+                      lastUploadRef.current = null;
+                      showToast(TOAST_MESSAGES.invalidProofImage);
+                      history.go(-2);
+                      return;
+                    }
+                    showToast(TOAST_MESSAGES.submitFailed);
+                  },
+                },
+              )
+            }
             // 송금을 미루고 나가는 길 — 다음에 들어오면 플로우를 처음부터 다시 탄다
             onPostpone={() => exitFunnel(index)}
           />

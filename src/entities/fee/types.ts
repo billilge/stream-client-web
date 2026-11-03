@@ -24,3 +24,10 @@ export interface FeeResponse {
   /** 확인필요(REJECTED)일 때만 있다 — 그때는 서버가 항상 채운다 */
   rejectReason: string | null;
 }
+
+// POST /v1/app/fee 요청 — 송금을 마친 뒤 남은 학기 수와 그 근거인 학점이수현황 캡처를 함께 낸다
+export interface FeeSubmitRequest {
+  remainingSemesters: number;
+  /** 업로드 때 받은 캡처의 파일 키 */
+  proofImageKey: string;
+}
