@@ -504,7 +504,7 @@ WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외
 
 ### 구역별 칸 배치는 서버 layout JSON을 렌더러로 그린다
 
-구역마다 배치 컴포넌트를 두지 않고, 구역 상세 응답의 `layout`(블록 7종: `row`·`column`·`lockerGroup`·`label`·`area`·`text`·`shelfLabel`)을 `LockersLayoutRenderer`가 그린다. 타입과 응답 변환(`toLockersSectionDetail`)은 `constants/lockersSectionDetails.ts`. 배치를 등록하지 않은 구역(`layout: null`)이나 모르는 형식 버전(`version` ≠ 1)이면 칸 대신 빈 화면을 그린다. 블록은 Figma 로컬 요소와 이렇게 대응한다.
+구역마다 배치 컴포넌트를 두지 않고, 구역 상세 응답의 `layout`(블록 7종: `row`·`column`·`lockerGroup`·`label`·`area`·`text`·`shelfLabel`)을 `LockersLayoutRenderer`가 그린다. 블록 타입은 `shared/entities/lockers/lockersTypes.ts`, 응답 변환(`toLockersSectionDetail`)과 블록 형식 검사(zod)는 `lockersQueries.ts`. 배치를 등록하지 않은 구역(`layout: null`)·모르는 형식 버전(`version` ≠ 1)·형식이 어긋난 블록이면 칸 대신 빈 화면을 그린다. 블록은 Figma 로컬 요소와 이렇게 대응한다.
 
 | 블록 | Figma | 코드 |
 |---|---|---|

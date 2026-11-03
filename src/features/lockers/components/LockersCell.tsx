@@ -1,7 +1,7 @@
 import { Typography } from "@wanteddev/wds";
 
 import lockerUnavailableIcon from "@/assets/icons/lockers/locker-unavailable.svg";
-import type { LockersSectionLocker } from "@/features/lockers/constants/lockersSectionDetails";
+import type { LockersSectionLocker } from "@/shared/entities/lockers/lockersTypes";
 
 interface LockersCellProps {
   locker: LockersSectionLocker;

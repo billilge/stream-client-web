@@ -25,14 +25,16 @@ import LockersMapView from "@/features/lockers/components/LockersMapView";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelectedLockerBar";
 import { LOCKERS_APPLY_SUBMITTING_TEXT } from "@/features/lockers/constants/lockersApplySubmit";
-import {
-  type LockersSectionDetail,
-  toLockersSectionDetail,
-} from "@/features/lockers/constants/lockersSectionDetails";
 import { useLockersApplySubmit } from "@/features/lockers/hooks/useLockersApplySubmit";
 import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
-import { lockersQueries } from "@/shared/entities/lockers/lockersQueries";
-import type { LockerPeriodResponse } from "@/shared/entities/lockers/lockersTypes";
+import {
+  lockersQueries,
+  toLockersSectionDetail,
+} from "@/shared/entities/lockers/lockersQueries";
+import type {
+  LockerPeriodResponse,
+  LockersSectionDetail,
+} from "@/shared/entities/lockers/lockersTypes";
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
 function LockersCellSelectScreen() {

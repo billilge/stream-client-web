@@ -11,10 +11,10 @@ import LockersLegend from "@/features/lockers/components/LockersLegend";
 import LockersMapView from "@/features/lockers/components/LockersMapView";
 import LockersMineBar from "@/features/lockers/components/LockersMineBar";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
-import { toLockersSectionDetail } from "@/features/lockers/constants/lockersSectionDetails";
 import {
   lockersQueries,
   toLockerAssignment,
+  toLockersSectionDetail,
 } from "@/shared/entities/lockers/lockersQueries";
 import type { LockerAssignment } from "@/shared/entities/lockers/lockersTypes";
 

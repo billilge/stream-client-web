@@ -9,6 +9,9 @@ import { api } from "@/shared/api";
 import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
 import type {
   LockerAssignment,
+  LockerSectionDetailResponse,
+  LockersLayoutBlock,
+  LockersSectionDetail,
   MyLockerApplicationListResponse,
 } from "@/shared/entities/lockers/lockersTypes";
 
@@ -68,6 +71,73 @@ export const lockerSectionDetailResponseSchema = z.looseObject({
     }),
   ),
 });
+
+const layoutSizeSchema = z.union([
+  z.literal("hug"),
+  z.literal("fill"),
+  z.number(),
+]);
+const layoutBlockBase = {
+  height: layoutSizeSchema.optional(),
+  width: layoutSizeSchema.optional(),
+};
+
+const lockersLayoutBlockSchema: z.ZodType<LockersLayoutBlock> = z.lazy(() =>
+  z.union([
+    z.object({
+      ...layoutBlockBase,
+      align: z.enum(["start", "center", "end", "stretch"]).optional(),
+      children: z.array(lockersLayoutBlockSchema),
+      gap: z.number().optional(),
+      type: z.enum(["row", "column"]),
+    }),
+    z.object({
+      ...layoutBlockBase,
+      bordered: z.boolean().optional(),
+      rows: z.array(z.array(z.number().nullable())),
+      type: z.literal("lockerGroup"),
+    }),
+    z.object({
+      ...layoutBlockBase,
+      orientation: z.enum(["horizontal", "vertical"]).optional(),
+      text: z.string(),
+      type: z.literal("label"),
+    }),
+    z.object({
+      ...layoutBlockBase,
+      icon: z.literal("stairs").optional(),
+      text: z.string(),
+      type: z.literal("area"),
+    }),
+    z.object({ ...layoutBlockBase, text: z.string(), type: z.literal("text") }),
+    z.object({ ...layoutBlockBase, type: z.literal("shelfLabel") }),
+  ]),
+);
+
+const LOCKERS_LAYOUT_VERSION = 1;
+
+// 칸 선택·위치 보기가 같이 쓰는 select. 모르는 형식 버전이거나 블록이 형식과 다르면 그리다 멈추지 않게
+// layout을 null로 돌려 빈 화면을 보인다.
+export function toLockersSectionDetail(
+  response: LockerSectionDetailResponse,
+): LockersSectionDetail {
+  const root =
+    response.layout?.version === LOCKERS_LAYOUT_VERSION
+      ? lockersLayoutBlockSchema.safeParse(response.layout.root)
+      : undefined;
+  if (root && !root.success) {
+    console.error("사물함 칸 배치 형식이 달라요.", root.error);
+  }
+  return {
+    layout: root?.success
+      ? { root: root.data, version: LOCKERS_LAYOUT_VERSION }
+      : null,
+    lockers: response.lockers,
+    photoUrls: response.photoUrls,
+    section: response.section,
+    sectionId: response.sectionId,
+  };
+}
 
 export const LOCKER_APPLICATION_STATUSES = ["ASSIGNED", "EXPIRED"] as const;
 

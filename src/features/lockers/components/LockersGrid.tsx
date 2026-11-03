@@ -1,5 +1,5 @@
 import LockersCell from "@/features/lockers/components/LockersCell";
-import type { LockersSectionLocker } from "@/features/lockers/constants/lockersSectionDetails";
+import type { LockersSectionLocker } from "@/shared/entities/lockers/lockersTypes";
 
 interface LockersGridProps {
   rows: (number | null)[][];

@@ -13,7 +13,7 @@ import type {
   LockersLayoutBlock,
   LockersLayoutSize,
   LockersSectionLocker,
-} from "@/features/lockers/constants/lockersSectionDetails";
+} from "@/shared/entities/lockers/lockersTypes";
 
 interface LockersLayoutRendererProps {
   layout: LockersLayout;
