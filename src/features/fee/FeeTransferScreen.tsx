@@ -1,9 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import ScreenToast from "@/components/ui/ScreenToast";
 import { feeQueries } from "@/entities/fee/feeApi";
-import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
+import { useUploadFileMutation } from "@/entities/files/filesApi";
+import {
+  FEE_EXTERNAL_LINKS,
+  isAcceptableTranscript,
+} from "@/features/fee/constants/fee";
 import {
   FEE_TRANSFER_STEP_OPTIONS,
   type FeeTransferSteps,
@@ -22,7 +26,8 @@ import { useFunnel, useFunnelExit } from "@/lib/useFunnel";
 // useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에 하나씩 나눠 두고, 이 파일은 단계 전환
 // (어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다 — 로그인·온보딩 퍼널(AuthSignupScreen)과 같은 구성이다.
 // 단계는 `/fee/transfer?fee.step=...`으로 나뉘고 단계마다 브라우저 뒤로가기가 한 단계씩 돌아간다.
-// 단계 사이에 넘기는 값(남은 학기 수·캡처 이미지)은 퍼널 context가 들고 있어서 뒤로 돌아와도 유지된다.
+// 단계 사이에 넘기는 값(남은 학기 수·캡처 이미지와 그 파일 키·송금 링크)은 퍼널 context가 들고 있어서
+// 뒤로 돌아와도 유지된다.
 
 // 단계가 바뀌는 이동에만 슬라이드를 켠다 — 학기 수 입력·파일 선택처럼 같은 단계의 context만
 // 갈아 끼우는 replace에는 켜지 않는다. 뒤로가기는 React Router가 앞선 이동을 기억해 반대 방향으로
@@ -35,8 +40,16 @@ const INITIAL_STATE = { context: {}, step: "semester" } as const;
 
 // 단계를 넘기지 못했을 때 띄우는 토스트 문구
 const TOAST_MESSAGES = {
-  transferGuideFailed: "송금 정보를 불러오지 못했어요. 다시 시도해 주세요.",
+  invalidTranscript: "10MB 이하의 PNG·JPG·WEBP 이미지만 올릴 수 있어요.",
+  prepareTossFailed: "다음 단계로 넘어가지 못했어요. 다시 시도해 주세요.",
 } as const;
+
+// history.state에서 되살아난 File은 고를 때와 다른 객체라 이름·크기·수정 시각으로 같은 파일인지 본다
+function isSameFile(a: File, b: File) {
+  return (
+    a.name === b.name && a.size === b.size && a.lastModified === b.lastModified
+  );
+}
 
 function FeeTransferScreen() {
   // 첫 단계의 뒤로가기 — 타고 들어왔으면 한 단계 뒤로, 플로우로 바로 들어왔으면(딥링크·앱
@@ -51,14 +64,30 @@ function FeeTransferScreen() {
     steps: FEE_TRANSFER_STEP_OPTIONS,
   });
   const queryClient = useQueryClient();
-  // 캡처 단계의 "다음" — 송금 링크를 받는 동안 버튼을 막는다
+  const { mutateAsync: uploadFile } = useUploadFileMutation();
+  // 캡처 단계의 "다음" — 캡처를 올리고 송금 링크를 받는 동안 버튼을 막는다
   const [isPreparingToss, setPreparingToss] = useState(false);
+  // 마지막으로 올린 캡처와 그 키 — 토스에서 돌아와 같은 파일로 다시 "다음"을 누르면 또 올리지 않는다
+  const lastUploadRef = useRef<{ file: File; fileKey: string } | null>(null);
   // 닫힌 뒤에도 마지막 문구를 들고 있어서 닫히는 동안 문구가 바뀌지 않는다.
   // 떠 있는 동안 다시 띄워도 새로 안내되게 key를 올린다(ScreenToast의 key)
   const [toast, setToast] = useState({ isOpen: false, key: 0, message: "" });
 
   const showToast = (message: string) =>
     setToast((prev) => ({ isOpen: true, key: prev.key + 1, message }));
+
+  const uploadTranscript = async (file: File) => {
+    const lastUpload = lastUploadRef.current;
+    if (lastUpload && isSameFile(lastUpload.file, file)) {
+      return lastUpload.fileKey;
+    }
+    const fileKey = await uploadFile({
+      category: "FEE_TRANSCRIPT_IMAGE",
+      file,
+    });
+    lastUploadRef.current = { file, fileKey };
+    return fileKey;
+  };
 
   return (
     <>
@@ -110,20 +139,36 @@ function FeeTransferScreen() {
             transcript={context.transcript}
             onBack={() => history.back()}
             // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 토스를 다녀와도 고른 파일이 남는다
-            onChangeTranscript={(transcript) =>
-              history.replace("transcript", (prev) => ({ ...prev, transcript }))
-            }
-            // 송금 링크는 남은 학기 수마다 금액이 달라서 토스 단계로 넘어가기 직전에 서버에서 받는다
+            onChangeTranscript={(transcript) => {
+              if (transcript && !isAcceptableTranscript(transcript)) {
+                showToast(TOAST_MESSAGES.invalidTranscript);
+                return;
+              }
+              history.replace("transcript", (prev) => ({
+                ...prev,
+                transcript,
+              }));
+            }}
+            // 송금하러 가기 전에 캡처를 올려 둔다 — 업로드가 실패하면 송금 전에 알 수 있다.
+            // 송금 링크는 남은 학기 수마다 금액이 달라서 이때 같이 받는다
             onNext={(transcript) => {
               setPreparingToss(true);
-              queryClient
-                .fetchQuery(feeQueries.transferGuide(context.semester))
-                .then(({ transferLinkUrl }) =>
-                  history.push("toss", { transcript, transferLinkUrl }, SLIDE),
+              Promise.all([
+                uploadTranscript(transcript),
+                queryClient.fetchQuery(
+                  feeQueries.transferGuide(context.semester),
+                ),
+              ])
+                .then(([proofImageKey, { transferLinkUrl }]) =>
+                  history.push(
+                    "toss",
+                    { proofImageKey, transcript, transferLinkUrl },
+                    SLIDE,
+                  ),
                 )
                 .catch((error: unknown) => {
                   console.error(error);
-                  showToast(TOAST_MESSAGES.transferGuideFailed);
+                  showToast(TOAST_MESSAGES.prepareTossFailed);
                 })
                 .finally(() => setPreparingToss(false));
             }}

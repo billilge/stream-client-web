@@ -12,8 +12,7 @@ import FeeUploadedFileCard from "@/features/fee/components/FeeUploadedFileCard";
 // K-스마트멘토 이동 확인 모달 (3562:162940) / 업로드한 이미지 미리보기 (3595:70574)
 //
 // 네 프레임이 한 단계의 상태 변화라 퍼널 단계를 나누지 않고 업로드 여부·모달 열림으로 토글한다.
-// 업로드 API가 아직 없어서 고른 파일을 퍼널 context에 담아 두기만 한다 — 미리보기는 objectURL로
-// 띄우고, 연동할 때 이 자리에서 업로드 요청을 보내면 된다.
+// 고른 파일은 퍼널 context에 담아 두고(미리보기는 objectURL), "다음"을 누르면 퍼널이 서버에 올린다.
 // K-스마트멘토를 여는 일은 퍼널(FeeTransferScreen)이 맡고 여기는 `onOpenGuide`만 부른다.
 function FeeTransferTranscriptStep({
   isNextPending,
@@ -23,7 +22,7 @@ function FeeTransferTranscriptStep({
   onNext,
   onOpenGuide,
 }: {
-  /** "다음"을 누른 뒤 토스 단계로 넘어갈 준비(송금 링크 받기)를 하는 중인지 */
+  /** "다음"을 누른 뒤 토스 단계로 넘어갈 준비(캡처 업로드·송금 링크 받기)를 하는 중인지 */
   isNextPending: boolean;
   /** 고른 캡처 — 퍼널 context가 들고 있는 값이 유일한 출처다 */
   transcript: File | undefined;

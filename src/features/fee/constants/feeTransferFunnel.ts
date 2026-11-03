@@ -5,16 +5,21 @@
 //
 // 캡처 이미지는 `File`을 context에 그대로 담는다 — `File`은 구조화 복제가 되는 값이라
 // history.state에 실려서, 토스 단계에서 뒤로 돌아와도 고른 파일이 남는다(별도 저장소 불필요).
-// 다만 history.state는 브라우저마다 크기 상한이 있어서(Firefox 16MiB) 업로드 API가 붙으면
-// 파일 대신 서버가 준 식별자를 담는 쪽으로 바꾸는 게 안전하다.
+// history.state는 브라우저마다 크기 상한이 있지만(Firefox 16MiB) 서버 업로드 상한(10MB)보다 커서 넘지 않는다.
 //
-// 토스 송금 링크(`transferLinkUrl`)는 캡처 단계에서 "다음"을 누를 때 서버에서 받아 싣는다. 서버가
-// 링크를 주지 않으면(지금 낼 수 없는 상태) null이고, 토스 단계가 이동 실패 화면을 띄운다.
+// 캡처 단계에서 "다음"을 누르면 캡처를 서버에 올리고 토스 송금 링크를 받아 함께 싣는다.
+// - `proofImageKey`: 올린 캡처의 파일 키 — 송금 확인에서 납부 요청에 넘긴다
+// - `transferLinkUrl`: 서버가 링크를 주지 않으면(지금 낼 수 없는 상태) null이고, 토스 단계가 이동 실패 화면을 띄운다
 export type FeeTransferSteps = {
   semester: { semester?: number };
   transcript: { semester: number; transcript?: File };
-  toss: { semester: number; transcript: File; transferLinkUrl: string | null };
-  confirm: { semester: number; transcript: File };
+  toss: {
+    semester: number;
+    transcript: File;
+    proofImageKey: string;
+    transferLinkUrl: string | null;
+  };
+  confirm: { semester: number; transcript: File; proofImageKey: string };
   complete: Record<never, never>;
 };
 
@@ -45,7 +50,8 @@ export const FEE_TRANSFER_STEP_OPTIONS = {
     guard: (data: unknown): data is FeeTransferSteps["confirm"] =>
       isRecord(data) &&
       isSemester(data.semester) &&
-      data.transcript instanceof File,
+      data.transcript instanceof File &&
+      typeof data.proofImageKey === "string",
   },
   semester: {
     guard: (data: unknown): data is FeeTransferSteps["semester"] =>
@@ -57,6 +63,7 @@ export const FEE_TRANSFER_STEP_OPTIONS = {
       isRecord(data) &&
       isSemester(data.semester) &&
       data.transcript instanceof File &&
+      typeof data.proofImageKey === "string" &&
       isTransferLinkUrl(data.transferLinkUrl),
   },
   transcript: {

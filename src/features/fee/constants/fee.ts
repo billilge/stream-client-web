@@ -27,6 +27,22 @@ export const FEE_EXTERNAL_LINKS = {
 // 업로드 받는 이미지 형식 — 학점이수현황 "캡처"라 스크린샷 확장자만 받는다
 export const FEE_TRANSCRIPT_ACCEPT = "image/png,image/jpeg,image/webp";
 
+// 서버 업로드 정책(FileUploadPolicy의 FEE_TRANSCRIPT_IMAGE)과 같은 값. 서버는 MIME이 아니라
+// 파일 이름의 확장자로 판단해서, `accept`를 통과해도 이름에 확장자가 없으면 거절한다.
+const FEE_TRANSCRIPT_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
+const FEE_TRANSCRIPT_MAX_BYTES = 10 * 1024 * 1024;
+
+// 서버가 받아 줄 캡처인지 — 송금하러 가기 전에 걸러야 해서 고를 때 먼저 본다
+export function isAcceptableTranscript(file: File): boolean {
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return (
+    file.name.includes(".") &&
+    FEE_TRANSCRIPT_EXTENSIONS.includes(extension) &&
+    file.size > 0 &&
+    file.size <= FEE_TRANSCRIPT_MAX_BYTES
+  );
+}
+
 // 학생회비 납부 상태 배지 — 납부내역 카드와 홈 내 정보 목록(HomeInfoList)이 같이 쓴다
 // Figma: 학생회비 납부 여부 뱃지 (nodeId 3147:146475)
 export const FEE_STATUS_BADGES: Record<
