@@ -6,7 +6,8 @@ import { BILILGE_ITEMS } from "@/shared/entities/bililge/bililgeMock";
 import { EVENTS } from "@/shared/entities/events/eventsMock";
 import { FEEDBACKS } from "@/shared/entities/feedbacks/feedbacksMock";
 import { NOTICES } from "@/shared/entities/notices/noticesMock";
-import type { SearchResults } from "@/shared/entities/search/types";
+import { searchKeys } from "@/shared/entities/search/searchKeys";
+import type { SearchResults } from "@/shared/entities/search/searchTypes";
 
 function includesKeyword(text: string, keyword: string): boolean {
   return text.toLowerCase().includes(keyword);
@@ -27,11 +28,6 @@ function searchMocks(keyword: string): SearchResults {
     notices: NOTICES.filter((item) => includesKeyword(item.title, keyword)),
   };
 }
-
-const searchKeys = {
-  root: () => ["search"] as const,
-  results: (keyword: string) => [...searchKeys.root(), keyword] as const,
-};
 
 // 실 API가 붙으면 queryFn 안쪽만 요청 코드로 바꾼다(`/api/search`) — 화면은 이 queryOptions로만 데이터를 받는다.
 // 열린피드백은 아직 entities로 옮겨지지 않아 features의 목데이터를 직접 읽는다.

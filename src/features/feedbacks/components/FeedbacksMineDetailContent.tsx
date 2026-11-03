@@ -8,7 +8,7 @@ import questionIcon from "@/assets/icons/feedbacks/question.svg";
 import EmptyState from "@/components/ui/EmptyState";
 import FeedbacksAnswerText from "@/features/feedbacks/components/FeedbacksAnswerText";
 import { hasFeedbackAnswer } from "@/features/feedbacks/constants/feedbacks";
-import { feedbacksQueries } from "@/shared/entities/feedbacks/feedbacksApi";
+import { feedbacksQueries } from "@/shared/entities/feedbacks/feedbacksQueries";
 
 interface FeedbacksMineDetailContentProps {
   feedbackId: string;

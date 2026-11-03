@@ -6,7 +6,7 @@ import {
   getSearchResultCount,
   type SearchTab,
 } from "@/features/search/constants/search";
-import { searchQueries } from "@/shared/entities/search/searchApi";
+import { searchQueries } from "@/shared/entities/search/searchQueries";
 
 interface SearchResultContentProps {
   keyword: string;

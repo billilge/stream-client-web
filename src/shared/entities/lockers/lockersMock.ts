@@ -1,4 +1,4 @@
-import type { LockerAssignment } from "@/shared/entities/lockers/types";
+import type { LockerAssignment } from "@/shared/entities/lockers/lockersTypes";
 
 // Figma: 사물함 배정 상태 배정완료 (nodeId 3147:148357), 빈 상태 (3147:148331)
 // Figma는 B-25지만 칸 배치 목데이터가 A-1·A-2만 있어서 위치 보기가 열리도록 A-1구역 칸으로 둔다.

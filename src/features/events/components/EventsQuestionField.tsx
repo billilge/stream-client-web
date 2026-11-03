@@ -21,7 +21,7 @@ import type {
   EventsAnswer,
   EventsChoiceAnswer,
   EventsQuestion,
-} from "@/shared/entities/events/types";
+} from "@/shared/entities/events/eventsTypes";
 
 interface EventsQuestionFieldBaseProps {
   question: EventsQuestion;

@@ -19,7 +19,7 @@ import {
 } from "@/features/events/constants/eventsApplication";
 import { submitEventsApplication } from "@/features/events/constants/eventsApplicationSubmit";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
-import type { EventsAnswer } from "@/shared/entities/events/types";
+import type { EventsAnswer } from "@/shared/entities/events/eventsTypes";
 
 // 복수 선택은 하나라도 골라야 하고, 기타를 골랐으면 입력 내용까지 있어야 충족으로 본다
 function isAnswered(answer: EventsAnswer | undefined): boolean {

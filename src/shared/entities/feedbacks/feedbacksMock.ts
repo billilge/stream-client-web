@@ -1,4 +1,7 @@
-import type { Feedback, MyFeedback } from "@/shared/entities/feedbacks/types";
+import type {
+  Feedback,
+  MyFeedback,
+} from "@/shared/entities/feedbacks/feedbacksTypes";
 
 // 문단은 빈 줄(\n\n)로 나누고, 굵게 강조할 구간은 **텍스트**로 표시한다 — 둘 다 Figma
 // 원본(nodeId 1410:50009)의 문단 구분·볼드 스팬을 그대로 옮긴 것이다.

@@ -1,8 +1,8 @@
 import hairDryer from "@/assets/icons/bililge-items/hair-dryer.svg";
 import powerBank from "@/assets/icons/bililge-items/power-bank.svg";
 import umbrella from "@/assets/icons/bililge-items/umbrella.svg";
-import type { FeePaymentStatus } from "@/shared/entities/fee/types";
-import type { LockerAssignmentStatus } from "@/shared/entities/lockers/types";
+import type { FeePaymentStatus } from "@/shared/entities/fee/feeTypes";
+import type { LockerAssignmentStatus } from "@/shared/entities/lockers/lockersTypes";
 
 // 홈 API가 붙기 전까지 쓰는 목데이터다.
 export const HOME_HAS_UNREAD_NOTIFICATION = true;

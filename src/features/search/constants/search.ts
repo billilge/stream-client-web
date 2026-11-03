@@ -1,4 +1,4 @@
-import type { SearchResults } from "@/shared/entities/search/types";
+import type { SearchResults } from "@/shared/entities/search/searchTypes";
 
 // 검색 결과 카테고리 — 키는 용어 사전(terminology.md)의 코드 용어를 그대로 쓴다.
 export type SearchCategory =

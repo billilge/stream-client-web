@@ -16,8 +16,8 @@ import {
   EVENTS_FEE_PAID_ONLY_LABEL,
   getEventAudience,
 } from "@/features/events/constants/events";
-import { eventsQueries } from "@/shared/entities/events/eventsApi";
-import { feeQueries } from "@/shared/entities/fee/feeApi";
+import { eventsQueries } from "@/shared/entities/events/eventsQueries";
+import { feeQueries } from "@/shared/entities/fee/feeQueries";
 
 interface EventsDetailContentProps {
   eventId: string;

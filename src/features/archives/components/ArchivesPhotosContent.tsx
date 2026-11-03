@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Typography } from "@wanteddev/wds";
 
 import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
-import { archivesQueries } from "@/shared/entities/archives/archivesApi";
+import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotosContentProps {
   archiveId: string;

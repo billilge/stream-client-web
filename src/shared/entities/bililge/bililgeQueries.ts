@@ -1,12 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { mockupResponse } from "@/lib/mockupApi";
+import { bililgeKeys } from "@/shared/entities/bililge/bililgeKeys";
 import { BILILGE_ITEMS } from "@/shared/entities/bililge/bililgeMock";
-
-const bililgeKeys = {
-  root: () => ["bililge"] as const,
-  items: () => [...bililgeKeys.root(), "items"] as const,
-};
 
 // 실 API가 붙으면 queryFn 안쪽만 요청 코드로 바꾼다 — 화면은 이 queryOptions로만 데이터를 받는다.
 export const bililgeQueries = {

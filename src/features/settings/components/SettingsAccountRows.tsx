@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import SettingsRow from "@/features/settings/components/SettingsRow";
-import { usersQueries } from "@/shared/entities/users/usersApi";
+import { usersQueries } from "@/shared/entities/users/usersQueries";
 
 interface SettingsAccountRowsProps {
   onChangePhone: () => void;

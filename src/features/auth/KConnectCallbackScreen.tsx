@@ -8,7 +8,7 @@ import {
 } from "@/features/auth/constants/auth";
 import type { AuthLocationState } from "@/features/auth/utils/authLocationState";
 import { HOME_PATH } from "@/features/home/constants/home";
-import { exchangeKConnectCode } from "@/shared/entities/auth/authApi";
+import { exchangeKConnectCode } from "@/shared/entities/auth/authQueries";
 import { markLoggedIn } from "@/shared/entities/auth/session";
 
 // K-CONNECT가 인증을 마치고 되돌려 보내는 redirect URI 라우트(`/oauth/kconnect`) — 경로는 K-CONNECT에 등록한

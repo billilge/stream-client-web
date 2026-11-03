@@ -1,14 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { mockupResponse } from "@/lib/mockupApi";
+import { usersKeys } from "@/shared/entities/users/usersKeys";
 import { APP_VERSION, MY_ACCOUNT } from "@/shared/entities/users/usersMock";
-
-// 앱 버전은 계정과 다른 요청이라 key를 나눈다 — 설정 화면이 둘을 한 카드에 섞어 쓰지 않는다.
-const usersKeys = {
-  root: () => ["users"] as const,
-  myAccount: () => [...usersKeys.root(), "me"] as const,
-  appVersion: () => [...usersKeys.root(), "app-version"] as const,
-};
 
 // 실 API가 붙으면 queryFn 안쪽만 요청 코드로 바꾼다 — 화면은 이 queryOptions로만 데이터를 받는다.
 //

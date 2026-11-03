@@ -3,8 +3,8 @@ import { Typography } from "@wanteddev/wds";
 
 import type { ArchivesPhotoCardSize } from "@/features/archives/components/ArchivesPhotoCard";
 import ArchivesPhotoColumn from "@/features/archives/components/ArchivesPhotoColumn";
-import { archivesQueries } from "@/shared/entities/archives/archivesApi";
-import type { ArchiveItem } from "@/shared/entities/archives/types";
+import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
+import type { ArchiveItem } from "@/shared/entities/archives/archivesTypes";
 
 // 2열 매스너리 — 왼쪽 열은 Large/Medium, 오른쪽 열은 Small/Large를 번갈아 써서 두 열의 카드 높이가 엇갈린다.
 const LEFT_COLUMN_SIZES: ArchivesPhotoCardSize[] = ["large", "medium"];

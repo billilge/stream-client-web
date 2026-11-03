@@ -2,7 +2,7 @@ import type {
   EventItem,
   EventsQuestion,
   MyEventApplication,
-} from "@/shared/entities/events/types";
+} from "@/shared/entities/events/eventsTypes";
 
 // Figma 상세(1133:42433 모집중 / 1156:53992 모집예정)의 메타데이터·본문은 목업이라 행사별로 다르지 않다.
 // 목록 카드가 같은 행사명 4개를 상태만 바꿔 보여주는 것과 같은 이유로, 상세 내용도 공통 상수로 두고
@@ -174,7 +174,7 @@ const APPLICATIONS: MyEventApplication[] = [
 type MyEventApplicationsMockState = "list" | "empty";
 const MY_EVENT_APPLICATIONS_MOCK_STATE: MyEventApplicationsMockState = "list";
 
-// 신청 취소가 이 배열의 항목을 바꾼다(eventsApi의 useCancelEventApplicationMutation) — 목록·상세에 같이 반영된다.
+// 신청 취소가 이 배열의 항목을 바꾼다(eventsQueries의 useCancelEventApplicationMutation) — 목록·상세에 같이 반영된다.
 export const MY_EVENT_APPLICATIONS_MOCK: MyEventApplication[] =
   MY_EVENT_APPLICATIONS_MOCK_STATE === "list" ? APPLICATIONS : [];
 

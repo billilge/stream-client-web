@@ -14,7 +14,7 @@ import AuthTermsStep from "@/features/auth/steps/AuthTermsStep";
 import { readAuthLocationState } from "@/features/auth/utils/authLocationState";
 import { HOME_PATH } from "@/features/home/constants/home";
 import { useFunnel } from "@/lib/useFunnel";
-import { submitOnboarding } from "@/shared/entities/auth/authApi";
+import { submitOnboarding } from "@/shared/entities/auth/authQueries";
 import { isLoggedIn, markLoggedIn } from "@/shared/entities/auth/session";
 
 // 로그인과 가입(연락처 → 약관 동의 → 약관 상세 → 가입 완료)을 useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에

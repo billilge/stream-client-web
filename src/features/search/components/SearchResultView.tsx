@@ -15,7 +15,7 @@ import {
   SEARCH_TABS,
   type SearchTab,
 } from "@/features/search/constants/search";
-import type { SearchResults } from "@/shared/entities/search/types";
+import type { SearchResults } from "@/shared/entities/search/searchTypes";
 
 interface SearchResultViewProps {
   results: SearchResults;

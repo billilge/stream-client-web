@@ -6,7 +6,7 @@ import sportsDay from "@/assets/images/archives/sports-day.jpg";
 import type {
   ArchiveDetail,
   ArchiveItem,
-} from "@/shared/entities/archives/types";
+} from "@/shared/entities/archives/archivesTypes";
 
 // Figma: 아카이빙 목록(nodeId 1276:95397) · 상세(nodeId 1526:171215) 목업 데이터.
 // 검색 결과(SearchArchivingCard)와 아카이빙 목록·상세가 같은 데이터를 본다 — 검색에서 누른 앨범이

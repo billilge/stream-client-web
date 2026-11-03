@@ -3,7 +3,7 @@ import { ContentBadge, Typography } from "@wanteddev/wds";
 import arrowRight from "@/assets/icons/common/arrow-right.svg";
 import { hasFeedbackAnswer } from "@/features/feedbacks/constants/feedbacks";
 import { formatDate } from "@/lib/date";
-import type { MyFeedback } from "@/shared/entities/feedbacks/types";
+import type { MyFeedback } from "@/shared/entities/feedbacks/feedbacksTypes";
 
 interface FeedbacksHistoryCardProps {
   feedback: MyFeedback;

@@ -3,7 +3,7 @@ import { Button, Typography } from "@wanteddev/wds";
 import StatusSummaryCard from "@/components/ui/StatusSummaryCard";
 import { FEE_STATUS_BADGES } from "@/features/fee/constants/fee";
 import { formatDateTime } from "@/lib/date";
-import type { FeePayment } from "@/shared/entities/fee/types";
+import type { FeePayment } from "@/shared/entities/fee/feeTypes";
 
 interface FeePaymentCardProps {
   payment: FeePayment;

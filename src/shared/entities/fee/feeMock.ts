@@ -1,4 +1,4 @@
-import type { FeePayment, MyFeeStatus } from "@/shared/entities/fee/types";
+import type { FeePayment, MyFeeStatus } from "@/shared/entities/fee/feeTypes";
 
 const TITLE = "소프트웨어융합대학 학생회비";
 

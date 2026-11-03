@@ -9,7 +9,7 @@ import NoticesList from "@/features/notices/components/NoticesList";
 import NoticesListSkeleton from "@/features/notices/components/NoticesListSkeleton";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
-import type { NoticeCategory } from "@/shared/entities/notices/types";
+import type { NoticeCategory } from "@/shared/entities/notices/noticesTypes";
 
 type NoticeTab = "all" | "general" | "partnership";
 

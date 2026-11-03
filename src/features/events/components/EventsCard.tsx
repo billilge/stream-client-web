@@ -1,6 +1,6 @@
 import { Button, Typography } from "@wanteddev/wds";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
-import type { EventStatus } from "@/shared/entities/events/types";
+import type { EventStatus } from "@/shared/entities/events/eventsTypes";
 
 interface EventsCardProps {
   title: string;

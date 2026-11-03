@@ -2,7 +2,7 @@ import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 
 import { EVENTS_APPLICATION_STATUS_BADGES } from "@/features/events/constants/events";
 import { formatDateTime } from "@/lib/date";
-import type { MyEventApplication } from "@/shared/entities/events/types";
+import type { MyEventApplication } from "@/shared/entities/events/eventsTypes";
 
 interface EventsApplicationCardProps {
   application: MyEventApplication;

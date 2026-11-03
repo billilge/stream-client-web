@@ -7,7 +7,7 @@ import {
 import type {
   KConnectUser,
   OnboardingSubmission,
-} from "@/shared/entities/auth/types";
+} from "@/shared/entities/auth/authTypes";
 
 // 서버로 보내는 K-CONNECT 인증 결과 — @billilge/oauth-kconnect가 돌려주는 값 중 서버가 쓰는 세 가지다.
 export interface KConnectCredentials {

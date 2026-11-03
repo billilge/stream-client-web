@@ -8,7 +8,7 @@ import LockersMapView from "@/features/lockers/components/LockersMapView";
 import LockersMineBar from "@/features/lockers/components/LockersMineBar";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import { LOCKERS_SECTION_DETAILS } from "@/features/lockers/constants/lockersSectionDetails";
-import { lockersQueries } from "@/shared/entities/lockers/lockersApi";
+import { lockersQueries } from "@/shared/entities/lockers/lockersQueries";
 
 interface LockersMineContentProps {
   /** 배정이 없거나 구역 배치가 없으면 보낼 곳 — 이동할 경로는 화면이 정한다 */

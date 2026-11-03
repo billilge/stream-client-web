@@ -10,8 +10,8 @@ import { IconChevronLeft } from "@wanteddev/wds-icon";
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { noticesQueries } from "@/shared/entities/notices/noticesApi";
-import type { NoticeCategory } from "@/shared/entities/notices/types";
+import { noticesQueries } from "@/shared/entities/notices/noticesQueries";
+import type { NoticeCategory } from "@/shared/entities/notices/noticesTypes";
 
 const CATEGORY_BADGE_COLOR: Record<NoticeCategory, ThemeColorsToken> = {
   일반: "semantic.accent.foreground.blue",

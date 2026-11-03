@@ -20,7 +20,7 @@ import {
 } from "@/features/bililge/constants/bililge";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
-import type { BililgeItem } from "@/shared/entities/bililge/types";
+import type { BililgeItem } from "@/shared/entities/bililge/bililgeTypes";
 
 interface BililgeListScreenProps {
   /** 대여/반납 탭 — 탭마다 경로가 달라서 라우터가 정해 넘긴다 */

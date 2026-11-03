@@ -1,4 +1,4 @@
-import type { Notice } from "@/shared/entities/notices/types";
+import type { Notice } from "@/shared/entities/notices/noticesTypes";
 
 // Figma: 공지 상세 (nodeId 1256:81842) 목업 본문 — 목업 데이터라 공지 5건이 본문을 공유한다.
 const NOTICE_BODY = `안녕하십니까, 제10대 소프트웨어융합대학 학생회 '에코'입니다.

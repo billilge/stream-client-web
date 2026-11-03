@@ -1,4 +1,4 @@
-import type { NotificationItem } from "@/shared/entities/notifications/types";
+import type { NotificationItem } from "@/shared/entities/notifications/notificationsTypes";
 
 // Figma: 알림 (nodeId 3595:107100) 목업 데이터 — 첫 항목만 안 읽은 알림이다.
 export const NOTIFICATIONS: NotificationItem[] = [

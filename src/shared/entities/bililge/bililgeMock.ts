@@ -13,7 +13,7 @@ import powerBank from "@/assets/icons/bililge-items/power-bank.svg";
 import sanitaryPad from "@/assets/icons/bililge-items/sanitary-pad.svg";
 import umbrella from "@/assets/icons/bililge-items/umbrella.svg";
 import usbCCharger from "@/assets/icons/bililge-items/usb-c-charger.svg";
-import type { BililgeItem } from "@/shared/entities/bililge/types";
+import type { BililgeItem } from "@/shared/entities/bililge/bililgeTypes";
 
 // 목데이터는 실 서버가 없어 위 필드를 흉내내는 값이다 — 실행 시점 기준으로 오늘/내일/그 이후
 // 라벨을 미리 계산해두되, 컴포넌트 쪽에는 이 계산 로직 자체를 노출하지 않는다(export하지 않음).

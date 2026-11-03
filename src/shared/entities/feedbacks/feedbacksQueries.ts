@@ -1,14 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { mockupResponse } from "@/lib/mockupApi";
+import { feedbacksKeys } from "@/shared/entities/feedbacks/feedbacksKeys";
 import { MY_FEEDBACKS_MOCK } from "@/shared/entities/feedbacks/feedbacksMock";
-
-const feedbacksKeys = {
-  root: () => ["feedbacks"] as const,
-  mine: () => [...feedbacksKeys.root(), "mine"] as const,
-  myDetail: (feedbackId: string) =>
-    [...feedbacksKeys.mine(), feedbackId] as const,
-};
 
 // 실 API가 붙으면 queryFn 안쪽만 요청 코드로 바꾼다 — 화면은 이 queryOptions로만 데이터를 받는다.
 export const feedbacksQueries = {

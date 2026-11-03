@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
 import EventsApplicationCard from "@/features/events/components/EventsApplicationCard";
-import { eventsQueries } from "@/shared/entities/events/eventsApi";
+import { eventsQueries } from "@/shared/entities/events/eventsQueries";
 
 interface EventsApplicationListProps {
   onSelectEvent: (eventId: string) => void;

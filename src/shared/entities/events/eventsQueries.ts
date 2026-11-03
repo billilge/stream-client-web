@@ -5,24 +5,13 @@ import {
 } from "@tanstack/react-query";
 
 import { mockupResponse } from "@/lib/mockupApi";
+import { eventsKeys } from "@/shared/entities/events/eventsKeys";
 import {
   EVENTS,
   MY_EVENT_APPLICATIONS_MOCK,
   toMockDateTime,
 } from "@/shared/entities/events/eventsMock";
-import type { MyEventApplication } from "@/shared/entities/events/types";
-
-// 조회 캐시 key. 조회와 무효화가 같은 함수로 key를 만들어서, 한쪽만 바뀌어 무효화가 빗나가지 않게 한다.
-// 신청내역 상세는 목록 key 아래에 둬서, 목록 key 하나로 목록·상세를 같이 무효화한다.
-const eventsKeys = {
-  root: () => ["events"] as const,
-  list: () => [...eventsKeys.root(), "list"] as const,
-  detail: (eventId: string) =>
-    [...eventsKeys.root(), "detail", eventId] as const,
-  applications: () => [...eventsKeys.root(), "applications"] as const,
-  application: (applicationId: string) =>
-    [...eventsKeys.applications(), applicationId] as const,
-};
+import type { MyEventApplication } from "@/shared/entities/events/eventsTypes";
 
 // 실 API가 붙으면 queryFn 안쪽만 요청 코드로 바꾼다 — 화면은 이 queryOptions로만 데이터를 받는다.
 export const eventsQueries = {

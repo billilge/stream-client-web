@@ -6,7 +6,7 @@ import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ArchivesDetailSection from "@/features/archives/components/ArchivesDetailSection";
 import ArchivesPhotoGrid from "@/features/archives/components/ArchivesPhotoGrid";
-import { archivesQueries } from "@/shared/entities/archives/archivesApi";
+import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesDetailContentProps {
   archiveId: string;

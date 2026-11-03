@@ -1,4 +1,4 @@
-import type { AppVersion, MyAccount } from "@/shared/entities/users/types";
+import type { AppVersion, MyAccount } from "@/shared/entities/users/usersTypes";
 
 // Figma 설정 화면(3524:152322)에 적힌 값 그대로. 실 API가 붙으면 이 파일은 사라진다.
 export const MY_ACCOUNT: MyAccount = {

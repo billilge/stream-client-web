@@ -1,4 +1,4 @@
-import type { KConnectUser } from "@/shared/entities/auth/types";
+import type { KConnectUser } from "@/shared/entities/auth/authTypes";
 
 // 실 API가 붙기 전까지 인증 흐름을 흉내 내는 목 전용 코드다. 실 API로 바꿀 때 이 파일째 지운다.
 

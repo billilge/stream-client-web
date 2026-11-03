@@ -7,7 +7,7 @@ import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
 import NoticesCard from "@/features/notices/components/NoticesCard";
 import SearchArchivingCard from "@/features/search/components/SearchArchivingCard";
 import type { SearchCategory } from "@/features/search/constants/search";
-import type { SearchResults } from "@/shared/entities/search/types";
+import type { SearchResults } from "@/shared/entities/search/searchTypes";
 
 interface SearchCategoryItemsProps {
   category: SearchCategory;
