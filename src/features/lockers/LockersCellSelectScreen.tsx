@@ -31,6 +31,7 @@ import {
 import { useLockersApplySubmit } from "@/features/lockers/hooks/useLockersApplySubmit";
 import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
 import { lockersQueries } from "@/shared/entities/lockers/lockersQueries";
+import type { LockerPeriodResponse } from "@/shared/entities/lockers/lockersTypes";
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
 function LockersCellSelectScreen() {
@@ -54,38 +55,34 @@ function SectionPeriod({ sectionId }: { sectionId: number }) {
   if (!period) {
     return <Navigate replace to="/lockers/apply/sections" />;
   }
-  return (
-    <SectionDetail
-      lockerPeriodId={period.lockerPeriodId}
-      sectionId={sectionId}
-    />
-  );
+  return <SectionDetail period={period} sectionId={sectionId} />;
 }
 
+type LockerPeriod = NonNullable<LockerPeriodResponse>;
+
 function SectionDetail({
-  lockerPeriodId,
+  period,
   sectionId,
 }: {
-  lockerPeriodId: number;
+  period: LockerPeriod;
   sectionId: number;
 }) {
   const { data: detail } = useSuspenseQuery({
-    ...lockersQueries.sectionDetail(lockerPeriodId, sectionId),
+    ...lockersQueries.sectionDetail(period.lockerPeriodId, sectionId),
     select: toLockersSectionDetail,
   });
 
-  return (
-    <SectionLockerSelect detail={detail} lockerPeriodId={lockerPeriodId} />
-  );
+  return <SectionLockerSelect detail={detail} period={period} />;
 }
 
 function SectionLockerSelect({
   detail,
-  lockerPeriodId,
+  period,
 }: {
   detail: LockersSectionDetail;
-  lockerPeriodId: number;
+  period: LockerPeriod;
 }) {
+  const { lockerPeriodId } = period;
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -221,6 +218,8 @@ function SectionLockerSelect({
               lockerId: selectedLocker.lockerId,
               lockerLabel: selectedLocker.lockerLabel,
               lockerPeriodId,
+              usageEndDate: period.usageEndDate,
+              usageStartDate: period.usageStartDate,
             });
           }
         }}

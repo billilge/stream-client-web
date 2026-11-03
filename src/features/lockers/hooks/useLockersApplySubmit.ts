@@ -46,10 +46,15 @@ export function useLockersApplySubmit(sectionId: string) {
     let application: LockersApplySuccess | null = null;
     let failureReason: LockersApplyFailureReason = "server";
     try {
-      application = await applyLocker({
+      const response = await applyLocker({
         lockerId: request.lockerId,
         lockerPeriodId: request.lockerPeriodId,
       });
+      application = {
+        lockerLabel: response?.lockerLabel ?? request.lockerLabel,
+        usageEndDate: response?.usageEndDate ?? request.usageEndDate,
+        usageStartDate: response?.usageStartDate ?? request.usageStartDate,
+      };
     } catch (error) {
       failureReason = toLockersApplyFailureReason(error);
     }

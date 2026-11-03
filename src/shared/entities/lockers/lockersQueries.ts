@@ -174,20 +174,29 @@ export interface ApplyLockerVariables {
   lockerId: number;
 }
 
-// POST /lockers/applications. 실패해도 남은 수·칸 상태가 낡았을 수 있어 구역 캐시는 결과와 상관없이 무효화한다.
+// POST /lockers/applications. 응답 형식이 달라도 서버에는 이미 배정이 생겼으니 실패로 바꾸지 않고 null을 돌려준다.
+// 실패(남이 먼저 신청·이미 배정됨)도 남은 수·내 배정이 낡았다는 뜻이라 결과와 상관없이 캐시를 갱신한다.
+// 결과 화면이 이 갱신을 기다리지 않게 Promise를 돌려주지 않는다.
 export function useApplyLockerMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (variables: ApplyLockerVariables) =>
-      lockerApplyResponseSchema.parse(
+    mutationFn: async (variables: ApplyLockerVariables) => {
+      const response = lockerApplyResponseSchema.safeParse(
         await api.post<unknown>(`${LOCKERS_PATH}/applications`, variables),
-      ),
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: lockersKeys.sections() }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
+      );
+      if (!response.success) {
+        console.error("사물함 신청 응답 형식이 달라요.", response.error);
+        return null;
+      }
+      return response.data;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: lockersKeys.sections() });
+      queryClient.refetchQueries({
+        exact: true,
         queryKey: lockersKeys.myApplications(),
-      }),
+      });
+    },
   });
 }

@@ -21,10 +21,10 @@ export const LOCKERS_APPLY_SUBMITTING_TEXT = {
   title: "사물함 신청을 진행 중이에요",
 };
 
-export interface LockersApplyRequest {
+// 이용 기간은 신청 응답을 읽지 못했을 때 완료 화면을 채우는 값이다(기간 조회에서 받는다)
+export interface LockersApplyRequest extends LockersApplySuccess {
   lockerPeriodId: number;
   lockerId: number;
-  lockerLabel: string;
 }
 
 export function toLockersApplyFailureReason(
