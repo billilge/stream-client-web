@@ -1,5 +1,6 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { Suspense, useRef, useState } from "react";
+import { Navigate } from "react-router-dom";
 
 import ScreenToast from "@/components/ui/ScreenToast";
 import {
@@ -8,8 +9,10 @@ import {
   useSubmitFeeMutation,
 } from "@/entities/fee/feeApi";
 import { useUploadFileMutation } from "@/entities/files/filesApi";
+import FeeTransferSkeleton from "@/features/fee/components/FeeTransferSkeleton";
 import {
   FEE_EXTERNAL_LINKS,
+  FEE_PAYMENTS_PATH,
   isAcceptableTranscript,
 } from "@/features/fee/constants/fee";
 import {
@@ -59,7 +62,16 @@ function isSameFile(a: File, b: File) {
   );
 }
 
-function FeeTransferScreen() {
+function FeeTransferFunnel() {
+  const { data: entryFeeStatus } = useSuspenseQuery({
+    ...feeQueries.me(),
+    select: (fee) => fee.feeStatus,
+  });
+  // 들어올 때의 상태로만 판단한다 — 납부 요청을 보내면 납부확인중으로 바뀌는데, 그때 완료 단계에서
+  // 쫓겨나면 안 된다. 미납·확인필요만 낼 수 있다(서버도 그 외에는 409로 거절한다).
+  const [canPay] = useState(
+    () => entryFeeStatus === "UNPAID" || entryFeeStatus === "REJECTED",
+  );
   // 첫 단계의 뒤로가기 — 타고 들어왔으면 한 단계 뒤로, 플로우로 바로 들어왔으면(딥링크·앱
   // WebView 진입·주소 직접 입력) 홈으로 보낸다. `navigate(-1)`만 쓰면 먹통이 된다(#107 리뷰).
   const goBackFromFlow = useBackNavigation(HOME_PATH);
@@ -97,6 +109,11 @@ function FeeTransferScreen() {
     lastUploadRef.current = { file, fileKey };
     return fileKey;
   };
+
+  // 이미 납부 확인을 요청했거나 납부가 끝났으면 송금까지 다 하고 409를 받기 전에 납부내역으로 보낸다
+  if (!canPay) {
+    return <Navigate replace to={FEE_PAYMENTS_PATH} />;
+  }
 
   return (
     <>
@@ -235,6 +252,15 @@ function FeeTransferScreen() {
         open={toast.isOpen}
       />
     </>
+  );
+}
+
+// 들어올 때 내 납부 상태부터 받는다 — 받는 동안 첫 단계 모양의 스켈레톤을 보여 준다
+function FeeTransferScreen() {
+  return (
+    <Suspense fallback={<FeeTransferSkeleton />}>
+      <FeeTransferFunnel />
+    </Suspense>
   );
 }
 
