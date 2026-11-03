@@ -17,6 +17,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { HOME_PATH } from "@/features/home/constants/home";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
 import LockersLegend from "@/features/lockers/components/LockersLegend";
 import LockersMapSkeleton from "@/features/lockers/components/LockersMapSkeleton";
@@ -53,7 +54,7 @@ function SectionPeriod({ sectionId }: { sectionId: number }) {
   const { data: period } = useSuspenseQuery(lockersQueries.period());
 
   if (!period) {
-    return <Navigate replace to="/lockers/apply/sections" />;
+    return <Navigate replace to={HOME_PATH} />;
   }
   return <SectionDetail period={period} sectionId={sectionId} />;
 }
@@ -103,10 +104,14 @@ function SectionLockerSelect({
       new Map(detail.lockers.map((locker) => [locker.lockerNumber, locker])),
     [detail.lockers],
   );
+  // 새로고침으로 고른 칸이 다른 사람에게 가면 선택을 풀어 신청 버튼을 잠근다
   const selectedLocker =
     selectedLockerNumber === null
       ? undefined
       : lockers.get(selectedLockerNumber);
+  const selectableLocker = selectedLocker?.isAvailable
+    ? selectedLocker
+    : undefined;
 
   // 선택 불가 칸은 고르지 않고 안내 토스트만 띄운다 — 이미 고른 칸은 그대로 둔다
   const handleSelect = (lockerNumber: number) => {
@@ -184,7 +189,7 @@ function SectionLockerSelect({
       layout={detail.layout}
       lockers={lockers}
       onSelect={handleSelect}
-      selectedLockerNumber={selectedLockerNumber}
+      selectedLockerNumber={selectableLocker?.lockerNumber ?? null}
     />
   );
 
@@ -193,7 +198,7 @@ function SectionLockerSelect({
       <LockersMapView legend={<LockersLegend />} map={map} />
 
       <LockersSelectedLockerBar
-        lockerLabel={selectedLocker?.lockerLabel ?? null}
+        lockerLabel={selectableLocker?.lockerLabel ?? null}
         onSubmit={() => setIsConfirmOpen(true)}
       />
 
@@ -209,14 +214,14 @@ function SectionLockerSelect({
         cancelLabel="수정"
         confirmLabel="신청하기"
         description="신청 후에는 변경할 수 없어요."
-        highlight={selectedLocker?.lockerLabel}
+        highlight={selectableLocker?.lockerLabel}
         onCancel={() => setIsConfirmOpen(false)}
         onConfirm={() => {
           setIsConfirmOpen(false);
-          if (selectedLocker) {
+          if (selectableLocker) {
             submit({
-              lockerId: selectedLocker.lockerId,
-              lockerLabel: selectedLocker.lockerLabel,
+              lockerId: selectableLocker.lockerId,
+              lockerLabel: selectableLocker.lockerLabel,
               lockerPeriodId,
               usageEndDate: period.usageEndDate,
               usageStartDate: period.usageStartDate,
