@@ -1,4 +1,4 @@
-// 이메일 형식만 본다(`@` 앞뒤에 글자가 있고 도메인에 `.`이 있다). 허용 도메인 제한은 서버 정책이 정해지면 더한다.
+// 이메일 형식만 본다. 허용 도메인 제한은 서버 정책이 정해지면 더한다.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function isValidEmail(email: string): boolean {

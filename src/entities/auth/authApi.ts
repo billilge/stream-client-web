@@ -29,8 +29,7 @@ export async function exchangeKConnectCode(
   return mockLogin === "existing" ? MOCK_EXISTING_USER : MOCK_NEW_USER;
 }
 
-// 입력한 인증번호가 틀렸을 때 — 화면이 "인증번호가 올바르지 않아요"를 보여 주고 다시 입력받는다.
-// 그 밖의 실패(네트워크 등)와 구분하려고 따로 둔다.
+// 입력한 인증번호가 틀렸을 때 — 네트워크 같은 다른 실패와 구분해서 화면이 안내 문구를 고른다.
 export class EmailCodeMismatchError extends Error {
   name = "EmailCodeMismatchError";
 }
@@ -41,7 +40,6 @@ export async function requestEmailVerification(_email: string): Promise<void> {
   await mockDelay();
 }
 
-// 이메일로 받은 인증번호를 확인하는 자리 — 틀리면 EmailCodeMismatchError를 던진다.
 export async function verifyEmailCode(
   _email: string,
   code: string,

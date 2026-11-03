@@ -11,9 +11,8 @@ import { EMAIL_SEND_FAILURE_MESSAGE } from "@/features/auth/constants/auth";
 import { isValidEmail } from "@/features/auth/utils/isValidEmail";
 
 // 온보딩 1/3 이메일 입력 — Figma 이메일인증 4 (nodeId 4473:48819). 단계 표시(1 / 3)는 Figma에 없고 연락처·약관 화면과 맞춰 더했다.
-// K-CONNECT 인증을 마친 신규 사용자가 연락처 전에 거친다. 이메일 형식이 맞아야 `인증번호 받기`가 켜지고,
-// 누르면 인증번호를 보낸 뒤 인증번호 입력 단계로 간다. 입력칸은 Figma `Textinput/Textfield`(445:8591)라 WDS `TextField`를
-// 쓴다 — 라벨("이메일")은 TextField가 그리지 않아서 형제 요소로 따로 그린다(설정의 전화번호 변경과 같다).
+// 입력칸은 Figma `Textinput/Textfield`(445:8591)라 WDS `TextField`를 쓴다 — 라벨("이메일")은 TextField가 그리지 않아서
+// 형제 요소로 따로 그린다(설정의 전화번호 변경과 같다).
 function AuthEmailStep({
   initialEmail,
   onBack,

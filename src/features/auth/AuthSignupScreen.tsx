@@ -83,7 +83,6 @@ function AuthSignupScreen() {
           onBack={() =>
             index === 0 ? history.replace("login", {}) : history.back()
           }
-          // 단계를 바꾸지 않고 context만 갈아 끼운다(replace)
           onChangeEmail={(email) =>
             history.replace("email", (prev) => ({ ...prev, email }))
           }
