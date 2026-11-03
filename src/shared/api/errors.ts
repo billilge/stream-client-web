@@ -1,4 +1,4 @@
-import type { ApiResponse } from "@/lib/api/types";
+import type { ApiResponse } from "@/shared/api/api.types";
 
 // 서버까지 닿지 못한 요청(오프라인·DNS·CORS 차단 등)
 export class NetworkError extends Error {

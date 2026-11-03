@@ -1,8 +1,8 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
 
-import { ApiError, NetworkError, TimeoutError } from "@/lib/api/errors";
-import { clearAccessToken, getAccessToken } from "@/lib/api/token";
-import type { ApiResponse } from "@/lib/api/types";
+import type { ApiResponse } from "@/shared/api/api.types";
+import { ApiError, NetworkError, TimeoutError } from "@/shared/api/errors";
+import { clearAccessToken, getAccessToken } from "@/shared/api/token";
 
 // 서버 주소는 로컬·배포 모두 환경변수로 넣는다(.env.example). 비어 있으면 `/v1/...`가 웹 주소로 나가
 // 웹의 index.html이 돌아오고, 아래 unwrap이 에러로 만든다.
