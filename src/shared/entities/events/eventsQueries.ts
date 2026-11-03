@@ -66,12 +66,14 @@ export const eventDetailSchema = z.looseObject({
   recruitStatus: z.enum(EVENT_RECRUIT_STATUSES),
   daysUntilDeadline: z.number().nullable(),
   images: z.array(z.looseObject({ fileId: z.number(), fileUrl: z.string() })),
-  // 신청 조건 — stream-server#190에서 응답에 더해지는 값이라 그전에는 없다. 없으면 납부자 전용이 아니고
-  // 정원 없이 모집하는 것으로 본다. 상세 "대상" 문구는 서버가 만들지 않고 이 값들로 프론트가 조합한다.
-  feePaidOnly: z.boolean().optional(),
-  recruitType: z.enum(EVENT_RECRUIT_TYPES).optional(),
+  // 신청 조건. 상세 "대상" 문구는 서버가 만들지 않고 이 값들로 프론트가 조합한다.
+  feePaidOnly: z.boolean(),
+  recruitType: z.enum(EVENT_RECRUIT_TYPES),
   // 선착순일 때만 있다
-  capacity: z.number().nullish(),
+  capacity: z.number().nullable(),
+  // 이 학생이 학생회비 조건을 채우는지. 납부자 전용이 아니면 항상 true, 납부자 전용이면 납부자 명부에 있을 때만 true다.
+  // 모집 기간·정원은 반영하지 않아서 recruitStatus와 같이 본다
+  isFeeEligible: z.boolean(),
 });
 
 // 신청서 질문 — 양식 조회와 신청 상세가 같이 싣는 부분. 화면에는 eventsQuestions.ts에서 EventsQuestion으로 바꿔 넘긴다

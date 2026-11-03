@@ -64,7 +64,8 @@ export const EVENTS_APPLICATION_STATUS_BADGES = {
   CANCELED: { color: "red", label: "신청취소" },
 } as const;
 
-// 학생회비 납부자 전용 행사인데 미납(납부확인중 포함)이면 하단 버튼을 막고 라벨로 보여주는 문구.
+// 학생회비 납부자 전용 행사인데 신청 자격(isFeeEligible — 서버가 납부자 명부로 판단)이 없으면
+// 하단 버튼을 막고 라벨로 보여주는 문구.
 // Figma에 이 상태가 없어서, 모집예정이 막힌 버튼에 "N월 N일 오픈"을 쓰는 것과 같은 방식으로 정했다.
 export const EVENTS_FEE_PAID_ONLY_LABEL = "학생회비 납부자만 신청할 수 있어요";
 
