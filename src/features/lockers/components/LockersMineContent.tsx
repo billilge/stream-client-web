@@ -39,7 +39,7 @@ function LockersMineContent({
   );
 
   // 배정이 없거나 구역 배치가 없으면 볼 칸이 없어서 배정 상태 화면으로 돌려보낸다
-  if (!assignment || !detail) {
+  if (!assignment || !detail?.layout) {
     return <Navigate replace to={fallbackPath} />;
   }
 
@@ -61,7 +61,7 @@ function LockersMineContent({
       <LockersSectionPhotoModal
         onClose={onClosePhoto}
         open={isPhotoOpen}
-        photoUrl={detail.photoUrl}
+        photoUrl={detail.photoUrls[0] ?? ""}
         sectionName={detail.section}
       />
     </>

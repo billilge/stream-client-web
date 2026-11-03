@@ -1,5 +1,6 @@
 import sectionA1Photo from "@/assets/images/lockers/section-a-1-photo.jpg";
 import sectionA2Photo from "@/assets/images/lockers/section-a-2-photo.jpg";
+import type { LockerSectionDetailResponse } from "@/shared/entities/lockers/lockersTypes";
 
 // 구역 상세 응답(GET /v1/app/lockers/sections/{sectionId}). layout은 구조만 갖고 칸 상태는 lockers에서
 // 온다 — 둘은 lockerNumber로 잇는다.
@@ -74,9 +75,31 @@ export interface LockersSectionLocker {
 export interface LockersSectionDetail {
   sectionId: number;
   section: string;
-  layout: LockersLayout;
-  photoUrl: string;
+  // 배치를 아직 등록하지 않았거나(서버 null) 이 앱이 모르는 형식 버전이면 null
+  layout: LockersLayout | null;
+  photoUrls: string[];
   lockers: LockersSectionLocker[];
+}
+
+const LOCKERS_LAYOUT_VERSION = 1;
+
+export function toLockersSectionDetail(
+  response: LockerSectionDetailResponse,
+): LockersSectionDetail {
+  const { layout } = response;
+  return {
+    layout:
+      layout?.version === LOCKERS_LAYOUT_VERSION
+        ? {
+            root: layout.root as unknown as LockersLayoutBlock,
+            version: LOCKERS_LAYOUT_VERSION,
+          }
+        : null,
+    lockers: response.lockers,
+    photoUrls: response.photoUrls,
+    section: response.section,
+    sectionId: response.sectionId,
+  };
 }
 
 // Figma 목업이 전부 선택 가능이라 그대로 두고, 이름은 Figma 표기("A-25")대로 만든다
@@ -172,7 +195,7 @@ const A1_SECTION: LockersSectionDetail = {
     version: 1,
   },
   lockers: createMockLockers("A", range(1, 36)),
-  photoUrl: sectionA1Photo,
+  photoUrls: [sectionA1Photo],
   section: "A-1",
   sectionId: 1,
 };
@@ -221,7 +244,7 @@ const A2_SECTION: LockersSectionDetail = {
     version: 1,
   },
   lockers: createMockLockers("A", range(82, 90)),
-  photoUrl: sectionA2Photo,
+  photoUrls: [sectionA2Photo],
   section: "A-2",
   sectionId: 2,
 };

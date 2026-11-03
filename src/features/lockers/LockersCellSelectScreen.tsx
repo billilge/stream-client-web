@@ -1,14 +1,23 @@
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft, IconImage, IconReset } from "@wanteddev/wds-icon";
-import { useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Suspense, useMemo, useState } from "react";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
 import ComingSoonScreen from "@/app/ComingSoonScreen";
+import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import EmptyState from "@/components/ui/EmptyState";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import LockersCellSelectSkeleton from "@/features/lockers/components/LockersCellSelectSkeleton";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
 import LockersLegend from "@/features/lockers/components/LockersLegend";
 import LockersMapView from "@/features/lockers/components/LockersMapView";
@@ -16,27 +25,70 @@ import LockersSectionPhotoModal from "@/features/lockers/components/LockersSecti
 import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelectedLockerBar";
 import { LOCKERS_APPLY_SUBMITTING_TEXT } from "@/features/lockers/constants/lockersApplySubmit";
 import {
-  LOCKERS_SECTION_DETAILS,
   type LockersSectionDetail,
+  toLockersSectionDetail,
 } from "@/features/lockers/constants/lockersSectionDetails";
 import { useLockersApplySubmit } from "@/features/lockers/hooks/useLockersApplySubmit";
+import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
+import { lockersQueries } from "@/shared/entities/lockers/lockersQueries";
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
 function LockersCellSelectScreen() {
-  const { sectionId = "" } = useParams();
-  const detail = LOCKERS_SECTION_DETAILS[sectionId];
+  const sectionId = Number(useParams().sectionId);
 
-  if (detail === undefined) {
+  if (!Number.isInteger(sectionId) || sectionId <= 0) {
     return <ComingSoonScreen />;
   }
 
   // 구역이 바뀌면 고른 칸·스크롤을 처음부터 다시 잡는다
-  return <SectionLockerSelect detail={detail} key={sectionId} />;
+  return (
+    <Suspense fallback={<LockersCellSelectSkeleton />} key={sectionId}>
+      <SectionPeriod sectionId={sectionId} />
+    </Suspense>
+  );
 }
 
-function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
+function SectionPeriod({ sectionId }: { sectionId: number }) {
+  const { data: period } = useSuspenseQuery(lockersQueries.period());
+
+  if (!period) {
+    return <Navigate replace to="/lockers/apply/sections" />;
+  }
+  return (
+    <SectionDetail
+      lockerPeriodId={period.lockerPeriodId}
+      sectionId={sectionId}
+    />
+  );
+}
+
+function SectionDetail({
+  lockerPeriodId,
+  sectionId,
+}: {
+  lockerPeriodId: number;
+  sectionId: number;
+}) {
+  const { data: detail } = useSuspenseQuery({
+    ...lockersQueries.sectionDetail(lockerPeriodId, sectionId),
+    select: toLockersSectionDetail,
+  });
+
+  return (
+    <SectionLockerSelect detail={detail} lockerPeriodId={lockerPeriodId} />
+  );
+}
+
+function SectionLockerSelect({
+  detail,
+  lockerPeriodId,
+}: {
+  detail: LockersSectionDetail;
+  lockerPeriodId: number;
+}) {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [selectedLockerNumber, setSelectedLockerNumber] = useState<
     number | null
   >(null);
@@ -45,7 +97,9 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
   const [isUnavailableToastOpen, setIsUnavailableToastOpen] = useState(false);
   // 선택 불가 칸을 연달아 눌러도 토스트가 처음부터 다시 뜨고 스크린리더가 다시 읽도록 key로 새로 그린다
   const [unavailableTapCount, setUnavailableTapCount] = useState(0);
-  const { isSubmitting, submit } = useLockersApplySubmit(detail.section);
+  const { isSubmitting, submit } = useLockersApplySubmit(
+    String(detail.sectionId),
+  );
 
   const lockers = useMemo(
     () =>
@@ -96,8 +150,14 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
           </TopNavigationButton>
           <TopNavigationButton
             aria-label="새로고침"
-            // 구역 선택 화면과 같다 — 칸 현황 API가 붙으면 그 조회만 다시 하도록 바꾼다
-            onClick={() => window.location.reload()}
+            onClick={() =>
+              queryClient.refetchQueries({
+                queryKey: lockersKeys.sectionDetail(
+                  lockerPeriodId,
+                  detail.sectionId,
+                ),
+              })
+            }
             variant="icon"
           >
             <IconReset />
@@ -107,6 +167,18 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
       variant="normal"
     />,
   );
+
+  if (!detail.layout) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <EmptyState
+          description="다른 구역을 선택해 주세요"
+          illustration={emptyEventsIllustration}
+          title="아직 칸 배치를 볼 수 없어요"
+        />
+      </div>
+    );
+  }
 
   const map = (
     <LockersLayoutRenderer
@@ -129,7 +201,7 @@ function SectionLockerSelect({ detail }: { detail: LockersSectionDetail }) {
       <LockersSectionPhotoModal
         onClose={() => setIsPhotoOpen(false)}
         open={isPhotoOpen}
-        photoUrl={detail.photoUrl}
+        photoUrl={detail.photoUrls[0] ?? ""}
         sectionName={detail.section}
       />
 
