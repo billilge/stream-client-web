@@ -10,6 +10,7 @@ export const eventsKeys = {
     [...eventsKeys.lists(), recruitStatus] as const,
   detail: (eventId: string) =>
     [...eventsKeys.root(), "detail", eventId] as const,
+  form: (eventId: string) => [...eventsKeys.root(), "form", eventId] as const,
   applications: () => [...eventsKeys.root(), "applications"] as const,
   application: (applicationId: string) =>
     [...eventsKeys.applications(), applicationId] as const,

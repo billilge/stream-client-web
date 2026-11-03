@@ -42,7 +42,54 @@ export interface EventDetail {
   capacity?: number | null;
 }
 
-// 행사 신청 문항·답변 — 신청 폼과 신청내역 상세가 같이 쓴다.
+// 신청서 질문 유형(QuestionType)
+export type EventQuestionType =
+  | "SHORT_TEXT"
+  | "LONG_TEXT"
+  | "SINGLE_CHOICE"
+  | "MULTIPLE_CHOICE";
+
+// 신청서 질문 — 양식 조회와 신청 상세가 같이 싣는 부분. 화면에는 eventsQuestions.ts에서 EventsQuestion으로 바꿔 넘긴다
+export interface EventQuestionContent {
+  questionId: number;
+  questionText: string;
+  questionType: EventQuestionType;
+  isRequired: boolean;
+  /** 신청서에서 몇 번째로 보일지(1부터) */
+  displayOrder: number;
+  /** 선택지. 텍스트형 질문은 빈 배열이다 */
+  options: string[];
+}
+
+// 신청서 양식(GET /v1/app/events/{eventId}/form)
+export interface EventForm {
+  eventId: number;
+  title: string;
+  eventStartAt: string;
+  place: string;
+  questions: (EventQuestionContent & {
+    /** 답변 길이 제한. 선택형 질문은 null */
+    maxLength: number | null;
+  })[];
+}
+
+// 신청서 답변 한 건. 텍스트형은 answerText, 선택형은 고른 선택지의 순서 번호(0부터)를 selectedOptions로 보낸다
+export interface EventApplyAnswer {
+  questionId: number;
+  answerText?: string;
+  selectedOptions?: number[];
+}
+
+// 행사 신청 결과(POST /v1/app/events/{eventId}/applications) — 완료 화면이 행사 요약을 그린다
+export interface EventApplyResult {
+  applicationId: number;
+  title: string;
+  eventStartAt: string;
+  place: string;
+}
+
+// 화면(EventsQuestionField)이 그리는 문항·답변 — 신청 폼과 신청내역 상세가 같이 쓴다.
+// 서버 질문(EventQuestionContent)은 eventsQuestions.ts에서 이 모양으로 바꾼다.
 interface EventsQuestionBase {
   id: string;
   title: string;
@@ -52,7 +99,8 @@ interface EventsQuestionBase {
 export interface EventsChoiceQuestion extends EventsQuestionBase {
   type: "multipleChoice" | "singleChoice";
   options: string[];
-  // 기타(직접 입력) 선택지를 마지막에 붙일지 — 디자인상 복수 선택에만 있다
+  // 기타(직접 입력) 선택지를 마지막에 붙일지 — 디자인상 복수 선택에만 있다.
+  // 서버는 아직 기타 선택지를 내려주지 않는다(기타 선택지가 있는 행사는 공개를 막아 뒀다)
   hasOtherOption?: boolean;
 }
 
@@ -60,7 +108,6 @@ export interface EventsTextQuestion extends EventsQuestionBase {
   type: "shortAnswer" | "longAnswer";
 }
 
-// type 값 이름은 임시 — 백엔드 스펙이 나오면 거기에 맞춘다
 export type EventsQuestion = EventsChoiceQuestion | EventsTextQuestion;
 
 // 복수 선택은 고른 선택지 목록과 기타 입력 내용을 함께 들고 있는다.

@@ -13,7 +13,10 @@ import {
   toMockDateTime,
 } from "@/shared/entities/events/eventsMock";
 import type {
+  EventApplyAnswer,
+  EventApplyResult,
   EventDetail,
+  EventForm,
   EventListItem,
   EventRecruitStatus,
   MyEventApplication,
@@ -21,8 +24,19 @@ import type {
 
 // 화면이 갈라 처리하는 서버 에러 코드(EventErrorCode)
 export const EVENTS_ERROR_CODES = {
+  alreadyApplied: "ALREADY_APPLIED",
+  // 신청 기간이 끝났다
+  alreadyClosed: "ALREADY_CLOSED",
+  // 선착순 정원이 다 찼다
+  capacityFull: "CAPACITY_FULL",
   eventNotFound: "EVENT_NOT_FOUND",
 } as const;
+
+// 더 신청할 수 없는 행사 — 신청서 양식 조회·신청이 이 코드로 실패하면 마감 화면으로 보낸다
+export const EVENTS_CLOSED_ERROR_CODES: readonly string[] = [
+  EVENTS_ERROR_CODES.alreadyClosed,
+  EVENTS_ERROR_CODES.capacityFull,
+];
 
 // 화면이 빈 상태로 그리는 실패(없는 행사 등)는 null로 돌려준다. 그 밖의 실패는 그대로 던진다.
 async function nullOnErrorCode<T>(
@@ -65,6 +79,16 @@ export const eventsQueries = {
           [EVENTS_ERROR_CODES.eventNotFound],
         ),
     }),
+  // 신청서 양식(GET /v1/app/events/{eventId}/form). 마감된 행사는 null — 신청서 화면이 마감 화면으로 보낸다.
+  form: (eventId: string) =>
+    queryOptions({
+      queryKey: eventsKeys.form(eventId),
+      queryFn: ({ signal }) =>
+        nullOnErrorCode(
+          api.get<EventForm>(`/v1/app/events/${eventId}/form`, { signal }),
+          EVENTS_CLOSED_ERROR_CODES,
+        ),
+    }),
   applications: () =>
     queryOptions({
       queryKey: eventsKeys.applications(),
@@ -83,6 +107,37 @@ export const eventsQueries = {
         ),
     }),
 };
+
+// 행사 신청(POST /v1/app/events/{eventId}/applications). 신청이 생기고 정원이 차서 모집 상태가 바뀔 수도 있어서
+// 신청내역과 행사 목록·상세를 무효화한다. 마감·이미 신청으로 실패해도 지금 캐시가 낡았다는 뜻이라 같이 무효화한다.
+// 신청서 양식은 무효화하지 않는다 — 신청서 화면이 떠 있는 동안 다시 받으면 마감된 양식이 화면을 마감으로 보낸다.
+export function useApplyEventMutation(eventId: string) {
+  const queryClient = useQueryClient();
+  const invalidateApplyTargets = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: eventsKeys.applications() }),
+      queryClient.invalidateQueries({ queryKey: eventsKeys.lists() }),
+      queryClient.invalidateQueries({ queryKey: eventsKeys.detail(eventId) }),
+    ]);
+
+  return useMutation({
+    mutationFn: (answers: EventApplyAnswer[]) =>
+      api.post<EventApplyResult>(`/v1/app/events/${eventId}/applications`, {
+        answers,
+      }),
+    // 신청서 화면은 바로 완료 화면으로 넘어가서 다시 받을 조회가 화면에 없다 — 낡은 표시만 하고 금방 끝난다
+    onSuccess: invalidateApplyTargets,
+    onError: (error) => {
+      if (
+        isApiError(error) &&
+        (EVENTS_CLOSED_ERROR_CODES.includes(error.code) ||
+          error.code === EVENTS_ERROR_CODES.alreadyApplied)
+      ) {
+        return invalidateApplyTargets();
+      }
+    },
+  });
+}
 
 // 신청을 취소하고 바뀐 신청내역을 돌려준다. 성공하면 신청내역 목록·상세 캐시를 무효화해 취소 상태를 다시 받는다.
 export function useCancelEventApplicationMutation() {

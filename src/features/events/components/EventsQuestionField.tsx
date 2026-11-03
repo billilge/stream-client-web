@@ -5,6 +5,7 @@ import {
   css,
   RadioGroup,
   RadioGroupItem,
+  Skeleton,
   TextArea,
   TextAreaContent,
   Typography,
@@ -12,6 +13,7 @@ import {
 } from "@wanteddev/wds";
 import { useId } from "react";
 
+import { useSkeletonAnimation } from "@/components/ui/ScreenSkeleton";
 import {
   EVENTS_OTHER_MAX_LENGTH,
   EVENTS_OTHER_OPTION_LABEL,
@@ -275,6 +277,34 @@ function EventsQuestionField({
           width="100%"
         />
       )}
+    </div>
+  );
+}
+
+// 데이터를 받는 동안 문항 카드 자리를 채운다 — 신청서 작성과 신청내역 상세 스켈레톤이 같이 쓴다.
+export function EventsQuestionFieldSkeleton() {
+  const animation = useSkeletonAnimation();
+
+  return (
+    <div className="flex flex-col gap-3 rounded-xl bg-background-normal p-4">
+      <Skeleton
+        animation={animation}
+        height="22px"
+        variant="text"
+        width="55%"
+      />
+      <Skeleton
+        animation={animation}
+        height="20px"
+        variant="text"
+        width="40%"
+      />
+      <Skeleton
+        animation={animation}
+        height="20px"
+        variant="text"
+        width="40%"
+      />
     </div>
   );
 }
