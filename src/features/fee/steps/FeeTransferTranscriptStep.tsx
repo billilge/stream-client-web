@@ -16,12 +16,15 @@ import FeeUploadedFileCard from "@/features/fee/components/FeeUploadedFileCard";
 // 띄우고, 연동할 때 이 자리에서 업로드 요청을 보내면 된다.
 // K-스마트멘토를 여는 일은 퍼널(FeeTransferScreen)이 맡고 여기는 `onOpenGuide`만 부른다.
 function FeeTransferTranscriptStep({
+  isNextPending,
   transcript,
   onBack,
   onChangeTranscript,
   onNext,
   onOpenGuide,
 }: {
+  /** "다음"을 누른 뒤 토스 단계로 넘어갈 준비(송금 링크 받기)를 하는 중인지 */
+  isNextPending: boolean;
   /** 고른 캡처 — 퍼널 context가 들고 있는 값이 유일한 출처다 */
   transcript: File | undefined;
   onBack: () => void;
@@ -61,6 +64,7 @@ function FeeTransferTranscriptStep({
         actions={
           <ActionAreaButton
             disabled={!transcript}
+            loading={isNextPending}
             onClick={() => transcript && onNext(transcript)}
             sx={{ paddingBlock: "16px" }}
           >

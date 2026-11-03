@@ -1,3 +1,8 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+
+import ScreenToast from "@/components/ui/ScreenToast";
+import { feeQueries } from "@/entities/fee/feeApi";
 import { FEE_EXTERNAL_LINKS } from "@/features/fee/constants/fee";
 import {
   FEE_TRANSFER_STEP_OPTIONS,
@@ -28,6 +33,11 @@ const SLIDE = { viewTransition: true };
 // 값을 다시 계산하지 않게 한다.
 const INITIAL_STATE = { context: {}, step: "semester" } as const;
 
+// 단계를 넘기지 못했을 때 띄우는 토스트 문구
+const TOAST_MESSAGES = {
+  transferGuideFailed: "송금 정보를 불러오지 못했어요. 다시 시도해 주세요.",
+} as const;
+
 function FeeTransferScreen() {
   // 첫 단계의 뒤로가기 — 타고 들어왔으면 한 단계 뒤로, 플로우로 바로 들어왔으면(딥링크·앱
   // WebView 진입·주소 직접 입력) 홈으로 보낸다. `navigate(-1)`만 쓰면 먹통이 된다(#107 리뷰).
@@ -40,63 +50,104 @@ function FeeTransferScreen() {
     initial: INITIAL_STATE,
     steps: FEE_TRANSFER_STEP_OPTIONS,
   });
+  const queryClient = useQueryClient();
+  // 캡처 단계의 "다음" — 송금 링크를 받는 동안 버튼을 막는다
+  const [isPreparingToss, setPreparingToss] = useState(false);
+  // 닫힌 뒤에도 마지막 문구를 들고 있어서 닫히는 동안 문구가 바뀌지 않는다.
+  // 떠 있는 동안 다시 띄워도 새로 안내되게 key를 올린다(ScreenToast의 key)
+  const [toast, setToast] = useState({ isOpen: false, key: 0, message: "" });
+
+  const showToast = (message: string) =>
+    setToast((prev) => ({ isOpen: true, key: prev.key + 1, message }));
 
   return (
-    <funnel.Render
-      complete={({ index }) => (
-        <FeeTransferCompleteStep onGoHome={() => exitFunnel(index)} />
-      )}
-      confirm={({ history, index }) => (
-        <FeeTransferConfirmStep
-          onBack={() => history.back()}
-          // 확인 요청을 보내면 송금 확인으로 돌아올 일이 없어서 히스토리를 대체한다
-          onConfirm={() => history.replace("complete", {}, SLIDE)}
-          // 송금을 미루고 나가는 길 — 다음에 들어오면 플로우를 처음부터 다시 탄다
-          onPostpone={() => exitFunnel(index)}
-        />
-      )}
-      semester={({ context, history }) => (
-        <FeeTransferSemesterStep
-          initialSemester={context.semester}
-          // 첫 단계라 뒤로가기는 이전 단계가 아니라 플로우 밖(들어온 화면)으로 나간다
-          onBack={goBackFromFlow}
-          // 단계를 바꾸지 않고 context만 갈아 끼운다(replace)
-          onChangeSemester={(semester) =>
-            history.replace("semester", { semester })
-          }
-          onNext={(semester) => history.push("transcript", { semester }, SLIDE)}
-        />
-      )}
-      toss={({ history }) => (
-        <FeeTransferTossStep
-          hasTossLink={Boolean(FEE_EXTERNAL_LINKS.tossTransfer)}
-          onBack={() => history.back()}
-          onOpenToss={() => {
-            openExternalLink(FEE_EXTERNAL_LINKS.tossTransfer);
-            // 토스에 다녀오면 돌아올 화면이 송금 확인 단계다. 딥링크가 실제로 열렸는지는
-            // 알 수 없어서 열기만 하고 넘긴다 — 송금하지 못했으면 그 단계에서 빠져나간다.
-            history.push("confirm", {}, SLIDE);
-          }}
-        />
-      )}
-      transcript={({ context, history }) => (
-        <FeeTransferTranscriptStep
-          transcript={context.transcript}
-          onBack={() => history.back()}
-          // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 토스를 다녀와도 고른 파일이 남는다
-          onChangeTranscript={(transcript) =>
-            history.replace("transcript", (prev) => ({ ...prev, transcript }))
-          }
-          onNext={(transcript) => history.push("toss", { transcript }, SLIDE)}
-          // 주소를 아직 못 받아서 비어 있을 수 있다 — 빈 주소로 열면 빈 탭이 뜬다
-          onOpenGuide={() => {
-            if (FEE_EXTERNAL_LINKS.kSmartMentor) {
-              openExternalLink(FEE_EXTERNAL_LINKS.kSmartMentor);
+    <>
+      <funnel.Render
+        complete={({ index }) => (
+          <FeeTransferCompleteStep onGoHome={() => exitFunnel(index)} />
+        )}
+        confirm={({ history, index }) => (
+          <FeeTransferConfirmStep
+            onBack={() => history.back()}
+            // 확인 요청을 보내면 송금 확인으로 돌아올 일이 없어서 히스토리를 대체한다
+            onConfirm={() => history.replace("complete", {}, SLIDE)}
+            // 송금을 미루고 나가는 길 — 다음에 들어오면 플로우를 처음부터 다시 탄다
+            onPostpone={() => exitFunnel(index)}
+          />
+        )}
+        semester={({ context, history }) => (
+          <FeeTransferSemesterStep
+            initialSemester={context.semester}
+            // 첫 단계라 뒤로가기는 이전 단계가 아니라 플로우 밖(들어온 화면)으로 나간다
+            onBack={goBackFromFlow}
+            // 단계를 바꾸지 않고 context만 갈아 끼운다(replace)
+            onChangeSemester={(semester) =>
+              history.replace("semester", { semester })
             }
-          }}
-        />
-      )}
-    />
+            onNext={(semester) =>
+              history.push("transcript", { semester }, SLIDE)
+            }
+          />
+        )}
+        toss={({ context, history }) => (
+          <FeeTransferTossStep
+            hasTossLink={Boolean(context.transferLinkUrl)}
+            onBack={() => history.back()}
+            onOpenToss={() => {
+              if (!context.transferLinkUrl) {
+                return;
+              }
+              openExternalLink(context.transferLinkUrl);
+              // 토스에 다녀오면 돌아올 화면이 송금 확인 단계다. 딥링크가 실제로 열렸는지는
+              // 알 수 없어서 열기만 하고 넘긴다 — 송금하지 못했으면 그 단계에서 빠져나간다.
+              history.push("confirm", {}, SLIDE);
+            }}
+          />
+        )}
+        transcript={({ context, history }) => (
+          <FeeTransferTranscriptStep
+            isNextPending={isPreparingToss}
+            transcript={context.transcript}
+            onBack={() => history.back()}
+            // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 토스를 다녀와도 고른 파일이 남는다
+            onChangeTranscript={(transcript) =>
+              history.replace("transcript", (prev) => ({ ...prev, transcript }))
+            }
+            // 송금 링크는 남은 학기 수마다 금액이 달라서 토스 단계로 넘어가기 직전에 서버에서 받는다
+            onNext={(transcript) => {
+              setPreparingToss(true);
+              queryClient
+                .fetchQuery(feeQueries.transferGuide(context.semester))
+                .then(({ transferLinkUrl }) =>
+                  history.push("toss", { transcript, transferLinkUrl }, SLIDE),
+                )
+                .catch((error: unknown) => {
+                  console.error(error);
+                  showToast(TOAST_MESSAGES.transferGuideFailed);
+                })
+                .finally(() => setPreparingToss(false));
+            }}
+            // 주소를 아직 못 받아서 비어 있을 수 있다 — 빈 주소로 열면 빈 탭이 뜬다
+            onOpenGuide={() => {
+              if (FEE_EXTERNAL_LINKS.kSmartMentor) {
+                openExternalLink(FEE_EXTERNAL_LINKS.kSmartMentor);
+              }
+            }}
+          />
+        )}
+      />
+
+      <ScreenToast
+        key={toast.key}
+        message={toast.message}
+        onOpenChange={(open) => {
+          if (!open) {
+            setToast((prev) => ({ ...prev, isOpen: false }));
+          }
+        }}
+        open={toast.isOpen}
+      />
+    </>
   );
 }
 

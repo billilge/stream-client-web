@@ -7,10 +7,13 @@
 // history.state에 실려서, 토스 단계에서 뒤로 돌아와도 고른 파일이 남는다(별도 저장소 불필요).
 // 다만 history.state는 브라우저마다 크기 상한이 있어서(Firefox 16MiB) 업로드 API가 붙으면
 // 파일 대신 서버가 준 식별자를 담는 쪽으로 바꾸는 게 안전하다.
+//
+// 토스 송금 링크(`transferLinkUrl`)는 캡처 단계에서 "다음"을 누를 때 서버에서 받아 싣는다. 서버가
+// 링크를 주지 않으면(지금 낼 수 없는 상태) null이고, 토스 단계가 이동 실패 화면을 띄운다.
 export type FeeTransferSteps = {
   semester: { semester?: number };
   transcript: { semester: number; transcript?: File };
-  toss: { semester: number; transcript: File };
+  toss: { semester: number; transcript: File; transferLinkUrl: string | null };
   confirm: { semester: number; transcript: File };
   complete: Record<never, never>;
 };
@@ -19,12 +22,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-// 남은 학기 수로 받을 수 있는 값. 0학기는 납부할 이유가 없고, 상한은 실제 학적 기준이 없어
-// 두 자리까지만 받는다 — 서버 검증 규칙이 정해지면 맞춘다.
-export const SEMESTER_PATTERN = /^[1-9][0-9]?$/;
+// 남은 학기 수로 받을 수 있는 값 — 서버 회비 정책(RemainingSemesters)과 같은 1~8이다.
+export const SEMESTER_PATTERN = /^[1-8]$/;
 
 function isSemester(value: unknown): value is number {
   return typeof value === "number" && SEMESTER_PATTERN.test(String(value));
+}
+
+function isTransferLinkUrl(value: unknown): value is string | null {
+  return value === null || typeof value === "string";
 }
 
 // 새로고침이나 주소 직접 입력처럼 앞 단계의 값이 없는 채로 중간 단계에 들어오면 guard가 걸러서
@@ -50,7 +56,8 @@ export const FEE_TRANSFER_STEP_OPTIONS = {
     guard: (data: unknown): data is FeeTransferSteps["toss"] =>
       isRecord(data) &&
       isSemester(data.semester) &&
-      data.transcript instanceof File,
+      data.transcript instanceof File &&
+      isTransferLinkUrl(data.transferLinkUrl),
   },
   transcript: {
     guard: (data: unknown): data is FeeTransferSteps["transcript"] =>

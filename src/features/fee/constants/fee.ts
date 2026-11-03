@@ -17,12 +17,11 @@ export const FEE_TITLE = "소프트웨어융합대학 학생회비";
 // - kSmartMentor: 학점이수현황을 확인하는 국민대 K-스마트멘토 주소
 // - studentCouncilKakaoChannel: 학생회 카카오톡 채널. 비어 있으면 확인필요 카드에
 //   문의하기 버튼을 그리지 않는다.
-// - tossTransfer: 계좌·금액이 채워진 토스 송금 딥링크. 학생회 계좌와 납부 금액 규칙이 정해져야
-//   만들 수 있다(남은 학기 수에 따라 금액이 달라진다).
+//
+// 토스 송금 딥링크는 남은 학기 수마다 금액이 달라서 서버가 계산해 준다(feeQueries.transferGuide).
 export const FEE_EXTERNAL_LINKS = {
   kSmartMentor: "",
   studentCouncilKakaoChannel: "",
-  tossTransfer: "",
 } as const;
 
 // 업로드 받는 이미지 형식 — 학점이수현황 "캡처"라 스크린샷 확장자만 받는다
