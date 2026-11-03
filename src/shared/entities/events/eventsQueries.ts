@@ -159,6 +159,8 @@ export const EVENTS_ERROR_CODES = {
   // 선착순 정원이 다 찼다
   capacityFull: "CAPACITY_FULL",
   eventNotFound: "EVENT_NOT_FOUND",
+  // 납부자 전용 행사에 미납자가 신청했다 — 학생회비 쪽 코드(FeeErrorCode)로 빌릴게 대여와 같다
+  memberIsNotPayer: "MEMBER_IS_NOT_PAYER",
 } as const;
 
 // 더 신청할 수 없는 행사 — 신청서 양식 조회·신청이 이 코드로 실패하면 마감 화면으로 보낸다
@@ -262,7 +264,8 @@ export const eventsQueries = {
 };
 
 // 행사 신청(POST /v1/app/events/{eventId}/applications). 신청이 생기고 정원이 차서 모집 상태가 바뀔 수도 있어서
-// 신청내역과 행사 목록·상세를 무효화한다. 마감·이미 신청으로 실패해도 지금 캐시가 낡았다는 뜻이라 같이 무효화한다.
+// 신청내역과 행사 목록·상세를 무효화한다. 마감·이미 신청·신청 자격 없음으로 실패해도 지금 캐시가 낡았다는 뜻이라
+// 같이 무효화한다.
 // 신청서 양식은 무효화하지 않는다 — 신청서 화면이 떠 있는 동안 다시 받으면 마감된 양식이 화면을 마감으로 보낸다.
 // 응답 형식이 달라도 서버에는 이미 신청이 생겼으니 실패로 바꾸지 않고 null을 돌려준다(사물함 신청과 같다).
 export function useApplyEventMutation(eventId: string) {
@@ -293,7 +296,8 @@ export function useApplyEventMutation(eventId: string) {
       if (
         isApiError(error) &&
         (EVENTS_CLOSED_ERROR_CODES.includes(error.code) ||
-          error.code === EVENTS_ERROR_CODES.alreadyApplied)
+          error.code === EVENTS_ERROR_CODES.alreadyApplied ||
+          error.code === EVENTS_ERROR_CODES.memberIsNotPayer)
       ) {
         return invalidateApplyTargets();
       }

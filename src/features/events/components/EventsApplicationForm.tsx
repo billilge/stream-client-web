@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQueries } from "@tanstack/react-query";
 import { ActionArea, ActionAreaButton } from "@wanteddev/wds";
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -25,11 +25,17 @@ import {
   toEventApplyAnswers,
   toEventsQuestions,
 } from "@/shared/entities/events/eventsQuestions";
-import type { EventsAnswer } from "@/shared/entities/events/eventsTypes";
+import type {
+  EventDetail,
+  EventForm,
+  EventsAnswer,
+} from "@/shared/entities/events/eventsTypes";
 
 const SUBMIT_FAILURE_MESSAGES = {
   alreadyApplied: "이미 신청한 행사예요.",
   failed: "제출에 실패했어요. 다시 시도해 주세요.",
+  // 들어올 때는 자격이 있었는데 그사이 납부자 명부에서 빠진 경우 — 행사 상세의 막힌 버튼 문구와 맞춘다
+  notFeePayer: "학생회비 납부자만 신청할 수 있어요.",
 } as const;
 
 type SubmitFailureMessage =
@@ -71,10 +77,21 @@ function EventsApplicationForm({
   const [isFailureToastOpen, setIsFailureToastOpen] = useState(false);
   // 재시도해서 또 실패했을 때 떠 있던 토스트를 다시 띄우려고 센다 — 아래 ScreenToast의 key다
   const [failureCount, setFailureCount] = useState(0);
-  const { data: form } = useSuspenseQuery({
-    ...eventsQueries.form(eventId),
-    select: (data) =>
-      data && { ...data, questions: toEventsQuestions(data.questions) },
+  // 목록·검색·홈의 "신청하기"는 신청 자격을 모른 채 바로 들어와서 행사 상세도 같이 받는다(상세에서 왔으면 캐시가 있다).
+  // 두 조회를 한 번에 기다려서 요청이 줄줄이 이어지지 않게 한다.
+  const [{ data: form }, { data: isFeeEligible }] = useSuspenseQueries({
+    queries: [
+      {
+        ...eventsQueries.form(eventId),
+        select: (data: EventForm | null) =>
+          data && { ...data, questions: toEventsQuestions(data.questions) },
+      },
+      {
+        ...eventsQueries.detail(eventId),
+        // 없는 행사는 양식 조회가 먼저 실패하니 여기서는 막지 않는다
+        select: (detail: EventDetail | null) => detail?.isFeeEligible ?? true,
+      },
+    ],
   });
   const { mutate: apply, isPending: isSubmitting } =
     useApplyEventMutation(eventId);
@@ -84,6 +101,11 @@ function EventsApplicationForm({
   // 상세에서 들어오는 사이에 마감됐으면 쓸 수 없는 신청서라 마감 화면으로 바꿔치운다
   if (!form) {
     return <Navigate replace to={closedPath} />;
+  }
+  // 신청 자격이 없으면 신청서를 다 쓰고 나서 거절되지 않게, 막힌 신청 버튼("학생회비 납부자만 신청할 수 있어요")이
+  // 있는 행사 상세로 바꿔치운다
+  if (!isFeeEligible) {
+    return <Navigate replace to={`/events/${eventId}`} />;
   }
 
   const canSubmit = form.questions.every(
@@ -129,6 +151,13 @@ function EventsApplicationForm({
           error.code === EVENTS_ERROR_CODES.alreadyApplied
         ) {
           showFailure(SUBMIT_FAILURE_MESSAGES.alreadyApplied);
+          return;
+        }
+        if (
+          isApiError(error) &&
+          error.code === EVENTS_ERROR_CODES.memberIsNotPayer
+        ) {
+          showFailure(SUBMIT_FAILURE_MESSAGES.notFeePayer);
           return;
         }
         console.error(error);
