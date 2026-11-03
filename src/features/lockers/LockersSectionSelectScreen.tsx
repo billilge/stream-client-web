@@ -1,23 +1,26 @@
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ActionArea,
   ActionAreaButton,
   TopNavigationButton,
 } from "@wanteddev/wds";
 import { IconChevronLeft, IconReset } from "@wanteddev/wds-icon";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import LockersFloorMap from "@/features/lockers/components/LockersFloorMap";
+import LockersSectionSelectContent from "@/features/lockers/components/LockersSectionSelectContent";
+import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
 
 // Figma: 사물함 구역 선택 전 (nodeId 1737:218452), 선택완료 (1737:218489)
-// 새로고침(Figma Icon/Normal/Reset)은 잔여 수량 API가 없어 지금은 페이지를 다시 읽는다.
 function LockersSectionSelectScreen() {
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
+  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
     null,
   );
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useScreenHeader(
     <ScreenHeader
@@ -34,8 +37,9 @@ function LockersSectionSelectScreen() {
       trailing={
         <TopNavigationButton
           aria-label="새로고침"
-          // 잔여 수량 API가 붙으면 페이지를 다시 읽지 말고 그 조회만 다시 하도록 바꾼다
-          onClick={() => window.location.reload()}
+          onClick={() =>
+            queryClient.refetchQueries({ queryKey: lockersKeys.sections() })
+          }
           variant="icon"
         >
           <IconReset />
@@ -48,10 +52,19 @@ function LockersSectionSelectScreen() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="scrollbar-hidden flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-1 pb-2">
-        <LockersFloorMap
-          onSelect={setSelectedSectionId}
-          selectedSectionId={selectedSectionId}
-        />
+        <Suspense
+          fallback={
+            <LockersFloorMap
+              onSelect={setSelectedSectionId}
+              selectedSectionId={null}
+            />
+          }
+        >
+          <LockersSectionSelectContent
+            onSelect={setSelectedSectionId}
+            selectedSectionId={selectedSectionId}
+          />
+        </Suspense>
       </div>
 
       <ActionArea>

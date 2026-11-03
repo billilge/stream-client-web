@@ -6,9 +6,11 @@ import type {
 } from "@/features/lockers/constants/lockersSections";
 
 interface LockersSectionCardProps {
-  section: LockersSection;
+  name: string;
+  // 서버에 없는 구역이면 비어 있고 카드가 잠긴다
+  section?: LockersSection;
   isSelected: boolean;
-  onSelect: (sectionId: string) => void;
+  onSelect: (sectionId: number) => void;
 }
 
 // 마감은 WDS `color="neutral"`(배경 Fill/Normal)이고 나머지 셋은 `color="accent"`로,
@@ -53,12 +55,13 @@ const CONTAINER_CLASS_NAMES = {
 // 마감 구역은 고를 수 없어서 버튼을 잠근다. Figma에 잠금 상태의 선택 모습이 따로 없는 것도
 // 고를 수 없다는 뜻으로 읽었다.
 function LockersSectionCard({
+  name,
   section,
   isSelected,
   onSelect,
 }: LockersSectionCardProps) {
-  const badge = STATUS_BADGES[section.status];
-  const isFull = section.status === "full";
+  const badge = section ? STATUS_BADGES[section.status] : undefined;
+  const isFull = !section || section.status === "full";
   const containerClassName = isSelected
     ? CONTAINER_CLASS_NAMES.selected
     : CONTAINER_CLASS_NAMES[isFull ? "full" : "normal"];
@@ -68,41 +71,44 @@ function LockersSectionCard({
       aria-pressed={isSelected}
       className={`flex flex-[74] flex-col items-center justify-center gap-1 rounded-lg border px-[7px] ${containerClassName}`}
       disabled={isFull}
-      onClick={() => onSelect(section.id)}
+      onClick={() => section && onSelect(section.sectionId)}
       type="button"
     >
-      <ContentBadge
-        accentColor={badge.color === "accent" ? badge.token : undefined}
-        color={badge.color}
-        neutralColor={badge.color === "neutral" ? badge.token : undefined}
-        size="xsmall"
-        variant="solid"
-      >
-        {badge.label}
-      </ContentBadge>
+      {badge && (
+        <ContentBadge
+          accentColor={badge.color === "accent" ? badge.token : undefined}
+          color={badge.color}
+          neutralColor={badge.color === "neutral" ? badge.token : undefined}
+          size="xsmall"
+          variant="solid"
+        >
+          {badge.label}
+        </ContentBadge>
+      )}
       <Typography
         as="p"
         color={isFull ? "semantic.label.assistive" : "semantic.label.normal"}
         variant="caption1"
         weight="medium"
       >
-        {section.name}
+        {name}
       </Typography>
-      <Typography
-        as="p"
-        color={
-          isFull ? "semantic.label.assistive" : "semantic.label.alternative"
-        }
-        variant="caption2"
-        weight="regular"
-      >
-        {/* Figma가 잔여 숫자에만 SemiBold를 준다 */}
-        잔여{" "}
-        <Typography as="span" variant="caption2" weight="bold">
-          {section.remaining}
+      {section && (
+        <Typography
+          as="p"
+          color={
+            isFull ? "semantic.label.assistive" : "semantic.label.alternative"
+          }
+          variant="caption2"
+          weight="regular"
+        >
+          잔여{" "}
+          <Typography as="span" variant="caption2" weight="bold">
+            {section.remaining}
+          </Typography>
+          /{section.total}
         </Typography>
-        /{section.total}
-      </Typography>
+      )}
     </button>
   );
 }

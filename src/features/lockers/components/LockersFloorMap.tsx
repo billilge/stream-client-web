@@ -1,19 +1,23 @@
-import { Typography } from "@wanteddev/wds";
+import { Skeleton, Typography } from "@wanteddev/wds";
 import { IconChevronUp } from "@wanteddev/wds-icon";
 
 import restroomIcon from "@/assets/icons/lockers/restroom.svg";
 import stairsIcon from "@/assets/icons/lockers/stairs.svg";
+import { useSkeletonAnimation } from "@/components/ui/ScreenSkeleton";
 import LockersMapArea from "@/features/lockers/components/LockersMapArea";
 import LockersSectionCard from "@/features/lockers/components/LockersSectionCard";
 import {
-  LOCKERS_LEFT_SECTIONS,
-  LOCKERS_RIGHT_SECTIONS,
-  LOCKERS_RIGHT_SECTIONS_BELOW_STAIRS,
+  LOCKERS_LEFT_SECTION_NAMES,
+  LOCKERS_RIGHT_SECTION_NAMES,
+  LOCKERS_RIGHT_SECTION_NAMES_BELOW_STAIRS,
+  type LockersSection,
 } from "@/features/lockers/constants/lockersSections";
 
 interface LockersFloorMapProps {
-  selectedSectionId: string | null;
-  onSelect: (sectionId: string) => void;
+  // 구역 이름 → 구역. 받는 동안은 비워 두고 카드 자리만 스켈레톤으로 그린다
+  sections?: Map<string, LockersSection>;
+  selectedSectionId: number | null;
+  onSelect: (sectionId: number) => void;
 }
 
 // Figma: 사물함 구역 선택 Floor Map (nodeId 1737:218457)
@@ -28,23 +32,45 @@ interface LockersFloorMapProps {
 // 루트에 min-h-0을 주지 않아서 카드 내용 높이보다는 줄어들지 않는다 — 320×568처럼 낮은 화면에서는
 // 대신 부모(LockersSectionSelectScreen)가 세로로 스크롤한다.
 function LockersFloorMap({
+  sections,
   selectedSectionId,
   onSelect,
 }: LockersFloorMapProps) {
-  const renderCard = (section: (typeof LOCKERS_RIGHT_SECTIONS)[number]) => (
-    <LockersSectionCard
-      isSelected={section.id === selectedSectionId}
-      key={section.id}
-      onSelect={onSelect}
-      section={section}
-    />
-  );
+  const animation = useSkeletonAnimation();
+
+  const renderCard = (name: string) => {
+    if (!sections) {
+      return (
+        <div className="flex flex-[74]" key={name}>
+          <Skeleton
+            animation={animation}
+            height="100%"
+            radius="8px"
+            variant="rectangle"
+            width="100%"
+          />
+        </div>
+      );
+    }
+    const section = sections.get(name);
+    return (
+      <LockersSectionCard
+        isSelected={
+          section !== undefined && section.sectionId === selectedSectionId
+        }
+        key={name}
+        name={name}
+        onSelect={onSelect}
+        section={section}
+      />
+    );
+  };
 
   return (
     <div className="flex flex-1 gap-2.5">
       <div className="flex flex-[124] flex-col gap-1">
         <LockersMapArea className="flex-[186]" label="231호실" />
-        {LOCKERS_LEFT_SECTIONS.map(renderCard)}
+        {LOCKERS_LEFT_SECTION_NAMES.map(renderCard)}
         <LockersMapArea className="flex-[186]" label="232호실" />
         <LockersMapArea
           className="flex-[134]"
@@ -83,9 +109,9 @@ function LockersFloorMap({
       </div>
 
       <div className="flex flex-[124] flex-col gap-1.5">
-        {LOCKERS_RIGHT_SECTIONS.map(renderCard)}
+        {LOCKERS_RIGHT_SECTION_NAMES.map(renderCard)}
         <LockersMapArea className="flex-[34]" icon={stairsIcon} label="계단" />
-        {LOCKERS_RIGHT_SECTIONS_BELOW_STAIRS.map(renderCard)}
+        {LOCKERS_RIGHT_SECTION_NAMES_BELOW_STAIRS.map(renderCard)}
       </div>
     </div>
   );
