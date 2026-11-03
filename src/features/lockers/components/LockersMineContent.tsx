@@ -18,7 +18,7 @@ interface LockersMineContentProps {
 }
 
 // 배정된 구역의 칸 배치를 보기 전용으로 그리고 내 칸만 표시한다.
-// 내 칸은 배정 정보(entities/lockers)의 칸 이름 하나로 정한다 — 구역 칸 데이터의 isMine에 기대지 않고,
+// 내 칸은 배정 정보(shared/entities/lockers)의 칸 이름 하나로 정한다 — 구역 칸 데이터의 isMine에 기대지 않고,
 // 그 칸을 선택된 칸으로 넘겨 선택 모양(파란 배경)으로 그린다.
 function LockersMineContent({
   fallbackPath,

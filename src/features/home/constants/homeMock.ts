@@ -40,7 +40,7 @@ export interface HomeRental {
   hoursUntilDue: number;
 }
 
-// applicationId는 신청내역 목데이터(entities/events)의 신청완료 건으로 맞춘다. 홈 행 이름(Figma 홈 문구)과
+// applicationId는 신청내역 목데이터(shared/entities/events)의 신청완료 건으로 맞춘다. 홈 행 이름(Figma 홈 문구)과
 // 신청내역의 행사명은 목데이터라 서로 다르다.
 export interface HomeAppliedEvent {
   id: string;
@@ -50,7 +50,7 @@ export interface HomeAppliedEvent {
   daysUntilEvent: number;
 }
 
-// 납부내역의 상태(entities/fee)에 홈에서만 보이는 미납을 더한다
+// 납부내역의 상태(shared/entities/fee)에 홈에서만 보이는 미납을 더한다
 export type HomeFeeStatus = FeePaymentStatus | "unpaid";
 
 export interface HomeMyInfo {
@@ -68,7 +68,7 @@ export interface HomeData {
   myInfo: HomeMyInfo;
 }
 
-// noticeId는 공지 목데이터(entities/notices, 1~5번)에 있는 공지로 맞춘다. 배너 문구와 공지 내용은
+// noticeId는 공지 목데이터(shared/entities/notices, 1~5번)에 있는 공지로 맞춘다. 배너 문구와 공지 내용은
 // 목데이터라 서로 다르다. 배너가 6개라 마지막 배너는 1번 공지를 연다.
 const NOTICES: HomeNotice[] = [
   {
@@ -115,7 +115,7 @@ const NOTICES: HomeNotice[] = [
   },
 ];
 
-// 행사 목데이터(entities/events)의 모집중 행사
+// 행사 목데이터(shared/entities/events)의 모집중 행사
 const SPORTS_DAY: HomeApplyCard = {
   daysUntilDeadline: 2,
   eventId: "sw-sports-day-open",

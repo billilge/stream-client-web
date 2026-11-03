@@ -1,6 +1,6 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
 
-import type { ApiResponse } from "@/shared/api/api.types";
+import type { ApiResponse } from "@/shared/api/apiTypes";
 import { ApiError, NetworkError, TimeoutError } from "@/shared/api/errors";
 import { clearAccessToken, getAccessToken } from "@/shared/api/token";
 

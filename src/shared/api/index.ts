@@ -3,7 +3,7 @@ export type {
   ApiResponse,
   CursorSliceResponse,
   PageResponse,
-} from "@/shared/api/api.types";
+} from "@/shared/api/apiTypes";
 export { api } from "@/shared/api/client";
 export {
   ApiError,

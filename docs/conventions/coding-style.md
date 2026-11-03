@@ -22,7 +22,7 @@
 
 - 기능 기반(feature-based) 구조를 쓴다. `app/`(라우팅 껍데기)·`components/ui/`(공용 UI)·`hooks/`·`lib/`·`utils/`·`constants/`는 실제로 내용이 생길 때 만든다 — 빈 폴더를 미리 만들지 않는다.
 - 화면 단위 기능이 생기면 `features/<기능>/`, 여러 화면이 공유하는 서버 계약(API·쿼리·타입)이 생기면 `shared/entities/<도메인>/`을 그때 도입한다.
-- 서버와 주고받는 코드는 `shared/`에 둔다 — 요청 클라이언트는 `shared/api/`, 도메인 조회는 `shared/entities/<도메인>/`. `lib/`에는 서버와 상관없는 도구(`queryClient`·날짜 포맷·앱 브리지 등)만 둔다.
+- 서버와 주고받는 코드는 `shared/`에 둔다 — 요청 클라이언트는 `shared/api/`, 도메인 조회는 `shared/entities/<도메인>/`. `lib/`에는 요청을 직접 보내지 않는 도구(`queryClient`·날짜 포맷·앱 브리지 등)만 둔다.
 - import는 절대경로 `@/`(`./src/*`)를 쓴다. 상대경로는 같은 기능 폴더 내부에서만.
 - 그룹 순서: ① 외부 라이브러리 → ② `@/` → ③ 상대경로. 저장 시 Biome의 `organizeImports`가 자동 정렬한다.
 
