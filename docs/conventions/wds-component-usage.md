@@ -723,7 +723,7 @@ Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독
 
 ### 반례 — `Pagination/Dots`는 WDS `PaginationDots`와 크기가 다르다
 
-Figma 닷은 지름 6px·간격 6px(중심 간격 12px)이다. WDS `PaginationDots`는 `small`이 8px·간격 8px(중심 간격 16px), `medium`이 10px이고, 닷 크기를 CSS 변수(`--wds-pagination-dot-size`)로만 바꿀 수 있어 내부 오버라이드가 된다(`pagination-dots/style.js` 확인). 그래서 `AuthPaginationDots`를 로컬로 짰다 — 현재 닷은 `Label/Normal`, 나머지는 같은 색 16% 불투명도.
+Figma 닷은 지름 6px·간격 6px(중심 간격 12px)이다. WDS `PaginationDots`는 `small`이 8px·간격 8px(중심 간격 16px), `medium`이 10px이고, 닷 크기를 CSS 변수(`--wds-pagination-dot-size`)로만 바꿀 수 있어 내부 오버라이드가 된다(`pagination-dots/style.js` 확인). 그래서 `PaginationDots`(`components/ui`)를 로컬로 짰다 — 로그인 소개 슬라이드와 사물함 구역 사진이 같이 쓴다 — 현재 닷은 `Label/Normal`, 나머지는 같은 색 16% 불투명도.
 
 ### 반례 — `K-CONNECT로 시작하기` 버튼은 WDS `ActionAreaButton`이 아니다
 
