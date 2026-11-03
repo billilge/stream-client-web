@@ -12,6 +12,7 @@ import ErrorScreen from "@/components/ui/ErrorScreen";
 import ResultScreen from "@/components/ui/ResultScreen";
 import SubmittingOverlay from "@/components/ui/SubmittingOverlay";
 import { HOME_PATH } from "@/features/home/constants/home";
+import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import {
   LOCKERS_APPLY_SUBMITTING_TEXT,
   type LockersApplyFailureReason,
@@ -50,7 +51,7 @@ interface FailureContent {
   hasHomeAction: boolean;
 }
 
-// Figma: 다른 사용자와 겹침 (nodeId 3013:99093), 전체 마감 (3013:99116), 구역 마감 (3013:99139)
+// Figma: 다른 사용자와 겹침 (nodeId 3013:99093), 전체 마감 (3013:99116). 이미 배정됨은 Figma에 없어 같은 틀로 그린다
 const FAILURE_CONTENTS: Record<
   ClosedReason,
   (context: FailureContentContext) => FailureContent
@@ -62,15 +63,15 @@ const FAILURE_CONTENTS: Record<
     primaryAction: { label: "홈으로 가기", onClick: () => navigate(HOME_PATH) },
     title: "사물함 신청이 모두 마감됐어요",
   }),
-  "section-closed": ({ sectionId, navigate }) => ({
-    description: "다른 구역의 사물함을 확인해 보세요.",
+  "already-assigned": ({ navigate }) => ({
+    description: "배정된 사물함을 확인해 보세요.",
     hasHomeAction: true,
     illustration: LOCK_ILLUSTRATION,
     primaryAction: {
-      label: "다른 구역 선택하기",
-      onClick: () => navigate("/lockers/apply/sections", { replace: true }),
+      label: "배정 상태 보기",
+      onClick: () => navigate(LOCKER_ASSIGNMENT_PATH, { replace: true }),
     },
-    title: `${sectionId} 구역의 사물함이 마감됐어요`,
+    title: "이미 사물함을 배정받았어요",
   }),
   taken: ({ sectionId, navigate }) => ({
     description: "다른 사물함으로 다시 신청해 주세요.",

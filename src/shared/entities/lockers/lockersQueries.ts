@@ -1,4 +1,8 @@
-import { queryOptions } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { z } from "zod";
 
 import { mockupResponse } from "@/lib/mockupApi";
@@ -83,6 +87,14 @@ export const myLockerApplicationListResponseSchema = z
   })
   .nullable();
 
+export const lockerApplyResponseSchema = z.looseObject({
+  lockerApplicationId: z.number(),
+  lockerId: z.number(),
+  lockerLabel: z.string(),
+  usageStartDate: z.string(),
+  usageEndDate: z.string(),
+});
+
 export const lockersQueries = {
   period: () =>
     queryOptions({
@@ -129,3 +141,36 @@ export const lockersQueries = {
       queryFn: () => mockupResponse(() => LOCKER_ASSIGNMENT_MOCK),
     }),
 };
+
+// 신청에서 화면이 갈라 처리하는 서버 에러 코드(LockerErrorCode)
+export const LOCKERS_ERROR_CODES = {
+  // 다른 사람이 같은 사물함을 먼저 신청했다
+  lockerTaken: "LOCKER_ALREADY_ASSIGNED",
+  // 이번 회차에 이미 사물함을 배정받았다
+  alreadyAssigned: "MEMBER_ALREADY_HAS_LOCKER",
+  applyNotOpen: "LOCKER_APPLY_NOT_OPEN",
+  periodNotFound: "LOCKER_PERIOD_NOT_FOUND",
+} as const;
+
+export interface ApplyLockerVariables {
+  lockerPeriodId: number;
+  lockerId: number;
+}
+
+// POST /lockers/applications. 실패해도 남은 수·칸 상태가 낡았을 수 있어 구역 캐시는 결과와 상관없이 무효화한다.
+export function useApplyLockerMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (variables: ApplyLockerVariables) =>
+      lockerApplyResponseSchema.parse(
+        await api.post<unknown>(`${LOCKERS_PATH}/applications`, variables),
+      ),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: lockersKeys.sections() }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: lockersKeys.myApplications(),
+      }),
+  });
+}

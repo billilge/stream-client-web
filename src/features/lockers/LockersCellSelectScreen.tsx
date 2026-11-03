@@ -220,6 +220,7 @@ function SectionLockerSelect({
             submit({
               lockerId: selectedLocker.lockerId,
               lockerLabel: selectedLocker.lockerLabel,
+              lockerPeriodId,
             });
           }
         }}

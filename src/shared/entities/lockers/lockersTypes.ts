@@ -4,6 +4,7 @@ import type {
   LOCKER_APPLICATION_STATUSES,
   LOCKER_APPLY_STATUSES,
   LOCKER_AVAILABILITY_STATUSES,
+  lockerApplyResponseSchema,
   lockerPeriodResponseSchema,
   lockerSectionDetailResponseSchema,
   lockerSectionListResponseSchema,
@@ -40,3 +41,4 @@ export type LockerSectionDetailResponse = z.infer<
 export type MyLockerApplicationListResponse = z.infer<
   typeof myLockerApplicationListResponseSchema
 >;
+export type LockerApplyResponse = z.infer<typeof lockerApplyResponseSchema>;
