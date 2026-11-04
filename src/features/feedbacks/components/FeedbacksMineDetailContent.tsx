@@ -7,15 +7,18 @@ import emptyFeedbackIllustration from "@/assets/icons/feedbacks/empty-feedback.s
 import questionIcon from "@/assets/icons/feedbacks/question.svg";
 import EmptyState from "@/components/ui/EmptyState";
 import FeedbacksAnswerText from "@/features/feedbacks/components/FeedbacksAnswerText";
-import { hasFeedbackAnswer } from "@/features/feedbacks/constants/feedbacks";
+import {
+  getFeedbackDate,
+  hasFeedbackAnswer,
+} from "@/features/feedbacks/constants/feedbacks";
 import { feedbacksQueries } from "@/shared/entities/feedbacks/feedbacksQueries";
 
 interface FeedbacksMineDetailContentProps {
-  feedbackId: string;
+  feedbackId: number;
   /** 없는 피드백이면 보낼 곳 — 이동할 경로는 화면이 정한다 */
   fallbackPath: string;
   onBrowseFeedbacks: () => void;
-  onViewRound: (feedbackId: string) => void;
+  onViewRound: (feedbackId: number) => void;
 }
 
 // Figma: 열린피드백 작성내역 상세 답변완료 (nodeId 3147:147756), 답변대기 (3147:147779)
@@ -27,7 +30,7 @@ function FeedbacksMineDetailContent({
   onViewRound,
 }: FeedbacksMineDetailContentProps) {
   const { data: feedback } = useSuspenseQuery(
-    feedbacksQueries.myDetail(feedbackId),
+    feedbacksQueries.detail(feedbackId),
   );
 
   if (!feedback) {
@@ -57,7 +60,7 @@ function FeedbacksMineDetailContent({
               variant="caption2"
               weight="regular"
             >
-              {feedback.createdAt}
+              {getFeedbackDate(feedback.questionedAt)}
             </Typography>
           </div>
         </div>
@@ -91,7 +94,7 @@ function FeedbacksMineDetailContent({
               variant="caption2"
               weight="regular"
             >
-              {feedback.answerDate ?? "-"}
+              {feedback.answeredAt ? getFeedbackDate(feedback.answeredAt) : "-"}
             </Typography>
           </div>
         </div>
@@ -101,7 +104,7 @@ function FeedbacksMineDetailContent({
             <FeedbacksAnswerText text={answer} />
             <Button
               color="primary"
-              onClick={() => onViewRound(feedback.id)}
+              onClick={() => onViewRound(feedback.feedbackId)}
               size="medium"
               variant="outlined"
             >
