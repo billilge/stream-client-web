@@ -7,6 +7,7 @@ import returnItemsEmptyIllustration from "@/assets/icons/billilge-empty/return-i
 import BillilgeEmptyState from "@/features/billilge/components/BillilgeEmptyState";
 import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
 import BillilgeRentalHistoryEntry from "@/features/billilge/components/BillilgeRentalHistoryEntry";
+import BillilgeStatusBadge from "@/features/billilge/components/BillilgeStatusBadge";
 import { BILLILGE_DELETED_ITEM_NAME } from "@/features/billilge/constants/billilge";
 import { useBillilgeReturnRequest } from "@/features/billilge/hooks/useBillilgeReturnRequest";
 import { formatDateTime, getHoursUntil } from "@/lib/date";
@@ -72,6 +73,12 @@ function BillilgeReturnSection({
                       : `반납까지 ${hoursUntilDue}시간`
                   }
                   subtitleTone={hoursUntilDue < 0 ? "negative" : "normal"}
+                  // 반납은 대여 중(RENTAL)일 때만 신청할 수 있다 — 이미 신청한 대여는 버튼 대신 상태를 보여 준다
+                  trailingBadge={
+                    item.status === "RENTAL" ? undefined : (
+                      <BillilgeStatusBadge status={item.status} />
+                    )
+                  }
                 />
               );
             })}

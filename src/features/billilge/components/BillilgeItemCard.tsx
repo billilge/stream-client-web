@@ -1,5 +1,6 @@
 // Figma: Rental Item Card (nodeId 1041:61407)
 import { Button, Typography } from "@wanteddev/wds";
+import type { ReactNode } from "react";
 
 import circleMinusFill from "@/assets/icons/circle-minus-fill.svg";
 import circlePlusFill from "@/assets/icons/circle-plus-fill.svg";
@@ -24,6 +25,8 @@ interface BillilgeItemCardProps {
   actionLabel?: string;
   // 재고가 0인 물품(Figma Rental Item Card 1453:115350)은 "대여 신청"이 회색으로 막힌다
   disabled?: boolean;
+  // 버튼 자리에 대신 그릴 상태 뱃지 — 이미 반납을 신청한 대여는 "반납 신청" 버튼 대신 상태를 보여 준다
+  trailingBadge?: ReactNode;
   onRentRequest?: () => void;
   stepperValue?: number;
   onStepperDecrease?: () => void;
@@ -50,6 +53,7 @@ function BillilgeItemCard({
   bordered = false,
   actionLabel = "대여 신청",
   disabled = false,
+  trailingBadge,
   onRentRequest,
   stepperValue = 1,
   onStepperDecrease,
@@ -102,7 +106,9 @@ function BillilgeItemCard({
           </div>
         </div>
 
-        {!isStepper && (
+        {!isStepper && trailingBadge}
+
+        {!isStepper && !trailingBadge && (
           <Button
             color="primary"
             disabled={disabled}

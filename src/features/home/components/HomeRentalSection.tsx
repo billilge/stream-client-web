@@ -3,6 +3,7 @@ import { Button, Divider, Typography } from "@wanteddev/wds";
 
 import returnItemsEmpty from "@/assets/icons/billilge-empty/return-items.svg";
 import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
+import BillilgeStatusBadge from "@/features/billilge/components/BillilgeStatusBadge";
 import { BILLILGE_DELETED_ITEM_NAME } from "@/features/billilge/constants/billilge";
 import HomeEmptyState from "@/features/home/components/HomeEmptyState";
 import { getHoursUntil } from "@/lib/date";
@@ -79,6 +80,12 @@ function HomeRentalSection({
               }
               subtitleTone={hoursUntilDue < 0 ? "negative" : "normal"}
               surface={false}
+              // 빌릴게 반납 탭과 같다 — 이미 반납을 신청한 대여는 버튼 대신 상태를 보여 준다
+              trailingBadge={
+                rental.status === "RENTAL" ? undefined : (
+                  <BillilgeStatusBadge status={rental.status} />
+                )
+              }
             />
           );
         })}
