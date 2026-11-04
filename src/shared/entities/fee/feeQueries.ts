@@ -20,9 +20,9 @@ export const feeResponseSchema = z.looseObject({
   // 한 번도 요청하지 않았으면 null
   studentTransferStatusId: z.number().nullable(),
   feeStatus: z.enum(FEE_STATUSES),
-  // 학생회가 납부 계좌를 설정하기 전이면 null이다(화면은 쓰지 않는다 — 송금은 서버가 만든 링크로 한다)
-  bank: z.string().nullable(),
-  accountNo: z.string().nullable(),
+  // 계좌를 설정하기 전이면 서버가 이 응답 대신 404(FEE_ACCOUNT_NOT_FOUND)를 준다
+  bank: z.string(),
+  accountNo: z.string(),
   remainingSemesters: z.number().nullable(),
   transferAmount: z.number().nullable(),
   // 금액이 채워진 토스 송금 딥링크(supertoss://send?…)
