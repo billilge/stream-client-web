@@ -10,8 +10,8 @@ import FeeTransferStepLayout from "@/features/fee/components/FeeTransferStepLayo
 // 두 프레임은 같은 단계의 상태 차이다 — 실패하면 일러스트가 빠지고 문구와 버튼 라벨만 바뀐다.
 // 그래서 퍼널 단계를 나누지 않고 실패 여부 state로 토글한다.
 //
-// 토스는 딥링크라 열렸는지 브라우저가 알려주지 않는다. 그래서 실패 화면은 "링크 주소가 아직
-// 없을 때"(`hasTossLink`)만 띄운다 — 주소가 채워지면 열고 바로 송금 확인 단계로 넘어간다.
+// 토스는 딥링크라 열렸는지 브라우저가 알려주지 않는다. 그래서 실패 화면은 "서버가 송금 링크를
+// 주지 않았을 때"(`hasTossLink`)만 띄운다 — 링크가 있으면 열고 바로 송금 확인 단계로 넘어간다.
 // 실제로 여는 일은 퍼널(FeeTransferScreen)이 `lib/openExternalLink`로 맡는다.
 //
 // ₩ 아이콘(3562:163032)은 획이 그려지는 Figma Motion이라 Lottie로 받아 재생한다. 2초

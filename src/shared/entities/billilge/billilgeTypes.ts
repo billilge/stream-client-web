@@ -1,18 +1,55 @@
-// BillilgeCategoryFilter의 필터 칩과 값을 맞춘다("전체"는 필터 없음을 뜻하는 값이라 제외).
-export type BillilgeCategory = "전자기기" | "생활잡화" | "상비약" | "위생용품";
+import type { z } from "zod";
 
-export interface BillilgeItem {
-  id: string;
-  name: string;
-  quantity: number;
-  icon: string;
-  category: BillilgeCategory;
-  // 대여 바텀시트의 "대여할 물품" 카드(Figma nodeId 1422:57184, 3013:114608)에 "수량 28 ·
-  // {returnDeadlineLabel}"로 붙는 반납 기한 문구 — "오늘 17시까지 반납"/"9/29까지 반납"처럼
-  // 오늘·내일·그 이후(월/일)를 서버가 이미 판단해서 내려주는 값이라 가정한다. 오늘/내일 여부는
-  // 보는 사람의 로컬 시각 기준이라 프런트에서 계산하는 게 일반적이지만, 이 서비스는 같은 화면을
-  // 웹과 앱이 각각 구현해야 해서 "오늘/내일 판단 기준"이 플랫폼마다 어긋나지 않도록 서버가
-  // 라벨 문자열까지 계산해서 내려주기로 했다 — 그래서 이 필드는 프런트가 다시 가공하지 않고
-  // 그대로 렌더링만 하는 완성된 문자열이다.
-  returnDeadlineLabel: string;
+import type {
+  BILLILGE_CATEGORIES,
+  BILLILGE_ITEM_TYPES,
+  BILLILGE_RENTAL_STATUSES,
+  billilgeHistoryListResponseSchema,
+  billilgeHistorySchema,
+  billilgeItemSchema,
+  billilgeReturnRequiredListResponseSchema,
+  billilgeReturnRequiredSchema,
+} from "@/shared/entities/billilge/billilgeQueries";
+
+// 서버 학생 앱 빌릴게 API(/v1/app/billilge/**) 응답 모양 그대로다 — billilgeQueries.ts의 응답 검사 스키마에서 만든다.
+// 화면 모양은 화면 쪽에서 바꾼다.
+
+// 물품 분류(서버 ItemCategory). 화면 라벨은 features/billilge/constants/billilge.ts의 BILLILGE_CATEGORY_LABELS
+export type BillilgeCategory = (typeof BILLILGE_CATEGORIES)[number];
+
+// 소모품은 돌려받지 않아서 반납 정책·반납 기한 문구가 없다(서버 ItemType)
+export type BillilgeItemType = (typeof BILLILGE_ITEM_TYPES)[number];
+
+export type BillilgeItem = z.infer<typeof billilgeItemSchema>;
+
+// 대여 상태(서버 RentalStatus). 학생 신청은 승인 대기(PENDING)로 시작하고, 운영진이 승인(CONFIRMED)·지급(RENTAL)한다.
+// 반납 신청은 반납 승인 대기(RETURN_PENDING)가 되고, 운영진이 승인(RETURN_CONFIRMED)·확인(RETURNED)한다.
+// 화면 뱃지는 features/billilge/constants/billilge.ts의 BILLILGE_STATUS_BADGES
+export type BillilgeRentalStatus = (typeof BILLILGE_RENTAL_STATUSES)[number];
+
+// 내 대여 이력 한 건(GET /v1/app/billilge/histories)
+export type BillilgeHistory = z.infer<typeof billilgeHistorySchema>;
+
+export type BillilgeHistoryListResponse = z.infer<
+  typeof billilgeHistoryListResponseSchema
+>;
+
+// 지금 반납해야 하는 대여 한 건(GET /v1/app/billilge/histories/return-required)
+export type BillilgeReturnRequired = z.infer<
+  typeof billilgeReturnRequiredSchema
+>;
+
+export type BillilgeReturnRequiredListResponse = z.infer<
+  typeof billilgeReturnRequiredListResponseSchema
+>;
+
+// 대여 신청(POST /v1/app/billilge/histories). 날짜는 늘 오늘이라 시각만 보낸다
+export interface BillilgeRentalApplyRequest {
+  itemId: number;
+  count: number;
+  // 0~23시
+  rentAtHour: number;
+  rentAtMinute: number;
+  // false면 같은 물품에 끝나지 않은 신청이 있을 때 RENTAL_ITEM_DUPLICATED로 거절된다 — true로 다시 보내면 그래도 신청한다
+  ignoreDuplicate: boolean;
 }

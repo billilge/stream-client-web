@@ -47,7 +47,10 @@ function ModalShell({
         : null;
     dialogRef.current?.focus();
 
-    return () => lastFocusedRef.current?.focus();
+    // 되돌릴 자리가 화면 밖일 수 있다 — 모달을 띄운 사이 닫힌 바텀시트 안의 버튼은 시트와 함께 화면 아래로
+    // 내려가 있어서, 그냥 focus()하면 브라우저가 그 버튼을 보이려고 화면 틀(overflow-hidden)을 스크롤해
+    // 하단 탭까지 위로 밀려 올라간다(빌릴게 중복 신청 확인 모달).
+    return () => lastFocusedRef.current?.focus({ preventScroll: true });
   }, [open]);
 
   // Esc로 닫고, Tab은 모달 안에서만 순환시킨다
