@@ -1,11 +1,19 @@
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { z } from "zod";
 
 import { api } from "@/shared/api";
-import type {
-  FileCategory,
-  FileUploadUrl,
-} from "@/shared/entities/files/filesTypes";
+import type { FileCategory } from "@/shared/entities/files/filesTypes";
+
+// POST /v1/files/presigned-url 응답(서버 FileUploadUrlIssueResponse)
+export const fileUploadUrlResponseSchema = z.looseObject({
+  fileId: z.number(),
+  // 스토리지에 파일 본문을 바로 PUT하는 서명된 주소
+  uploadUrl: z.string(),
+  // 다른 API(학생회비 납부 요청 등)에 넘기는 파일 키
+  fileKey: z.string(),
+  expiresAt: z.string(),
+});
 
 interface UploadFileVariables {
   file: File;
@@ -18,14 +26,13 @@ interface UploadFileVariables {
 export function useUploadFileMutation() {
   return useMutation({
     mutationFn: async ({ file, category }: UploadFileVariables) => {
-      const { fileKey, uploadUrl } = await api.post<FileUploadUrl>(
-        "/v1/files/presigned-url",
-        {
+      const { fileKey, uploadUrl } = fileUploadUrlResponseSchema.parse(
+        await api.post<unknown>("/v1/files/presigned-url", {
           category,
           contentType: file.type,
           fileSize: file.size,
           originalName: file.name,
-        },
+        }),
       );
       // 서명에 Content-Type이 들어가 있어서 발급 때 보낸 값과 같아야 한다
       await axios.put(uploadUrl, file, {
