@@ -1,6 +1,3 @@
-import hairDryer from "@/assets/icons/billilge-items/hair-dryer.svg";
-import powerBank from "@/assets/icons/billilge-items/power-bank.svg";
-import umbrella from "@/assets/icons/billilge-items/umbrella.svg";
 import type { FeePaymentStatus } from "@/shared/entities/fee/feeTypes";
 import type { LockerAssignmentStatus } from "@/shared/entities/lockers/lockersTypes";
 
@@ -32,14 +29,6 @@ export type HomeApplyCard = {
   daysUntilDeadline: number;
 } & ({ kind: "event"; eventId: string } | { kind: "locker" });
 
-export interface HomeRental {
-  id: string;
-  name: string;
-  icon: string;
-  // 음수면 반납 기한이 지났다
-  hoursUntilDue: number;
-}
-
 // applicationId는 신청내역 목데이터(shared/entities/events)의 신청완료 건으로 맞춘다. 홈 행 이름(Figma 홈 문구)과
 // 신청내역의 행사명은 목데이터라 서로 다르다.
 export interface HomeAppliedEvent {
@@ -63,7 +52,6 @@ export interface HomeMyInfo {
 export interface HomeData {
   notices: HomeNotice[];
   applyCards: HomeApplyCard[];
-  rentals: HomeRental[];
   appliedEvents: HomeAppliedEvent[];
   myInfo: HomeMyInfo;
 }
@@ -147,7 +135,6 @@ const HOME_DATA: Record<HomeMockState, HomeData> = {
       lockerStatus: "assigned",
     },
     notices: NOTICES,
-    rentals: [],
   },
   few: {
     appliedEvents: [
@@ -166,10 +153,6 @@ const HOME_DATA: Record<HomeMockState, HomeData> = {
       lockerStatus: "assigned",
     },
     notices: NOTICES,
-    rentals: [
-      { hoursUntilDue: 23, icon: umbrella, id: "umbrella", name: "우산" },
-      { hoursUntilDue: 2, icon: hairDryer, id: "hair-dryer", name: "드라이기" },
-    ],
   },
   many: {
     appliedEvents: [
@@ -200,16 +183,6 @@ const HOME_DATA: Record<HomeMockState, HomeData> = {
       lockerStatus: "assigned",
     },
     notices: NOTICES,
-    rentals: [
-      { hoursUntilDue: -2, icon: umbrella, id: "umbrella", name: "우산" },
-      { hoursUntilDue: 2, icon: hairDryer, id: "hair-dryer", name: "드라이기" },
-      {
-        hoursUntilDue: 5,
-        icon: powerBank,
-        id: "power-bank",
-        name: "보조배터리",
-      },
-    ],
   },
 };
 
