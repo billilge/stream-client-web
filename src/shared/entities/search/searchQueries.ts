@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 
 import { mockupResponse } from "@/lib/mockupApi";
 import { ARCHIVES } from "@/shared/entities/archives/archivesMock";
-import { BILILGE_ITEMS } from "@/shared/entities/bililge/bililgeMock";
+import { BILLILGE_ITEMS } from "@/shared/entities/billilge/billilgeMock";
 import { EVENTS } from "@/shared/entities/events/eventsMock";
 import { FEEDBACKS } from "@/shared/entities/feedbacks/feedbacksMock";
 import { NOTICES } from "@/shared/entities/notices/noticesMock";
@@ -18,7 +18,7 @@ function includesKeyword(text: string, keyword: string): boolean {
 function searchMocks(keyword: string): SearchResults {
   return {
     archives: ARCHIVES.filter((item) => includesKeyword(item.title, keyword)),
-    bililge: BILILGE_ITEMS.filter((item) =>
+    billilge: BILLILGE_ITEMS.filter((item) =>
       includesKeyword(item.name, keyword),
     ),
     events: EVENTS.filter((item) => includesKeyword(item.title, keyword)),

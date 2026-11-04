@@ -1,12 +1,12 @@
-// BililgeCategoryFilter의 필터 칩과 값을 맞춘다("전체"는 필터 없음을 뜻하는 값이라 제외).
-export type BililgeCategory = "전자기기" | "생활잡화" | "상비약" | "위생용품";
+// BillilgeCategoryFilter의 필터 칩과 값을 맞춘다("전체"는 필터 없음을 뜻하는 값이라 제외).
+export type BillilgeCategory = "전자기기" | "생활잡화" | "상비약" | "위생용품";
 
-export interface BililgeItem {
+export interface BillilgeItem {
   id: string;
   name: string;
   quantity: number;
   icon: string;
-  category: BililgeCategory;
+  category: BillilgeCategory;
   // 대여 바텀시트의 "대여할 물품" 카드(Figma nodeId 1422:57184, 3013:114608)에 "수량 28 ·
   // {returnDeadlineLabel}"로 붙는 반납 기한 문구 — "오늘 17시까지 반납"/"9/29까지 반납"처럼
   // 오늘·내일·그 이후(월/일)를 서버가 이미 판단해서 내려주는 값이라 가정한다. 오늘/내일 여부는

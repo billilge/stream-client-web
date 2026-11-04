@@ -10,12 +10,12 @@ import { useEffect, useState } from "react";
 
 import BottomSheet from "@/components/ui/BottomSheet";
 import ScreenToast from "@/components/ui/ScreenToast";
-import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
-import BililgeRentalConfirmModal from "@/features/bililge/components/BililgeRentalConfirmModal";
-import type { BililgeItem } from "@/shared/entities/bililge/bililgeTypes";
+import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
+import BillilgeRentalConfirmModal from "@/features/billilge/components/BillilgeRentalConfirmModal";
+import type { BillilgeItem } from "@/shared/entities/billilge/billilgeTypes";
 
-interface BililgeRentalSheetProps {
-  item: BililgeItem | null;
+interface BillilgeRentalSheetProps {
+  item: BillilgeItem | null;
   open: boolean;
   onClose: () => void;
 }
@@ -83,7 +83,11 @@ function formatTimeLabel(time: {
 // 대여할 물품(수량 스테퍼) + 대여 시작 시간(휠 피커) + 안내문 + 대여 신청하기 버튼으로 구성된다.
 // 대여 가능 시간 검증(대여가능 시간 아닐 때/점심시간 등 Figma의 다른 상태 프레임)은 백엔드 연동
 // 전이라 이번 구현 범위에서 뺐다.
-function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
+function BillilgeRentalSheet({
+  item,
+  open,
+  onClose,
+}: BillilgeRentalSheetProps) {
   const [stepperValue, setStepperValue] = useState(1);
   const [time, setTime] = useState(getDefaultStartTime);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -122,7 +126,7 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
               >
                 대여할 물품
               </Typography>
-              <BililgeItemCard
+              <BillilgeItemCard
                 icon={item.icon}
                 itemName={item.name}
                 onStepperDecrease={() =>
@@ -220,7 +224,7 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
           </ActionAreaButton>
         </ActionArea>
         {item && (
-          <BililgeRentalConfirmModal
+          <BillilgeRentalConfirmModal
             itemName={item.name}
             onCancel={() => setConfirmOpen(false)}
             onConfirm={handleConfirm}
@@ -242,4 +246,4 @@ function BililgeRentalSheet({ item, open, onClose }: BililgeRentalSheetProps) {
   );
 }
 
-export default BililgeRentalSheet;
+export default BillilgeRentalSheet;
