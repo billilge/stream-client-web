@@ -73,7 +73,7 @@ function HomeAppliedEventSection({
       {events.map((event) => (
         <button
           className="flex items-center justify-between gap-3 text-left"
-          key={event.eventId}
+          key={event.applicationId}
           onClick={() => onSelect(event)}
           type="button"
         >

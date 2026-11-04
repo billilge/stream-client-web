@@ -163,9 +163,11 @@ function HomeScreen() {
                 <HomeAppliedEventSection
                   onBrowse={() => navigate(EVENTS_TAB_PATHS.event)}
                   onMore={() => navigate(EVENTS_TAB_PATHS.application)}
-                  // 서버가 신청 ID를 주지 않아 신청내역 상세 대신 행사 상세로 보낸다 — 홈 응답에 applicationId가
-                  // 생기면 신청내역 상세(`${EVENTS_TAB_PATHS.application}/{applicationId}`)로 바꾼다
-                  onSelect={(event) => push(`/events/${event.eventId}`)}
+                  onSelect={(event) =>
+                    push(
+                      `${EVENTS_TAB_PATHS.application}/${event.applicationId}`,
+                    )
+                  }
                 />
               </Suspense>
             </div>

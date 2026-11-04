@@ -55,6 +55,8 @@ export const homeResponseSchema = z.looseObject({
   // 오늘이나 그 뒤에 열리는 신청한 행사
   appliedEvents: previewSchema(
     z.looseObject({
+      // 누르면 이것으로 신청내역 상세를 연다
+      applicationId: z.number(),
       eventId: z.number(),
       title: z.string(),
       eventDate: z.string(),
