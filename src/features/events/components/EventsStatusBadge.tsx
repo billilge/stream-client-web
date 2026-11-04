@@ -1,9 +1,9 @@
 import { ContentBadge } from "@wanteddev/wds";
 
-import type { EventStatus } from "@/shared/entities/events/eventsTypes";
+import type { EventRecruitStatus } from "@/shared/entities/events/eventsTypes";
 
 interface EventsStatusBadgeProps {
-  status: EventStatus;
+  status: EventRecruitStatus;
   /** 뱃지 문구 — 모집중은 "신청마감 D-2"처럼 마감까지 남은 일수가 들어가서 상태만으로 못 정한다 */
   statusLabel: string;
   /** 목록 카드는 small(캡션 12px), 상세는 medium(라벨 13px) — Figma 스펙이 화면마다 다르다 */
@@ -15,9 +15,9 @@ interface EventsStatusBadgeProps {
 // 이게 Figma의 "accent 색 + Opacity 8% 배경 레이어" 구조와 정확히 같다.
 // 모집종료만 accent가 아니라 neutral이라 배경이 Fill/Normal로 바뀐다 — 이것도 WDS 쪽 분기와 일치한다.
 const STATUS_BADGE = {
-  closed: { color: "neutral", token: "semantic.label.alternative" },
-  open: { color: "accent", token: "semantic.accent.foreground.redOrange" },
-  upcoming: { color: "accent", token: "semantic.accent.foreground.cyan" },
+  BEFORE_OPEN: { color: "accent", token: "semantic.accent.foreground.cyan" },
+  CLOSED: { color: "neutral", token: "semantic.label.alternative" },
+  OPEN: { color: "accent", token: "semantic.accent.foreground.redOrange" },
 } as const;
 
 // Figma: Content Badge/Content Badge (메인 컴포넌트 445:5656)

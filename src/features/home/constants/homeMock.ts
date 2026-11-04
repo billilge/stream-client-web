@@ -100,10 +100,11 @@ const NOTICES: HomeNotice[] = [
   },
 ];
 
-// 행사 목데이터(shared/entities/events)의 모집중 행사
+// 행사 목데이터(shared/entities/events)의 모집중 행사. 행사 상세는 실 API로 받아서, 서버에 이 id가 없으면
+// "행사를 찾을 수 없어요"가 뜬다 — 홈 API를 붙이면 서버가 준 행사로 바뀐다
 const SPORTS_DAY: HomeApplyCard = {
   daysUntilDeadline: 2,
-  eventId: "sw-sports-day-open",
+  eventId: "1",
   id: "sports-day",
   kind: "event",
   title: "소프트웨어융합대학 체육대회",

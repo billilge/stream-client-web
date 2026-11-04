@@ -4,7 +4,7 @@ import {
   TopNavigationButton,
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
-import { Suspense, useState } from "react";
+import { Suspense, useDeferredValue, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import FilterChipGroup from "@/components/ui/FilterChipGroup";
@@ -18,6 +18,7 @@ import EventsListSkeleton from "@/features/events/components/EventsListSkeleton"
 import {
   EVENT_STATUS_FILTERS,
   EVENTS_TAB_PATHS,
+  type EventStatusFilter,
   type EventsTab,
 } from "@/features/events/constants/events";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
@@ -31,7 +32,10 @@ interface EventsListScreenProps {
 // Figma: 행사 (nodeId 1243:70854)
 function EventsListScreen({ tab }: EventsListScreenProps) {
   const navigate = useNavigate();
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<EventStatusFilter>("all");
+  // 필터마다 서버에서 따로 받는다. 칩은 바로 바뀌고, 목록은 새 필터를 받는 동안 스켈레톤으로 비우지 않고
+  // 지금 목록을 띄워 둔다
+  const listStatusFilter = useDeferredValue(statusFilter);
 
   useScreenHeader(
     <ScreenHeader
@@ -85,7 +89,7 @@ function EventsListScreen({ tab }: EventsListScreenProps) {
       {tab === "event" && (
         <div className="shrink-0 px-5 pt-4 pb-6">
           <FilterChipGroup
-            onChange={setStatusFilter}
+            onChange={(value) => setStatusFilter(value as EventStatusFilter)}
             options={EVENT_STATUS_FILTERS}
             value={statusFilter}
           />
@@ -108,7 +112,7 @@ function EventsListScreen({ tab }: EventsListScreenProps) {
               onSelect={(eventId) =>
                 navigate(`/events/${eventId}`, { viewTransition: true })
               }
-              statusFilter={statusFilter}
+              statusFilter={listStatusFilter}
             />
           </Suspense>
         ) : (

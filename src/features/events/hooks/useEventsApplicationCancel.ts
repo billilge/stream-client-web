@@ -1,10 +1,19 @@
 import { useState } from "react";
 
-import { useCancelEventApplicationMutation } from "@/shared/entities/events/eventsQueries";
+import { isApiError } from "@/shared/api";
+import {
+  EVENTS_ERROR_CODES,
+  useCancelEventApplicationMutation,
+} from "@/shared/entities/events/eventsQueries";
 
 // 취소 결과 토스트 — 문구와 색을 결과마다 한 번에 고른다
 const CANCEL_TOASTS = {
   cancelled: { message: "신청이 취소됐어요.", variant: "positive" },
+  // 다시 시도해도 같아서 다시 시도하라고 하지 않는다
+  deadlinePassed: {
+    message: "신청이 마감되어 취소할 수 없어요.",
+    variant: "negative",
+  },
   failed: {
     message: "신청 취소에 실패했어요. 다시 시도해 주세요.",
     variant: "negative",
@@ -33,6 +42,21 @@ export function useEventsApplicationCancel(applicationId: string) {
     mutate(applicationId, {
       onSuccess: () => showToast(CANCEL_TOASTS.cancelled),
       onError: (error) => {
+        // 이미 취소된 신청 — 다시 받은 상세가 취소 상태로 바뀌어서 취소된 것과 같게 알린다
+        if (
+          isApiError(error) &&
+          error.code === EVENTS_ERROR_CODES.alreadyCanceled
+        ) {
+          showToast(CANCEL_TOASTS.cancelled);
+          return;
+        }
+        if (
+          isApiError(error) &&
+          error.code === EVENTS_ERROR_CODES.cancelDeadlinePassed
+        ) {
+          showToast(CANCEL_TOASTS.deadlinePassed);
+          return;
+        }
         console.error(error);
         showToast(CANCEL_TOASTS.failed);
       },
