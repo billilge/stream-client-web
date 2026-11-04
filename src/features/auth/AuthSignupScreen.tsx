@@ -50,6 +50,10 @@ function AuthSignupScreen() {
     [kConnectName],
   );
   const funnel = useFunnel<AuthSignupSteps>({
+    // use-funnel은 퍼널이 언마운트될 때 주소의 단계(`?auth.step=`)와 context를 지운다. 개발 모드의 StrictMode는 첫
+    // 마운트 직후 한 번 언마운트했다가 다시 붙여서, 새로고침하면 이 정리가 돌아 단계가 사라지고 첫 단계로 돌아간다.
+    // 퍼널을 떠날 때는 다른 주소로 이동해서 지울 단계가 남지 않으므로 정리를 끈다.
+    disableCleanup: true,
     id: "auth",
     initial,
     steps: AUTH_SIGNUP_STEP_OPTIONS,
@@ -92,14 +96,23 @@ function AuthSignupScreen() {
             }
             onNext={async (email) => {
               await requestEmailVerification(email);
-              history.push("emailCode", { email }, SLIDE);
+              history.push(
+                "emailCode",
+                { codeSentAt: Date.now(), email },
+                SLIDE,
+              );
             }}
           />
         )}
         emailCode={({ context, history }) => (
           <AuthEmailCodeStep
+            codeSentAt={context.codeSentAt}
             email={context.email}
             onBack={() => history.back()}
+            // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 새로고침해도 다시 보낸 시각부터 센다
+            onResent={(codeSentAt) =>
+              history.replace("emailCode", (prev) => ({ ...prev, codeSentAt }))
+            }
             // 인증을 마치면 이 단계로 돌아올 일이 없어서 히스토리를 대체한다 — 약관 동의에서 뒤로가면 이메일 단계로 간다
             onVerified={() =>
               history.replace(
