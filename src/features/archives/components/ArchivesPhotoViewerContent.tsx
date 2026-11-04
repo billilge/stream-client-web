@@ -27,9 +27,9 @@ function ArchivesPhotoViewerContent({
   const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
   const photos = archive?.images ?? [];
 
-  // 주소의 photoIndex가 숫자가 아니거나 범위를 벗어나면 첫 장/마지막 장으로 맞춘다
+  // 주소의 photoIndex가 숫자가 아니거나 범위를 벗어나면 첫 장/마지막 장으로, 소수면 내림해서 맞춘다
   const initialIndex = Math.min(
-    Math.max(Number(photoIndex) || 0, 0),
+    Math.max(Math.floor(Number(photoIndex)) || 0, 0),
     Math.max(photos.length - 1, 0),
   );
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
