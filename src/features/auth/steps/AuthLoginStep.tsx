@@ -17,7 +17,7 @@ import {
 import { isInAppShell } from "@/lib/bridge/bridge";
 
 // 로그인 — 화면설계서 2·3번. `K-CONNECT로 시작하기`를 누르면 K-CONNECT 인증 사이트로 페이지가 이동하고(@billilge/oauth-kconnect),
-// 인증을 마치면 `/oauth/kconnect`(KConnectCallbackScreen)가 결과를 받아 신규 사용자는 이메일 인증 단계로, 기존 사용자는 홈으로 보낸다.
+// 인증을 마치면 `/oauth/kconnect`(KConnectCallbackScreen)가 결과를 받아 신규 사용자는 연락처 입력 단계로, 기존 사용자는 홈으로 보낸다.
 // 취소·오류·네트워크 오류로 돌아오면 이 화면에서 토스트로 알린다.
 function AuthLoginStep({
   hasFailedLogin,

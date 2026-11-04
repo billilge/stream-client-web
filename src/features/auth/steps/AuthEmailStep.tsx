@@ -10,7 +10,7 @@ import AuthOnboardingHeading from "@/features/auth/components/AuthOnboardingHead
 import { EMAIL_SEND_FAILURE_MESSAGE } from "@/features/auth/constants/auth";
 import { isValidEmail } from "@/features/auth/utils/isValidEmail";
 
-// 온보딩 1/3 이메일 입력 — Figma 이메일인증 4 (nodeId 4473:48819). 단계 표시(1 / 3)는 Figma에 없고 연락처·약관 화면과 맞춰 더했다.
+// 온보딩 2/3 이메일 입력 — Figma 이메일인증 4 (nodeId 4473:48819). 단계 표시(2 / 3)는 Figma에 없고 연락처·약관 화면과 맞춰 더했다.
 // 입력칸은 Figma `Textinput/Textfield`(445:8591)라 WDS `TextField`를 쓴다 — 라벨("이메일")은 TextField가 그리지 않아서
 // 형제 요소로 따로 그린다(설정의 전화번호 변경과 같다).
 function AuthEmailStep({
@@ -55,7 +55,7 @@ function AuthEmailStep({
   return (
     <div className="flex h-full flex-col justify-between bg-background-normal">
       <div className="flex flex-col gap-2 px-5 pt-3">
-        <AuthOnboardingHeading step="1 / 3">
+        <AuthOnboardingHeading step="2 / 3">
           이메일을 알려주세요
         </AuthOnboardingHeading>
         <div className="flex flex-col gap-5">

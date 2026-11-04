@@ -22,7 +22,7 @@ import { readAuthLocationState } from "@/features/auth/utils/authLocationState";
 import { HOME_PATH } from "@/features/home/constants/home";
 import { useFunnel } from "@/lib/useFunnel";
 
-// 로그인과 가입(이메일 인증 → 연락처 → 약관 동의 → 약관 상세 → 가입 완료)을 useFunnel 하나로 묶은 화면이다. 이메일 인증은
+// 로그인과 가입(연락처 → 이메일 인증 → 약관 동의 → 약관 상세 → 가입 완료)을 useFunnel 하나로 묶은 화면이다. 연락처와 이메일 인증은
 // K-CONNECT 인증을 마친 신규 사용자만 거친다(기존 사용자는 홈으로 바로 간다). 단계 화면은 `steps/`에
 // 하나씩 나눠 두고, 이 파일은 단계 전환(어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다.
 // 단계는 `/login?auth.step=...`으로 나뉘고 단계마다 브라우저 뒤로가기가 한 단계씩 돌아간다. 단계 사이에 넘기는 값
@@ -36,14 +36,14 @@ const SLIDE = { viewTransition: true };
 function AuthSignupScreen() {
   const navigate = useNavigate();
   const location = useLocation();
-  // K-CONNECT 콜백(KConnectCallbackScreen)이 신규 사용자를 이름과 함께 보내면 로그인을 건너뛰고 이메일 단계에서 시작한다.
+  // K-CONNECT 콜백(KConnectCallbackScreen)이 신규 사용자를 이름과 함께 보내면 로그인을 건너뛰고 연락처 단계에서 시작한다.
   // `initial`은 주소에 단계가 없을 때만 쓰여서, 단계가 생긴 뒤(약관 동의 등)에는 영향이 없다.
   const { kConnectName, loginFailed } = readAuthLocationState(location.state);
   // useFunnel이 `initial`로 값을 다시 계산하지 않도록 kConnectName이 바뀔 때만 새 객체를 만든다
   const initial = useMemo(
     () =>
       kConnectName
-        ? ({ context: { name: kConnectName }, step: "email" } as const)
+        ? ({ context: { name: kConnectName }, step: "phone" } as const)
         : ({ context: {}, step: "login" } as const),
     [kConnectName],
   );
@@ -64,7 +64,7 @@ function AuthSignupScreen() {
     }
   }, [loginFailed, location.pathname, location.search, navigate]);
 
-  // 로그인한 상태로 이 퍼널에 들어오면 홈으로 보낸다 — 가입을 마친 뒤 홈에서 뒤로가기를 눌러 이메일·연락처 단계로 돌아와
+  // 로그인한 상태로 이 퍼널에 들어오면 홈으로 보낸다 — 가입을 마친 뒤 홈에서 뒤로가기를 눌러 연락처·이메일 단계로 돌아와
   // 가입을 한 번 더 진행하는 일을 막는다. 가입 완료 단계는 로그인 표시를 남긴 직후에 보여 주는 화면이라 예외다.
   if (funnel.step !== "complete" && isLoggedIn()) {
     return <Navigate replace to={HOME_PATH} />;
@@ -75,20 +75,17 @@ function AuthSignupScreen() {
   return (
     <funnel.Render
       complete={() => <AuthCompleteStep onStart={goHome} />}
-      email={({ context, history, index }) => (
+      email={({ context, history }) => (
         <AuthEmailStep
           initialEmail={context.email ?? ""}
-          // K-CONNECT 콜백에서 바로 이메일 단계로 들어온 경우 퍼널 기록이 이 단계 하나뿐이라, 뒤로가기가 K-CONNECT 쪽
-          // 페이지로 나가 버린다 — 이때는 로그인 단계로 대체해서 로그인 화면으로 돌아가게 한다.
-          onBack={() =>
-            index === 0 ? history.replace("login", {}) : history.back()
-          }
+          onBack={() => history.back()}
+          // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 인증번호 단계에서 뒤로 돌아와도 이메일이 남는다
           onChangeEmail={(email) =>
             history.replace("email", (prev) => ({ ...prev, email }))
           }
           onNext={async (email) => {
             await requestEmailVerification(email);
-            history.push("emailCode", { email, name: context.name }, SLIDE);
+            history.push("emailCode", { email }, SLIDE);
           }}
         />
       )}
@@ -96,9 +93,13 @@ function AuthSignupScreen() {
         <AuthEmailCodeStep
           email={context.email}
           onBack={() => history.back()}
-          // 인증을 마치면 이 단계로 돌아올 일이 없어서 히스토리를 대체한다 — 연락처에서 뒤로가면 이메일 단계로 간다
+          // 인증을 마치면 이 단계로 돌아올 일이 없어서 히스토리를 대체한다 — 약관 동의에서 뒤로가면 이메일 단계로 간다
           onVerified={() =>
-            history.replace("phone", { name: context.name }, SLIDE)
+            history.replace(
+              "terms",
+              { agreements: INITIAL_TERMS_AGREEMENTS },
+              SLIDE,
+            )
           }
         />
       )}
@@ -107,7 +108,7 @@ function AuthSignupScreen() {
           hasFailedLogin={loginFailed === true}
           onMockLoggedIn={(user) => {
             if (user.isNewUser) {
-              history.push("email", { name: user.name }, SLIDE);
+              history.push("phone", { name: user.name }, SLIDE);
               return;
             }
             markLoggedIn();
@@ -115,22 +116,20 @@ function AuthSignupScreen() {
           }}
         />
       )}
-      phone={({ context, history }) => (
+      phone={({ context, history, index }) => (
         <AuthPhoneStep
           initialPhone={context.phone ?? ""}
           name={context.name}
-          onBack={() => history.back()}
+          // K-CONNECT 콜백에서 바로 연락처 단계로 들어온 경우 퍼널 기록이 이 단계 하나뿐이라, 뒤로가기가 K-CONNECT 쪽
+          // 페이지로 나가 버린다 — 이때는 로그인 단계로 대체해서 로그인 화면으로 돌아가게 한다.
+          onBack={() =>
+            index === 0 ? history.replace("login", {}) : history.back()
+          }
           // 단계를 바꾸지 않고 context만 갈아 끼운다(replace)
           onChangePhone={(phone) =>
             history.replace("phone", (prev) => ({ ...prev, phone }))
           }
-          onNext={(phone) =>
-            history.push(
-              "terms",
-              { agreements: INITIAL_TERMS_AGREEMENTS, phone },
-              SLIDE,
-            )
-          }
+          onNext={(phone) => history.push("email", { phone }, SLIDE)}
         />
       )}
       terms={({ context, history }) => (
@@ -143,6 +142,7 @@ function AuthSignupScreen() {
           }
           onComplete={async () => {
             await submitOnboarding({
+              email: context.email,
               hasAgreedNotifications: context.agreements.notifications,
               name: context.name,
               phone: context.phone,

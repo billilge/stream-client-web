@@ -23,9 +23,9 @@ import {
 import { useCountdown } from "@/features/auth/hooks/useCountdown";
 import { formatCountdown } from "@/features/auth/utils/formatCountdown";
 
-// 온보딩 1/3 인증번호 입력 — Figma 이메일인증 5 (nodeId 4473:48952). 6자리를 모두 채우면 바로 확인하고, 맞으면
-// 연락처 단계로 간다. `다시 보내기`는 새 인증번호를 보내면서 5분 타이머를 처음부터 센다.
-// 단계 표시(1 / 3, 이메일 입력과 같은 단계)와 오류·만료 토스트는 Figma에 없고 더한 것이다.
+// 온보딩 2/3 인증번호 입력 — Figma 이메일인증 5 (nodeId 4473:48952). 6자리를 모두 채우면 바로 확인하고, 맞으면
+// 약관 동의 단계로 간다. `다시 보내기`는 새 인증번호를 보내면서 5분 타이머를 처음부터 센다.
+// 단계 표시(2 / 3, 이메일 입력과 같은 단계)와 오류·만료 토스트는 Figma에 없고 더한 것이다.
 function AuthEmailCodeStep({
   email,
   onBack,
@@ -96,7 +96,7 @@ function AuthEmailCodeStep({
     <div className="flex h-full flex-col bg-background-normal">
       <div className="flex flex-col gap-14 px-5 pt-3">
         <div className="flex flex-col gap-2">
-          <AuthOnboardingHeading step="1 / 3">
+          <AuthOnboardingHeading step="2 / 3">
             <span className="block">이메일로 받은</span>
             <span className="block">인증번호 6자리를 입력해 주세요</span>
           </AuthOnboardingHeading>
