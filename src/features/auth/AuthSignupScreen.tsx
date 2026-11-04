@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
+import ScreenToast from "@/components/ui/ScreenToast";
 import { INITIAL_TERMS_AGREEMENTS } from "@/features/auth/constants/auth";
 import {
   AUTH_SIGNUP_STEP_OPTIONS,
@@ -14,6 +15,7 @@ import AuthPhoneStep from "@/features/auth/steps/AuthPhoneStep";
 import AuthTermsDetailStep from "@/features/auth/steps/AuthTermsDetailStep";
 import AuthTermsStep from "@/features/auth/steps/AuthTermsStep";
 import { readAuthLocationState } from "@/features/auth/utils/authLocationState";
+import { getSignUpEmailErrorMessage } from "@/features/auth/utils/emailVerificationErrorMessage";
 import { HOME_PATH } from "@/features/home/constants/home";
 import { useFunnel } from "@/lib/useFunnel";
 import {
@@ -52,6 +54,10 @@ function AuthSignupScreen() {
     initial,
     steps: AUTH_SIGNUP_STEP_OPTIONS,
   });
+  // 단계를 옮기면서 띄우는 안내(가입 때 이메일을 다시 인증해야 할 때) — 단계 화면의 토스트는 단계가 바뀌면 함께
+  // 사라져서 퍼널이 들고 있는다
+  const [stepToastMessage, setStepToastMessage] = useState("");
+  const [stepToastOpen, setStepToastOpen] = useState(false);
 
   // 로그인 실패 토스트는 한 번만 띄운다 — 화면이 처음 그려질 때 AuthLoginStep이 값을 읽어 가고, 그 뒤에는 state를
   // 지워서 새로고침하거나 다른 단계에서 돌아와도 실패하지 않았는데 토스트가 다시 뜨지 않게 한다.
@@ -73,84 +79,105 @@ function AuthSignupScreen() {
   const goHome = () => navigate(HOME_PATH, { replace: true });
 
   return (
-    <funnel.Render
-      complete={() => <AuthCompleteStep onStart={goHome} />}
-      email={({ context, history }) => (
-        <AuthEmailStep
-          initialEmail={context.email ?? ""}
-          onBack={() => history.back()}
-          // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 인증번호 단계에서 뒤로 돌아와도 이메일이 남는다
-          onChangeEmail={(email) =>
-            history.replace("email", (prev) => ({ ...prev, email }))
-          }
-          onNext={async (email) => {
-            await requestEmailVerification(email);
-            history.push("emailCode", { email }, SLIDE);
-          }}
-        />
-      )}
-      emailCode={({ context, history }) => (
-        <AuthEmailCodeStep
-          email={context.email}
-          onBack={() => history.back()}
-          // 인증을 마치면 이 단계로 돌아올 일이 없어서 히스토리를 대체한다 — 약관 동의에서 뒤로가면 이메일 단계로 간다
-          onVerified={() =>
-            history.replace(
-              "terms",
-              { agreements: INITIAL_TERMS_AGREEMENTS },
-              SLIDE,
-            )
-          }
-        />
-      )}
-      login={() => <AuthLoginStep hasFailedLogin={loginFailed === true} />}
-      phone={({ context, history, index }) => (
-        <AuthPhoneStep
-          initialPhone={context.phone ?? ""}
-          name={context.name}
-          // K-CONNECT 콜백에서 바로 연락처 단계로 들어온 경우 퍼널 기록이 이 단계 하나뿐이라, 뒤로가기가 K-CONNECT 쪽
-          // 페이지로 나가 버린다 — 이때는 로그인 단계로 대체해서 로그인 화면으로 돌아가게 한다.
-          onBack={() =>
-            index === 0 ? history.replace("login", {}) : history.back()
-          }
-          // 단계를 바꾸지 않고 context만 갈아 끼운다(replace)
-          onChangePhone={(phone) =>
-            history.replace("phone", (prev) => ({ ...prev, phone }))
-          }
-          onNext={(phone) => history.push("email", { phone }, SLIDE)}
-        />
-      )}
-      terms={({ context, history }) => (
-        <AuthTermsStep
-          agreements={context.agreements}
-          onBack={() => history.back()}
-          // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 약관 상세를 다녀와도 동의 상태가 남는다
-          onChangeAgreements={(agreements) =>
-            history.replace("terms", (prev) => ({ ...prev, agreements }))
-          }
-          onComplete={async () => {
-            await submitOnboarding({
-              email: context.email,
-              hasAgreedNotifications: context.agreements.notifications,
-              name: context.name,
-              phone: context.phone,
-            });
-            markLoggedIn();
-            // 가입을 마치면 약관 동의로 돌아올 일이 없어서 히스토리를 대체한다
-            history.replace("complete", {}, SLIDE);
-          }}
-          onOpenDetail={(termsId) =>
-            history.push("termsDetail", { termsId }, SLIDE)
-          }
-        />
-      )}
-      termsDetail={({ context, history }) => (
-        <AuthTermsDetailStep
-          onBack={() => history.back()}
-          termsId={context.termsId}
-        />
-      )}
-    />
+    <>
+      <funnel.Render
+        complete={() => <AuthCompleteStep onStart={goHome} />}
+        email={({ context, history }) => (
+          <AuthEmailStep
+            initialEmail={context.email ?? ""}
+            onBack={() => history.back()}
+            // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 인증번호 단계에서 뒤로 돌아와도 이메일이 남는다
+            onChangeEmail={(email) =>
+              history.replace("email", (prev) => ({ ...prev, email }))
+            }
+            onNext={async (email) => {
+              await requestEmailVerification(email);
+              history.push("emailCode", { email }, SLIDE);
+            }}
+          />
+        )}
+        emailCode={({ context, history }) => (
+          <AuthEmailCodeStep
+            email={context.email}
+            onBack={() => history.back()}
+            // 인증을 마치면 이 단계로 돌아올 일이 없어서 히스토리를 대체한다 — 약관 동의에서 뒤로가면 이메일 단계로 간다
+            onVerified={() =>
+              history.replace(
+                "terms",
+                { agreements: INITIAL_TERMS_AGREEMENTS },
+                SLIDE,
+              )
+            }
+          />
+        )}
+        login={() => <AuthLoginStep hasFailedLogin={loginFailed === true} />}
+        phone={({ context, history, index }) => (
+          <AuthPhoneStep
+            initialPhone={context.phone ?? ""}
+            name={context.name}
+            // K-CONNECT 콜백에서 바로 연락처 단계로 들어온 경우 퍼널 기록이 이 단계 하나뿐이라, 뒤로가기가 K-CONNECT 쪽
+            // 페이지로 나가 버린다 — 이때는 로그인 단계로 대체해서 로그인 화면으로 돌아가게 한다.
+            onBack={() =>
+              index === 0 ? history.replace("login", {}) : history.back()
+            }
+            // 단계를 바꾸지 않고 context만 갈아 끼운다(replace)
+            onChangePhone={(phone) =>
+              history.replace("phone", (prev) => ({ ...prev, phone }))
+            }
+            onNext={(phone) => history.push("email", { phone }, SLIDE)}
+          />
+        )}
+        terms={({ context, history }) => (
+          <AuthTermsStep
+            agreements={context.agreements}
+            onBack={() => history.back()}
+            // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 약관 상세를 다녀와도 동의 상태가 남는다
+            onChangeAgreements={(agreements) =>
+              history.replace("terms", (prev) => ({ ...prev, agreements }))
+            }
+            onComplete={async () => {
+              try {
+                await submitOnboarding({
+                  email: context.email,
+                  hasAgreedNotifications: context.agreements.notifications,
+                  name: context.name,
+                  phone: context.phone,
+                });
+              } catch (error) {
+                // 인증한 지 30분이 지났거나 그사이 다른 회원이 이 이메일로 가입했다 — 이메일 단계로 돌아가 다시 인증한다.
+                // 인증번호 단계는 약관 동의로 대체됐으므로 한 단계 뒤가 이메일 단계다.
+                const emailErrorMessage = getSignUpEmailErrorMessage(error);
+                if (!emailErrorMessage) {
+                  throw error;
+                }
+                console.warn(emailErrorMessage, error);
+                setStepToastMessage(emailErrorMessage);
+                setStepToastOpen(true);
+                history.back();
+                return;
+              }
+              markLoggedIn();
+              // 가입을 마치면 약관 동의로 돌아올 일이 없어서 히스토리를 대체한다
+              history.replace("complete", {}, SLIDE);
+            }}
+            onOpenDetail={(termsId) =>
+              history.push("termsDetail", { termsId }, SLIDE)
+            }
+          />
+        )}
+        termsDetail={({ context, history }) => (
+          <AuthTermsDetailStep
+            onBack={() => history.back()}
+            termsId={context.termsId}
+          />
+        )}
+      />
+      <ScreenToast
+        message={stepToastMessage}
+        onOpenChange={setStepToastOpen}
+        open={stepToastOpen}
+      />
+    </>
   );
 }
 

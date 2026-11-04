@@ -11,14 +11,16 @@ import {
   EMAIL_CODE_EXPIRED_MESSAGE,
   EMAIL_CODE_EXPIRY_SECONDS,
   EMAIL_CODE_LENGTH,
-  EMAIL_CODE_MISMATCH_MESSAGE,
   EMAIL_CODE_VERIFY_FAILURE_MESSAGE,
   EMAIL_SEND_FAILURE_MESSAGE,
 } from "@/features/auth/constants/auth";
 import { useCountdown } from "@/features/auth/hooks/useCountdown";
+import {
+  getEmailCodeErrorMessage,
+  getEmailSendErrorMessage,
+} from "@/features/auth/utils/emailVerificationErrorMessage";
 import { formatCountdown } from "@/features/auth/utils/formatCountdown";
 import {
-  EmailCodeMismatchError,
   requestEmailVerification,
   verifyEmailCode,
 } from "@/shared/entities/auth/authQueries";
@@ -69,11 +71,7 @@ function AuthEmailCodeStep({
       console.warn(EMAIL_CODE_VERIFY_FAILURE_MESSAGE, error);
       setCode("");
       setIsVerifying(false);
-      showToast(
-        error instanceof EmailCodeMismatchError
-          ? EMAIL_CODE_MISMATCH_MESSAGE
-          : EMAIL_CODE_VERIFY_FAILURE_MESSAGE,
-      );
+      showToast(getEmailCodeErrorMessage(error));
       return;
     }
     setIsVerifying(false);
@@ -85,7 +83,7 @@ function AuthEmailCodeStep({
       await requestEmailVerification(email);
     } catch (error) {
       console.warn(EMAIL_SEND_FAILURE_MESSAGE, error);
-      showToast(EMAIL_SEND_FAILURE_MESSAGE);
+      showToast(getEmailSendErrorMessage(error));
       return;
     }
     setCode("");
