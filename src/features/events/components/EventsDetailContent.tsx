@@ -137,7 +137,11 @@ function EventsDetailContent({
             {/* Figma는 라벨 칼럼(28px)과 값 칼럼을 gap 12로 나란히 두고, 각 칼럼 안은 gap 8이다 */}
             <div className="flex gap-3">
               <div className="flex shrink-0 flex-col gap-2">
-                {["일시", "장소", "대상"].map((label) => (
+                {/* 장소가 없는 행사(서버 place null)는 장소 줄을 라벨·값 칼럼에서 같이 뺀다 */}
+                {(event.place === null
+                  ? ["일시", "대상"]
+                  : ["일시", "장소", "대상"]
+                ).map((label) => (
                   <Typography
                     color="semantic.label.alternative"
                     key={label}
@@ -156,13 +160,15 @@ function EventsDetailContent({
                 >
                   {getEventSchedule(event.eventStartAt)}
                 </Typography>
-                <Typography
-                  color="semantic.label.neutral"
-                  variant="label1"
-                  weight="medium"
-                >
-                  {event.place}
-                </Typography>
+                {event.place !== null && (
+                  <Typography
+                    color="semantic.label.neutral"
+                    variant="label1"
+                    weight="medium"
+                  >
+                    {event.place}
+                  </Typography>
+                )}
                 {/* 대상만 여러 줄 — Figma도 한 값 안에서 줄을 나눠 놨다 */}
                 <div className="flex flex-col">
                   {getEventAudience(event).map((line) => (

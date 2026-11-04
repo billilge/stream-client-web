@@ -56,9 +56,11 @@ export const eventDetailSchema = z.looseObject({
   title: z.string(),
   // 본문. 줄바꿈을 그대로 살려 렌더링한다
   description: z.string(),
-  place: z.string(),
+  // 장소는 운영진 입력에서 선택 항목이라 없으면 null이다 — 화면은 장소 줄을 뺀다(양식·신청 결과·신청 상세도 같다)
+  place: z.string().nullable(),
   eventStartAt: z.string(),
-  eventEndAt: z.string(),
+  // 종료 일시를 받기 전에 만든 행사는 null이다(서버 EventPeriod). 화면은 시작 일시만 쓴다
+  eventEndAt: z.string().nullable(),
   applyStartAt: z.string(),
   applyEndAt: z.string(),
   recruitStatus: z.enum(EVENT_RECRUIT_STATUSES),
@@ -88,7 +90,7 @@ export const eventFormSchema = z.looseObject({
   eventId: z.number(),
   title: z.string(),
   eventStartAt: z.string(),
-  place: z.string(),
+  place: z.string().nullable(),
   questions: z.array(
     eventQuestionContentSchema.extend({
       // 답변 길이 제한. 선택형 질문은 null
@@ -102,7 +104,7 @@ export const eventApplyResultSchema = z.looseObject({
   applicationId: z.number(),
   title: z.string(),
   eventStartAt: z.string(),
-  place: z.string(),
+  place: z.string().nullable(),
 });
 
 export const myEventApplicationListItemSchema = z.looseObject({
@@ -134,7 +136,7 @@ export const eventAnsweredQuestionSchema = eventQuestionContentSchema.extend({
 export const myEventApplicationDetailSchema = z.looseObject({
   eventId: z.number(),
   title: z.string(),
-  place: z.string(),
+  place: z.string().nullable(),
   applicationStatus: z.enum(EVENT_APPLICATION_STATUSES),
   eventStartAt: z.string(),
   appliedAt: z.string(),

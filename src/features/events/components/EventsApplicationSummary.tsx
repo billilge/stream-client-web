@@ -19,10 +19,15 @@ function EventsApplicationSummary({
     | "canceledAt"
   >;
 }) {
+  const eventDateTime = formatDateTime(application.eventStartAt);
   const rows = [
     {
       label: "행사",
-      value: `${formatDateTime(application.eventStartAt)} · ${application.place}`,
+      // 장소가 없는 행사(서버 place null)는 일시만 쓴다
+      value:
+        application.place === null
+          ? eventDateTime
+          : `${eventDateTime} · ${application.place}`,
     },
     { label: "신청", value: formatDateTime(application.appliedAt) },
     ...(application.canceledAt === null
