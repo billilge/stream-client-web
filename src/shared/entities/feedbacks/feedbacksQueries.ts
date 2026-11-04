@@ -8,6 +8,7 @@ import { z } from "zod";
 
 import { api, isApiError } from "@/shared/api";
 import { feedbacksKeys } from "@/shared/entities/feedbacks/feedbacksKeys";
+import { homeKeys } from "@/shared/entities/home/homeKeys";
 
 const FEEDBACKS_PATH = "/v1/app/feedbacks";
 
@@ -153,6 +154,7 @@ export const feedbacksQueries = {
 
 // 피드백 질문 등록. 접수 중인 회차에 들어가고, 접수 기간이 아니면 FEEDBACK_NOT_OPEN으로 거절된다.
 // 성공하면 작성내역이 바뀌어서 내 피드백 캐시를 무효화한다 — 새 질문은 답변이 없어 공개 목록에는 아직 없다.
+// 홈 내 정보의 작성 수도 바뀌어서 홈도 무효화한다.
 export function useCreateFeedbackMutation() {
   const queryClient = useQueryClient();
 
@@ -161,6 +163,9 @@ export function useCreateFeedbackMutation() {
       api.post<unknown>(FEEDBACKS_PATH, { question }),
     // Promise를 돌려줘서 다시 받은 목록이 들어온 뒤에 mutation이 끝나게 한다
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: feedbacksKeys.mine() }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: feedbacksKeys.mine() }),
+        queryClient.invalidateQueries({ queryKey: homeKeys.root() }),
+      ]),
   });
 }

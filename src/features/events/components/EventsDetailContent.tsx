@@ -1,4 +1,4 @@
-import { useSuspenseQueries } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ActionArea,
   ActionAreaButton,
@@ -14,11 +14,12 @@ import PhotoGallery from "@/components/ui/PhotoGallery";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
 import {
   EVENTS_FEE_PAID_ONLY_LABEL,
+  getEventActionLabel,
   getEventAudience,
+  getEventSchedule,
+  getEventStatusLabel,
 } from "@/features/events/constants/events";
 import { eventsQueries } from "@/shared/entities/events/eventsQueries";
-import { feeQueries } from "@/shared/entities/fee/feeQueries";
-import type { FeeResponse } from "@/shared/entities/fee/feeTypes";
 
 interface EventsDetailContentProps {
   eventId: string;
@@ -36,26 +37,15 @@ interface EventsDetailContentProps {
 // 공용 ScreenHeader에 overlay 옵션을 넣는 방안도 검토했지만 다른 화면에 영향이 가서 로컬로 뒀다.
 //
 // 상태별로 갈리는 건 뱃지와 하단 CTA뿐이다.
-// - 모집중: 활성. 단 학생회비 납부자 전용인데 미납이면 disabled에 "학생회비 납부자만 신청할 수 있어요"
-// - 모집예정: disabled에 목데이터의 actionLabel("8월 10일 오픈")
+// - 모집중: 활성. 단 신청 자격(isFeeEligible)이 없으면 disabled에 "학생회비 납부자만 신청할 수 있어요"
+// - 모집예정: disabled에 신청 시작일("8월 10일 오픈")
 // - 모집종료: Figma "CTA 없음"(1156:54125)대로 하단 버튼(Action Area)을 그리지 않는다
 function EventsDetailContent({
   eventId,
   onBack,
   onApply,
 }: EventsDetailContentProps) {
-  // 납부 상태는 행사와 따로 기다리지 않게(요청이 줄줄이 이어지지 않게) 한 번에 같이 받는다.
-  // 납부자 전용이 아닌 행사에서는 쓰지 않는다.
-  const [{ data: event }, { data: isFeePaid }] = useSuspenseQueries({
-    queries: [
-      eventsQueries.detail(eventId),
-      // 납부완료만 납부로 본다 — 납부확인중·확인필요는 아직 아니다
-      {
-        ...feeQueries.me(),
-        select: (fee: FeeResponse) => fee.feeStatus === "PAID",
-      },
-    ],
-  });
+  const { data: event } = useSuspenseQuery(eventsQueries.detail(eventId));
 
   if (!event) {
     return (
@@ -70,14 +60,17 @@ function EventsDetailContent({
     );
   }
 
-  const isFeeRequired = event.feePaidOnly && !isFeePaid;
-  const canApply = event.status === "open" && !isFeeRequired;
+  // 납부자 전용 행사의 신청 자격은 서버가 납부자 명부로 판단해 준다 — 앱 납부 요청 기록(/fee/me)은
+  // 레거시 납부자를 미납으로 보여서 쓰지 않는다
+  const isFeeRequired = !event.isFeeEligible;
+  const canApply = event.recruitStatus === "OPEN" && !isFeeRequired;
   const actionLabel =
-    event.status === "open" && isFeeRequired
+    event.recruitStatus === "OPEN" && isFeeRequired
       ? EVENTS_FEE_PAID_ONLY_LABEL
-      : event.actionLabel;
-  const hasActionArea = event.status !== "closed";
-  const hasMultipleImages = event.imageCount > 1;
+      : getEventActionLabel(event);
+  const hasActionArea = event.recruitStatus !== "CLOSED";
+  // 사진이 없는 행사도 Hero 자리는 둔다 — 뒤로가기 버튼과 상단 그라데이션이 그 위에 얹힌다
+  const photoCount = Math.max(event.images.length, 1);
 
   return (
     // Figma 상세 루트 배경은 Background/Normal/Normal(#FFFFFF)이다 — ScreenLayout 기본
@@ -88,12 +81,12 @@ function EventsDetailContent({
     // Action Area 위에서 끝나 버려서, 글이 그 아래로 흘러 들어가며 사라지는 효과가 안 난다.
     <div className="relative flex-1 overflow-hidden bg-background-normal">
       <div className="scrollbar-hidden h-full overflow-y-auto">
-        {/* Hero — 실제 행사 이미지 API 전까지 Figma와 같은 단색 placeholder.
+        {/* Hero — 행사 사진(images)을 그리기 전까지 장수만 맞춘 Figma와 같은 단색 placeholder.
             Figma는 375×375 정사각이라 폭이 유동인 지금 레이아웃에서는 aspect-square로 둔다.
             이미지가 여러 장이면 가로 스크롤 스냅으로 한 장씩 넘긴다(공지 상세와 같은 PhotoGallery). */}
         <PhotoGallery
-          idPrefix={event.id}
-          key={event.id}
+          idPrefix={eventId}
+          key={eventId}
           overlay={
             // 뒤로가기는 스크롤되지 않게 스크롤 컨테이너 밖에 절대배치한다. 행사 상세는
             // ScreenHeader를 안 쓰고 이미지 위 오버레이 버튼이라 슬롯이 아니라 overlay로 넘긴다.
@@ -107,8 +100,8 @@ function EventsDetailContent({
               </TopNavigationButton>
             </div>
           }
-          photoCount={event.imageCount}
-          showCounter={hasMultipleImages}
+          photoCount={photoCount}
+          showCounter={photoCount > 1}
           slideClassName="aspect-square"
         />
 
@@ -117,8 +110,8 @@ function EventsDetailContent({
             <div className="flex flex-col items-start gap-2">
               <EventsStatusBadge
                 size="medium"
-                status={event.status}
-                statusLabel={event.statusLabel}
+                status={event.recruitStatus}
+                statusLabel={getEventStatusLabel(event)}
               />
               <Typography
                 as="h1"
@@ -133,7 +126,11 @@ function EventsDetailContent({
             {/* Figma는 라벨 칼럼(28px)과 값 칼럼을 gap 12로 나란히 두고, 각 칼럼 안은 gap 8이다 */}
             <div className="flex gap-3">
               <div className="flex shrink-0 flex-col gap-2">
-                {["일시", "장소", "대상"].map((label) => (
+                {/* 장소가 없는 행사(서버 place null)는 장소 줄을 라벨·값 칼럼에서 같이 뺀다 */}
+                {(event.place === null
+                  ? ["일시", "대상"]
+                  : ["일시", "장소", "대상"]
+                ).map((label) => (
                   <Typography
                     color="semantic.label.alternative"
                     key={label}
@@ -150,15 +147,17 @@ function EventsDetailContent({
                   variant="label1"
                   weight="medium"
                 >
-                  {event.schedule}
+                  {getEventSchedule(event.eventStartAt)}
                 </Typography>
-                <Typography
-                  color="semantic.label.neutral"
-                  variant="label1"
-                  weight="medium"
-                >
-                  {event.location}
-                </Typography>
+                {event.place !== null && (
+                  <Typography
+                    color="semantic.label.neutral"
+                    variant="label1"
+                    weight="medium"
+                  >
+                    {event.place}
+                  </Typography>
+                )}
                 {/* 대상만 여러 줄 — Figma도 한 값 안에서 줄을 나눠 놨다 */}
                 <div className="flex flex-col">
                   {getEventAudience(event).map((line) => (
@@ -179,7 +178,7 @@ function EventsDetailContent({
           <Divider color="semantic.line.normal.alternative" />
 
           {/* 본문은 Figma "Label 1/Reading - Regular"(14px, line-height 1.571) = label1-reading.
-              목데이터가 줄바꿈을 그대로 들고 있어서 whitespace-pre-wrap으로 살린다. */}
+              서버 본문의 줄바꿈을 whitespace-pre-wrap으로 살린다. */}
           <Typography
             color="semantic.label.normal"
             sx={{ whiteSpace: "pre-wrap" }}
@@ -204,7 +203,7 @@ function EventsDetailContent({
                 Figma Main Action은 padding 16px 28px(56px)이라 세로 padding만 sx로 맞춘다. */}
             <ActionAreaButton
               disabled={!canApply}
-              onClick={() => onApply(event.id)}
+              onClick={() => onApply(eventId)}
               sx={{ paddingBlock: "16px" }}
             >
               {actionLabel}

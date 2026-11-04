@@ -5,7 +5,8 @@ import { IconClock, IconLocation } from "@wanteddev/wds-icon";
 interface EventsSummaryCardProps {
   eventName: string;
   dateTime: string;
-  location: string;
+  // 장소가 없는 행사(서버 place null)는 장소 줄을 그리지 않는다
+  location: string | null;
   // 일러스트는 행사마다 다르다(디자이너가 행사별로 준비) — API 연동 전까지는 목업 에셋 src를 받는다.
   // 완료 화면 카드처럼 일러스트를 안 쓰는 자리도 있어서 선택이다.
   illustration?: string;
@@ -59,17 +60,19 @@ function EventsSummaryCard({
               {dateTime}
             </Typography>
           </div>
-          <div className="flex items-center gap-1">
-            <IconLocation className="size-[18px] shrink-0 text-label-assistive" />
-            <Typography
-              as="p"
-              color="semantic.label.alternative"
-              variant="label2"
-              weight="regular"
-            >
-              {location}
-            </Typography>
-          </div>
+          {location !== null && (
+            <div className="flex items-center gap-1">
+              <IconLocation className="size-[18px] shrink-0 text-label-assistive" />
+              <Typography
+                as="p"
+                color="semantic.label.alternative"
+                variant="label2"
+                weight="regular"
+              >
+                {location}
+              </Typography>
+            </div>
+          )}
         </div>
       </div>
     </div>

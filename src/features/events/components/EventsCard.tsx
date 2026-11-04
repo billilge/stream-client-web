@@ -1,16 +1,14 @@
 import { Button, Typography } from "@wanteddev/wds";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
-import type { EventStatus } from "@/shared/entities/events/eventsTypes";
+import {
+  getEventActionLabel,
+  getEventStatusLabel,
+} from "@/features/events/constants/events";
+import { formatDate } from "@/lib/date";
+import type { EventListItem } from "@/shared/entities/events/eventsTypes";
 
 interface EventsCardProps {
-  title: string;
-  /** 이미 포맷된 표시용 문자열 (예: "행사일 2026.06.04") */
-  eventDate: string;
-  status: EventStatus;
-  /** 뱃지 문구 — 모집중은 "신청마감 D-2"처럼 마감까지 남은 일수가 들어가서 상태만으로 못 정한다 */
-  statusLabel: string;
-  /** CTA 문구 — 상태별로 "신청하기" / "8월 10일 오픈" / "모집종료"로 갈린다 */
-  actionLabel: string;
+  event: EventListItem;
   onApply?: () => void;
   /** 카드(CTA 제외 영역) 탭 — 상세 화면으로 보낸다 */
   onSelect?: () => void;
@@ -23,20 +21,13 @@ interface EventsCardProps {
 // 색 보정이 필요 없다 — WDS Button의 size="small"이 padding 7/14·radius 8·label2로 Figma와 맞고,
 // disabled 상태 색(label.assistive + interaction.disable)도 모집예정/모집종료 스펙과 그대로 일치한다
 // (button/style.js의 &[aria-disabled='true'] 블록 확인). 그래서 sx 없이 disabled prop만 쓴다.
-function EventsCard({
-  title,
-  eventDate,
-  status,
-  statusLabel,
-  actionLabel,
-  onApply,
-  onSelect,
-}: EventsCardProps) {
-  const isOpen = status === "open";
+function EventsCard({ event, onApply, onSelect }: EventsCardProps) {
+  const { title, recruitStatus } = event;
+  const isOpen = recruitStatus === "OPEN";
 
   return (
     <div className="flex items-center gap-3 px-5">
-      {/* 실제 행사 이미지 API 전까지는 Figma와 같은 단색 placeholder.
+      {/* 썸네일(thumbnailUrl)을 그리기 전까지는 Figma와 같은 단색 placeholder.
           CTA 버튼 안에 버튼을 중첩할 수 없어서, 상세 진입은 썸네일과 텍스트 블록에만 건다. */}
       <button
         aria-label={`${title} 상세 보기`}
@@ -52,7 +43,10 @@ function EventsCard({
           onClick={onSelect}
           type="button"
         >
-          <EventsStatusBadge status={status} statusLabel={statusLabel} />
+          <EventsStatusBadge
+            status={recruitStatus}
+            statusLabel={getEventStatusLabel(event)}
+          />
 
           <Typography
             color="semantic.label.normal"
@@ -66,7 +60,7 @@ function EventsCard({
             variant="label2"
             weight="regular"
           >
-            {eventDate}
+            행사일 {formatDate(event.eventStartAt.slice(0, 10))}
           </Typography>
         </button>
 
@@ -78,7 +72,7 @@ function EventsCard({
             size="small"
             variant="solid"
           >
-            {actionLabel}
+            {getEventActionLabel(event)}
           </Button>
         </div>
       </div>

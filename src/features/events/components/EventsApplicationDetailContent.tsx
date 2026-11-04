@@ -6,6 +6,10 @@ import { NEGATIVE_BUTTON_SX } from "@/components/ui/negativeButtonSx";
 import EventsApplicationSummary from "@/features/events/components/EventsApplicationSummary";
 import EventsQuestionField from "@/features/events/components/EventsQuestionField";
 import { eventsQueries } from "@/shared/entities/events/eventsQueries";
+import {
+  toEventsAnswers,
+  toEventsQuestions,
+} from "@/shared/entities/events/eventsQuestions";
 
 interface EventsApplicationDetailContentProps {
   applicationId: string;
@@ -24,16 +28,22 @@ function EventsApplicationDetailContent({
   isCancelling,
   onCancel,
 }: EventsApplicationDetailContentProps) {
-  const { data: application } = useSuspenseQuery(
-    eventsQueries.application(applicationId),
-  );
+  const { data: application } = useSuspenseQuery({
+    ...eventsQueries.application(applicationId),
+    select: (data) =>
+      data && {
+        ...data,
+        answers: toEventsAnswers(data.questions),
+        questions: toEventsQuestions(data.questions),
+      },
+  });
 
   // 없는 신청내역이면 볼 내용이 없어서 화면이 정한 곳(신청내역 목록)으로 돌려보낸다
   if (!application) {
     return <Navigate replace to={fallbackPath} />;
   }
 
-  const isCancelled = application.status === "cancelled";
+  const isCancelled = application.applicationStatus === "CANCELED";
 
   return (
     <div className="flex flex-col items-center gap-6 pb-6">

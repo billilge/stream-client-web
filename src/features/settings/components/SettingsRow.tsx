@@ -21,7 +21,7 @@ interface SettingsMenuRowProps extends SettingsRowBaseProps {
   /** menu 행 라벨 색 — 로그아웃은 alternative, 회원 탈퇴는 negative */
   tone?: "normal" | "alternative" | "negative";
   /**
-   * 갈 곳이 아직 없는 행(구글폼 주소 미정). 라벨을 Label/Assistive로 낮추고 실제로 못 누르게
+   * 갈 곳이 없는 행(서버에 링크가 등록되지 않음). 라벨을 Label/Assistive로 낮추고 실제로 못 누르게
    * `disabled` 버튼으로 그린다 — 누를 수 있어 보이는데 반응이 없는 상태를 없앤다.
    */
   disabled?: boolean;
