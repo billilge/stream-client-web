@@ -626,9 +626,11 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 | `Menu/Resource/Action Area/Trailing Content/Button` (반납 신청) | `BillilgeItemCard` 재사용 | 홈은 흰 카드 안의 줄이라 `surface={false}`, 기한이 지나면 `subtitleTone="negative"` |
 | 빈 상태 버튼 `대여하러 가기` / `행사 둘러보기` | `Button size="small"` | 앞은 `color="assistive" variant="solid"`, 뒤는 반납 신청과 같은 연파랑 `sx` 보정 |
 
-### 공지 배너는 템플릿 6종 — 그림·배경색은 공지마다가 아니라 종류별이다
+### 공지 배너 배경은 서버가 이미지 한 장으로 준다
 
-Figma(`3562:163869`)에 일반공지·행사·제휴·사물함·간식·의견 6종이 있고 카드 구조는 같다. 다른 건 배경색·그림 크기와 위치·그라데이션 위치뿐이라 `HomeNoticeBanner`의 `NOTICE_TEMPLATES` 표 하나로 모았다. 배경색은 Figma에서도 변수가 아닌 raw hex라 `--color-notice-banner-*` 토큰으로 뒀다. 그림은 Figma에서 잘린 모양 그대로 3배로 내보낸 PNG다(`src/assets/images/home/`).
+Figma(`3562:163869`)에 일반공지·행사·제휴·사물함·간식·의견 6종이 있고 카드 구조는 같다. 다른 건 배경색·그림 크기와 위치·그라데이션 위치뿐이다. 운영진이 배너 카테고리(일반공지·행사·간식·제휴·사물함·기타)를 고르면 서버가 그 카테고리의 정해진 이미지를 채워 홈 API의 `imageUrl`로 내려 주고, 기타만 운영진이 직접 올린 이미지를 쓴다. 앱은 카테고리를 받지 않고 `imageUrl`을 카드 전체에 `object-cover`로 깐다. 그래서 정해진 이미지는 그림과 배경색을 합친 카드 전체 크기(1005×783 = 335×261의 3배)다. 의견·설문은 서버 카테고리에 없어서 필요하면 기타로 올린다.
+
+배너가 하나도 없을 때의 기본 카드와 이미지 파일이 지워진 배너만 일반공지 그림(`src/assets/images/home/notice-general.jpg`, Figma에서 잘린 모양 그대로 3배로 내보낸 것)을 위쪽에 깔고 그 아래를 `--color-notice-banner-general`(Figma에서도 변수가 아닌 raw hex)로 채운다.
 
 화면설계서 기준으로 5초마다 넘어가고, 마지막 카드 오른쪽에 첫 카드 복제본을 둬서 같은 방향으로 이어진다. 카드 폭은 화면 폭 - 40(Figma 375 기준 335)이고, 카드 사이를 40px 띄워 이전·다음 카드는 화면에 보이지 않게 했다(Figma는 다음 카드가 12px 보이지만 팀 논의로 숨기기로 함).
 
