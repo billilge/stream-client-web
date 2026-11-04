@@ -23,7 +23,9 @@ function ArchivesPhotoViewerContent({
   photoIndex,
   onClose,
 }: ArchivesPhotoViewerContentProps) {
-  const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
+  const { data: archive } = useSuspenseQuery(
+    archivesQueries.mockDetail(archiveId),
+  );
   const photos = archive?.photos ?? [];
 
   // 주소의 photoIndex가 숫자가 아니거나 범위를 벗어나면 첫 장/마지막 장으로 맞춘다

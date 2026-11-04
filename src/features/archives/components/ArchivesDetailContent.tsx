@@ -23,7 +23,9 @@ function ArchivesDetailContent({
   onBack,
   onMorePhotos,
 }: ArchivesDetailContentProps) {
-  const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
+  const { data: archive } = useSuspenseQuery(
+    archivesQueries.mockDetail(archiveId),
+  );
 
   if (!archive) {
     return (

@@ -17,7 +17,7 @@ interface ArchivesListProps {
 // 아카이빙 목록 데이터를 받아 그리는 부분. 받는 동안은 ArchivesListScreen의 Suspense가
 // ArchivesListSkeleton을 보여준다. 헤더·연도 필터는 데이터와 무관해서 화면이 바로 그린다.
 function ArchivesList({ onSelect }: ArchivesListProps) {
-  const { data: archives } = useSuspenseQuery(archivesQueries.list());
+  const { data: archives } = useSuspenseQuery(archivesQueries.mockList());
 
   if (archives.length === 0) {
     return (
