@@ -15,17 +15,3 @@ export type FeedbackResponse = z.infer<typeof feedbackSchema>;
 export type FeedbackPageResponse = z.infer<typeof feedbackPageSchema>;
 
 export type FeedbackRoundsResponse = z.infer<typeof feedbackRoundsSchema>;
-
-// 검색 결과의 열린피드백 — 검색은 아직 목데이터라(서버 검색 API 연동 전) 예전 화면 모양을 그대로 쓴다.
-// 검색을 서버에 붙이면 이 타입과 feedbacksMock.ts는 사라진다.
-export type FeedbackRound = "1차" | "2차" | "3차" | "4차";
-
-export interface Feedback {
-  id: string;
-  question: string;
-  // 몇 년도 차수인지("2026") — 차수는 해마다 1차부터 다시 열려서 연도와 같이 봐야 한다
-  year: string;
-  round: FeedbackRound;
-  answer?: string;
-  answerDate?: string;
-}
