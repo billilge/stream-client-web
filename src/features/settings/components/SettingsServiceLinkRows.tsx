@@ -10,10 +10,18 @@ import { serviceLinksQueries } from "@/shared/entities/service-links/serviceLink
 //
 // 운영진이 링크를 등록하지 않았으면(null) 그 행을 비활성으로 그린다 — 누를 수 있어 보이는데 반응이
 // 없는 상태를 피한다. Figma에는 이 비활성 상태가 없다(디자인에는 링크가 있다고 보고 그려져 있다).
+//
+// 운영진이 입력한 값을 그대로 열기 때문에 `https://` 주소만 연다(`javascript:` 같은 주소를 막는다).
+// 그 밖의 주소는 링크가 없을 때와 같게 비활성으로 그린다. 이 검사를 openExternalLink에 넣지 않는 건
+// 토스 송금 딥링크(`supertoss://`)도 그 함수로 열기 때문이다.
+function toOpenableUrl(url: string | null): string | null {
+  return url?.startsWith("https://") ? url : null;
+}
+
 function SettingsServiceLinkRows() {
-  const {
-    data: { feedbackFormUrl, privacyPolicyUrl },
-  } = useSuspenseQuery(serviceLinksQueries.all());
+  const { data } = useSuspenseQuery(serviceLinksQueries.all());
+  const feedbackFormUrl = toOpenableUrl(data.feedbackFormUrl);
+  const privacyPolicyUrl = toOpenableUrl(data.privacyPolicyUrl);
 
   // 링크가 없으면 행이 disabled라 눌리지 않지만, 타입상 null을 걸러야 열 수 있다
   const openLink = (url: string | null) => {
