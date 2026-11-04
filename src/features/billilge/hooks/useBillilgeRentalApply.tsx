@@ -105,15 +105,17 @@ export function useBillilgeRentalApply({
 
   const applyDialogs = (
     <>
-      {/* 반납 신청 확인 모달과 같은 공용 Modal(995:34701)에 문구만 레거시 빌릴게 것으로 바꿨다 */}
+      {/* 반납 신청 확인 모달과 같은 공용 Modal(995:34701)에 문구만 바꿨다 — Figma에 이 모달이 없어서 다른 확인 모달처럼
+          제목은 물어보는 말, 설명은 이유로 두고 토스 라이팅 규칙(왼쪽 버튼은 "닫기", 버튼으로 다음 행동을 알 수 있게)을 따랐다.
+          서버의 "끝나지 않은 신청"에는 아직 받지 않은 신청도 들어가서 "대여 중"이 아니라 "신청한"으로 쓴다. */}
       <ConfirmModal
-        cancelLabel="괜찮아요"
-        confirmLabel="대여할게요"
-        description="이 물품은 이미 대여 중이에요."
+        cancelLabel="닫기"
+        confirmLabel="신청하기"
+        description="이미 대여를 신청한 물품이에요."
         onCancel={() => setDuplicatedRequest(null)}
         onConfirm={confirmDuplicated}
         open={duplicatedRequest !== null}
-        title="그래도 한 번 더 빌릴까요?"
+        title="같은 물품을 한 번 더 신청할까요?"
       />
       <ScreenToast
         key={toastKey}
