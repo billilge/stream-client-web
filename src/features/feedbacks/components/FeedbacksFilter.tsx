@@ -11,24 +11,28 @@ import { useState } from "react";
 import FilterChip from "@/components/ui/FilterChip";
 import {
   FEEDBACK_FILTER_ALL,
-  FEEDBACK_ROUNDS,
+  formatFeedbackRound,
 } from "@/features/feedbacks/constants/feedbacks";
 
 interface FeedbacksFilterProps {
   /** 메뉴에 보여줄 연도(최신순) */
-  years: readonly string[];
-  year: string;
-  round: string;
+  years: readonly number[];
+  /** 칩으로 보여줄 차수(오름차순) — 고른 연도(전체면 올해)의 답변이 공개된 회차다 */
+  rounds: readonly number[];
+  /** 고른 연도 — null이면 모든 연도다 */
+  year: number | null;
+  /** 고른 차수 — null이면 모든 차수다 */
+  round: number | null;
   /** 메뉴에서 연도를 고르면 차수는 전체로 돌아간다 */
-  onYearChange: (year: string) => void;
-  onRoundChange: (round: string) => void;
+  onYearChange: (year: number | null) => void;
+  onRoundChange: (round: number) => void;
 }
 
 // Figma: 게시판 - 열린피드백 드롭다운 있을 경우 (nodeId 1524:167569) — Filter Chips (1524:167589),
 // 연도 메뉴 (1524:167867, WDS Menu). 칩은 공용 FilterChip이다.
 //
 // 첫 칩은 "전체 차수" 칩이면서 연도 메뉴의 트리거다. 연도를 고르면 라벨이 그 연도로 바뀌고,
-// 1~4차 칩은 고른 연도 안에서 거른다. 연도가 걸려 있으면 차수를 골라도 첫 칩을 활성으로 둬서
+// 차수 칩은 고른 연도 안에서 거른다. 연도가 걸려 있으면 차수를 골라도 첫 칩을 활성으로 둬서
 // 지금 걸린 조건이 모두 칩으로 보이게 한다.
 // Figma 메뉴에는 없지만 모든 연도로 되돌릴 수 있게 메뉴 맨 위에 "전체"를 둔다.
 //
@@ -36,18 +40,19 @@ interface FeedbacksFilterProps {
 // 칩 사이는 Figma 열린피드백 두 화면(1410:50031, 1524:167589) 모두 8px이라 다른 칩 행(6px)과 달리 gap-2다.
 function FeedbacksFilter({
   years,
+  rounds,
   year,
   round,
   onYearChange,
   onRoundChange,
 }: FeedbacksFilterProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isAllYears = year === FEEDBACK_FILTER_ALL;
+  const isAllYears = year === null;
 
   // WDS Menu는 항목을 골라도 스스로 닫히지 않아서, 선택과 동시에 직접 닫는다.
   const handleYearChange = (value?: string | string[]) => {
     if (typeof value === "string") {
-      onYearChange(value);
+      onYearChange(value === FEEDBACK_FILTER_ALL ? null : Number(value));
     }
     setIsMenuOpen(false);
   };
@@ -58,11 +63,11 @@ function FeedbacksFilter({
         onOpenChange={setIsMenuOpen}
         onValueChange={handleYearChange}
         open={isMenuOpen}
-        value={year}
+        value={isAllYears ? FEEDBACK_FILTER_ALL : String(year)}
       >
         <MenuTrigger>
           <FilterChip
-            isActive={!isAllYears || round === FEEDBACK_FILTER_ALL}
+            isActive={!isAllYears || round === null}
             trailing={<IconChevronDown className="size-3.5" />}
           >
             {isAllYears ? "전체" : year}
@@ -76,7 +81,7 @@ function FeedbacksFilter({
               전체
             </MenuItem>
             {years.map((item) => (
-              <MenuItem key={item} value={item} verticalPadding="small">
+              <MenuItem key={item} value={String(item)} verticalPadding="small">
                 {item}
               </MenuItem>
             ))}
@@ -84,13 +89,13 @@ function FeedbacksFilter({
         </MenuContent>
       </Menu>
 
-      {FEEDBACK_ROUNDS.map((item) => (
+      {rounds.map((item) => (
         <FilterChip
           isActive={item === round}
           key={item}
           onClick={() => onRoundChange(item)}
         >
-          {item}
+          {formatFeedbackRound(item)}
         </FilterChip>
       ))}
     </div>
