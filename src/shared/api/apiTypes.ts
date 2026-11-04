@@ -22,3 +22,9 @@ export interface CursorSliceResponse<T> {
   hasNext: boolean;
   nextCursor: string | null;
 }
+
+// 앞의 몇 건과 전체 수(서버 PreviewResponse). 홈처럼 "미리보기 N건 + 더보기"를 그리는 화면이 쓰고, 이어 받지 않는다.
+export interface PreviewResponse<T> {
+  content: T[];
+  totalCount: number;
+}

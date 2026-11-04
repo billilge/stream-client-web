@@ -3,6 +3,7 @@ export type {
   ApiResponse,
   CursorSliceResponse,
   PageResponse,
+  PreviewResponse,
 } from "@/shared/api/apiTypes";
 export { api, isApiResponse } from "@/shared/api/client";
 export {
