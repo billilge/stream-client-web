@@ -1,7 +1,7 @@
 import hairDryer from "@/assets/icons/billilge-items/hair-dryer.svg";
 import powerBank from "@/assets/icons/billilge-items/power-bank.svg";
 import umbrella from "@/assets/icons/billilge-items/umbrella.svg";
-import type { FeePaymentStatus } from "@/shared/entities/fee/feeTypes";
+import type { FeeStatus } from "@/shared/entities/fee/feeTypes";
 import type { LockerAssignmentStatus } from "@/shared/entities/lockers/lockersTypes";
 
 // 홈 API가 붙기 전까지 쓰는 목데이터다.
@@ -50,11 +50,8 @@ export interface HomeAppliedEvent {
   daysUntilEvent: number;
 }
 
-// 납부내역의 상태(shared/entities/fee)에 홈에서만 보이는 미납을 더한다
-export type HomeFeeStatus = FeePaymentStatus | "unpaid";
-
 export interface HomeMyInfo {
-  feeStatus: HomeFeeStatus;
+  feeStatus: FeeStatus;
   feedbackCount: number;
   lockerStatus: LockerAssignmentStatus;
   lockerLabel?: string;
@@ -142,7 +139,7 @@ const HOME_DATA: Record<HomeMockState, HomeData> = {
     applyCards: [],
     myInfo: {
       feedbackCount: 1,
-      feeStatus: "unpaid",
+      feeStatus: "UNPAID",
       lockerLabel: "B-21",
       lockerStatus: "assigned",
     },
@@ -161,7 +158,7 @@ const HOME_DATA: Record<HomeMockState, HomeData> = {
     applyCards: [SPORTS_DAY, LOCKER_2026],
     myInfo: {
       feedbackCount: 0,
-      feeStatus: "unpaid",
+      feeStatus: "UNPAID",
       lockerLabel: "B-21",
       lockerStatus: "assigned",
     },
@@ -195,7 +192,7 @@ const HOME_DATA: Record<HomeMockState, HomeData> = {
     applyCards: [SPORTS_DAY],
     myInfo: {
       feedbackCount: 1,
-      feeStatus: "checking",
+      feeStatus: "PENDING",
       lockerLabel: "B-21",
       lockerStatus: "assigned",
     },

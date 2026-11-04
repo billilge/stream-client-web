@@ -132,7 +132,7 @@ function HomeInfoList({
 
   return (
     <div className="flex flex-col gap-4 rounded-xl bg-background-normal p-4">
-      {feeStatus === "unpaid" ? (
+      {feeStatus === "UNPAID" ? (
         <InfoRow
           icon={infoFee}
           // 플로우 끝에서 토스(앱 밖)로 나가는 길이라 Figma가 ↗ 화살표를 쓴다

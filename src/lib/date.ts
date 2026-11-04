@@ -19,7 +19,8 @@ export function formatDate(date: string, options: DateFormatOptions = {}) {
 }
 
 // "2026-09-05T13:59" → "2026.09.05 13:59", weekday면 "2026.09.05(토) 13:59"
+// 서버(LocalDateTime)는 초와 소수 초까지 내려 주므로("13:59:00.123456") 시:분까지만 남긴다
 export function formatDateTime(value: string, options: DateFormatOptions = {}) {
   const [date, time] = value.split("T");
-  return `${formatDate(date, options)} ${time}`;
+  return `${formatDate(date, options)} ${time.slice(0, 5)}`;
 }
