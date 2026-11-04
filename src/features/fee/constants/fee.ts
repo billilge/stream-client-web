@@ -9,21 +9,39 @@ export const FEE_TRANSFER_PATH = "/fee/transfer";
 // 학생회비 납부내역 화면 경로
 export const FEE_PAYMENTS_PATH = "/my/fee";
 
+// 납부내역 카드 제목 — 서버 응답에 없는 값이라 화면이 들고 있는다
+export const FEE_TITLE = "소프트웨어융합대학 학생회비";
+
 // 아직 받지 못한 외부 연동 주소들. 값이 있을 때만 열도록 해서 빈 창이 뜨는 걸 막는다.
 //
 // - kSmartMentor: 학점이수현황을 확인하는 국민대 K-스마트멘토 주소
 // - studentCouncilKakaoChannel: 학생회 카카오톡 채널. 비어 있으면 확인필요 카드에
 //   문의하기 버튼을 그리지 않는다.
-// - tossTransfer: 계좌·금액이 채워진 토스 송금 딥링크. 학생회 계좌와 납부 금액 규칙이 정해져야
-//   만들 수 있다(남은 학기 수에 따라 금액이 달라진다).
+//
+// 토스 송금 딥링크는 남은 학기 수마다 금액이 달라서 서버가 계산해 준다(feeQueries.transferGuide).
 export const FEE_EXTERNAL_LINKS = {
   kSmartMentor: "",
   studentCouncilKakaoChannel: "",
-  tossTransfer: "",
 } as const;
 
 // 업로드 받는 이미지 형식 — 학점이수현황 "캡처"라 스크린샷 확장자만 받는다
 export const FEE_TRANSCRIPT_ACCEPT = "image/png,image/jpeg,image/webp";
+
+// 서버 업로드 정책(FileUploadPolicy의 FEE_TRANSCRIPT_IMAGE)과 같은 값. 서버는 MIME이 아니라
+// 파일 이름의 확장자로 판단해서, `accept`를 통과해도 이름에 확장자가 없으면 거절한다.
+const FEE_TRANSCRIPT_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
+const FEE_TRANSCRIPT_MAX_BYTES = 10 * 1024 * 1024;
+
+// 서버가 받아 줄 캡처인지 — 송금하러 가기 전에 걸러야 해서 고를 때 먼저 본다
+export function isAcceptableTranscript(file: File): boolean {
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return (
+    file.name.includes(".") &&
+    FEE_TRANSCRIPT_EXTENSIONS.includes(extension) &&
+    file.size > 0 &&
+    file.size <= FEE_TRANSCRIPT_MAX_BYTES
+  );
+}
 
 // 학생회비 납부 상태 배지 — 납부내역 카드와 홈 내 정보 목록(HomeInfoList)이 같이 쓴다
 // Figma: 학생회비 납부 여부 뱃지 (nodeId 3147:146475)
@@ -31,7 +49,7 @@ export const FEE_STATUS_BADGES: Record<
   FeePaymentStatus,
   { label: string; color: "orange" | "red" | "green" }
 > = {
-  checking: { color: "orange", label: "납부확인중" },
-  "needs-check": { color: "red", label: "확인필요" },
-  paid: { color: "green", label: "납부완료" },
+  PAID: { color: "green", label: "납부완료" },
+  PENDING: { color: "orange", label: "납부확인중" },
+  REJECTED: { color: "red", label: "확인필요" },
 };
