@@ -31,3 +31,14 @@ export interface BillilgeItem {
   // 정해 내려준다(서버 #243). 반납 정책을 가진 서버가 문구까지 정해서 화면은 다시 가공하지 않는다. 소모품은 null
   returnDeadlineLabel: string | null;
 }
+
+// 대여 신청(POST /v1/app/billilge/histories). 날짜는 늘 오늘이라 시각만 보낸다
+export interface BillilgeRentalApplyRequest {
+  itemId: number;
+  count: number;
+  // 0~23시
+  rentAtHour: number;
+  rentAtMinute: number;
+  // false면 같은 물품에 끝나지 않은 신청이 있을 때 RENTAL_ITEM_DUPLICATED로 거절된다 — true로 다시 보내면 그래도 신청한다
+  ignoreDuplicate: boolean;
+}

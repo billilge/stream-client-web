@@ -9,9 +9,10 @@ import { IconCircleInfo } from "@wanteddev/wds-icon";
 import { useEffect, useState } from "react";
 
 import BottomSheet from "@/components/ui/BottomSheet";
-import ScreenToast from "@/components/ui/ScreenToast";
 import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
 import BillilgeRentalConfirmModal from "@/features/billilge/components/BillilgeRentalConfirmModal";
+import { useBillilgeRentalApply } from "@/features/billilge/hooks/useBillilgeRentalApply";
+import { BILLILGE_ERROR_CODES } from "@/shared/entities/billilge/billilgeQueries";
 import type { BillilgeItem } from "@/shared/entities/billilge/billilgeTypes";
 
 interface BillilgeRentalSheetProps {
@@ -104,6 +105,13 @@ function getRentalTimeError(
   return null;
 }
 
+// 서버가 대여 시각을 거절한 코드 → 화면 판정. 같은 규칙이라 화면도 같은 상태로 보여 준다
+const SERVER_RENTAL_TIME_ERRORS: Partial<Record<string, RentalTimeError>> = {
+  [BILLILGE_ERROR_CODES.timeOutOfRange]: "range",
+  [BILLILGE_ERROR_CODES.timeLunchBreak]: "lunch",
+  [BILLILGE_ERROR_CODES.timeTooSoon]: "tooSoon",
+};
+
 // Figma 대여가능 시간 아닐 때(1422:57207)·점심시간에 대여 불가(1422:57238) — 서버 RentalErrorCode와 같은 문구다.
 // 5분 안쪽은 따로 문구를 띄우지 않고 늘 보이는 안내 줄("최소 5분 뒤부터…")로 알린다.
 const RENTAL_TIME_ERROR_MESSAGES = {
@@ -154,17 +162,21 @@ function BillilgeRentalSheet({
 }: BillilgeRentalSheetProps) {
   const [stepperValue, setStepperValue] = useState(1);
   const [time, setTime] = useState(getDefaultStartTime);
+  // 서버가 이 시각을 거절했다 — 기기 시계가 어긋나 화면 판정과 다를 수 있어서, 시각을 다시 고르기 전까지 서버 판정을 따른다
+  const [serverTimeError, setServerTimeError] =
+    useState<RentalTimeError | null>(null);
   const now = useCurrentMinute(open);
-  const timeError = getRentalTimeError(time, now);
+  const timeError = serverTimeError ?? getRentalTimeError(time, now);
   const timeErrorMessage =
     timeError === "range" || timeError === "lunch"
       ? RENTAL_TIME_ERROR_MESSAGES[timeError]
       : null;
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [toastOpen, setToastOpen] = useState(false);
-  // 토스트가 떠 있는 동안 또 신청해도 스크린리더가 재안내하도록, 확인마다 값을 바꿔
-  // ScreenToast를 새로 마운트한다(반납 신청 완료 토스트와 같은 패턴).
-  const [toastToken, setToastToken] = useState(0);
+  const { apply, applyDialogs, isApplying } = useBillilgeRentalApply({
+    closeSheet: onClose,
+    onTimeRejected: (code) =>
+      setServerTimeError(SERVER_RENTAL_TIME_ERRORS[code] ?? "range"),
+  });
 
   // 같은 물품을 다시 열어도(item이 그대로) 시각은 지금 기준으로 다시 채운다 — 전에 열었을 때의 기본값은
   // 이미 "5분 뒤"가 아닐 수 있다
@@ -172,16 +184,29 @@ function BillilgeRentalSheet({
     if (open && item) {
       setStepperValue(1);
       setTime(getDefaultStartTime());
+      setServerTimeError(null);
       setConfirmOpen(false);
     }
   }, [open, item]);
 
-  // 실 백엔드 연동 전이라 신청 자체는 완료 토스트(1133:49895)만 보여 준다 — API가 붙으면 여기서 요청을 보낸다
+  const changeTime = (next: Partial<RentalTime>) => {
+    setTime((prev) => ({ ...prev, ...next }));
+    setServerTimeError(null);
+  };
+
+  // 확인 모달은 바로 닫고 시트의 "대여 신청하기"가 로딩을 보인다 — 시각이 거절되면 시트에 남아 고칠 수 있다
   const handleConfirm = () => {
+    if (!item) {
+      return;
+    }
     setConfirmOpen(false);
-    onClose();
-    setToastOpen(true);
-    setToastToken((token) => token + 1);
+    apply({
+      count: stepperValue,
+      ignoreDuplicate: false,
+      itemId: item.itemId,
+      rentAtHour: toHour24(time),
+      rentAtMinute: time.minute,
+    });
   };
 
   return (
@@ -238,9 +263,7 @@ function BillilgeRentalSheet({
                   <div className="w-8">
                     <WheelPicker
                       classNames={WHEEL_CLASS_NAMES}
-                      onValueChange={(period) =>
-                        setTime((prev) => ({ ...prev, period }))
-                      }
+                      onValueChange={(period) => changeTime({ period })}
                       optionItemHeight={OPTION_ITEM_HEIGHT}
                       options={PERIOD_OPTIONS}
                       value={time.period}
@@ -250,9 +273,7 @@ function BillilgeRentalSheet({
                   <div className="w-7">
                     <WheelPicker
                       classNames={WHEEL_CLASS_NAMES}
-                      onValueChange={(hour) =>
-                        setTime((prev) => ({ ...prev, hour }))
-                      }
+                      onValueChange={(hour) => changeTime({ hour })}
                       optionItemHeight={OPTION_ITEM_HEIGHT}
                       options={HOUR_OPTIONS}
                       value={time.hour}
@@ -262,9 +283,7 @@ function BillilgeRentalSheet({
                   <div className="w-7">
                     <WheelPicker
                       classNames={WHEEL_CLASS_NAMES}
-                      onValueChange={(minute) =>
-                        setTime((prev) => ({ ...prev, minute }))
-                      }
+                      onValueChange={(minute) => changeTime({ minute })}
                       optionItemHeight={OPTION_ITEM_HEIGHT}
                       options={MINUTE_OPTIONS}
                       value={time.minute}
@@ -302,6 +321,7 @@ function BillilgeRentalSheet({
             큰 사이즈가 없어 sx로 높이만 보정한다. */}
           <ActionAreaButton
             disabled={timeError !== null}
+            loading={isApplying}
             onClick={() => setConfirmOpen(true)}
             sx={{ height: "56px" }}
           >
@@ -319,14 +339,8 @@ function BillilgeRentalSheet({
           />
         )}
       </BottomSheet>
-      {/* 시트가 닫힌 뒤에 뜨는 토스트라 시트 밖에 둔다 */}
-      <ScreenToast
-        key={toastToken}
-        message="대여 신청이 완료됐어요."
-        onOpenChange={setToastOpen}
-        open={toastOpen}
-        variant="positive"
-      />
+      {/* 시트가 닫힌 뒤에 뜨는 결과 토스트·중복 신청 확인 모달이라 시트 밖에 둔다 */}
+      {applyDialogs}
     </>
   );
 }
