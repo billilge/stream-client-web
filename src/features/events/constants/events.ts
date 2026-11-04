@@ -1,4 +1,4 @@
-import { formatMonthDay } from "@/lib/date";
+import { formatHourMinute, formatMonthDay } from "@/lib/date";
 import type {
   EventDetail,
   EventListItem,
@@ -33,7 +33,7 @@ export function getEventStatusLabel(
   return `신청마감 ${dDay}`;
 }
 
-// 신청 버튼 문구 — 모집예정은 신청 시작일로 "8월 10일 오픈"이 된다
+// 목록 카드 신청 버튼 문구 — 모집예정은 Figma(1243:70869)처럼 신청 시작일만 써서 "8월 10일 오픈"이 된다
 export function getEventActionLabel(
   event: Pick<EventListItem, "recruitStatus" | "applyStartAt">,
 ): string {
@@ -43,10 +43,37 @@ export function getEventActionLabel(
   return event.recruitStatus === "OPEN" ? "신청하기" : "모집종료";
 }
 
-// 상세 "일시" — Figma(1133:42433)처럼 시작 일시만 "4월 15일 (수) 18:30 ~"로 쓴다
-export function getEventSchedule(eventStartAt: string): string {
-  const time = eventStartAt.split("T")[1].slice(0, 5);
-  return `${formatMonthDay(eventStartAt, { weekday: true })} ${time} ~`;
+// 상세 하단 버튼 문구 — 모집예정은 Figma(1156:53992)처럼 신청 시작 시각까지 써서 "8월 10일 18시 오픈"이 된다.
+// 나머지 상태는 목록 카드와 같다
+export function getEventDetailActionLabel(
+  event: Pick<EventDetail, "recruitStatus" | "applyStartAt">,
+): string {
+  if (event.recruitStatus === "BEFORE_OPEN") {
+    return `${formatMonthDay(event.applyStartAt)} ${formatHourMinute(event.applyStartAt)} 오픈`;
+  }
+  return getEventActionLabel(event);
+}
+
+// "2026-04-15T18:30:00" → "18:30"
+function getTime(value: string): string {
+  return value.split("T")[1].slice(0, 5);
+}
+
+// 상세 "일시" — "4월 15일 (수) 18:30"처럼 시작 일시를 쓰고, 끝 일시가 있을 때만 "~ 20:00"(같은 날)이나
+// "~ 4월 16일 (목) 12:00"(다른 날)을 붙인다. 끝 일시가 없는 행사는 Figma(1133:42433)의 "~"를 붙이지 않는다
+export function getEventSchedule(
+  event: Pick<EventDetail, "eventStartAt" | "eventEndAt">,
+): string {
+  const { eventStartAt, eventEndAt } = event;
+  const start = `${formatMonthDay(eventStartAt, { weekday: true })} ${getTime(eventStartAt)}`;
+  if (!eventEndAt) {
+    return start;
+  }
+  const end =
+    eventEndAt.slice(0, 10) === eventStartAt.slice(0, 10)
+      ? getTime(eventEndAt)
+      : `${formatMonthDay(eventEndAt, { weekday: true })} ${getTime(eventEndAt)}`;
+  return `${start} ~ ${end}`;
 }
 
 // 행사 목록의 행사/신청내역 탭은 경로로 나눈다 — 새로고침·뒤로가기에도 탭이 유지되고,
@@ -66,7 +93,7 @@ export const EVENTS_APPLICATION_STATUS_BADGES = {
 
 // 학생회비 납부자 전용 행사인데 신청 자격(isFeeEligible — 서버가 납부자 명부로 판단)이 없으면
 // 하단 버튼을 막고 라벨로 보여주는 문구.
-// Figma에 이 상태가 없어서, 모집예정이 막힌 버튼에 "N월 N일 오픈"을 쓰는 것과 같은 방식으로 정했다.
+// Figma에 이 상태가 없어서, 모집예정이 막힌 버튼에 "N월 N일 N시 오픈"을 쓰는 것과 같은 방식으로 정했다.
 export const EVENTS_FEE_PAID_ONLY_LABEL = "학생회비 납부자만 신청할 수 있어요";
 
 // 행사 상세 "대상" 문구 — 서버는 신청 조건 값만 주고 문구는 프론트가 조합한다(stream-server#190).
