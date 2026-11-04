@@ -1,6 +1,7 @@
 import { Typography } from "@wanteddev/wds";
 
 import pinIcon from "@/assets/icons/pin.svg";
+import LazyImage from "@/components/ui/LazyImage";
 
 interface NoticesCardProps {
   title: string;
@@ -52,9 +53,9 @@ function NoticesCard({
       </div>
       {hasThumbnail &&
         (thumbnailUrl ? (
-          <img
+          <LazyImage
             alt=""
-            className="size-14 shrink-0 rounded-lg bg-thumbnail-placeholder object-cover"
+            className="size-14 shrink-0 rounded-lg"
             src={thumbnailUrl}
           />
         ) : (
