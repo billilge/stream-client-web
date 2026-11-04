@@ -11,11 +11,13 @@ import { IconChevronLeft } from "@wanteddev/wds-icon";
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
 import PhotoGallery from "@/components/ui/PhotoGallery";
+import ScreenHeader from "@/components/ui/ScreenHeader";
+import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
 import {
   EVENTS_FEE_PAID_ONLY_LABEL,
-  getEventActionLabel,
   getEventAudience,
+  getEventDetailActionLabel,
   getEventSchedule,
   getEventStatusLabel,
 } from "@/features/events/constants/events";
@@ -31,14 +33,15 @@ interface EventsDetailContentProps {
 // 행사 데이터를 받아 그리는 부분. 데이터를 받는 동안은 EventsDetailScreen의 Suspense가
 // EventsDetailSkeleton을 보여준다. 이동 같은 화면 동작은 Screen이 콜백으로 넘긴다.
 //
-// 헤더를 useScreenHeader로 등록하지 않는다 — Figma는 뒤로가기 버튼이 Hero 이미지 위에 떠 있는
-// 오버레이인데 ScreenLayout의 헤더 슬롯은 본문 위에 자리를 차지하는 구조라 그대로는 못 맞춘다.
-// 훅을 호출하지 않으면 슬롯이 null(0px)로 남아서, Hero가 화면 최상단부터 시작한다.
+// 사진이 있으면 Figma처럼 뒤로가기 버튼을 Hero 이미지 위 오버레이로 띄운다 — ScreenLayout의 헤더
+// 슬롯은 본문 위에 자리를 차지하는 구조라, 슬롯을 null(0px)로 비워 Hero가 화면 최상단부터 시작하게 한다.
 // 공용 ScreenHeader에 overlay 옵션을 넣는 방안도 검토했지만 다른 화면에 영향이 가서 로컬로 뒀다.
+// 사진이 없으면 공지 상세처럼 Hero를 빼고 흰 배경 헤더에 뒤로가기를 둔다 — 덮을 사진이 없는데
+// 회색 자리와 상단 그라데이션만 남으면 빈 화면처럼 보인다.
 //
 // 상태별로 갈리는 건 뱃지와 하단 CTA뿐이다.
 // - 모집중: 활성. 단 신청 자격(isFeeEligible)이 없으면 disabled에 "학생회비 납부자만 신청할 수 있어요"
-// - 모집예정: disabled에 신청 시작일("8월 10일 오픈")
+// - 모집예정: disabled에 신청 시작 일시("8월 10일 18시 오픈")
 // - 모집종료: Figma "CTA 없음"(1156:54125)대로 하단 버튼(Action Area)을 그리지 않는다
 function EventsDetailContent({
   eventId,
@@ -46,6 +49,24 @@ function EventsDetailContent({
   onApply,
 }: EventsDetailContentProps) {
   const { data: event } = useSuspenseQuery(eventsQueries.detail(eventId));
+  const photoCount = event?.images.length ?? 0;
+
+  useScreenHeader(
+    photoCount > 0 ? null : (
+      <ScreenHeader
+        leading={
+          <TopNavigationButton
+            aria-label="뒤로가기"
+            onClick={onBack}
+            variant="icon"
+          >
+            <IconChevronLeft />
+          </TopNavigationButton>
+        }
+        variant="normal"
+      />
+    ),
+  );
 
   if (!event) {
     return (
@@ -67,10 +88,8 @@ function EventsDetailContent({
   const actionLabel =
     event.recruitStatus === "OPEN" && isFeeRequired
       ? EVENTS_FEE_PAID_ONLY_LABEL
-      : getEventActionLabel(event);
+      : getEventDetailActionLabel(event);
   const hasActionArea = event.recruitStatus !== "CLOSED";
-  // 사진이 없는 행사도 Hero 자리는 둔다 — 뒤로가기 버튼과 상단 그라데이션이 그 위에 얹힌다
-  const photoCount = Math.max(event.images.length, 1);
 
   return (
     // Figma 상세 루트 배경은 Background/Normal/Normal(#FFFFFF)이다 — ScreenLayout 기본
@@ -84,28 +103,33 @@ function EventsDetailContent({
         {/* Hero — 행사 사진(images)을 그리기 전까지 장수만 맞춘 Figma와 같은 단색 placeholder.
             Figma는 375×375 정사각이라 폭이 유동인 지금 레이아웃에서는 aspect-square로 둔다.
             이미지가 여러 장이면 가로 스크롤 스냅으로 한 장씩 넘긴다(공지 상세와 같은 PhotoGallery). */}
-        <PhotoGallery
-          idPrefix={eventId}
-          key={eventId}
-          overlay={
-            // 뒤로가기는 스크롤되지 않게 스크롤 컨테이너 밖에 절대배치한다. 행사 상세는
-            // ScreenHeader를 안 쓰고 이미지 위 오버레이 버튼이라 슬롯이 아니라 overlay로 넘긴다.
-            <div className="absolute top-4 left-4 z-10">
-              <TopNavigationButton
-                aria-label="뒤로가기"
-                onClick={onBack}
-                variant="icon"
-              >
-                <IconChevronLeft className="text-white" />
-              </TopNavigationButton>
-            </div>
-          }
-          photoCount={photoCount}
-          showCounter={photoCount > 1}
-          slideClassName="aspect-square"
-        />
+        {photoCount > 0 && (
+          <PhotoGallery
+            idPrefix={eventId}
+            key={eventId}
+            overlay={
+              // 뒤로가기는 스크롤되지 않게 스크롤 컨테이너 밖에 절대배치한다. 사진이 있으면
+              // 헤더 슬롯을 비우고 이미지 위 오버레이 버튼이라 슬롯이 아니라 overlay로 넘긴다.
+              <div className="absolute top-4 left-4 z-10">
+                <TopNavigationButton
+                  aria-label="뒤로가기"
+                  onClick={onBack}
+                  variant="icon"
+                >
+                  <IconChevronLeft className="text-white" />
+                </TopNavigationButton>
+              </div>
+            }
+            photoCount={photoCount}
+            showCounter={photoCount > 1}
+            slideClassName="aspect-square"
+          />
+        )}
 
-        <div className="flex flex-col gap-5 px-5 pt-5">
+        {/* 사진이 없으면 공지 상세처럼 헤더 바로 아래에서 시작한다 */}
+        <div
+          className={`flex flex-col gap-5 px-5 ${photoCount > 0 ? "pt-5" : ""}`}
+        >
           <div className="flex flex-col gap-3">
             <div className="flex flex-col items-start gap-2">
               <EventsStatusBadge
@@ -147,7 +171,7 @@ function EventsDetailContent({
                   variant="label1"
                   weight="medium"
                 >
-                  {getEventSchedule(event.eventStartAt)}
+                  {getEventSchedule(event)}
                 </Typography>
                 {event.place !== null && (
                   <Typography

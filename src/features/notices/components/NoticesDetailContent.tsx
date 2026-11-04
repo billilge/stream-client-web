@@ -10,6 +10,7 @@ import { IconChevronLeft } from "@wanteddev/wds-icon";
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import NoticesAttachmentAccordion from "@/features/notices/components/NoticesAttachmentAccordion";
 import NoticesNotFound from "@/features/notices/components/NoticesNotFound";
 import {
   formatNoticeDate,
@@ -117,6 +118,10 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
             </Typography>
           </div>
         </div>
+
+        {notice.attachments && notice.attachments.length > 0 && (
+          <NoticesAttachmentAccordion attachments={notice.attachments} />
+        )}
 
         <Typography
           as="p"

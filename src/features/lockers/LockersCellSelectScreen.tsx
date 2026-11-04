@@ -1,4 +1,8 @@
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useQueryClient,
+  useSuspenseQueries,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft, IconImage, IconReset } from "@wanteddev/wds-icon";
 import { Suspense, useMemo, useState } from "react";
@@ -24,10 +28,12 @@ import LockersMapSkeleton from "@/features/lockers/components/LockersMapSkeleton
 import LockersMapView from "@/features/lockers/components/LockersMapView";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelectedLockerBar";
+import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import { LOCKERS_APPLY_SUBMITTING_TEXT } from "@/features/lockers/constants/lockersApplySubmit";
 import { useLockersApplySubmit } from "@/features/lockers/hooks/useLockersApplySubmit";
 import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
 import {
+  hasLockerInPeriod,
   lockersQueries,
   toLockersSectionDetail,
 } from "@/shared/entities/lockers/lockersQueries";
@@ -53,10 +59,16 @@ function LockersCellSelectScreen() {
 }
 
 function SectionPeriod({ sectionId }: { sectionId: number }) {
-  const { data: period } = useSuspenseQuery(lockersQueries.period());
+  const [{ data: period }, { data: applications }] = useSuspenseQueries({
+    queries: [lockersQueries.period(), lockersQueries.myApplications()],
+  });
 
   if (!period) {
     return <Navigate replace to={HOME_PATH} />;
+  }
+  // 이번 회차에 이미 배정받았으면 주소로 바로 들어와도 신청하지 못하게 배정 상태로 보낸다
+  if (hasLockerInPeriod(applications, period.lockerPeriodId)) {
+    return <Navigate replace to={LOCKER_ASSIGNMENT_PATH} />;
   }
   return <SectionDetail period={period} sectionId={sectionId} />;
 }

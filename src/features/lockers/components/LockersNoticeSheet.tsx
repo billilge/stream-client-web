@@ -1,11 +1,14 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { ActionArea, ActionAreaButton, Typography } from "@wanteddev/wds";
 import { Suspense } from "react";
 
 import BottomSheet from "@/components/ui/BottomSheet";
 import LockersNoticeSkeleton from "@/features/lockers/components/LockersNoticeSkeleton";
 import { toLockersNotice } from "@/features/lockers/constants/lockersNotice";
-import { lockersQueries } from "@/shared/entities/lockers/lockersQueries";
+import {
+  hasLockerInPeriod,
+  lockersQueries,
+} from "@/shared/entities/lockers/lockersQueries";
 
 interface LockersNoticeSheetProps {
   open: boolean;
@@ -89,14 +92,23 @@ function LockersNoticeItems() {
 }
 
 function LockersNoticeConfirm({ onConfirm }: { onConfirm: () => void }) {
-  const {
-    data: { isApplyPeriod },
-  } = useSuspenseQuery({ ...lockersQueries.period(), select: toLockersNotice });
+  const [{ data: period }, { data: applications }] = useSuspenseQueries({
+    queries: [lockersQueries.period(), lockersQueries.myApplications()],
+  });
+  const { isApplyPeriod } = toLockersNotice(period);
+  const hasLocker =
+    period !== null && hasLockerInPeriod(applications, period.lockerPeriodId);
 
   return (
     <LockersNoticeConfirmButton
-      disabled={!isApplyPeriod}
-      label={isApplyPeriod ? "확인했어요" : "신청 기간이 아니에요"}
+      disabled={!isApplyPeriod || hasLocker}
+      label={
+        hasLocker
+          ? "이미 사물함을 신청했어요"
+          : isApplyPeriod
+            ? "확인했어요"
+            : "신청 기간이 아니에요"
+      }
       onClick={onConfirm}
     />
   );

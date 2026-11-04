@@ -66,6 +66,12 @@ export function formatMonthDay(value: string, options: DateFormatOptions = {}) {
   return `${monthDay} (${WEEKDAYS[new Date(year, month - 1, day).getDay()]})`;
 }
 
+// 일시("2026-08-10T18:30:00")의 시각 → "18시 30분", 정각이면 "18시"
+export function formatHourMinute(value: string) {
+  const [hour, minute] = value.split("T")[1].split(":").map(Number);
+  return minute === 0 ? `${hour}시` : `${hour}시 ${minute}분`;
+}
+
 // 서버 날짜("2026-09-05")나 일시("2026-09-05T13:59")의 날짜까지 남은 날을 "D-3"으로, 당일은 "D-Day"로 쓴다
 // (행사 목록 배지와 같은 표기). 시각은 보지 않고 날짜 차이로 센다.
 export function formatDday(value: string, now: Date = new Date()) {
