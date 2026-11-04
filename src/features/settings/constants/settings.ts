@@ -5,8 +5,8 @@ import { LOGIN_PATH } from "@/features/auth/constants/auth";
 // (`/withdrawal` ↔ `Withdrawal*`).
 //
 // `settings`는 용어 사전(terminology.md)에 없는 이름이다. 화면 묶음을 가리키는 말이라 폴더·라우트에만
-// 쓰고, 데이터는 서버 회원 API(`/v1/app/members`)와 같은 `members` 도메인으로 뒀다
-// (`shared/entities/members/`).
+// 쓰고, 데이터는 서버 경로와 같은 도메인에 뒀다 — 계정 정보·전화번호는 `members`
+// (`/v1/app/members`), 의견 보내기·개인정보 처리방침 링크는 `service-links`(`/v1/app/service-links`).
 export const SETTINGS_PATHS = {
   phoneChange: "/settings/phone",
   root: "/settings",
@@ -33,13 +33,6 @@ export const PHONE_CHANGE_TOASTS = {
 
 export type PhoneChangeToast =
   (typeof PHONE_CHANGE_TOASTS)[keyof typeof PHONE_CHANGE_TOASTS];
-
-// 의견 보내기·개인정보 처리방침은 화면을 따로 만들지 않고 구글폼으로 연결한다. 폼 주소가 아직
-// 없어서 빈 문자열로 두고, 값이 채워졌을 때만 새 탭으로 열도록 호출부에서 분기한다.
-export const SETTINGS_EXTERNAL_LINKS = {
-  feedbackForm: "",
-  privacyPolicy: "",
-};
 
 interface WithdrawalNotice {
   id: string;

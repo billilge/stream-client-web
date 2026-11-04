@@ -26,6 +26,7 @@
 | 파일 | `files` |
 | 행사(event) | `events` |
 | 회비 납부 | `fee` |
+| 서비스 링크(설정 화면 외부 링크) | `service-links` |
 
 ## 적용 범위
 
