@@ -10,6 +10,9 @@ export const MOCK_EXISTING_USER: KConnectUser = {
   name: "이예담",
 };
 
+// 이메일 인증번호 확인의 목 응답 — 서버에 인증번호 발송·확인 API가 없어서 이 번호만 통과시킨다(어떤 이메일이든 같다).
+export const MOCK_EMAIL_CODE = "123456";
+
 // 개발 서버에서는 화면의 로딩 상태를 확인할 수 있게 일부러 늦게 응답하고, 배포 빌드에서는 바로 응답한다(lib/mockupApi의 mockupResponse와 같다).
 export function mockDelay(): Promise<void> {
   if (!import.meta.env.DEV) {

@@ -12,7 +12,7 @@ import {
   toPhoneDigits,
 } from "@/features/auth/utils/formatPhoneNumber";
 
-// 온보딩 1/2 연락처 — 화면설계서(3747:74298) 1~3번. 인삿말에 K-CONNECT가 알려 준 이름을 넣고, 숫자만 입력해도
+// 온보딩 1/3 연락처 — 화면설계서(3747:74298) 1~3번. 인삿말에 K-CONNECT가 알려 준 이름을 넣고, 숫자만 입력해도
 // 하이픈이 자동으로 들어간다. 010으로 시작하는 11자리를 모두 입력해야 `다음`이 켜진다.
 function AuthPhoneStep({
   name,
@@ -24,7 +24,7 @@ function AuthPhoneStep({
   name: string;
   initialPhone: string;
   onBack: () => void;
-  /** 입력할 때마다 퍼널 context에 반영한다 — 약관 동의에서 뒤로 돌아와도 번호가 남는다 */
+  /** 입력할 때마다 퍼널 context에 반영한다 — 이메일 입력에서 뒤로 돌아와도 번호가 남는다 */
   onChangePhone: (phone: string) => void;
   onNext: (phone: string) => void;
 }) {
@@ -40,7 +40,7 @@ function AuthPhoneStep({
   return (
     <div className="flex h-full flex-col justify-between bg-background-normal">
       <div className="flex flex-col gap-2 px-5 pt-3">
-        <AuthOnboardingHeading step="1 / 2">
+        <AuthOnboardingHeading step="1 / 3">
           <span className="block">{name} 님, 반가워요!</span>
           <span className="block">연락처를 알려 주세요</span>
         </AuthOnboardingHeading>
