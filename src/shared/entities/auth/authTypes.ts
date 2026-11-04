@@ -15,6 +15,7 @@ export interface KConnectLoginResponse {
 export interface OnboardingSubmission {
   name: string;
   phone: string;
+  email: string;
   /** 선택 약관(정보 알림 수신) 동의 여부 — 필수 약관 둘은 동의해야만 여기까지 온다 */
   hasAgreedNotifications: boolean;
 }

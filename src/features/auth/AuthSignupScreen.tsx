@@ -7,6 +7,8 @@ import {
   type AuthSignupSteps,
 } from "@/features/auth/constants/authSignupFunnel";
 import AuthCompleteStep from "@/features/auth/steps/AuthCompleteStep";
+import AuthEmailCodeStep from "@/features/auth/steps/AuthEmailCodeStep";
+import AuthEmailStep from "@/features/auth/steps/AuthEmailStep";
 import AuthLoginStep from "@/features/auth/steps/AuthLoginStep";
 import AuthPhoneStep from "@/features/auth/steps/AuthPhoneStep";
 import AuthTermsDetailStep from "@/features/auth/steps/AuthTermsDetailStep";
@@ -14,10 +16,14 @@ import AuthTermsStep from "@/features/auth/steps/AuthTermsStep";
 import { readAuthLocationState } from "@/features/auth/utils/authLocationState";
 import { HOME_PATH } from "@/features/home/constants/home";
 import { useFunnel } from "@/lib/useFunnel";
-import { submitOnboarding } from "@/shared/entities/auth/authQueries";
+import {
+  requestEmailVerification,
+  submitOnboarding,
+} from "@/shared/entities/auth/authQueries";
 import { isLoggedIn, markLoggedIn } from "@/shared/entities/auth/session";
 
-// 로그인과 가입(연락처 → 약관 동의 → 약관 상세 → 가입 완료)을 useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에
+// 로그인과 가입(연락처 → 이메일 인증 → 약관 동의 → 약관 상세 → 가입 완료)을 useFunnel 하나로 묶은 화면이다. 연락처와 이메일 인증은
+// K-CONNECT 인증을 마친 신규 사용자만 거친다(기존 사용자는 홈으로 바로 간다). 단계 화면은 `steps/`에
 // 하나씩 나눠 두고, 이 파일은 단계 전환(어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다.
 // 단계는 `/login?auth.step=...`으로 나뉘고 단계마다 브라우저 뒤로가기가 한 단계씩 돌아간다. 단계 사이에 넘기는 값
 // (이름·연락처·약관 동의)은 퍼널 context가 들고 있어서 약관 상세에서 돌아와도 유지된다.
@@ -58,7 +64,7 @@ function AuthSignupScreen() {
     }
   }, [loginFailed, location.pathname, location.search, navigate]);
 
-  // 로그인한 상태로 이 퍼널에 들어오면 홈으로 보낸다 — 가입을 마친 뒤 홈에서 뒤로가기를 눌러 연락처 단계로 돌아와
+  // 로그인한 상태로 이 퍼널에 들어오면 홈으로 보낸다 — 가입을 마친 뒤 홈에서 뒤로가기를 눌러 연락처·이메일 단계로 돌아와
   // 가입을 한 번 더 진행하는 일을 막는다. 가입 완료 단계는 로그인 표시를 남긴 직후에 보여 주는 화면이라 예외다.
   if (funnel.step !== "complete" && isLoggedIn()) {
     return <Navigate replace to={HOME_PATH} />;
@@ -69,6 +75,34 @@ function AuthSignupScreen() {
   return (
     <funnel.Render
       complete={() => <AuthCompleteStep onStart={goHome} />}
+      email={({ context, history }) => (
+        <AuthEmailStep
+          initialEmail={context.email ?? ""}
+          onBack={() => history.back()}
+          // 단계를 바꾸지 않고 context만 갈아 끼운다(replace) — 인증번호 단계에서 뒤로 돌아와도 이메일이 남는다
+          onChangeEmail={(email) =>
+            history.replace("email", (prev) => ({ ...prev, email }))
+          }
+          onNext={async (email) => {
+            await requestEmailVerification(email);
+            history.push("emailCode", { email }, SLIDE);
+          }}
+        />
+      )}
+      emailCode={({ context, history }) => (
+        <AuthEmailCodeStep
+          email={context.email}
+          onBack={() => history.back()}
+          // 인증을 마치면 이 단계로 돌아올 일이 없어서 히스토리를 대체한다 — 약관 동의에서 뒤로가면 이메일 단계로 간다
+          onVerified={() =>
+            history.replace(
+              "terms",
+              { agreements: INITIAL_TERMS_AGREEMENTS },
+              SLIDE,
+            )
+          }
+        />
+      )}
       login={() => <AuthLoginStep hasFailedLogin={loginFailed === true} />}
       phone={({ context, history, index }) => (
         <AuthPhoneStep
@@ -83,13 +117,7 @@ function AuthSignupScreen() {
           onChangePhone={(phone) =>
             history.replace("phone", (prev) => ({ ...prev, phone }))
           }
-          onNext={(phone) =>
-            history.push(
-              "terms",
-              { agreements: INITIAL_TERMS_AGREEMENTS, phone },
-              SLIDE,
-            )
-          }
+          onNext={(phone) => history.push("email", { phone }, SLIDE)}
         />
       )}
       terms={({ context, history }) => (
@@ -102,6 +130,7 @@ function AuthSignupScreen() {
           }
           onComplete={async () => {
             await submitOnboarding({
+              email: context.email,
               hasAgreedNotifications: context.agreements.notifications,
               name: context.name,
               phone: context.phone,

@@ -749,11 +749,28 @@ Figma 프레임의 상태 표시줄(54px)과 홈 바(34px)는 앱 셸 몫이라 
 - **토큰과 로그인 표시는 따로다:** 서버는 가입을 마치지 않은 회원에게도 정식 토큰을 내려 준다. 그래서 토큰은 로그인 응답을 받자마자 저장하지만, 로그인 표시(`markLoggedIn`)는 기존 사용자는 콜백에서, 신규 사용자는 가입 제출이 끝난 뒤에 남긴다. 가드(`AuthEntryGate`)는 로그인 표시로 판단하므로 가입을 마치기 전에는 보호 화면이 열리지 않는다. 이 구분은 화면 이동용이고 접근 통제는 서버가 한다.
 - **토큰 만료(401):** 토큰은 1시간짜리고 재발급이 없다. 서버가 401로 거절하면 `apiClient`가 토큰을 지우고, 토큰 변경 알림(`subscribeTokens`)을 받은 `AuthEntryGate`가 로그인 표시도 지운 뒤 `/login`으로 `replace`한다. 로그아웃·회원 탈퇴(`useAccountExit`)도 토큰을 함께 지운다. 서버에 로그아웃 API는 없어서 로컬 삭제만 한다.
 - **가입 제출:** `POST /v1/app/members/sign-up`에 연락처와 필수 약관 둘(`PRIVACY_POLICY`, `TERMS_OF_SERVICE`)의 동의를 보낸다. 이메일(서버 이메일 인증 PR)과 알림 수신 동의(서버 `NOTIFICATION_CONSENT` PR)는 서버에 해당 필드·약관 종류가 배포되면 요청에 싣는다.
-- **로그인 목은 없다:** 예전 개발 서버 전용 우회(`?mockKConnect=`, `&mockLogin=`)는 서버 연동과 함께 지웠다. 로컬에서 끝까지 확인하려면 `.env`의 `VITE_API_BASE_URL`(개발 서버)과 K-CONNECT에 등록된 redirect URI(`http://localhost:5173/oauth/kconnect`)가 필요하다. 취소·오류는 `/oauth/kconnect?error=access_denied`로 확인한다.
+- **로그인 목은 없다:** 예전 개발 서버 전용 우회(`?mockKConnect=`, `&mockLogin=`)는 서버 연동과 함께 지웠다(남은 목은 이메일 인증 하나뿐이다 — 아래 이메일 인증 절). 로컬에서 끝까지 확인하려면 `.env`의 `VITE_API_BASE_URL`(개발 서버)과 K-CONNECT에 등록된 redirect URI(`http://localhost:5173/oauth/kconnect`)가 필요하다. 취소·오류는 `/oauth/kconnect?error=access_denied`로 확인한다.
 
 ### 로그인·가입은 useFunnel 퍼널 하나(`AuthSignupScreen`)다
 
-로그인 → 연락처 → 약관 동의 → 약관 상세 → 가입 완료를 `@use-funnel/react-router-dom`의 `useFunnel`로 묶었다(라우트 `/login`, 단계는 `?auth.step=`). 퍼널 파일(`AuthSignupScreen.tsx`)은 단계 전환(어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡고, 단계 화면은 `features/auth/steps/`에 파일 하나씩(`AuthLoginStep`, `AuthPhoneStep`, `AuthTermsStep`, `AuthTermsDetailStep`, `AuthCompleteStep`) 나눠 두며 전환은 콜백 prop으로 받는다. 단계·context 타입과 `guard`는 `constants/authSignupFunnel.ts`, 단계 화면이 함께 쓰는 뒤로가기 버튼·하단 버튼은 `components/`(`AuthBackButton`, `AuthBottomAction`)에 있다. 단계 사이에 넘기는 이름·연락처·약관 동의는 퍼널 context가 들고 있어서, 약관 상세(`history.push`)를 다녀와도 동의 상태가 유지된다(별도 저장소·navigate state 불필요). 동의 체크나 연락처 입력은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값이 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) 각 단계의 `guard`가 걸러서 로그인으로 돌려보낸다. 단계가 바뀌는 이동(`push`, 가입 완료로의 `replace`)에는 슬라이드(View Transition)를 켜고, 체크·연락처 입력처럼 context만 갈아 끼우는 `replace`에는 켜지 않는다. 라이브러리 기본 `useFunnel`은 옵션 이름을 `unstable_viewTransition`으로 넘기는데 React Router 7.18은 `viewTransition`만 알아서(소스에 이전 이름이 없다) 슬라이드가 무시된다. 그래서 `src/lib/useFunnel.ts`에 같은 라우터 어댑터를 `createUseFunnel`로 직접 만들고 옵션 이름만 바꿨다(라이브러리의 "라우터 직접 만들기" 가이드 방식) — 라이브러리를 올릴 때 이 이름이 고쳐졌는지 확인하고 고쳐졌다면 이 파일을 지운다.
+로그인 → (K-CONNECT 인증) → 연락처 → 이메일 → 인증번호 → 약관 동의 → 약관 상세 → 가입 완료를 `@use-funnel/react-router-dom`의 `useFunnel`로 묶었다(라우트 `/login`, 단계는 `?auth.step=`). 퍼널 파일(`AuthSignupScreen.tsx`)은 단계 전환(어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡고, 단계 화면은 `features/auth/steps/`에 파일 하나씩(`AuthLoginStep`, `AuthEmailStep`, `AuthEmailCodeStep`, `AuthPhoneStep`, `AuthTermsStep`, `AuthTermsDetailStep`, `AuthCompleteStep`) 나눠 두며 전환은 콜백 prop으로 받는다. 단계·context 타입과 `guard`는 `constants/authSignupFunnel.ts`, 단계 화면이 함께 쓰는 뒤로가기 버튼·하단 버튼은 `components/`(`AuthBackButton`, `AuthBottomAction`)에 있다. 단계 사이에 넘기는 이름·연락처·이메일·약관 동의는 퍼널 context가 들고 있어서, 약관 상세(`history.push`)를 다녀와도 동의 상태가 유지된다(별도 저장소·navigate state 불필요). 동의 체크나 연락처 입력은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값이 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) 각 단계의 `guard`가 걸러서 로그인으로 돌려보낸다. 단계가 바뀌는 이동(`push`, 가입 완료로의 `replace`)에는 슬라이드(View Transition)를 켜고, 체크·연락처 입력처럼 context만 갈아 끼우는 `replace`에는 켜지 않는다. 라이브러리 기본 `useFunnel`은 옵션 이름을 `unstable_viewTransition`으로 넘기는데 React Router 7.18은 `viewTransition`만 알아서(소스에 이전 이름이 없다) 슬라이드가 무시된다. 그래서 `src/lib/useFunnel.ts`에 같은 라우터 어댑터를 `createUseFunnel`로 직접 만들고 옵션 이름만 바꿨다(라이브러리의 "라우터 직접 만들기" 가이드 방식) — 라이브러리를 올릴 때 이 이름이 고쳐졌는지 확인하고 고쳐졌다면 이 파일을 지운다.
+
+### 이메일 인증(`4413:25855` 이메일 인증 작업 — `4473:48819` 이메일인증 4 / `4473:48952` 이메일인증 5) 구현 중 확정된 매핑
+
+K-CONNECT 인증을 마친 신규 사용자는 연락처 입력(`AuthPhoneStep`) 다음에 이메일 입력(`AuthEmailStep`) → 인증번호 입력(`AuthEmailCodeStep`)을 거쳐 약관 동의로 간다(기존 사용자는 홈으로 바로 간다). 콜백이 신규 사용자를 `/login`으로 보내면 퍼널이 연락처 단계에서 시작하고, 뒤로가기는 로그인 화면으로 돌아간다. 이메일 인증을 K-CONNECT 뒤에 둔 이유: 로그인 전에는 신규·기존을 구분할 수 없어 기존 사용자도 매번 인증해야 하고, 인증 API가 토큰 없이 열려야 하며 인증 결과를 회원에 묶을 수 없다. 같은 Figma 섹션의 `이메일인증 1~3`은 이메일을 `@` 앞뒤로 나눠 받던 이전 시안이라 구현하지 않았다.
+
+| Figma 인스턴스 | 코드 | 확정 근거 |
+|---|---|---|
+| `Textinput/Textfield` (`445:8591`) | `TextField`(`@wanteddev/wds`) | 이미 확정한 매핑. 라벨("이메일")은 `TextField`가 그리지 않아 형제 `Typography as="label"`로 그린다(설정 전화번호 변경과 같다). 값이 있을 때 뜨는 지움(X) 버튼은 기본 제공이라 Figma와 맞는다 |
+| `Top Navigation/Resource/Contents` | `ScreenHeader`(`leading` 뒤로가기) | 연락처·약관 단계와 같다 |
+| `Action Area`(`인증번호 받기`) | `AuthBottomAction` | 연락처 단계와 같은 56px 보정 버튼 |
+| `인증번호 칸` (`4519:50281`, `state=off/on`) | Stream 로컬 `VerificationCodeInput` | WDS에 인증번호 입력 컴포넌트가 없다(`dist/components`에서 확인 — `virtual-input`은 폼용 숨은 입력 도우미). 칸 6개는 보이기만 하고 실제 입력은 투명한 `<input>` 하나가 받는다(`inputMode="numeric"`, `autoComplete="one-time-code"`) |
+
+- **칸 실측:** 48×60, 모서리 8px, 배경 `Background/Normal/Alternative`(`bg-background-alternative`), 칸 사이 9px, 숫자 Title 2/Bold 28px `Primary/Normal` — Figma와 일치.
+- **6자리를 채우면 바로 확인한다.** 이 화면에는 하단 버튼이 없다(Figma 5번). 맞으면 약관 동의 단계로 가고(뒤로가기는 이메일 단계), `다시 보내기`는 새 인증번호를 보내면서 5분 타이머(`04:59`)를 다시 센다.
+- **Figma에 없는 것:** 인증번호 오류·만료·발송 실패는 디자인이 없어서 공용 `ScreenToast`로 알린다. 칸의 포커스 표시도 없어서(Figma `state=on/off`만 있다), 입력칸에 포커스가 있을 때 다음에 채울 칸에 `Primary/Normal` 색 세로선이 1초 주기로 깜빡이는 커서를 더했다(모션 줄이기에서는 깜빡이지 않는다). 키패드가 안 올라온 상태와 구분되고 칸을 눌러 입력하라는 단서가 된다. 어느 칸을 눌러도 입력은 맨 뒤에 붙는다. 단계 표시는 연락처 `1 / 3`, 이메일·인증번호 `2 / 3`, 약관 `3 / 3`으로 맞췄다(Figma 이메일인증 4·5에는 표시가 없고 연락처·약관 화면의 표시와 이어지게 더했다).
+- **서버 API가 없어서 목이다:** 인증번호 발송·확인은 `shared/entities/auth/authQueries.ts`의 `requestEmailVerification`·`verifyEmailCode`가 응답만 흉내 내고, `authMock.ts`의 `MOCK_EMAIL_CODE`(`123456`)만 통과한다. 서버 API가 생기면 두 함수의 안쪽만 `api.post`로 바꾸고 목 번호를 지운다.
+- **이메일은 형식만 확인한다**(`isValidEmail`). 허용 도메인 제한은 서버 정책이 정해지면 더한다.
 
 ## 설정 화면 (설정 `3524:152322` / 전화번호 변경 `3524:152450` / 회원 탈퇴 `3524:152473`)
 

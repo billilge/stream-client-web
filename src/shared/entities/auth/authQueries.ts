@@ -1,4 +1,5 @@
 import { api, setAccessToken } from "@/shared/api";
+import { MOCK_EMAIL_CODE, mockDelay } from "@/shared/entities/auth/authMock";
 import type {
   KConnectLoginResponse,
   KConnectUser,
@@ -25,6 +26,27 @@ export async function exchangeKConnectCode(
   );
   setAccessToken(response.accessToken);
   return { isNewUser: response.signUpRequired, name: response.name };
+}
+
+// 입력한 인증번호가 틀렸을 때 — 네트워크 같은 다른 실패와 구분해서 화면이 안내 문구를 고른다.
+export class EmailCodeMismatchError extends Error {
+  name = "EmailCodeMismatchError";
+}
+
+// 이메일로 인증번호를 보내는 자리 — 서버 API가 정해질 때까지는 응답만 흉내 낸다. 다시 보내기도 같은 함수를 쓴다.
+// TODO: 서버에 이메일 인증번호 발송·확인 API가 생기면 두 함수의 안쪽을 api.post로 바꾸고 MOCK_EMAIL_CODE를 지운다.
+export async function requestEmailVerification(_email: string): Promise<void> {
+  await mockDelay();
+}
+
+export async function verifyEmailCode(
+  _email: string,
+  code: string,
+): Promise<void> {
+  await mockDelay();
+  if (code !== MOCK_EMAIL_CODE) {
+    throw new EmailCodeMismatchError("인증번호가 올바르지 않아요.");
+  }
 }
 
 // 가입 제출(POST /v1/app/members/sign-up) — 로그인 때 받은 토큰으로 전화번호와 약관 동의를 서버에 남긴다.

@@ -13,7 +13,7 @@ import { markLoggedIn } from "@/shared/entities/auth/session";
 
 // K-CONNECT가 인증을 마치고 되돌려 보내는 redirect URI 라우트(`/oauth/kconnect`) — 경로는 K-CONNECT에 등록한
 // 값이자 @billilge/oauth-kconnect가 정한 값이라 바꾸지 않는다. 보여 줄 UI는 없고 결과를 받아 처리한 뒤 이동한다:
-//   성공 → 서버로 보내 서비스 로그인을 마친다. 신규 사용자는 로그인 퍼널의 연락처 단계로, 기존 사용자는 홈으로 간다
+//   성공 → 서버로 보내 서비스 로그인을 마친다. 신규 사용자는 로그인 퍼널의 연락처 입력 단계로, 기존 사용자는 홈으로 간다
 //   취소·오류(국민대 학생이 아니어서 K-CONNECT가 거부한 경우 포함) → 로그인 화면에서 실패 토스트를 띄운다
 // 주소창에 `code`가 남지 않도록 어느 경우든 replace로 이동한다(oauth-kconnect README 안내).
 function KConnectCallbackScreen() {
