@@ -1,7 +1,4 @@
-import type {
-  Feedback,
-  MyFeedback,
-} from "@/shared/entities/feedbacks/feedbacksTypes";
+import type { Feedback } from "@/shared/entities/feedbacks/feedbacksTypes";
 
 // 문단은 빈 줄(\n\n)로 나누고, 굵게 강조할 구간은 **텍스트**로 표시한다 — 둘 다 Figma
 // 원본(nodeId 1410:50009)의 문단 구분·볼드 스팬을 그대로 옮긴 것이다.
@@ -79,25 +76,3 @@ export const FEEDBACKS: Feedback[] = [
     year: "2024",
   },
 ];
-
-// Figma: 열린피드백 작성내역 (nodeId 3147:147748), 상세 (3147:147756 답변완료, 3147:147779 답변대기)
-// 답변이 달린 건 열린피드백 목록의 피드백과 같은 id다.
-const MY_FEEDBACKS: MyFeedback[] = [
-  { ...FEEDBACKS[0], createdAt: "2026-04-25" },
-  { ...FEEDBACKS[1], createdAt: "2026-05-02" },
-  {
-    createdAt: "2026-04-25",
-    id: "mine-1",
-    question:
-      "다양한 학과 전공 관련 대회나 활동을 통해 포트폴리오를 채워나갈 수 있는 활동이 좋았습니다. 3~5명 정도의 원하는 사람들과 팀을 구성해서 나갈 수 있는 대회나 공모전 정보가 더 많았으면 좋겠어요.",
-    round: "2차",
-    year: "2026",
-  },
-];
-
-// 상태를 바꿔 작성내역 화면을 확인한다. empty: 빈 상태 (Figma 3147:147818)
-type MyFeedbacksMockState = "list" | "empty";
-const MY_FEEDBACKS_MOCK_STATE: MyFeedbacksMockState = "list";
-
-export const MY_FEEDBACKS_MOCK =
-  MY_FEEDBACKS_MOCK_STATE === "list" ? MY_FEEDBACKS : [];
