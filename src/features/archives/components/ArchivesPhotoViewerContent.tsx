@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import ScreenHeader from "@/components/ui/ScreenHeader";
-import { archivesQueries } from "@/entities/archives/archivesApi";
+import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotoViewerContentProps {
   archiveId: string;

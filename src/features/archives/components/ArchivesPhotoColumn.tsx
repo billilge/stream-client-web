@@ -1,7 +1,7 @@
-import type { ArchiveItem } from "@/entities/archives/types";
 import ArchivesPhotoCard, {
   type ArchivesPhotoCardSize,
 } from "@/features/archives/components/ArchivesPhotoCard";
+import type { ArchiveItem } from "@/shared/entities/archives/archivesTypes";
 
 interface ArchivesPhotoColumnProps {
   items: ArchiveItem[];

@@ -17,13 +17,13 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import { FEEDBACKS } from "@/entities/feedbacks/feedbacksMock";
 import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
 import FeedbacksFilter from "@/features/feedbacks/components/FeedbacksFilter";
 import FeedbacksQaCard from "@/features/feedbacks/components/FeedbacksQaCard";
 import { FEEDBACK_FILTER_ALL } from "@/features/feedbacks/constants/feedbacks";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
+import { FEEDBACKS } from "@/shared/entities/feedbacks/feedbacksMock";
 
 // 카드 한 장이 차지하는 가로 길이(카드끼리 gap이 없어서 카드 폭 그 자체다). 카드가 캐러셀
 // 폭에 꽉 차는 크기라 뷰포트마다 실제 폭이 다르기 때문에 상수로 박아두면 한쪽에서 점이

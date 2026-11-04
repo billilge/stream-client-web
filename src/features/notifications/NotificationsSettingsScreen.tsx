@@ -22,7 +22,7 @@ function NotificationsSettingsScreen() {
 
   const setAll = (enabled: boolean) => {
     setSettings({
-      bililge: enabled,
+      billilge: enabled,
       board: enabled,
       events: enabled,
       lockers: enabled,

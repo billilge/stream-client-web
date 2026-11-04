@@ -1,8 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
-import { submitOnboarding } from "@/entities/auth/authApi";
-import { isLoggedIn, markLoggedIn } from "@/entities/auth/session";
 import { INITIAL_TERMS_AGREEMENTS } from "@/features/auth/constants/auth";
 import {
   AUTH_SIGNUP_STEP_OPTIONS,
@@ -16,6 +14,8 @@ import AuthTermsStep from "@/features/auth/steps/AuthTermsStep";
 import { readAuthLocationState } from "@/features/auth/utils/authLocationState";
 import { HOME_PATH } from "@/features/home/constants/home";
 import { useFunnel } from "@/lib/useFunnel";
+import { submitOnboarding } from "@/shared/entities/auth/authQueries";
+import { isLoggedIn, markLoggedIn } from "@/shared/entities/auth/session";
 
 // 로그인과 가입(연락처 → 약관 동의 → 약관 상세 → 가입 완료)을 useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에
 // 하나씩 나눠 두고, 이 파일은 단계 전환(어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다.

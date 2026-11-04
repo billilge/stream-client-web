@@ -1,18 +1,18 @@
-import type { SearchResults } from "@/entities/search/types";
+import type { SearchResults } from "@/shared/entities/search/searchTypes";
 
 // 검색 결과 카테고리 — 키는 용어 사전(terminology.md)의 코드 용어를 그대로 쓴다.
 export type SearchCategory =
   | "events"
   | "notices"
   | "feedbacks"
-  | "bililge"
+  | "billilge"
   | "archives";
 
 export type SearchTab = "all" | SearchCategory;
 
 export const SEARCH_CATEGORY_LABELS = {
   archives: "아카이빙",
-  bililge: "빌릴게",
+  billilge: "빌릴게",
   events: "행사",
   feedbacks: "열린피드백",
   notices: "공지",
@@ -24,7 +24,7 @@ export const SEARCH_TABS: SearchTab[] = [
   "events",
   "notices",
   "feedbacks",
-  "bililge",
+  "billilge",
   "archives",
 ];
 
@@ -34,7 +34,7 @@ export const SEARCH_ALL_TAB_SECTIONS: SearchCategory[] = [
   "events",
   "notices",
   "archives",
-  "bililge",
+  "billilge",
   "feedbacks",
 ];
 export const SEARCH_ALL_TAB_PREVIEW_COUNT = 2;

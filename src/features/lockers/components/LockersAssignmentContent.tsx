@@ -5,9 +5,9 @@ import { IconChevronRight } from "@wanteddev/wds-icon";
 import emptyEventsIllustration from "@/assets/icons/common/empty-events.svg";
 import EmptyState from "@/components/ui/EmptyState";
 import StatusSummaryCard from "@/components/ui/StatusSummaryCard";
-import { lockersQueries } from "@/entities/lockers/lockersApi";
 import { LOCKER_STATUS_BADGES } from "@/features/lockers/constants/lockers";
 import { formatDate, formatDateTime } from "@/lib/date";
+import { lockersQueries } from "@/shared/entities/lockers/lockersQueries";
 
 // 이 화면에 오는 배정은 항상 배정완료다(기간종료·미신청은 홈 배지에서만 쓴다)
 const ASSIGNED_BADGE = LOCKER_STATUS_BADGES.assigned;

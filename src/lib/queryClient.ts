@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 
-import { isApiError } from "@/lib/api/errors";
+import { isApiError } from "@/shared/api";
 
 // 서버 데이터 캐시. 화면은 entities의 queryOptions를 useSuspenseQuery로 읽고, 같은 key의 응답을 여기서 나눠 쓴다.
 export const queryClient = new QueryClient({

@@ -3,7 +3,7 @@ import { Typography } from "@wanteddev/wds";
 
 import LazyImage from "@/components/ui/LazyImage";
 import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
-import { archivesQueries } from "@/entities/archives/archivesApi";
+import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotosContentProps {
   archiveId: string;

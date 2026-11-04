@@ -1,7 +1,7 @@
 import { Button, Divider, Typography } from "@wanteddev/wds";
 
-import returnItemsEmpty from "@/assets/icons/bililge-empty/return-items.svg";
-import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
+import returnItemsEmpty from "@/assets/icons/billilge-empty/return-items.svg";
+import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
 import HomeEmptyState from "@/features/home/components/HomeEmptyState";
 import type { HomeRental } from "@/features/home/constants/homeMock";
 
@@ -57,7 +57,7 @@ function HomeRentalSection({
       </Typography>
       <div className="flex flex-col gap-4">
         {rentals.slice(0, VISIBLE_COUNT).map((rental) => (
-          <BililgeItemCard
+          <BillilgeItemCard
             actionLabel="반납 신청"
             icon={rental.icon}
             itemName={rental.name}

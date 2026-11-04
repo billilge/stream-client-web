@@ -1,12 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { searchQueries } from "@/entities/search/searchApi";
 import SearchEmptyState from "@/features/search/components/SearchEmptyState";
 import SearchResultView from "@/features/search/components/SearchResultView";
 import {
   getSearchResultCount,
   type SearchTab,
 } from "@/features/search/constants/search";
+import { searchQueries } from "@/shared/entities/search/searchQueries";
 
 interface SearchResultContentProps {
   keyword: string;

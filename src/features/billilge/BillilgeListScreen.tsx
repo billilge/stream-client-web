@@ -1,0 +1,122 @@
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+  TopNavigationButton,
+} from "@wanteddev/wds";
+import { IconBell, IconSearch } from "@wanteddev/wds-icon";
+import { Suspense, startTransition, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import ScreenHeader from "@/components/ui/ScreenHeader";
+import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import BillilgeCategoryFilter from "@/features/billilge/components/BillilgeCategoryFilter";
+import BillilgeItemList from "@/features/billilge/components/BillilgeItemList";
+import BillilgeListSkeleton from "@/features/billilge/components/BillilgeListSkeleton";
+import BillilgeRentalSheet from "@/features/billilge/components/BillilgeRentalSheet";
+import BillilgeReturnSection from "@/features/billilge/components/BillilgeReturnSection";
+import {
+  BILLILGE_TAB_PATHS,
+  type BillilgeTab,
+} from "@/features/billilge/constants/billilge";
+import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
+import { getSearchPath } from "@/features/search/constants/search";
+import type { BillilgeItem } from "@/shared/entities/billilge/billilgeTypes";
+
+interface BillilgeListScreenProps {
+  /** 대여/반납 탭 — 탭마다 경로가 달라서 라우터가 정해 넘긴다 */
+  tab: BillilgeTab;
+}
+
+// Figma: 빌릴게 (nodeId 1243:73331)
+function BillilgeListScreen({ tab }: BillilgeListScreenProps) {
+  const navigate = useNavigate();
+  // 탭을 바꿀 때마다 히스토리가 쌓이지 않게 replace로 바꾼다
+  const changeTab = (next: BillilgeTab) =>
+    navigate(BILLILGE_TAB_PATHS[next], { replace: true });
+  const [category, setCategory] = useState("전체");
+  const [rentalItem, setRentalItem] = useState<BillilgeItem | null>(null);
+  const [rentalSheetOpen, setRentalSheetOpen] = useState(false);
+
+  useScreenHeader(
+    <ScreenHeader
+      title="빌릴게"
+      trailing={
+        <>
+          <TopNavigationButton
+            aria-label="검색"
+            onClick={() => navigate(getSearchPath("billilge"))}
+            variant="icon"
+          >
+            <IconSearch />
+          </TopNavigationButton>
+          <TopNavigationButton
+            aria-label="알림"
+            onClick={() =>
+              navigate(NOTIFICATIONS_PATH, { viewTransition: true })
+            }
+            variant="icon"
+          >
+            <IconBell />
+          </TopNavigationButton>
+        </>
+      }
+    />,
+  );
+
+  return (
+    <div className="flex h-full flex-col">
+      {/* 대여/반납 토글 + 카테고리 필터는 화면마다 값·동작이 달라 헤더가 아니라 화면이 직접 그린다.
+          목록만 스크롤되도록 여기는 고정(shrink-0)한다.
+          Figma Tool 프레임(56~88)은 높이 32에 위아래 여백이 없다 — 세로 패딩을 주면
+          토글과 그 아래 필터 행이 함께 밀린다(행사·게시판 화면과 같은 규칙). */}
+      <div className="shrink-0 px-5">
+        <SegmentedControl
+          onValueChange={(value) => changeTab(value as BillilgeTab)}
+          size="small"
+          value={tab}
+        >
+          <SegmentedControlItem value="rent">대여</SegmentedControlItem>
+          <SegmentedControlItem value="return">반납</SegmentedControlItem>
+        </SegmentedControl>
+      </div>
+
+      {/* 카테고리 필터는 대여 탭 전용이다 — Figma 반납 화면(1133:49973)에는 필터 행이 없다. */}
+      {tab === "rent" && (
+        <div className="shrink-0 px-5 py-4">
+          <BillilgeCategoryFilter onChange={setCategory} value={category} />
+        </div>
+      )}
+
+      <div className="scrollbar-hidden flex-1 overflow-y-auto">
+        {tab === "rent" ? (
+          // 헤더·토글·필터는 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다
+          <Suspense fallback={<BillilgeListSkeleton />}>
+            <BillilgeItemList
+              category={category}
+              onRentRequest={(item) => {
+                // 바텀시트를 여는 것(슬라이드 애니메이션)은 즉시 반영하고, 그 안의 휠
+                // 피커(특히 분 60개) 마운트처럼 무거운 작업은 startTransition으로 낮은
+                // 우선순위로 미뤄서 첫 프레임이 버벅이지 않게 한다 — 처음 열 때만 해당하고,
+                // rentalItem은 닫아도 null로 안 돌아가서 두 번째부터는 이 마운트 비용 자체가 없다.
+                setRentalSheetOpen(true);
+                startTransition(() => {
+                  setRentalItem(item);
+                });
+              }}
+            />
+          </Suspense>
+        ) : (
+          <BillilgeReturnSection onBrowseRentals={() => changeTab("rent")} />
+        )}
+      </div>
+
+      <BillilgeRentalSheet
+        item={rentalItem}
+        onClose={() => setRentalSheetOpen(false)}
+        open={rentalSheetOpen}
+      />
+    </div>
+  );
+}
+
+export default BillilgeListScreen;
