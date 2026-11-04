@@ -4,10 +4,7 @@ import { z } from "zod";
 import { mockupResponse } from "@/lib/mockupApi";
 import { api, isApiError } from "@/shared/api";
 import { archivesKeys } from "@/shared/entities/archives/archivesKeys";
-import {
-  ARCHIVES,
-  findArchiveDetail,
-} from "@/shared/entities/archives/archivesMock";
+import { findArchiveDetail } from "@/shared/entities/archives/archivesMock";
 
 const ARCHIVES_PATH = "/v1/app/archives";
 
@@ -75,12 +72,7 @@ export const archivesQueries = {
         }
       },
     }),
-  // TODO: 목록·상세·현장 사진 화면을 위 조회로 옮기면 지운다
-  mockList: () =>
-    queryOptions({
-      queryKey: [...archivesKeys.root(), "mock-list"],
-      queryFn: () => mockupResponse(() => ARCHIVES),
-    }),
+  // TODO: 상세·현장 사진 화면을 위 조회로 옮기면 지운다
   mockDetail: (archiveId: string) =>
     queryOptions({
       queryKey: [...archivesKeys.root(), "mock-detail", archiveId],

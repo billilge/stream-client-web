@@ -6,7 +6,7 @@ import LazyImage from "@/components/ui/LazyImage";
 export type ArchivesPhotoCardSize = "small" | "medium" | "large";
 
 interface ArchivesPhotoCardProps {
-  image: string;
+  image: string | null;
   title: string;
   date: string;
   size: ArchivesPhotoCardSize;
@@ -35,7 +35,11 @@ function ArchivesPhotoCard({
       type="button"
     >
       {/* 화면 밖 카드의 사진은 스크롤로 가까워질 때 받는다 — 그 전에는 회색 자리가 보인다 */}
-      <LazyImage alt="" className="absolute inset-0 size-full" src={image} />
+      {image ? (
+        <LazyImage alt="" className="absolute inset-0 size-full" src={image} />
+      ) : (
+        <span className="absolute inset-0 bg-thumbnail-placeholder" />
+      )}
       <div className="absolute inset-0 bg-linear-to-t from-gradient-overlay to-40% to-transparent" />
       <div className="relative flex flex-col">
         <Typography
