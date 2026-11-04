@@ -13,23 +13,10 @@ import ChatInput from "@/features/chat/components/ChatInput";
 import ChatLoadingDots from "@/features/chat/components/ChatLoadingDots";
 import ChatMessageBubble from "@/features/chat/components/ChatMessageBubble";
 import SuggestedQuestion from "@/features/chat/components/SuggestedQuestion";
-import {
-  CHAT_SEND_FAILURE_MESSAGE,
-  CHAT_SEND_FAILURE_TRIGGER,
-} from "@/features/chat/constants/chat";
+import { CHAT_SEND_FAILURE_MESSAGE } from "@/features/chat/constants/chat";
 import { CHAT_SUGGESTED_QUESTIONS } from "@/features/chat/constants/chatSuggestedQuestions";
+import { useChatStream } from "@/features/chat/hooks/useChatStream";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
-
-interface ChatMessage {
-  id: number;
-  sender: "user" | "bot";
-  text: string;
-}
-
-// 실제 AI 응답(백엔드 연동)은 이번 범위 밖이라, 메시지를 보내면 Figma의 "로딩모션" 상태
-// (응답 대기 점 3개)를 잠깐 보여준 뒤 ChatBotMessageBubble의 목업 답변으로 넘어간다 —
-// 사용자가 실제로 입력한 내용과 무관하게 항상 같은 응답이다.
-const BOT_RESPONSE_DELAY_MS = 1200;
 
 // Figma: 챗봇 진입 화면(nodeId 1887:91534)과 챗봇 대화창(1770:63314) — 메시지를 하나라도
 // 보내면 진입 화면의 웰컴 문구·그라데이션·추천 질문이 페이드아웃되고 대화창(말풍선 + 응답
@@ -37,56 +24,53 @@ const BOT_RESPONSE_DELAY_MS = 1200;
 // 레이아웃이 튀지 않는다.
 function ChatEntryScreen() {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
-  const [isBotLoading, setIsBotLoading] = useState(false);
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
   const [isFailureToastOpen, setIsFailureToastOpen] = useState(false);
   // 연달아 실패해도 스크린리더가 토스트를 다시 안내하도록 실패마다 새로 마운트한다 — 아래 key다
   // (행사 신청 화면의 실패 토스트와 같은 패턴)
   const [failureCount, setFailureCount] = useState(0);
-  const nextMessageIdRef = useRef(0);
-  const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // 답변을 받지 못하면 보낸 말풍선을 걷고 질문을 입력창에 되살려 둔다 — 그대로 다시 보낼 수 있게
+  const { isAnswering, isWaitingForAnswer, messages, send } = useChatStream({
+    onFailure: (question) => {
+      setInputValue(question);
+      setFailureCount((prev) => prev + 1);
+      setIsFailureToastOpen(true);
+    },
+  });
   const chatStarted = messages.length > 0;
 
-  useEffect(() => {
-    return () => {
-      if (botTimerRef.current) {
-        clearTimeout(botTimerRef.current);
-      }
-    };
-  }, []);
-
-  // 메시지가 추가되거나 응답 대기 점이 나타날 때마다 최신 대화가 보이도록 맨 아래로 스크롤한다.
+  // 메시지가 추가되거나 답변 조각이 붙을 때, 응답 대기 점이 나타날 때마다 최신 대화가 보이도록 맨 아래로 스크롤한다.
   // biome-ignore lint/correctness/useExhaustiveDependencies: 값을 직접 참조하진 않지만 변경 시점을 감지해 스크롤을 트리거하기 위해 의도적으로 의존성에 둔다
   useEffect(() => {
     const messageList = messageListRef.current;
     if (messageList) {
       messageList.scrollTop = messageList.scrollHeight;
     }
-  }, [messages, isBotLoading]);
+  }, [messages, isWaitingForAnswer]);
 
-  // 봇 응답 대기 중에는 입력창이 disabled되며 포커스가 풀린다 — 응답이 오면(대기 종료 시점)
+  // 답변을 받는 동안에는 입력창이 disabled되며 포커스가 풀린다 — 답변이 끝나면(성공·실패 모두)
   // 바로 이어서 타이핑할 수 있도록 입력창에 포커스를 되돌린다.
   //
-  // 단 나가기 모달이 떠 있으면 건너뛴다. 메시지를 보내자마자 뒤로가기를 누르면 응답을 기다리는
+  // 단 나가기 모달이 떠 있으면 건너뛴다. 메시지를 보내자마자 뒤로가기를 누르면 답변을 받는
   // 동안 모달이 열리는데, 그때 이 포커스 이동이 일어나면 초점이 모달 밖 입력창으로 빠져서
   // 타이핑이 뒤 화면으로 들어가고 Esc로도 모달이 닫히지 않는다(모달의 Esc 핸들러가 모달
   // 엘리먼트에 붙어 있다). 모달을 닫을 때 ConfirmModal이 직전 초점으로 되돌려 준다.
-  const wasBotLoadingRef = useRef(false);
+  const wasAnsweringRef = useRef(false);
   useEffect(() => {
-    if (wasBotLoadingRef.current && !isBotLoading && !isLeaveOpen) {
+    if (wasAnsweringRef.current && !isAnswering && !isLeaveOpen) {
       inputRef.current?.focus();
     }
-    wasBotLoadingRef.current = isBotLoading;
-  }, [isBotLoading, isLeaveOpen]);
+    wasAnsweringRef.current = isAnswering;
+  }, [isAnswering, isLeaveOpen]);
 
   // Figma: 챗봇 뒤로가기 확인 모달(2036:102030). 나가면 대화가 사라지니 확인을 받는데,
   // 아직 아무 말도 안 한 상태에서는 잃을 게 없어서 바로 나간다
   // (행사 신청 화면이 작성한 답이 있을 때만 모달을 띄우는 것과 같은 기준).
-  // "종료하기"는 대화를 끝내는 행동이라 들어온 화면이 아니라 홈으로 보낸다.
+  // "종료하기"는 대화를 끝내는 행동이라 들어온 화면이 아니라 홈으로 보낸다. 답변을 받는 중이었으면
+  // 화면이 사라지면서 useChatStream이 연결을 끊는다.
   const leaveChat = () => navigate("/");
   // 대화 전 뒤로가기 — 타고 들어왔으면 한 단계 뒤로, /chat으로 바로 들어왔으면(딥링크·새로고침·
   // 주소 직접 입력) 홈으로 보낸다. navigate(-1)만 쓰면 돌아갈 곳이 없어 먹통이 된다.
@@ -110,33 +94,12 @@ function ChatEntryScreen() {
 
   function sendMessage(text: string) {
     const trimmed = text.trim();
-    // 봇 응답을 기다리는 동안 새 메시지를 보내면 대기 중이던 타이머가 취소돼 그 메시지의
-    // 응답이 영영 안 온다(코드리뷰 지적) — 응답이 올 때까지는 전송 자체를 막는다.
-    if (!trimmed || isBotLoading) {
+    // 서버가 한 사람당 답변 하나만 받아서, 답변이 끝날 때까지는 전송 자체를 막는다
+    if (!trimmed || isAnswering) {
       return;
     }
-    // 목업 실패 분기 — 전송에 실패하면 메시지를 올리지 않고 입력도 그대로 둔다(다시 시도용)
-    if (trimmed === CHAT_SEND_FAILURE_TRIGGER) {
-      setFailureCount((prev) => prev + 1);
-      setIsFailureToastOpen(true);
-      return;
-    }
-    nextMessageIdRef.current += 1;
-    setMessages((prev) => [
-      ...prev,
-      { id: nextMessageIdRef.current, sender: "user", text: trimmed },
-    ]);
     setInputValue("");
-
-    setIsBotLoading(true);
-    botTimerRef.current = setTimeout(() => {
-      nextMessageIdRef.current += 1;
-      setMessages((prev) => [
-        ...prev,
-        { id: nextMessageIdRef.current, sender: "bot", text: "" },
-      ]);
-      setIsBotLoading(false);
-    }, BOT_RESPONSE_DELAY_MS);
+    void send(trimmed);
   }
 
   return (
@@ -192,15 +155,18 @@ function ChatEntryScreen() {
             message.sender === "user" ? (
               <ChatMessageBubble key={message.id} message={message.text} />
             ) : (
-              <ChatBotMessageBubble key={message.id} />
+              <ChatBotMessageBubble
+                bubbles={message.bubbles}
+                key={message.id}
+              />
             ),
           )}
-          {isBotLoading && <ChatLoadingDots />}
+          {isWaitingForAnswer && <ChatLoadingDots />}
         </div>
       </div>
       <div className="relative px-5 pb-5">
         <ChatInput
-          disabled={isBotLoading}
+          disabled={isAnswering}
           onChange={setInputValue}
           onSubmit={() => sendMessage(inputValue)}
           ref={inputRef}
