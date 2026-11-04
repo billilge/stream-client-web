@@ -8,6 +8,8 @@ interface NoticesCardProps {
   category: string;
   isPinned?: boolean;
   hasThumbnail?: boolean;
+  /** 서버가 준 썸네일 주소 — 있으면 실제 이미지를 그리고, 없으면 회색 칸을 그린다(hasThumbnail일 때) */
+  thumbnailUrl?: string | null;
 }
 
 // Figma: Notice-card (nodeId 1256:81801) — Stream 로컬 컴포넌트, WDS 아님
@@ -21,33 +23,25 @@ function NoticesCard({
   category,
   isPinned = false,
   hasThumbnail = false,
+  thumbnailUrl,
 }: NoticesCardProps) {
   return (
     <div
       className={`flex w-full items-center justify-between px-5 ${hasThumbnail ? "" : "py-[7px]"}`}
     >
       <div className="flex flex-1 flex-col gap-1">
-        {hasThumbnail ? (
-          <div className="flex items-center gap-1">
-            {isPinned && <img alt="" className="size-5" src={pinIcon} />}
-            <Typography
-              color="semantic.label.normal"
-              noWrap
-              variant="body2"
-              weight="medium"
-            >
-              {title}
-            </Typography>
-          </div>
-        ) : (
+        {/* 고정 공지의 핀은 썸네일 유무와 상관없이 제목 앞에 붙는다. 썸네일이 없으면 제목이 여러 줄로 이어진다 */}
+        <div className="flex items-center gap-1">
+          {isPinned && <img alt="" className="size-5 shrink-0" src={pinIcon} />}
           <Typography
             color="semantic.label.normal"
+            noWrap={hasThumbnail}
             variant="body2"
             weight="medium"
           >
             {title}
           </Typography>
-        )}
+        </div>
         <Typography
           color="semantic.label.alternative"
           variant="caption1"
@@ -56,9 +50,16 @@ function NoticesCard({
           {date} | {category}
         </Typography>
       </div>
-      {hasThumbnail && (
-        <div className="size-14 shrink-0 rounded-lg bg-thumbnail-placeholder" />
-      )}
+      {hasThumbnail &&
+        (thumbnailUrl ? (
+          <img
+            alt=""
+            className="size-14 shrink-0 rounded-lg bg-thumbnail-placeholder object-cover"
+            src={thumbnailUrl}
+          />
+        ) : (
+          <div className="size-14 shrink-0 rounded-lg bg-thumbnail-placeholder" />
+        ))}
     </div>
   );
 }
