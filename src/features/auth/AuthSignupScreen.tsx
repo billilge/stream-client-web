@@ -69,19 +69,7 @@ function AuthSignupScreen() {
   return (
     <funnel.Render
       complete={() => <AuthCompleteStep onStart={goHome} />}
-      login={({ history }) => (
-        <AuthLoginStep
-          hasFailedLogin={loginFailed === true}
-          onMockLoggedIn={(user) => {
-            if (user.isNewUser) {
-              history.push("phone", { name: user.name }, SLIDE);
-              return;
-            }
-            markLoggedIn();
-            goHome();
-          }}
-        />
-      )}
+      login={() => <AuthLoginStep hasFailedLogin={loginFailed === true} />}
       phone={({ context, history, index }) => (
         <AuthPhoneStep
           initialPhone={context.phone ?? ""}
