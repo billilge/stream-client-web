@@ -1,19 +1,19 @@
-import eightPinCharger from "@/assets/icons/bililge-items/8pin-charger.svg";
-import alcoholSwab from "@/assets/icons/bililge-items/alcohol-swab.svg";
-import bandAid from "@/assets/icons/bililge-items/band-aid.svg";
-import curlingIron from "@/assets/icons/bililge-items/curling-iron.svg";
-import eyeDrops from "@/assets/icons/bililge-items/eye-drops.svg";
-import hairDryer from "@/assets/icons/bililge-items/hair-dryer.svg";
-import laptopCharger from "@/assets/icons/bililge-items/laptop-charger.svg";
-import mask from "@/assets/icons/bililge-items/mask.svg";
-import ointment from "@/assets/icons/bililge-items/ointment.svg";
-import painReliefPatch from "@/assets/icons/bililge-items/pain-relief-patch.svg";
-import pill from "@/assets/icons/bililge-items/pill.svg";
-import powerBank from "@/assets/icons/bililge-items/power-bank.svg";
-import sanitaryPad from "@/assets/icons/bililge-items/sanitary-pad.svg";
-import umbrella from "@/assets/icons/bililge-items/umbrella.svg";
-import usbCCharger from "@/assets/icons/bililge-items/usb-c-charger.svg";
-import type { BililgeItem } from "@/shared/entities/bililge/bililgeTypes";
+import eightPinCharger from "@/assets/icons/billilge-items/8pin-charger.svg";
+import alcoholSwab from "@/assets/icons/billilge-items/alcohol-swab.svg";
+import bandAid from "@/assets/icons/billilge-items/band-aid.svg";
+import curlingIron from "@/assets/icons/billilge-items/curling-iron.svg";
+import eyeDrops from "@/assets/icons/billilge-items/eye-drops.svg";
+import hairDryer from "@/assets/icons/billilge-items/hair-dryer.svg";
+import laptopCharger from "@/assets/icons/billilge-items/laptop-charger.svg";
+import mask from "@/assets/icons/billilge-items/mask.svg";
+import ointment from "@/assets/icons/billilge-items/ointment.svg";
+import painReliefPatch from "@/assets/icons/billilge-items/pain-relief-patch.svg";
+import pill from "@/assets/icons/billilge-items/pill.svg";
+import powerBank from "@/assets/icons/billilge-items/power-bank.svg";
+import sanitaryPad from "@/assets/icons/billilge-items/sanitary-pad.svg";
+import umbrella from "@/assets/icons/billilge-items/umbrella.svg";
+import usbCCharger from "@/assets/icons/billilge-items/usb-c-charger.svg";
+import type { BillilgeItem } from "@/shared/entities/billilge/billilgeTypes";
 
 // 목데이터는 실 서버가 없어 위 필드를 흉내내는 값이다 — 실행 시점 기준으로 오늘/내일/그 이후
 // 라벨을 미리 계산해두되, 컴포넌트 쪽에는 이 계산 로직 자체를 노출하지 않는다(export하지 않음).
@@ -34,7 +34,7 @@ function mockReturnDeadlineLabel(daysFromNow: number): string {
 // Figma: 빌릴게 Item Grid (nodeId 1243:73343) 순서·물품명·수량을 그대로 옮긴 목데이터 — 실 API 연동 전까지 사용.
 // category는 Figma에 카테고리별 그룹핑이 따로 없어(칩 자체만 정의돼 있음) 물품명 기준으로 임의
 // 분류했다 — 실제 분류 기준이 정해지면 API 연동 시 교체한다.
-export const BILILGE_ITEMS: BililgeItem[] = [
+export const BILLILGE_ITEMS: BillilgeItem[] = [
   {
     category: "전자기기",
     icon: curlingIron,

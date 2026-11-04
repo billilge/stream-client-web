@@ -1,5 +1,5 @@
 import type { ArchiveItem } from "@/shared/entities/archives/archivesTypes";
-import type { BililgeItem } from "@/shared/entities/bililge/bililgeTypes";
+import type { BillilgeItem } from "@/shared/entities/billilge/billilgeTypes";
 import type { EventItem } from "@/shared/entities/events/eventsTypes";
 import type { Feedback } from "@/shared/entities/feedbacks/feedbacksTypes";
 import type { Notice } from "@/shared/entities/notices/noticesTypes";
@@ -9,6 +9,6 @@ export interface SearchResults {
   events: EventItem[];
   notices: Notice[];
   feedbacks: Feedback[];
-  bililge: BililgeItem[];
+  billilge: BillilgeItem[];
   archives: ArchiveItem[];
 }

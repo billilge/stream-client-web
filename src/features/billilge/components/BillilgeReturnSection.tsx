@@ -1,23 +1,23 @@
 import { Button, Divider, Typography } from "@wanteddev/wds";
 import { Fragment } from "react";
 
-import rentalHistoryEmptyIllustration from "@/assets/icons/bililge-empty/rental-history.svg";
-import returnItemsEmptyIllustration from "@/assets/icons/bililge-empty/return-items.svg";
-import BililgeEmptyState from "@/features/bililge/components/BililgeEmptyState";
-import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
-import BililgeRentalHistoryEntry from "@/features/bililge/components/BililgeRentalHistoryEntry";
+import rentalHistoryEmptyIllustration from "@/assets/icons/billilge-empty/rental-history.svg";
+import returnItemsEmptyIllustration from "@/assets/icons/billilge-empty/return-items.svg";
+import BillilgeEmptyState from "@/features/billilge/components/BillilgeEmptyState";
+import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
+import BillilgeRentalHistoryEntry from "@/features/billilge/components/BillilgeRentalHistoryEntry";
 import {
-  BILILGE_RENTAL_HISTORY,
-  BILILGE_RETURN_ITEMS,
-} from "@/features/bililge/constants/bililgeReturns";
-import { useBililgeReturnRequest } from "@/features/bililge/hooks/useBililgeReturnRequest";
+  BILLILGE_RENTAL_HISTORY,
+  BILLILGE_RETURN_ITEMS,
+} from "@/features/billilge/constants/billilgeReturns";
+import { useBillilgeReturnRequest } from "@/features/billilge/hooks/useBillilgeReturnRequest";
 
-interface BililgeReturnSectionProps {
+interface BillilgeReturnSectionProps {
   onBrowseRentals?: () => void;
 }
 
 // Figma: 빌릴게 반납 화면 Content (nodeId 1133:49978, 빈 상태는 1410:55628) — 반납이 필요한 물품 +
-// 대여 내역 두 섹션. 대여 탭과 달리 카테고리 필터 행이 없어서 BililgeListScreen이 이 탭일 때는
+// 대여 내역 두 섹션. 대여 탭과 달리 카테고리 필터 행이 없어서 BillilgeListScreen이 이 탭일 때는
 // 필터를 안 그린다.
 //
 // "반납 신청" 버튼 → 확인 모달(1133:49993) → "신청하기"로 확정하면 완료 토스트(1133:50015)가
@@ -27,8 +27,11 @@ interface BililgeReturnSectionProps {
 // 하단 패딩을 넣지 않는다 — Content(1133:49978) 높이(542)가 두 섹션 높이(196+314)와 gap(32)의
 // 합과 정확히 같아서 Figma엔 하단 여백이 0이다. 대여 탭 목록의 pb-4는 앱 전역 스크롤 여백
 // 컨벤션이라 그대로 두지만, 반납 화면은 이번에 새로 붙이는 값이라 Figma 그대로 맞춘다.
-function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
-  const { openReturnRequest, returnRequestDialogs } = useBililgeReturnRequest();
+function BillilgeReturnSection({
+  onBrowseRentals,
+}: BillilgeReturnSectionProps) {
+  const { openReturnRequest, returnRequestDialogs } =
+    useBillilgeReturnRequest();
 
   return (
     <div className="flex flex-col gap-8 px-5 pt-7">
@@ -41,10 +44,10 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
         >
           반납이 필요한 물품
         </Typography>
-        {BILILGE_RETURN_ITEMS.length > 0 ? (
+        {BILLILGE_RETURN_ITEMS.length > 0 ? (
           <div className="flex flex-col gap-2">
-            {BILILGE_RETURN_ITEMS.map((item) => (
-              <BililgeItemCard
+            {BILLILGE_RETURN_ITEMS.map((item) => (
+              <BillilgeItemCard
                 actionLabel="반납 신청"
                 icon={item.icon}
                 itemName={item.name}
@@ -55,7 +58,7 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
             ))}
           </div>
         ) : (
-          <BililgeEmptyState
+          <BillilgeEmptyState
             description="반납할 물품이 생기면 여기에 표시돼요"
             illustration={returnItemsEmptyIllustration}
             title="아직 반납할 물품이 없어요"
@@ -72,14 +75,14 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
         >
           대여 내역
         </Typography>
-        {BILILGE_RENTAL_HISTORY.length > 0 ? (
+        {BILLILGE_RENTAL_HISTORY.length > 0 ? (
           <div className="flex flex-col gap-4 rounded-xl bg-background-normal p-4">
-            {BILILGE_RENTAL_HISTORY.map((entry, index) => (
+            {BILLILGE_RENTAL_HISTORY.map((entry, index) => (
               <Fragment key={entry.id}>
                 {index > 0 && (
                   <Divider color="semantic.line.normal.alternative" />
                 )}
-                <BililgeRentalHistoryEntry
+                <BillilgeRentalHistoryEntry
                   icon={entry.icon}
                   itemName={entry.name}
                   rentedAt={entry.rentedAt}
@@ -89,7 +92,7 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
             ))}
           </div>
         ) : (
-          <BililgeEmptyState
+          <BillilgeEmptyState
             action={
               <Button
                 color="assistive"
@@ -112,4 +115,4 @@ function BililgeReturnSection({ onBrowseRentals }: BililgeReturnSectionProps) {
   );
 }
 
-export default BililgeReturnSection;
+export default BillilgeReturnSection;

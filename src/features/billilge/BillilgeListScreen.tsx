@@ -9,32 +9,32 @@ import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import BililgeCategoryFilter from "@/features/bililge/components/BililgeCategoryFilter";
-import BililgeItemList from "@/features/bililge/components/BililgeItemList";
-import BililgeListSkeleton from "@/features/bililge/components/BililgeListSkeleton";
-import BililgeRentalSheet from "@/features/bililge/components/BililgeRentalSheet";
-import BililgeReturnSection from "@/features/bililge/components/BililgeReturnSection";
+import BillilgeCategoryFilter from "@/features/billilge/components/BillilgeCategoryFilter";
+import BillilgeItemList from "@/features/billilge/components/BillilgeItemList";
+import BillilgeListSkeleton from "@/features/billilge/components/BillilgeListSkeleton";
+import BillilgeRentalSheet from "@/features/billilge/components/BillilgeRentalSheet";
+import BillilgeReturnSection from "@/features/billilge/components/BillilgeReturnSection";
 import {
-  BILILGE_TAB_PATHS,
-  type BililgeTab,
-} from "@/features/bililge/constants/bililge";
+  BILLILGE_TAB_PATHS,
+  type BillilgeTab,
+} from "@/features/billilge/constants/billilge";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
-import type { BililgeItem } from "@/shared/entities/bililge/bililgeTypes";
+import type { BillilgeItem } from "@/shared/entities/billilge/billilgeTypes";
 
-interface BililgeListScreenProps {
+interface BillilgeListScreenProps {
   /** 대여/반납 탭 — 탭마다 경로가 달라서 라우터가 정해 넘긴다 */
-  tab: BililgeTab;
+  tab: BillilgeTab;
 }
 
 // Figma: 빌릴게 (nodeId 1243:73331)
-function BililgeListScreen({ tab }: BililgeListScreenProps) {
+function BillilgeListScreen({ tab }: BillilgeListScreenProps) {
   const navigate = useNavigate();
   // 탭을 바꿀 때마다 히스토리가 쌓이지 않게 replace로 바꾼다
-  const changeTab = (next: BililgeTab) =>
-    navigate(BILILGE_TAB_PATHS[next], { replace: true });
+  const changeTab = (next: BillilgeTab) =>
+    navigate(BILLILGE_TAB_PATHS[next], { replace: true });
   const [category, setCategory] = useState("전체");
-  const [rentalItem, setRentalItem] = useState<BililgeItem | null>(null);
+  const [rentalItem, setRentalItem] = useState<BillilgeItem | null>(null);
   const [rentalSheetOpen, setRentalSheetOpen] = useState(false);
 
   useScreenHeader(
@@ -44,7 +44,7 @@ function BililgeListScreen({ tab }: BililgeListScreenProps) {
         <>
           <TopNavigationButton
             aria-label="검색"
-            onClick={() => navigate(getSearchPath("bililge"))}
+            onClick={() => navigate(getSearchPath("billilge"))}
             variant="icon"
           >
             <IconSearch />
@@ -71,7 +71,7 @@ function BililgeListScreen({ tab }: BililgeListScreenProps) {
           토글과 그 아래 필터 행이 함께 밀린다(행사·게시판 화면과 같은 규칙). */}
       <div className="shrink-0 px-5">
         <SegmentedControl
-          onValueChange={(value) => changeTab(value as BililgeTab)}
+          onValueChange={(value) => changeTab(value as BillilgeTab)}
           size="small"
           value={tab}
         >
@@ -83,15 +83,15 @@ function BililgeListScreen({ tab }: BililgeListScreenProps) {
       {/* 카테고리 필터는 대여 탭 전용이다 — Figma 반납 화면(1133:49973)에는 필터 행이 없다. */}
       {tab === "rent" && (
         <div className="shrink-0 px-5 py-4">
-          <BililgeCategoryFilter onChange={setCategory} value={category} />
+          <BillilgeCategoryFilter onChange={setCategory} value={category} />
         </div>
       )}
 
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
         {tab === "rent" ? (
           // 헤더·토글·필터는 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다
-          <Suspense fallback={<BililgeListSkeleton />}>
-            <BililgeItemList
+          <Suspense fallback={<BillilgeListSkeleton />}>
+            <BillilgeItemList
               category={category}
               onRentRequest={(item) => {
                 // 바텀시트를 여는 것(슬라이드 애니메이션)은 즉시 반영하고, 그 안의 휠
@@ -106,11 +106,11 @@ function BililgeListScreen({ tab }: BililgeListScreenProps) {
             />
           </Suspense>
         ) : (
-          <BililgeReturnSection onBrowseRentals={() => changeTab("rent")} />
+          <BillilgeReturnSection onBrowseRentals={() => changeTab("rent")} />
         )}
       </div>
 
-      <BililgeRentalSheet
+      <BillilgeRentalSheet
         item={rentalItem}
         onClose={() => setRentalSheetOpen(false)}
         open={rentalSheetOpen}
@@ -119,4 +119,4 @@ function BililgeListScreen({ tab }: BililgeListScreenProps) {
   );
 }
 
-export default BililgeListScreen;
+export default BillilgeListScreen;
