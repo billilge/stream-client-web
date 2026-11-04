@@ -1,10 +1,7 @@
-import {
-  MOCK_EXISTING_USER,
-  MOCK_NEW_USER,
-  mockDelay,
-  readMockLogin,
-} from "@/shared/entities/auth/authMock";
+import { api, setAccessToken } from "@/shared/api";
+import { mockDelay } from "@/shared/entities/auth/authMock";
 import type {
+  KConnectLoginResponse,
   KConnectUser,
   OnboardingSubmission,
 } from "@/shared/entities/auth/authTypes";
@@ -16,19 +13,19 @@ export interface KConnectCredentials {
   redirectUri: string;
 }
 
-// K-CONNECT 로그인 화면을 거쳐 돌려받은 `{ code, codeVerifier, redirectUri }`를 서버로 보내 서비스 로그인을 마치는 자리다.
-// 서버는 POST /auth/kconnect로 이 값을 받아 토큰 교환, 재학생 확인, 서비스 토큰 발급을 한다(oauth-kconnect 서버 가이드).
-// 서버 주소와 응답 형식(서비스 토큰, 신규 사용자 여부)이 정해지기 전까지는 응답만 흉내 낸다(authMock.ts).
-// TODO: 실 API가 붙으면 목 응답(readMockLogin·MOCK_*·authMock.ts)을 지운다.
+// K-CONNECT 로그인 화면을 거쳐 돌려받은 `{ code, codeVerifier, redirectUri }`를 서버로 보내 서비스 로그인을 마친다.
+// 서버가 K-CONNECT 토큰 교환과 재학생 확인을 하고 서비스 액세스 토큰을 내려 준다(POST /v1/auth/login/kconnect).
+// 토큰은 가입을 마치지 않은 회원에게도 내려오므로 여기서 바로 저장하고, 로그인 표시(markLoggedIn)는 호출하는 쪽이
+// 가입 여부(`isNewUser`)를 보고 남긴다 — 신규 사용자는 가입 제출 요청에 이 토큰이 필요하다.
 export async function exchangeKConnectCode(
-  _credentials: KConnectCredentials,
+  credentials: KConnectCredentials,
 ): Promise<KConnectUser> {
-  await mockDelay();
-  const mockLogin = readMockLogin();
-  if (mockLogin === "fail") {
-    throw new Error("K-CONNECT 로그인에 실패했어요.");
-  }
-  return mockLogin === "existing" ? MOCK_EXISTING_USER : MOCK_NEW_USER;
+  const response = await api.post<KConnectLoginResponse>(
+    "/v1/auth/login/kconnect",
+    credentials,
+  );
+  setAccessToken(response.accessToken);
+  return { isNewUser: response.signUpRequired, name: response.name };
 }
 
 // 온보딩 정보를 서버에 저장하는 자리 — 실 API가 붙을 때까지는 응답만 흉내 낸다.
