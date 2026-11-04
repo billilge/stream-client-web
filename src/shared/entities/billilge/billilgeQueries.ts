@@ -4,16 +4,98 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { z } from "zod";
 
 import { api, type CursorSliceResponse, isApiError } from "@/shared/api";
 import { billilgeKeys } from "@/shared/entities/billilge/billilgeKeys";
 import type {
   BillilgeCategory,
-  BillilgeHistoryListResponse,
-  BillilgeItem,
   BillilgeRentalApplyRequest,
-  BillilgeReturnRequiredListResponse,
 } from "@/shared/entities/billilge/billilgeTypes";
+
+const BILLILGE_PATH = "/v1/app/billilge";
+
+// 서버 enum(ItemCategory·ItemType·RentalStatus) 값 — 타입은 billilgeTypes.ts가 여기서 만든다
+export const BILLILGE_CATEGORIES = [
+  "ELECTRONICS",
+  "DAILY_SUPPLIES",
+  "MEDICINE",
+  "HYGIENE",
+] as const;
+
+export const BILLILGE_ITEM_TYPES = ["CONSUMABLE", "RENTAL"] as const;
+
+export const BILLILGE_RENTAL_STATUSES = [
+  "PENDING",
+  "CONFIRMED",
+  "REJECTED",
+  "CANCEL",
+  "RENTAL",
+  "RETURN_PENDING",
+  "RETURN_CONFIRMED",
+  "RETURNED",
+] as const;
+
+// 서버 응답 검사 — 서버가 필드를 더 보내도 깨지지 않게 looseObject로 두고, 빠지거나 타입이 바뀌면 여기서 실패한다.
+// 일시는 오프셋 없는 KST("2026-11-04T13:25:00")다.
+export const billilgeItemSchema = z.looseObject({
+  itemId: z.number(),
+  name: z.string(),
+  category: z.enum(BILLILGE_CATEGORIES),
+  // 소모품은 돌려받지 않아서 반납 정책·반납 기한 문구가 없다
+  type: z.enum(BILLILGE_ITEM_TYPES),
+  // 지금 남은 재고
+  count: z.number(),
+  // 물품 아이콘(SVG) 주소. 아이콘을 안 올린 물품은 null
+  imageUrl: z.string().nullable(),
+  returnPolicy: z
+    .looseObject({
+      maxRentalDays: z.number(),
+      // 반납 마감 시각 "17:00"
+      returnDeadline: z.string(),
+    })
+    .nullable(),
+  // 대여 바텀시트의 "대여할 물품" 카드(Figma nodeId 1422:57184, 3013:114608)에 "수량 28 · {문구}"로
+  // 붙는 반납 기한 — 오늘 빌린다고 치고 서버가 "오늘 17시까지 반납"/"내일까지 반납"/"9/29까지 반납"을
+  // 정해 내려준다(서버 #243). 반납 정책을 가진 서버가 문구까지 정해서 화면은 다시 가공하지 않는다. 소모품은 null
+  returnDeadlineLabel: z.string().nullable(),
+});
+
+const billilgeItemPageSchema = z.looseObject({
+  content: z.array(billilgeItemSchema),
+  hasNext: z.boolean(),
+  nextCursor: z.string().nullable(),
+});
+
+export const billilgeHistorySchema = z.looseObject({
+  rentalHistoryId: z.number(),
+  // 물품이 지워졌으면 이름·아이콘이 null이다
+  itemName: z.string().nullable(),
+  itemImageUrl: z.string().nullable(),
+  // 신청 때 고른 대여 시작 시각 — 운영진이 지급(RENTAL)하면 실제로 받은 시각으로 바뀐다
+  rentAt: z.string().nullable(),
+  // 반납이 확인(RETURNED)돼야 채워진다
+  returnedAt: z.string().nullable(),
+  status: z.enum(BILLILGE_RENTAL_STATUSES),
+});
+
+export const billilgeHistoryListResponseSchema = z.looseObject({
+  histories: z.array(billilgeHistorySchema),
+});
+
+// 상태는 RENTAL·RETURN_PENDING·RETURN_CONFIRMED 중 하나
+export const billilgeReturnRequiredSchema = z.looseObject({
+  rentalHistoryId: z.number(),
+  itemName: z.string().nullable(),
+  itemImageUrl: z.string().nullable(),
+  status: z.enum(BILLILGE_RENTAL_STATUSES),
+  // 반납 마감 일시(대여일 + 최대 대여 일수의 마감 시각)
+  dueAt: z.string(),
+});
+
+export const billilgeReturnRequiredListResponseSchema = z.looseObject({
+  rentalHistories: z.array(billilgeReturnRequiredSchema),
+});
 
 // 커서 목록의 다음 페이지 — 마지막 페이지면 null이라 더 받지 않는다
 function getNextCursor(lastPage: CursorSliceResponse<unknown>) {
@@ -27,12 +109,14 @@ export const billilgeQueries = {
   items: (category: BillilgeCategory | null) =>
     infiniteQueryOptions({
       queryKey: billilgeKeys.itemList(category),
-      queryFn: ({ pageParam, signal }) =>
-        api.get<CursorSliceResponse<BillilgeItem>>("/v1/app/billilge/items", {
-          // axios는 null인 파라미터를 보내지 않는다 — 첫 페이지는 cursor 없이, 전체는 category 없이 간다
-          params: { category, cursor: pageParam },
-          signal,
-        }),
+      queryFn: async ({ pageParam, signal }) =>
+        billilgeItemPageSchema.parse(
+          await api.get<unknown>(`${BILLILGE_PATH}/items`, {
+            // axios는 null인 파라미터를 보내지 않는다 — 첫 페이지는 cursor 없이, 전체는 category 없이 간다
+            params: { category, cursor: pageParam },
+            signal,
+          }),
+        ),
       initialPageParam: null as string | null,
       getNextPageParam: getNextCursor,
     }),
@@ -40,19 +124,20 @@ export const billilgeQueries = {
   histories: () =>
     queryOptions({
       queryKey: billilgeKeys.histories(),
-      queryFn: ({ signal }) =>
-        api.get<BillilgeHistoryListResponse>("/v1/app/billilge/histories", {
-          signal,
-        }),
+      queryFn: async ({ signal }) =>
+        billilgeHistoryListResponseSchema.parse(
+          await api.get<unknown>(`${BILLILGE_PATH}/histories`, { signal }),
+        ),
     }),
   // 지금 반납해야 하는 대여(대여 중·반납 신청 중)와 반납 기한 — 빌릴게 반납 탭과 홈 대여 현황이 같이 쓴다
   returnRequired: () =>
     queryOptions({
       queryKey: billilgeKeys.returnRequired(),
-      queryFn: ({ signal }) =>
-        api.get<BillilgeReturnRequiredListResponse>(
-          "/v1/app/billilge/histories/return-required",
-          { signal },
+      queryFn: async ({ signal }) =>
+        billilgeReturnRequiredListResponseSchema.parse(
+          await api.get<unknown>(`${BILLILGE_PATH}/histories/return-required`, {
+            signal,
+          }),
         ),
     }),
 };
@@ -82,7 +167,7 @@ export function useApplyBillilgeRentalMutation() {
 
   return useMutation({
     mutationFn: (request: BillilgeRentalApplyRequest) =>
-      api.post<null>("/v1/app/billilge/histories", request),
+      api.post<null>(`${BILLILGE_PATH}/histories`, request),
     // Promise를 돌려줘서 다시 받은 재고가 들어온 뒤에 mutation이 끝나게 한다
     onSuccess: invalidateBillilge,
     onError: (error) => {
@@ -107,7 +192,7 @@ export function useReturnBillilgeRentalMutation() {
 
   return useMutation({
     mutationFn: (rentalHistoryId: number) =>
-      api.patch<null>(`/v1/app/billilge/histories/${rentalHistoryId}/return`),
+      api.patch<null>(`${BILLILGE_PATH}/histories/${rentalHistoryId}/return`),
     // Promise를 돌려줘서 다시 받은 상태가 들어온 뒤에 mutation이 끝나게 한다
     onSuccess: invalidateHistories,
     onError: (error) => {
