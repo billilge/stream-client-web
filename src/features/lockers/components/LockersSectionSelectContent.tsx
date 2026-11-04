@@ -1,14 +1,18 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { ActionArea, ActionAreaButton } from "@wanteddev/wds";
 import { Navigate } from "react-router-dom";
 
 import { HOME_PATH } from "@/features/home/constants/home";
 import LockersFloorMap from "@/features/lockers/components/LockersFloorMap";
+import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import {
   type LockersSection,
   toLockersSections,
 } from "@/features/lockers/constants/lockersSections";
-import { lockersQueries } from "@/shared/entities/lockers/lockersQueries";
+import {
+  hasLockerInPeriod,
+  lockersQueries,
+} from "@/shared/entities/lockers/lockersQueries";
 
 interface LockersSectionSelectBodyProps {
   // 받는 동안은 비워 두고 카드 자리만 스켈레톤으로 그린다
@@ -61,12 +65,18 @@ type LockersSectionSelectContentProps = Omit<
   "sections"
 >;
 
-// 구역 목록은 운영 회차마다 달라서 기간 조회의 회차 id로 받는다. 보여줄 회차가 없으면 홈으로 보낸다.
+// 구역 목록은 운영 회차마다 달라서 기간 조회의 회차 id로 받는다. 보여줄 회차가 없으면 홈으로,
+// 이번 회차에 이미 배정받았으면 배정 상태로 보낸다(주소로 바로 들어온 경우).
 function LockersSectionSelectContent(props: LockersSectionSelectContentProps) {
-  const { data: period } = useSuspenseQuery(lockersQueries.period());
+  const [{ data: period }, { data: applications }] = useSuspenseQueries({
+    queries: [lockersQueries.period(), lockersQueries.myApplications()],
+  });
 
   if (!period) {
     return <Navigate replace to={HOME_PATH} />;
+  }
+  if (hasLockerInPeriod(applications, period.lockerPeriodId)) {
+    return <Navigate replace to={LOCKER_ASSIGNMENT_PATH} />;
   }
   return (
     <LockersSectionList lockerPeriodId={period.lockerPeriodId} {...props} />
