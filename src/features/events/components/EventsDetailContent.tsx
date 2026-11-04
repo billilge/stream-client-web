@@ -1,4 +1,4 @@
-import { useSuspenseQueries } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ActionArea,
   ActionAreaButton,
@@ -20,8 +20,6 @@ import {
   getEventStatusLabel,
 } from "@/features/events/constants/events";
 import { eventsQueries } from "@/shared/entities/events/eventsQueries";
-import { feeQueries } from "@/shared/entities/fee/feeQueries";
-import type { FeeResponse } from "@/shared/entities/fee/feeTypes";
 
 interface EventsDetailContentProps {
   eventId: string;
@@ -39,7 +37,7 @@ interface EventsDetailContentProps {
 // 공용 ScreenHeader에 overlay 옵션을 넣는 방안도 검토했지만 다른 화면에 영향이 가서 로컬로 뒀다.
 //
 // 상태별로 갈리는 건 뱃지와 하단 CTA뿐이다.
-// - 모집중: 활성. 단 학생회비 납부자 전용인데 미납이면 disabled에 "학생회비 납부자만 신청할 수 있어요"
+// - 모집중: 활성. 단 신청 자격(isFeeEligible)이 없으면 disabled에 "학생회비 납부자만 신청할 수 있어요"
 // - 모집예정: disabled에 신청 시작일("8월 10일 오픈")
 // - 모집종료: Figma "CTA 없음"(1156:54125)대로 하단 버튼(Action Area)을 그리지 않는다
 function EventsDetailContent({
@@ -47,18 +45,7 @@ function EventsDetailContent({
   onBack,
   onApply,
 }: EventsDetailContentProps) {
-  // 납부 상태는 행사와 따로 기다리지 않게(요청이 줄줄이 이어지지 않게) 한 번에 같이 받는다.
-  // 납부자 전용이 아닌 행사에서는 쓰지 않는다.
-  const [{ data: event }, { data: isFeePaid }] = useSuspenseQueries({
-    queries: [
-      eventsQueries.detail(eventId),
-      // 납부완료만 납부로 본다 — 납부확인중·확인필요는 아직 아니다
-      {
-        ...feeQueries.me(),
-        select: (fee: FeeResponse) => fee.feeStatus === "PAID",
-      },
-    ],
-  });
+  const { data: event } = useSuspenseQuery(eventsQueries.detail(eventId));
 
   if (!event) {
     return (
@@ -73,7 +60,9 @@ function EventsDetailContent({
     );
   }
 
-  const isFeeRequired = event.feePaidOnly && !isFeePaid;
+  // 납부자 전용 행사의 신청 자격은 서버가 납부자 명부로 판단해 준다 — 앱 납부 요청 기록(/fee/me)은
+  // 레거시 납부자를 미납으로 보여서 쓰지 않는다
+  const isFeeRequired = !event.isFeeEligible;
   const canApply = event.recruitStatus === "OPEN" && !isFeeRequired;
   const actionLabel =
     event.recruitStatus === "OPEN" && isFeeRequired
