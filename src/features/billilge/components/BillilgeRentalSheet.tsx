@@ -68,8 +68,8 @@ interface RentalTime {
 // 대여 시작 시각은 지금부터 이만큼 뒤부터 고를 수 있다(서버 RentalTimeValidator와 같은 값)
 const MIN_LEAD_MINUTES = 5;
 
-function getDefaultStartTime(): RentalTime {
-  const now = new Date(Date.now() + MIN_LEAD_MINUTES * 60 * 1000);
+function getDefaultStartTime(base: Date = new Date()): RentalTime {
+  const now = new Date(base.getTime() + MIN_LEAD_MINUTES * 60 * 1000);
   const hour24 = now.getHours();
   const period: Period = hour24 < 12 ? "오전" : "오후";
   const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
@@ -171,6 +171,8 @@ function BillilgeRentalSheet({
     timeError === "range" || timeError === "lunch"
       ? RENTAL_TIME_ERROR_MESSAGES[timeError]
       : null;
+  // 휠로 시각을 직접 골랐는지 — 고르기 전에는 기본값(지금+5분)이 시계를 따라간다
+  const [isTimePicked, setIsTimePicked] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { apply, applyDialogs, isApplying } = useBillilgeRentalApply({
     closeSheet: onClose,
@@ -184,13 +186,23 @@ function BillilgeRentalSheet({
     if (open && item) {
       setStepperValue(1);
       setTime(getDefaultStartTime());
+      setIsTimePicked(false);
       setServerTimeError(null);
       setConfirmOpen(false);
     }
   }, [open, item]);
 
+  // 기본값은 딱 5분 뒤라 시트를 띄워 둔 사이 분이 바뀌면 바로 5분 규칙에 걸린다. 직접 고르기 전에는 분이 바뀔 때마다
+  // 기본값을 다시 채워서, 아무것도 안 했는데 "대여 신청하기"가 막히지 않게 한다. 직접 고른 시각은 건드리지 않는다
+  useEffect(() => {
+    if (open && !isTimePicked) {
+      setTime(getDefaultStartTime(now));
+    }
+  }, [open, isTimePicked, now]);
+
   const changeTime = (next: Partial<RentalTime>) => {
     setTime((prev) => ({ ...prev, ...next }));
+    setIsTimePicked(true);
     setServerTimeError(null);
   };
 
