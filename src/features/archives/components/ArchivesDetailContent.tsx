@@ -1,12 +1,15 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { IconButton, Typography } from "@wanteddev/wds";
 import { IconChevronLeft, IconShare } from "@wanteddev/wds-icon";
+import { useState } from "react";
 
 import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import ScreenToast from "@/components/ui/ScreenToast";
 import ArchivesDetailSection from "@/features/archives/components/ArchivesDetailSection";
 import ArchivesNotFound from "@/features/archives/components/ArchivesNotFound";
 import ArchivesPhotoGrid from "@/features/archives/components/ArchivesPhotoGrid";
+import { ARCHIVES_PATH } from "@/features/archives/constants/archives";
 import { formatDate } from "@/lib/date";
 import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 import type { ArchiveDetailResponse } from "@/shared/entities/archives/archivesTypes";
@@ -30,7 +33,6 @@ function formatSchedule({ startDate, endDate }: ArchiveDetailResponse) {
 // Figma: 아카이빙 상세 (nodeId 1526:171215)
 // 아카이빙 데이터를 받아 그리는 부분. 받는 동안은 ArchivesDetailScreen의 Suspense가
 // ArchivesDetailSkeleton을 보여준다. 이동 같은 화면 동작은 Screen이 콜백으로 넘긴다.
-// 공유 버튼은 연결할 동작이 아직 없어 표시만 한다.
 function ArchivesDetailContent({
   archiveId,
   onBack,
@@ -38,6 +40,25 @@ function ArchivesDetailContent({
   onRelatedEventClick,
 }: ArchivesDetailContentProps) {
   const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
+  const [shareToast, setShareToast] = useState<{
+    open: boolean;
+    copied: boolean;
+  }>({ open: false, copied: true });
+  // 토스트가 떠 있는 중에 다시 눌러도 스크린리더가 재안내하도록 매번 새로 마운트한다
+  const [shareToastToken, setShareToastToken] = useState(0);
+
+  const handleShare = async () => {
+    let copied = true;
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}${ARCHIVES_PATH}/${archiveId}`,
+      );
+    } catch {
+      copied = false;
+    }
+    setShareToast({ open: true, copied });
+    setShareToastToken((token) => token + 1);
+  };
 
   if (!archive) {
     return <ArchivesNotFound withHeader />;
@@ -83,6 +104,7 @@ function ArchivesDetailContent({
               <IconButton
                 aria-label="공유"
                 color="semantic.static.white"
+                onClick={handleShare}
                 size={24}
                 variant="normal"
               >
@@ -170,6 +192,16 @@ function ArchivesDetailContent({
         )}
       </div>
       <ScreenBottomSafeArea />
+
+      <ScreenToast
+        key={shareToastToken}
+        message={
+          shareToast.copied ? "링크를 복사했어요." : "링크를 복사하지 못했어요."
+        }
+        onOpenChange={(open) => setShareToast((prev) => ({ ...prev, open }))}
+        open={shareToast.open}
+        variant={shareToast.copied ? "positive" : "negative"}
+      />
     </div>
   );
 }
