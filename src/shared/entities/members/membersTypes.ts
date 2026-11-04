@@ -1,5 +1,5 @@
 // 설정 화면 계정 정보 카드(Figma 3524:152329)가 보여 주는 내 계정 정보.
-// 용어 사전(terminology.md)의 `사용자 → users` 도메인이다.
+// 용어 사전(terminology.md)의 `회원 → members` 도메인이다.
 export interface MyAccount {
   name: string;
   email: string;

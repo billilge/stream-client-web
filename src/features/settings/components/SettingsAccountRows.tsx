@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import SettingsRow from "@/features/settings/components/SettingsRow";
-import { usersQueries } from "@/shared/entities/users/usersQueries";
+import { membersQueries } from "@/shared/entities/members/membersQueries";
 
 interface SettingsAccountRowsProps {
   onChangePhone: () => void;
@@ -11,7 +11,7 @@ interface SettingsAccountRowsProps {
 // 뺀다. 받는 동안은 SettingsScreen의 Suspense가 SettingsAccountRowsSkeleton을 보여준다.
 // 카드 껍데기(SettingsSection)와 "계정 정보" 라벨은 데이터와 무관해서 화면이 바로 그린다.
 function SettingsAccountRows({ onChangePhone }: SettingsAccountRowsProps) {
-  const { data: account } = useSuspenseQuery(usersQueries.myAccount());
+  const { data: account } = useSuspenseQuery(membersQueries.myAccount());
 
   return (
     <>

@@ -4,10 +4,9 @@ import { LOGIN_PATH } from "@/features/auth/constants/auth";
 // (알림의 `NOTIFICATIONS_PATH`와 같은 방식). 경로와 컴포넌트 이름의 형태를 맞춘다
 // (`/withdrawal` ↔ `Withdrawal*`).
 //
-// 백엔드 연동 시 확인할 것: `settings`는 용어 사전(terminology.md)에 없는 이름이다. 화면 묶음을
-// 가리키는 말이라 폴더·라우트에만 쓰고, 데이터는 사전에 있는 `users` 도메인으로 뒀다
-// (`shared/entities/users/`). 백엔드가 설정 전용 엔드포인트를 따로 내면 그때 사전에 추가하고 여기를
-// 맞춘다 — 프론트에서 먼저 정하지 않는다(terminology.md 원칙).
+// `settings`는 용어 사전(terminology.md)에 없는 이름이다. 화면 묶음을 가리키는 말이라 폴더·라우트에만
+// 쓰고, 데이터는 서버 회원 API(`/v1/app/members`)와 같은 `members` 도메인으로 뒀다
+// (`shared/entities/members/`).
 export const SETTINGS_PATHS = {
   phoneChange: "/settings/phone",
   root: "/settings",
