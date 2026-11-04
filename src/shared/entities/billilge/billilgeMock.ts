@@ -39,12 +39,11 @@ function mockItem(
   category: BillilgeCategory,
   imageUrl: string,
   maxRentalDays: number | null,
-  count = 28,
 ): BillilgeItem {
   const isRental = maxRentalDays !== null;
   return {
     category,
-    count,
+    count: 28,
     imageUrl,
     itemId,
     name,
@@ -56,8 +55,8 @@ function mockItem(
   };
 }
 
-// Figma: 빌릴게 Item Grid (nodeId 1243:73343) 순서·물품명·수량을 그대로 옮긴 목데이터 — 대여 탭 목록(물품 목록
-// API를 붙이기 전까지)과 통합 검색(검색 API가 붙으면 지운다)이 쓴다. 분류·대여품 여부는 Figma에 없어 물품명 기준으로 정했다.
+// Figma: 빌릴게 Item Grid (nodeId 1243:73343) 순서·물품명·수량을 그대로 옮긴 목데이터 — 통합 검색만 쓴다(검색 API가
+// 붙으면 지운다). 대여 탭 목록은 서버에서 받는다. 분류·대여품 여부는 Figma에 없어 물품명 기준으로 정했다.
 export const BILLILGE_ITEMS: BillilgeItem[] = [
   mockItem(1, "고데기", "ELECTRONICS", curlingIron, 0),
   mockItem(2, "노트북 충전기(C타입)", "ELECTRONICS", laptopCharger, 1),
@@ -68,8 +67,7 @@ export const BILLILGE_ITEMS: BillilgeItem[] = [
   mockItem(7, "생리대(대형)", "HYGIENE", sanitaryPad, null),
   mockItem(8, "생리대(소형)", "HYGIENE", sanitaryPad, null),
   mockItem(9, "알콜스왑", "MEDICINE", alcoholSwab, null),
-  // 품절 카드(Figma 1453:115350)를 볼 수 있게 우산만 재고를 0으로 둔다
-  mockItem(10, "우산", "DAILY_SUPPLIES", umbrella, 2, 0),
+  mockItem(10, "우산", "DAILY_SUPPLIES", umbrella, 2),
   mockItem(11, "위장약", "MEDICINE", pill, null),
   mockItem(12, "이지엔6", "MEDICINE", pill, null),
   mockItem(13, "인공눈물", "MEDICINE", eyeDrops, null),

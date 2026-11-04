@@ -1,25 +1,40 @@
 import {
+  infiniteQueryOptions,
   queryOptions,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { mockupResponse } from "@/lib/mockupApi";
-import { api, isApiError } from "@/shared/api";
+import { api, type CursorSliceResponse, isApiError } from "@/shared/api";
 import { billilgeKeys } from "@/shared/entities/billilge/billilgeKeys";
-import { BILLILGE_ITEMS } from "@/shared/entities/billilge/billilgeMock";
 import type {
+  BillilgeCategory,
   BillilgeHistoryListResponse,
+  BillilgeItem,
   BillilgeRentalApplyRequest,
   BillilgeReturnRequiredListResponse,
 } from "@/shared/entities/billilge/billilgeTypes";
 
+// 커서 목록의 다음 페이지 — 마지막 페이지면 null이라 더 받지 않는다
+function getNextCursor(lastPage: CursorSliceResponse<unknown>) {
+  return lastPage.hasNext ? lastPage.nextCursor : null;
+}
+
 // 화면은 이 queryOptions로만 데이터를 받는다. 화면 모양으로 바꿔야 하면 화면 쪽에서 select를 더한다.
 export const billilgeQueries = {
-  items: () =>
-    queryOptions({
-      queryKey: billilgeKeys.items(),
-      queryFn: () => mockupResponse(() => BILLILGE_ITEMS),
+  // 물품 목록을 이름순 커서로 이어 받는다(GET /v1/app/billilge/items). category가 null이면 거르지 않는다.
+  // 한 번에 서버 기본값(20개)씩 받는다.
+  items: (category: BillilgeCategory | null) =>
+    infiniteQueryOptions({
+      queryKey: billilgeKeys.itemList(category),
+      queryFn: ({ pageParam, signal }) =>
+        api.get<CursorSliceResponse<BillilgeItem>>("/v1/app/billilge/items", {
+          // axios는 null인 파라미터를 보내지 않는다 — 첫 페이지는 cursor 없이, 전체는 category 없이 간다
+          params: { category, cursor: pageParam },
+          signal,
+        }),
+      initialPageParam: null as string | null,
+      getNextPageParam: getNextCursor,
     }),
   // 내 대여 이력 전체(상태 필터 없음), 최근 신청순. 페이지 없이 한 번에 온다
   histories: () =>
