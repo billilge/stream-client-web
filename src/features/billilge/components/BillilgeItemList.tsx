@@ -27,6 +27,7 @@ function BillilgeItemList({ category, onRentRequest }: BillilgeItemListProps) {
         )
         .map((item) => (
           <BillilgeItemCard
+            disabled={item.count === 0}
             icon={item.imageUrl}
             itemName={item.name}
             key={item.itemId}

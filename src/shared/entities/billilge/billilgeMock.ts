@@ -39,11 +39,12 @@ function mockItem(
   category: BillilgeCategory,
   imageUrl: string,
   maxRentalDays: number | null,
+  count = 28,
 ): BillilgeItem {
   const isRental = maxRentalDays !== null;
   return {
     category,
-    count: 28,
+    count,
     imageUrl,
     itemId,
     name,
@@ -67,7 +68,8 @@ export const BILLILGE_ITEMS: BillilgeItem[] = [
   mockItem(7, "생리대(대형)", "HYGIENE", sanitaryPad, null),
   mockItem(8, "생리대(소형)", "HYGIENE", sanitaryPad, null),
   mockItem(9, "알콜스왑", "MEDICINE", alcoholSwab, null),
-  mockItem(10, "우산", "DAILY_SUPPLIES", umbrella, 2),
+  // 품절 카드(Figma 1453:115350)를 볼 수 있게 우산만 재고를 0으로 둔다
+  mockItem(10, "우산", "DAILY_SUPPLIES", umbrella, 2, 0),
   mockItem(11, "위장약", "MEDICINE", pill, null),
   mockItem(12, "이지엔6", "MEDICINE", pill, null),
   mockItem(13, "인공눈물", "MEDICINE", eyeDrops, null),

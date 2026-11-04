@@ -22,6 +22,8 @@ interface BillilgeItemCardProps {
   // 이 모양이다. 회색 배경 위의 메인 목록은 테두리가 없고, stepper variant는 항상 테두리가 있다.
   bordered?: boolean;
   actionLabel?: string;
+  // 재고가 0인 물품(Figma Rental Item Card 1453:115350)은 "대여 신청"이 회색으로 막힌다
+  disabled?: boolean;
   onRentRequest?: () => void;
   stepperValue?: number;
   onStepperDecrease?: () => void;
@@ -47,6 +49,7 @@ function BillilgeItemCard({
   trailingControl = "button",
   bordered = false,
   actionLabel = "대여 신청",
+  disabled = false,
   onRentRequest,
   stepperValue = 1,
   onStepperDecrease,
@@ -102,12 +105,18 @@ function BillilgeItemCard({
         {!isStepper && (
           <Button
             color="primary"
+            disabled={disabled}
             onClick={onRentRequest}
             size="small"
-            sx={{
-              backgroundColor: "var(--color-primary-subtle)",
-              color: "var(--color-primary)",
-            }}
+            // 막힌 버튼은 WDS disabled 모양(회색 배경·글자)이 Figma와 같아서 연한 파랑 보정을 끈다
+            sx={
+              disabled
+                ? undefined
+                : {
+                    backgroundColor: "var(--color-primary-subtle)",
+                    color: "var(--color-primary)",
+                  }
+            }
             variant="solid"
           >
             {actionLabel}
