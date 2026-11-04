@@ -4,7 +4,7 @@ import {
   TopNavigationButton,
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
-import { Suspense, startTransition, useState } from "react";
+import { Suspense, startTransition, useDeferredValue, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -14,8 +14,11 @@ import BillilgeItemList from "@/features/billilge/components/BillilgeItemList";
 import BillilgeListSkeleton from "@/features/billilge/components/BillilgeListSkeleton";
 import BillilgeRentalSheet from "@/features/billilge/components/BillilgeRentalSheet";
 import BillilgeReturnSection from "@/features/billilge/components/BillilgeReturnSection";
+import BillilgeReturnSkeleton from "@/features/billilge/components/BillilgeReturnSkeleton";
 import {
+  BILLILGE_ALL_CATEGORIES,
   BILLILGE_TAB_PATHS,
+  type BillilgeCategoryFilterValue,
   type BillilgeTab,
 } from "@/features/billilge/constants/billilge";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
@@ -33,7 +36,12 @@ function BillilgeListScreen({ tab }: BillilgeListScreenProps) {
   // 탭을 바꿀 때마다 히스토리가 쌓이지 않게 replace로 바꾼다
   const changeTab = (next: BillilgeTab) =>
     navigate(BILLILGE_TAB_PATHS[next], { replace: true });
-  const [category, setCategory] = useState("전체");
+  const [category, setCategory] = useState<BillilgeCategoryFilterValue>(
+    BILLILGE_ALL_CATEGORIES,
+  );
+  // 카테고리마다 서버에서 따로 받는다. 칩은 바로 바뀌고, 목록은 새 카테고리를 받는 동안 스켈레톤으로 비우지 않고
+  // 지금 목록을 띄워 둔다(행사 목록과 같은 방식)
+  const listCategory = useDeferredValue(category);
   const [rentalItem, setRentalItem] = useState<BillilgeItem | null>(null);
   const [rentalSheetOpen, setRentalSheetOpen] = useState(false);
 
@@ -92,7 +100,7 @@ function BillilgeListScreen({ tab }: BillilgeListScreenProps) {
           // 헤더·토글·필터는 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다
           <Suspense fallback={<BillilgeListSkeleton />}>
             <BillilgeItemList
-              category={category}
+              category={listCategory}
               onRentRequest={(item) => {
                 // 바텀시트를 여는 것(슬라이드 애니메이션)은 즉시 반영하고, 그 안의 휠
                 // 피커(특히 분 60개) 마운트처럼 무거운 작업은 startTransition으로 낮은
@@ -106,7 +114,9 @@ function BillilgeListScreen({ tab }: BillilgeListScreenProps) {
             />
           </Suspense>
         ) : (
-          <BillilgeReturnSection onBrowseRentals={() => changeTab("rent")} />
+          <Suspense fallback={<BillilgeReturnSkeleton />}>
+            <BillilgeReturnSection onBrowseRentals={() => changeTab("rent")} />
+          </Suspense>
         )}
       </div>
 

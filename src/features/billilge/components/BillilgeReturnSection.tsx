@@ -1,3 +1,4 @@
+import { useSuspenseQueries } from "@tanstack/react-query";
 import { Button, Divider, Typography } from "@wanteddev/wds";
 import { Fragment } from "react";
 
@@ -6,11 +7,14 @@ import returnItemsEmptyIllustration from "@/assets/icons/billilge-empty/return-i
 import BillilgeEmptyState from "@/features/billilge/components/BillilgeEmptyState";
 import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
 import BillilgeRentalHistoryEntry from "@/features/billilge/components/BillilgeRentalHistoryEntry";
+import BillilgeStatusBadge from "@/features/billilge/components/BillilgeStatusBadge";
 import {
-  BILLILGE_RENTAL_HISTORY,
-  BILLILGE_RETURN_ITEMS,
-} from "@/features/billilge/constants/billilgeReturns";
+  BILLILGE_DELETED_ITEM_NAME,
+  getReturnDueLabel,
+} from "@/features/billilge/constants/billilge";
 import { useBillilgeReturnRequest } from "@/features/billilge/hooks/useBillilgeReturnRequest";
+import { formatDateTime } from "@/lib/date";
+import { billilgeQueries } from "@/shared/entities/billilge/billilgeQueries";
 
 interface BillilgeReturnSectionProps {
   onBrowseRentals?: () => void;
@@ -18,11 +22,10 @@ interface BillilgeReturnSectionProps {
 
 // Figma: 빌릴게 반납 화면 Content (nodeId 1133:49978, 빈 상태는 1410:55628) — 반납이 필요한 물품 +
 // 대여 내역 두 섹션. 대여 탭과 달리 카테고리 필터 행이 없어서 BillilgeListScreen이 이 탭일 때는
-// 필터를 안 그린다.
+// 필터를 안 그린다. 두 조회를 받는 동안은 BillilgeListScreen의 Suspense가 BillilgeReturnSkeleton을 보여준다.
 //
 // "반납 신청" 버튼 → 확인 모달(1133:49993) → "신청하기"로 확정하면 완료 토스트(1133:50015)가
-// 뜬다("닫기"는 모달만 닫는다). 실 백엔드 연동 전이라 신청 자체는 로컬 상태만 바꾸고(토스트만
-// 보여줌) 반납 대상 물품 목록·대여 내역은 그대로 둔다 — API가 붙으면 이 부분만 교체하면 된다.
+// 뜬다("닫기"는 모달만 닫는다).
 //
 // 하단 패딩을 넣지 않는다 — Content(1133:49978) 높이(542)가 두 섹션 높이(196+314)와 gap(32)의
 // 합과 정확히 같아서 Figma엔 하단 여백이 0이다. 대여 탭 목록의 pb-4는 앱 전역 스크롤 여백
@@ -30,6 +33,17 @@ interface BillilgeReturnSectionProps {
 function BillilgeReturnSection({
   onBrowseRentals,
 }: BillilgeReturnSectionProps) {
+  // 두 조회를 따로 기다리지 않게(요청이 줄줄이 이어지지 않게) 한 번에 같이 받는다
+  const [
+    {
+      data: { rentalHistories: returnItems },
+    },
+    {
+      data: { histories },
+    },
+  ] = useSuspenseQueries({
+    queries: [billilgeQueries.returnRequired(), billilgeQueries.histories()],
+  });
   const { openReturnRequest, returnRequestDialogs } =
     useBillilgeReturnRequest();
 
@@ -44,18 +58,28 @@ function BillilgeReturnSection({
         >
           반납이 필요한 물품
         </Typography>
-        {BILLILGE_RETURN_ITEMS.length > 0 ? (
+        {returnItems.length > 0 ? (
           <div className="flex flex-col gap-2">
-            {BILLILGE_RETURN_ITEMS.map((item) => (
-              <BillilgeItemCard
-                actionLabel="반납 신청"
-                icon={item.icon}
-                itemName={item.name}
-                key={item.id}
-                onRentRequest={openReturnRequest}
-                subtitle={`반납까지 ${item.hoursUntilDue}시간`}
-              />
-            ))}
+            {returnItems.map((item) => {
+              const due = getReturnDueLabel(item.dueAt);
+              return (
+                <BillilgeItemCard
+                  actionLabel="반납 신청"
+                  icon={item.itemImageUrl}
+                  itemName={item.itemName ?? BILLILGE_DELETED_ITEM_NAME}
+                  key={item.rentalHistoryId}
+                  onRentRequest={() => openReturnRequest(item.rentalHistoryId)}
+                  subtitle={due.text}
+                  subtitleTone={due.isOverdue ? "negative" : "normal"}
+                  // 반납은 대여 중(RENTAL)일 때만 신청할 수 있다 — 이미 신청한 대여는 버튼 대신 상태를 보여 준다
+                  trailingBadge={
+                    item.status === "RENTAL" ? undefined : (
+                      <BillilgeStatusBadge status={item.status} />
+                    )
+                  }
+                />
+              );
+            })}
           </div>
         ) : (
           <BillilgeEmptyState
@@ -75,18 +99,25 @@ function BillilgeReturnSection({
         >
           대여 내역
         </Typography>
-        {BILLILGE_RENTAL_HISTORY.length > 0 ? (
+        {histories.length > 0 ? (
           <div className="flex flex-col gap-4 rounded-xl bg-background-normal p-4">
-            {BILLILGE_RENTAL_HISTORY.map((entry, index) => (
-              <Fragment key={entry.id}>
+            {histories.map((history, index) => (
+              <Fragment key={history.rentalHistoryId}>
                 {index > 0 && (
                   <Divider color="semantic.line.normal.alternative" />
                 )}
                 <BillilgeRentalHistoryEntry
-                  icon={entry.icon}
-                  itemName={entry.name}
-                  rentedAt={entry.rentedAt}
-                  returnedAt={entry.returnedAt}
+                  icon={history.itemImageUrl}
+                  itemName={history.itemName ?? BILLILGE_DELETED_ITEM_NAME}
+                  rentedAt={
+                    history.rentAt ? formatDateTime(history.rentAt) : "-"
+                  }
+                  returnedAt={
+                    history.returnedAt
+                      ? formatDateTime(history.returnedAt)
+                      : "-"
+                  }
+                  status={history.status}
                 />
               </Fragment>
             ))}

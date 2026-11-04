@@ -113,16 +113,16 @@ function SearchCategoryItems({
         }));
       case "billilge":
         return results.billilge.map((item) => ({
-          id: item.id,
+          id: String(item.itemId),
           node: (
             <div className="px-5">
               <BillilgeItemCard
                 bordered
                 // 대여 바텀시트는 빌릴게 화면 안의 상태라 검색에서는 빌릴게 화면으로 보낸다.
-                icon={item.icon}
+                icon={item.imageUrl}
                 itemName={item.name}
                 onRentRequest={() => navigate("/billilge")}
-                subtitle={`수량 ${item.quantity}`}
+                subtitle={`수량 ${item.count}`}
               />
             </div>
           ),

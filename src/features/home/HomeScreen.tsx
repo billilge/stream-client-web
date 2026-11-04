@@ -1,6 +1,6 @@
 import { PushBadge, TopNavigationButton } from "@wanteddev/wds";
 import { IconBell, IconSearch, IconSetting } from "@wanteddev/wds-icon";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import logo from "@/assets/icons/home/logo.svg";
@@ -20,6 +20,7 @@ import HomeArchiveBanner from "@/features/home/components/HomeArchiveBanner";
 import HomeInfoList from "@/features/home/components/HomeInfoList";
 import HomeNoticeBanner from "@/features/home/components/HomeNoticeBanner";
 import HomeRentalSection from "@/features/home/components/HomeRentalSection";
+import HomeRentalSkeleton from "@/features/home/components/HomeRentalSkeleton";
 import {
   HOME_HAS_UNREAD_NOTIFICATION,
   HOME_MOCK_DATA,
@@ -134,12 +135,14 @@ function HomeScreen() {
               </div>
             )}
             <div className="px-5">
-              <HomeRentalSection
-                onBrowse={() => navigate(BILLILGE_TAB_PATHS.rent)}
-                onMore={() => navigate(BILLILGE_TAB_PATHS.return)}
-                onReturnRequest={openReturnRequest}
-                rentals={HOME_MOCK_DATA.rentals}
-              />
+              {/* 대여 현황만 서버에서 받는다 — 다른 섹션은 목데이터라 이 섹션 자리만 스켈레톤으로 채운다 */}
+              <Suspense fallback={<HomeRentalSkeleton />}>
+                <HomeRentalSection
+                  onBrowse={() => navigate(BILLILGE_TAB_PATHS.rent)}
+                  onMore={() => navigate(BILLILGE_TAB_PATHS.return)}
+                  onReturnRequest={openReturnRequest}
+                />
+              </Suspense>
             </div>
             <div className="px-5">
               <HomeAppliedEventSection
