@@ -1,4 +1,8 @@
-interface AuthPaginationDotsProps {
+interface PaginationDotsProps {
+  /** 닷 묶음 이름(스크린리더) — 예: "소개 슬라이드" */
+  label: string;
+  /** 닷 하나가 가리키는 것 — "1번째 {itemLabel} 보기"로 읽힌다 */
+  itemLabel: string;
   totalPages: number;
   /** 0부터 센다 */
   currentPage: number;
@@ -9,17 +13,19 @@ interface AuthPaginationDotsProps {
 // 같지만 크기가 달라서 쓰지 않았다: Figma 닷은 지름 6px·간격 6px(중심 간격 12px)인데, WDS는 `small`이
 // 8px·간격 8px(16px), `medium`이 10px이고 닷 크기를 CSS 변수로만 바꿀 수 있어 내부 오버라이드가 된다.
 // 현재 닷은 Label/Normal, 나머지는 같은 색의 16% 불투명도다.
-function AuthPaginationDots({
+function PaginationDots({
+  label,
+  itemLabel,
   totalPages,
   currentPage,
   onSelect,
-}: AuthPaginationDotsProps) {
+}: PaginationDotsProps) {
   return (
-    <nav aria-label="소개 슬라이드" className="flex items-center gap-1.5">
+    <nav aria-label={label} className="flex items-center gap-1.5">
       {Array.from({ length: totalPages }, (_, page) => (
         <button
           aria-current={page === currentPage}
-          aria-label={`${page + 1}번째 소개 보기`}
+          aria-label={`${page + 1}번째 ${itemLabel} 보기`}
           // 6px 닷은 누르기 어려워서 보이지 않는 영역만 사방으로 8px 넓힌다(배치는 그대로)
           className={`relative size-1.5 rounded-full after:absolute after:-inset-2 ${
             page === currentPage ? "bg-label-normal" : "bg-label-normal/16"
@@ -34,4 +40,4 @@ function AuthPaginationDots({
   );
 }
 
-export default AuthPaginationDots;
+export default PaginationDots;

@@ -425,7 +425,7 @@ WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하
 
 ### 신청 기간이 아닐 때의 상태는 Figma에 없다
 
-하단 `확인했어요` 버튼을 `disabled`로 두고 문구를 `신청 기간이 아니에요`로 바꾸기로 코드에서 정했다. 유의사항 3줄은 그대로 둔다. 디자인에 없는 상태를 만든 것이라 디자이너 확인이 필요하다 — `docs/plans/#68-lockers-notice-sheet.md` 참고.
+하단 `확인했어요` 버튼을 `disabled`로 두고 문구를 `신청 기간이 아니에요`로 바꾸기로 코드에서 정했다. 유의사항 3줄은 그대로 둔다. 기간 조회(`GET /v1/app/lockers/period`)의 `status`가 `OPEN`일 때만 열리고, 신청 전(`BEFORE_OPEN`)·마감(`CLOSED`)은 같은 문구다. 보여줄 회차가 없으면(`null`) 날짜 두 줄을 숨긴다. 디자인에 없는 상태를 만든 것이라 디자이너 확인이 필요하다 — `docs/plans/#68-lockers-notice-sheet.md` 참고.
 
 ## 열린피드백 상세페이지 · 모아보기(`1410:49988`) 구현 중 확정된 매핑
 
@@ -504,7 +504,7 @@ WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외
 
 ### 구역별 칸 배치는 서버 layout JSON을 렌더러로 그린다
 
-구역마다 배치 컴포넌트를 두지 않고, 구역 상세 응답의 `layout`(블록 7종: `row`·`column`·`lockerGroup`·`label`·`area`·`text`·`shelfLabel`)을 `LockersLayoutRenderer`가 그린다. 타입과 A-1·A-2 목데이터는 `constants/lockersSectionDetails.ts`. 블록은 Figma 로컬 요소와 이렇게 대응한다.
+구역마다 배치 컴포넌트를 두지 않고, 구역 상세 응답의 `layout`(블록 7종: `row`·`column`·`lockerGroup`·`label`·`area`·`text`·`shelfLabel`)을 `LockersLayoutRenderer`가 그린다. 블록 타입은 `shared/entities/lockers/lockersTypes.ts`, 응답 변환(`toLockersSectionDetail`)과 블록 형식 검사(zod)는 `lockersQueries.ts`. 배치를 등록하지 않은 구역(`layout: null`)·모르는 형식 버전(`version` ≠ 1)·형식이 어긋난 블록이면 칸 대신 빈 화면을 그린다. 블록은 Figma 로컬 요소와 이렇게 대응한다.
 
 | 블록 | Figma | 코드 |
 |---|---|---|
@@ -545,7 +545,7 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 
 ### 실제 사진의 칸 번호는 서버 사진에 찍혀 온다
 
-처음엔 서버가 사진 주소만 주고 프론트가 구역별 핀 좌표로 번호를 얹었지만, 사진을 바꿀 때마다 좌표를 같이 고쳐야 해서 번호를 사진에 찍어 받는 걸로 바꿨다. 모달은 `photoUrl`을 Figma 사진 틀(300×224)에 그대로 채운다. Figma의 사진 회전(1.12°)·확대 보정과 번호 핀(Orange 계열)은 사진을 만들 때 반영한다.
+처음엔 서버가 사진 주소만 주고 프론트가 구역별 핀 좌표로 번호를 얹었지만, 사진을 바꿀 때마다 좌표를 같이 고쳐야 해서 번호를 사진에 찍어 받는 걸로 바꿨다. 모달은 `photoUrls`를 Figma 사진 틀(300×224 비율, 좁은 화면에서는 비율대로 줄어든다)에 한 장씩 채우고, 2장 이상이면 가로로 넘기며 아래에 공용 `PaginationDots`를 둔다. 사진이 없으면 헤더의 사진 버튼을 숨긴다. Figma의 사진 회전(1.12°)·확대 보정과 번호 핀(Orange 계열)은 사진을 만들 때 반영한다.
 
 ## 사물함 신청 확인·진행·완료·오류(`1737:218322`, `1737:218076`, `1737:218058`, `3013:99093` 외 4종) 구현 중 확정된 매핑
 
@@ -554,7 +554,7 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 | 사물함 선택 확인 모달 (`1737:218322`) | `ConfirmModal` + `highlight` | 행사 신청 확인 모달과 같은 Stream 로컬 Modal이다. 사물함 번호만 Primary 색이라 `highlight`로 넘긴다 |
 | 사물함 신청 로딩 (`1737:218076`) | `SubmittingOverlay` | 행사 제출 중 화면과 같은 모션, 문구만 다르다 |
 | 사물함 신청 완료 (`1737:218058`) | `ResultScreen` + `CompleteCheck` | 행사 완료 화면과 같은 뼈대. `Locker Summary` 카드(`1737:218070`)만 화면이 그린다 |
-| 오류 5종 (`3013:99093`·`99116`·`99139`·`99162`·`99183`) | `ResultScreen` | 행사 신청 중 마감 화면과 같은 뼈대. 버튼 1개면 세로, 2개면 `neutral` |
+| 오류 (`3013:99093`·`99116`·`99162`·`99183`) | `ResultScreen` | 행사 신청 중 마감 화면과 같은 뼈대. 버튼 1개면 세로, 2개면 `neutral`. 구역 마감(`3013:99139`)은 서버에 대응 오류 코드가 없어(구역이 차면 칸이 선택 불가로 보인다) 지웠고, 이미 배정됨(`MEMBER_ALREADY_HAS_LOCKER`)은 Figma에 없어 같은 뼈대에 `배정 상태 보기`를 단다 |
 
 ### 결과 화면은 공용 `ResultScreen` — WDS `FallbackView`를 쓰지 않는다
 
@@ -566,7 +566,7 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 
 ### 미해결: 버튼 2개의 문구 길이가 다르면 너비가 반반이 안 된다
 
-`ActionArea variant="neutral"`은 버튼을 `flex: 1 1 0`으로 나누지만, 좌우 padding 28px + 문구가 절반 너비를 넘으면 그 버튼이 넓어진다. 구역 마감 화면(`3013:99139`)의 `다른 구역 선택하기`가 그렇다(Figma는 반반). 맞추려면 `ResultScreen`의 버튼 좌우 padding을 줄여야 해서 보류했다.
+`ActionArea variant="neutral"`은 버튼을 `flex: 1 1 0`으로 나누지만, 좌우 padding 28px + 문구가 절반 너비를 넘으면 그 버튼이 넓어진다. 지운 구역 마감 화면(`3013:99139`)의 `다른 구역 선택하기`가 그랬다(Figma는 반반). 지금 남은 화면들은 문구가 짧아 반반이다. 맞추려면 `ResultScreen`의 버튼 좌우 padding을 줄여야 해서 보류했다.
 
 ## 검색 화면(`1879:90575`, 화면설계서 `3147:135502`) 구현 중 확정된 매핑
 
@@ -661,7 +661,7 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 - **카드·빈 상태는 Stream 로컬**: 작성내역 카드(`FeedbacksHistoryCard`)와 학생회비 확인 내용 카드, 배정된 사물함 카드는 흰 바탕 `rounded-xl p-4` 로컬 카드다. 학생회비 납부 요약과 사물함 배정 요약(배지 + 제목 + 라벨/값 행)은 행사 신청내역 상세 요약과 같은 공용 `StatusSummaryCard`(`components/ui/`)를 쓴다 — 행 내용은 각 기능(`FeePaymentCard`·`LockersAssignmentContent`)이 만들어 넘긴다. 행 간격은 6px로, Figma 학생회비 카드(`3147:147860`)만 8px로 그려진 건 디자인 실수로 보고 맞췄다(#120). 로딩 중에는 같은 파일의 `StatusSummaryCardSkeleton`(행 수만큼 `rowWidths`)이 카드와 같은 높이·간격으로 자리를 채운다. 빈 상태는 행사 목록 Empty State와 같은 이유(`FallbackView`의 일러스트 크기·패딩 고정)로 로컬이다. 둘 다 공용 `EmptyState`를 쓴다 — 열린피드백은 그림 `icons/feedbacks/empty-feedback.svg` + solid 버튼, 사물함은 행사 목록과 같은 `icons/common/empty-events.svg`에 제목만(`titleVariant="body2"`).
 - **답변 강조 표시는 두 상세 화면이 공유한다**: 답변 글의 `**굵게**`를 볼드 `Typography`로 바꾸는 `FeedbacksAnswerText`를 모아보기 상세와 작성내역 상세가 같이 쓴다.
 - **사물함 위치 보기(`/my/locker/location`)는 Figma에 없다**: 칸 선택 화면 배치를 보기 전용으로 쓴다. 칸 영역(미니맵·확대 스크롤)은 `LockersMapView`로 두 화면이 공유하고, 범례는 화면이 `legend`로 넘긴다(신청 `<LockersLegend />`, 위치 보기 `<LockersLegend variant="mine" />` — "내 사물함" 하나). 내 칸은 배정 정보(`lockerLabel`) 하나에서 정해서 `selectedLockerNumber`로 넘기고, 선택된 칸 모양(Primary/Normal 배경 + 흰 번호)으로 그린다. 보기 전용 여부는 `onSelect`가 없는지로만 판단하고, 이때 칸을 버튼으로 그리지 않는다. 처음 열 때 선택된 칸(`data-selected`)이 화면 밖이면 보일 만큼만 스크롤한다. 신청 화면의 내 칸(구역 목데이터 `isMine`, 초록 테두리, 선택 불가)은 보기 전용에서는 그리지 않는다.
-- **Figma와 다르게 둔 값**: 요일은 날짜로 계산해서 Figma의 요일 표기와 다를 수 있다. 사물함 번호는 칸 배치 목데이터가 있는 A-1 구역에 맞춰 A-7로 두었다(Figma는 B-25). 사물함 빈 상태 문구의 연도는 기기 시계의 올해다(API 연동 때 서버 값으로 — 코드에 TODO). 날짜는 `lib/date`의 `formatDate`·`formatDateTime`으로 맞추고, 작성내역 상세만 Figma(`3147:147756`)대로 `2026-04-25` 하이픈 표기다.
+- **Figma와 다르게 둔 값**: 요일은 날짜로 계산해서 Figma의 요일 표기와 다를 수 있다. 사물함 빈 상태 문구의 연도는 기기 시계의 올해다(API 연동 때 서버 값으로 — 코드에 TODO). 날짜는 `lib/date`의 `formatDate`·`formatDateTime`으로 맞추고, 작성내역 상세만 Figma(`3147:147756`)대로 `2026-04-25` 하이픈 표기다.
 
 ## 행사 신청내역(`1133:46168` 목록 / `1165:63551` empty / `1133:46181` 상세 / `1133:46131` 신청취소 확인모달 / `1133:46216` 신청취소 상세 + 토스트) 구현 중 확정된 매핑
 
@@ -723,7 +723,7 @@ Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독
 
 ### 반례 — `Pagination/Dots`는 WDS `PaginationDots`와 크기가 다르다
 
-Figma 닷은 지름 6px·간격 6px(중심 간격 12px)이다. WDS `PaginationDots`는 `small`이 8px·간격 8px(중심 간격 16px), `medium`이 10px이고, 닷 크기를 CSS 변수(`--wds-pagination-dot-size`)로만 바꿀 수 있어 내부 오버라이드가 된다(`pagination-dots/style.js` 확인). 그래서 `AuthPaginationDots`를 로컬로 짰다 — 현재 닷은 `Label/Normal`, 나머지는 같은 색 16% 불투명도.
+Figma 닷은 지름 6px·간격 6px(중심 간격 12px)이다. WDS `PaginationDots`는 `small`이 8px·간격 8px(중심 간격 16px), `medium`이 10px이고, 닷 크기를 CSS 변수(`--wds-pagination-dot-size`)로만 바꿀 수 있어 내부 오버라이드가 된다(`pagination-dots/style.js` 확인). 그래서 `PaginationDots`(`components/ui`)를 로컬로 짰다 — 로그인 소개 슬라이드와 사물함 구역 사진이 같이 쓴다 — 현재 닷은 `Label/Normal`, 나머지는 같은 색 16% 불투명도.
 
 ### 반례 — `K-CONNECT로 시작하기` 버튼은 WDS `ActionAreaButton`이 아니다
 

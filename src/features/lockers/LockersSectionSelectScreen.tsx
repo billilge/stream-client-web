@@ -1,30 +1,33 @@
-import {
-  ActionArea,
-  ActionAreaButton,
-  TopNavigationButton,
-} from "@wanteddev/wds";
+import { useQueryClient } from "@tanstack/react-query";
+import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft, IconReset } from "@wanteddev/wds-icon";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import LockersFloorMap from "@/features/lockers/components/LockersFloorMap";
+import { HOME_PATH } from "@/features/home/constants/home";
+import LockersSectionSelectContent, {
+  LockersSectionSelectBody,
+} from "@/features/lockers/components/LockersSectionSelectContent";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
+import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
 
 // Figma: 사물함 구역 선택 전 (nodeId 1737:218452), 선택완료 (1737:218489)
-// 새로고침(Figma Icon/Normal/Reset)은 잔여 수량 API가 없어 지금은 페이지를 다시 읽는다.
 function LockersSectionSelectScreen() {
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
+  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
     null,
   );
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const handleBack = useBackNavigation(HOME_PATH);
 
   useScreenHeader(
     <ScreenHeader
       leading={
         <TopNavigationButton
           aria-label="뒤로가기"
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           variant="icon"
         >
           <IconChevronLeft />
@@ -34,8 +37,12 @@ function LockersSectionSelectScreen() {
       trailing={
         <TopNavigationButton
           aria-label="새로고침"
-          // 잔여 수량 API가 붙으면 페이지를 다시 읽지 말고 그 조회만 다시 하도록 바꾼다
-          onClick={() => window.location.reload()}
+          onClick={() =>
+            queryClient.refetchQueries({
+              queryKey: lockersKeys.sections(),
+              type: "active",
+            })
+          }
           variant="icon"
         >
           <IconReset />
@@ -45,31 +52,26 @@ function LockersSectionSelectScreen() {
     />,
   );
 
+  const goToSection = (sectionId: number) =>
+    navigate(`/lockers/apply/sections/${sectionId}`, { viewTransition: true });
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="scrollbar-hidden flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-1 pb-2">
-        <LockersFloorMap
+      <Suspense
+        fallback={
+          <LockersSectionSelectBody
+            onConfirm={goToSection}
+            onSelect={setSelectedSectionId}
+            selectedSectionId={null}
+          />
+        }
+      >
+        <LockersSectionSelectContent
+          onConfirm={goToSection}
           onSelect={setSelectedSectionId}
           selectedSectionId={selectedSectionId}
         />
-      </div>
-
-      <ActionArea>
-        {/* 높이 보정 이유는 wds-component-usage.md "Action Area 메인 버튼 높이" 참고 */}
-        <ActionAreaButton
-          disabled={selectedSectionId === null}
-          onClick={() =>
-            navigate(`/lockers/apply/sections/${selectedSectionId}`, {
-              viewTransition: true,
-            })
-          }
-          sx={{ paddingBlock: "16px" }}
-        >
-          {selectedSectionId === null
-            ? "사물함 구역을 선택해 주세요"
-            : "선택 완료"}
-        </ActionAreaButton>
-      </ActionArea>
+      </Suspense>
     </div>
   );
 }

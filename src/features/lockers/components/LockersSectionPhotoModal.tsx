@@ -1,16 +1,18 @@
 import { IconButton, Typography } from "@wanteddev/wds";
 import { IconClose } from "@wanteddev/wds-icon";
 import type { KeyboardEvent } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+import PaginationDots from "@/components/ui/PaginationDots";
 import { useScreenSheetPortal } from "@/components/ui/useScreenSheetPortal";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 interface LockersSectionPhotoModalProps {
   open: boolean;
   sectionName: string;
   // 칸 번호가 이미 찍혀 있는 사진이다
-  photoUrl: string;
+  photoUrls: string[];
   onClose: () => void;
 }
 
@@ -22,12 +24,30 @@ interface LockersSectionPhotoModalProps {
 function LockersSectionPhotoModal({
   open,
   sectionName,
-  photoUrl,
+  photoUrls,
   onClose,
 }: LockersSectionPhotoModalProps) {
   const portalEl = useScreenSheetPortal();
   const dialogRef = useRef<HTMLDivElement>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(0);
+  const shouldReduceMotion = usePrefersReducedMotion();
+
+  const handleScroll = () => {
+    const scroller = scrollerRef.current;
+    if (scroller) {
+      setPage(Math.round(scroller.scrollLeft / scroller.clientWidth));
+    }
+  };
+
+  const goToPage = (nextPage: number) => {
+    const scroller = scrollerRef.current;
+    scroller?.scrollTo({
+      behavior: shouldReduceMotion ? "auto" : "smooth",
+      left: nextPage * scroller.clientWidth,
+    });
+  };
 
   // 열리면 포커스를 모달로 옮기고, 닫히면 사진 버튼으로 되돌린다
   useEffect(() => {
@@ -76,7 +96,7 @@ function LockersSectionPhotoModal({
       <div
         aria-label={`${sectionName}구역 실제 사진`}
         aria-modal="true"
-        className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-end gap-3 rounded-3xl bg-background-normal p-3"
+        className="absolute inset-x-5 top-1/2 mx-auto flex max-w-81 -translate-y-1/2 flex-col items-end gap-3 rounded-3xl bg-background-normal p-3"
         ref={dialogRef}
         role="dialog"
         tabIndex={-1}
@@ -84,14 +104,32 @@ function LockersSectionPhotoModal({
         <IconButton aria-label="닫기" onClick={onClose} size={24}>
           <IconClose />
         </IconButton>
-        {/* Figma 사진 틀 300×224. Figma의 회전·확대 보정은 사진을 자를 때 끝낸다 */}
-        <div className="h-56 w-[300px] overflow-hidden rounded-sm">
-          <img
-            alt={`${sectionName}구역 사물함 사진`}
-            className="size-full object-cover"
-            src={photoUrl}
-          />
+        {/* Figma 사진 틀 300×224 — 좁은 화면에서는 비율을 지킨 채 줄어든다 */}
+        <div
+          className="scrollbar-hidden flex aspect-[300/224] w-full snap-x snap-mandatory overflow-x-auto rounded-sm"
+          onScroll={handleScroll}
+          ref={scrollerRef}
+        >
+          {photoUrls.map((photoUrl, index) => (
+            <img
+              alt={`${sectionName}구역 사물함 사진 ${index + 1}`}
+              className="size-full shrink-0 snap-start object-cover"
+              key={photoUrl}
+              src={photoUrl}
+            />
+          ))}
         </div>
+        {photoUrls.length > 1 && (
+          <div className="flex w-full justify-center">
+            <PaginationDots
+              currentPage={page}
+              itemLabel="사진"
+              label={`${sectionName}구역 사진`}
+              onSelect={goToPage}
+              totalPages={photoUrls.length}
+            />
+          </div>
+        )}
         {/* Figma 2159:110379 — 카드 폭 전체에 가운데 정렬 */}
         <Typography
           as="p"
@@ -100,7 +138,7 @@ function LockersSectionPhotoModal({
           variant="caption2"
           weight="regular"
         >
-          번호가 표시된 실제 배치 사진입니다.
+          번호가 표시된 실제 배치 사진이에요.
         </Typography>
       </div>
     </div>,

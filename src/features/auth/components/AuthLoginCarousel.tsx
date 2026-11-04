@@ -2,7 +2,7 @@ import { Typography } from "@wanteddev/wds";
 import { useRef, useState } from "react";
 
 import illustrationCircle from "@/assets/icons/auth/illustration-circle.svg";
-import AuthPaginationDots from "@/features/auth/components/AuthPaginationDots";
+import PaginationDots from "@/components/ui/PaginationDots";
 import { LOGIN_SLIDES } from "@/features/auth/constants/auth";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
@@ -86,8 +86,10 @@ function AuthLoginCarousel() {
         </div>
       </div>
 
-      <AuthPaginationDots
+      <PaginationDots
         currentPage={page}
+        itemLabel="소개"
+        label="소개 슬라이드"
         onSelect={goToPage}
         totalPages={LOGIN_SLIDES.length}
       />

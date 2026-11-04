@@ -1,6 +1,10 @@
-// 구역 혼잡도. Figma 목업의 잔여 수량과 뱃지가 서로 맞물리지 않아서(6/6·12/12이 "여유"인데
-// 24/60은 "보통", 24/40은 "마감 임박") 잔여 비율에서 유도하지 않고 데이터로 받는다.
-// 임계값 규칙이 정해지면 그때 유도로 바꾼다.
+import type {
+  LockerAvailabilityStatus,
+  LockerSectionListResponse,
+} from "@/shared/entities/lockers/lockersTypes";
+
+// 구역 혼잡도. Figma 목업의 잔여 수량과 뱃지가 서로 맞물리지 않아서 잔여 비율에서 유도하지 않고
+// 서버가 판정한 값(availabilityStatus)을 그대로 쓴다.
 export type LockersSectionStatus =
   | "spacious"
   | "normal"
@@ -8,29 +12,47 @@ export type LockersSectionStatus =
   | "full";
 
 export interface LockersSection {
-  id: string;
+  sectionId: number;
   name: string;
   status: LockersSectionStatus;
   remaining: number;
   total: number;
 }
 
-// Figma: 사물함 구역 선택 전 Floor Map (nodeId 1737:218457)의 구역을 그대로 옮긴 목데이터.
-// 평면도 배치(231/232호실·화장실·계단·복도)는 데이터가 아니라 LockersFloorMap의 레이아웃이 갖는다.
-export const LOCKERS_LEFT_SECTIONS: LockersSection[] = [
-  { id: "A-1", name: "A-1", remaining: 24, status: "spacious", total: 34 },
+// 평면도 자리. 호실·계단 사이 어디에 놓이는지는 실제 건물 구조라 LockersFloorMap 레이아웃이 갖고,
+// 서버 구역은 이 이름으로 찾아 넣는다. 서버에 없는 자리는 고를 수 없게 그린다.
+export const LOCKERS_LEFT_SECTION_NAMES = ["A-1"];
+export const LOCKERS_RIGHT_SECTION_NAMES = [
+  "A-2",
+  "B-1",
+  "B-2",
+  "C",
+  "D",
+  "A-3",
 ];
+// 계단 아래에 따로 놓이는 구역
+export const LOCKERS_RIGHT_SECTION_NAMES_BELOW_STAIRS = ["A-4"];
 
-export const LOCKERS_RIGHT_SECTIONS: LockersSection[] = [
-  { id: "A-2", name: "A-2", remaining: 6, status: "spacious", total: 6 },
-  { id: "B-1", name: "B-1", remaining: 24, status: "normal", total: 60 },
-  { id: "B-2", name: "B-2", remaining: 24, status: "almostFull", total: 40 },
-  { id: "C", name: "C", remaining: 0, status: "full", total: 100 },
-  { id: "D", name: "D", remaining: 24, status: "spacious", total: 30 },
-  { id: "A-3", name: "A-3", remaining: 12, status: "spacious", total: 12 },
-];
+const SECTION_STATUSES = {
+  ALMOST_FULL: "almostFull",
+  FULL: "full",
+  NORMAL: "normal",
+  PLENTY: "spacious",
+} as const satisfies Record<LockerAvailabilityStatus, LockersSectionStatus>;
 
-// 계단 아래에 따로 놓이는 구역 — 평면도상 위치가 달라서 배열을 나눠 둔다.
-export const LOCKERS_RIGHT_SECTIONS_BELOW_STAIRS: LockersSection[] = [
-  { id: "A-4", name: "A-4", remaining: 24, status: "spacious", total: 26 },
-];
+export function toLockersSections(
+  response: LockerSectionListResponse,
+): Map<string, LockersSection> {
+  return new Map(
+    response.sections.map((section) => [
+      section.section,
+      {
+        name: section.section,
+        remaining: section.availableCount,
+        sectionId: section.sectionId,
+        status: SECTION_STATUSES[section.availabilityStatus],
+        total: section.totalCount,
+      },
+    ]),
+  );
+}
