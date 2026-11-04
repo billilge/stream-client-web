@@ -63,14 +63,19 @@ function getNextPage(lastPage: z.infer<typeof feedbackPageSchema>) {
 export const feedbacksQueries = {
   // 공개된 답변이 있는 피드백을 최근 공개 회차 순으로 이어 받는다(GET /v1/app/feedbacks). 연도·차수는 서버가 걸러 준다
   // — 번호로 나눠 받아서 받은 것만 거르면 다음 페이지의 피드백이 빠진다. 한 번에 서버 기본값(20건)씩 받는다.
-  list: (year: number | null, round: number | null) =>
+  // keyword는 검색 화면의 열린피드백 탭이 질문으로 찾을 때만 넘긴다.
+  list: (
+    year: number | null,
+    round: number | null,
+    keyword: string | null = null,
+  ) =>
     infiniteQueryOptions({
-      queryKey: feedbacksKeys.list(year, round),
+      queryKey: feedbacksKeys.list(year, round, keyword),
       queryFn: async ({ pageParam, signal }) =>
         feedbackPageSchema.parse(
           await api.get<unknown>(FEEDBACKS_PATH, {
             // axios는 null인 파라미터를 보내지 않는다 — 전체는 year·round 없이 간다
-            params: { page: pageParam, round, year },
+            params: { keyword, page: pageParam, round, year },
             signal,
           }),
         ),

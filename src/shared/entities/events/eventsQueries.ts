@@ -194,15 +194,18 @@ function getNextCursor(lastPage: CursorSliceResponse<unknown>) {
 export const eventsQueries = {
   // 행사 목록을 커서로 이어 받는다(GET /v1/app/events). recruitStatus가 null이면 거르지 않는다.
   // 서버가 모집중(신청 마감 임박순) → 모집예정(신청 시작 임박순) → 모집종료(최근 행사순)로 정렬해 준다 —
-  // 필터를 걸어도 상태 안의 순서는 같아서 화면은 받은 순서대로 그린다.
-  list: (recruitStatus: EventRecruitStatus | null) =>
+  // 필터를 걸어도 상태 안의 순서는 같아서 화면은 받은 순서대로 그린다. keyword는 검색 화면의 행사 탭이 제목으로 찾을 때만 넘긴다.
+  list: (
+    recruitStatus: EventRecruitStatus | null,
+    keyword: string | null = null,
+  ) =>
     infiniteQueryOptions({
-      queryKey: eventsKeys.list(recruitStatus),
+      queryKey: eventsKeys.list(recruitStatus, keyword),
       queryFn: async ({ pageParam, signal }) =>
         eventListPageSchema.parse(
           await api.get<unknown>("/v1/app/events", {
             // axios는 null인 파라미터를 보내지 않는다 — 첫 페이지는 cursor 없이, 전체는 recruitStatus 없이 간다
-            params: { cursor: pageParam, recruitStatus },
+            params: { cursor: pageParam, keyword, recruitStatus },
             signal,
           }),
         ),

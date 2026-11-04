@@ -69,15 +69,15 @@ function getNextCursor(lastPage: z.infer<typeof noticePageSchema>) {
 // 화면은 이 queryOptions로만 데이터를 받는다. 화면 모양으로 바꿔야 하면 화면 쪽에서 select를 더한다.
 export const noticesQueries = {
   // 공지를 고정 먼저, 최신순으로 이어 받는다(GET /v1/app/notices). category가 null이면 거르지 않는다.
-  // 한 번에 서버 기본값(20개)씩 받는다.
-  list: (category: NoticeCategoryCode | null) =>
+  // 한 번에 서버 기본값(20개)씩 받는다. keyword는 검색 화면의 공지 탭이 제목으로 찾을 때만 넘긴다.
+  list: (category: NoticeCategoryCode | null, keyword: string | null = null) =>
     infiniteQueryOptions({
-      queryKey: noticesKeys.list(category),
+      queryKey: noticesKeys.list(category, keyword),
       queryFn: async ({ pageParam, signal }) =>
         noticePageSchema.parse(
           await api.get<unknown>(NOTICES_PATH, {
             // axios는 null인 파라미터를 보내지 않는다 — 첫 페이지는 cursor 없이, 전체는 category 없이 간다
-            params: { category, cursor: pageParam },
+            params: { category, cursor: pageParam, keyword },
             signal,
           }),
         ),

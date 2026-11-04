@@ -3,8 +3,8 @@
 export const feedbacksKeys = {
   root: () => ["feedbacks"] as const,
   lists: () => [...feedbacksKeys.root(), "list"] as const,
-  list: (year: number | null, round: number | null) =>
-    [...feedbacksKeys.lists(), year, round] as const,
+  list: (year: number | null, round: number | null, keyword: string | null) =>
+    [...feedbacksKeys.lists(), year, round, keyword] as const,
   recent: () => [...feedbacksKeys.root(), "recent"] as const,
   rounds: (year: number | null) =>
     [...feedbacksKeys.root(), "rounds", year] as const,
