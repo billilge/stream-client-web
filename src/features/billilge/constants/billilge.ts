@@ -1,4 +1,7 @@
-import type { BillilgeCategory } from "@/shared/entities/billilge/billilgeTypes";
+import type {
+  BillilgeCategory,
+  BillilgeRentalStatus,
+} from "@/shared/entities/billilge/billilgeTypes";
 
 // 빌릴게의 대여/반납 탭은 경로로 나눈다(행사 목록 EVENTS_TAB_PATHS와 같은 방식) — 새로고침·뒤로가기에도
 // 탭이 유지되고, 홈 대여 현황 "더보기"처럼 다른 화면에서도 반납 탭으로 바로 보낼 수 있다.
@@ -16,6 +19,54 @@ export const BILLILGE_CATEGORY_LABELS = {
   MEDICINE: "상비약",
   HYGIENE: "위생용품",
 } satisfies Record<BillilgeCategory, string>;
+
+// 대여 상태 뱃지 — Figma 빌릴게 대여내역 뱃지(1133:50036). 승인을 기다리는 두 상태만 회색(neutral)이고
+// 나머지는 accent 색이다. 대여 내역·반납이 필요한 물품·홈 대여 현황이 같이 쓴다.
+export const BILLILGE_STATUS_BADGES = {
+  PENDING: {
+    color: "neutral",
+    label: "대여 승인대기",
+    token: "semantic.label.alternative",
+  },
+  CONFIRMED: {
+    color: "accent",
+    label: "수령대기",
+    token: "semantic.accent.foreground.orange",
+  },
+  RENTAL: {
+    color: "accent",
+    label: "대여중",
+    token: "semantic.accent.foreground.blue",
+  },
+  RETURN_PENDING: {
+    color: "neutral",
+    label: "반납 승인대기",
+    token: "semantic.label.alternative",
+  },
+  RETURN_CONFIRMED: {
+    color: "accent",
+    label: "반납대기",
+    token: "semantic.accent.foreground.orange",
+  },
+  RETURNED: {
+    color: "accent",
+    label: "반납완료",
+    token: "semantic.accent.foreground.green",
+  },
+  CANCEL: {
+    color: "accent",
+    label: "대기취소",
+    token: "semantic.accent.foreground.red",
+  },
+  REJECTED: {
+    color: "accent",
+    label: "대여불가",
+    token: "semantic.accent.foreground.red",
+  },
+} as const satisfies Record<
+  BillilgeRentalStatus,
+  { color: "neutral" | "accent"; label: string; token: string }
+>;
 
 // 대여 이력에 남은 물품이 지워졌으면 서버가 이름을 null로 준다
 export const BILLILGE_DELETED_ITEM_NAME = "삭제된 물품";

@@ -112,6 +112,7 @@ function BillilgeReturnSection({
                       ? formatDateTime(history.returnedAt)
                       : "-"
                   }
+                  status={history.status}
                 />
               </Fragment>
             ))}
