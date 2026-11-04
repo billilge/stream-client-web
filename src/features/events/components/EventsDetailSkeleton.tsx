@@ -2,23 +2,19 @@ import { Skeleton } from "@wanteddev/wds";
 
 import {
   SKELETON_ROW_KEYS,
+  useScreenHeaderSkeleton,
   useSkeletonAnimation,
 } from "@/components/ui/ScreenSkeleton";
 
-// 행사 데이터를 받는 동안 EventsDetailScreen에 보이는 자리 — 정사각 Hero 이미지, 상태 뱃지·제목, 일시/장소/대상
-// 정보 행을 그대로 따른다. 실제 화면처럼 헤더 없이 Hero가 맨 위에서 시작하므로 헤더 슬롯은 비워 둔다.
+// 행사 데이터를 받는 동안 EventsDetailScreen에 보이는 자리 — 상태 뱃지·제목, 일시/장소/대상 정보 행을 따른다.
+// 사진 유무는 행사마다 달라서 공지 상세 스켈레톤처럼 사진 자리 대신 헤더 자리를 그린다.
 function EventsDetailSkeleton() {
   const animation = useSkeletonAnimation();
+  useScreenHeaderSkeleton();
 
   return (
     <div className="flex-1 overflow-hidden bg-background-normal">
-      <Skeleton
-        animation={animation}
-        className="aspect-square"
-        radius="0"
-        variant="rectangle"
-      />
-      <div className="flex flex-col gap-5 px-5 pt-5">
+      <div className="flex flex-col gap-5 px-5">
         <div className="flex flex-col gap-3">
           <Skeleton
             animation={animation}

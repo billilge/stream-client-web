@@ -169,8 +169,12 @@ const routes = [
           },
           {
             element: <EventsDetailScreen />,
-            // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면
-            handle: { hasBottomNav: false } satisfies ScreenRouteHandle,
+            // Bottom Nav 대신 하단 고정 버튼(Action Area)이 있는 화면. 사진이 없으면 흰 배경 헤더가
+            // 붙어서(공지 상세와 같은 방식) 헤더 슬롯까지 흰 면이 되도록 background: "normal"을 쓴다.
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
             path: "/events/:eventId",
           },
           {
