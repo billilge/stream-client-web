@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { ContentBadge, Typography } from "@wanteddev/wds";
 import type { ReactNode } from "react";
 
@@ -7,11 +8,31 @@ import infoFee from "@/assets/icons/home/info-fee.svg";
 import infoFeedback from "@/assets/icons/home/info-feedback.svg";
 import infoLocker from "@/assets/icons/home/info-locker.svg";
 import { FEE_STATUS_BADGES } from "@/features/fee/constants/fee";
-import type { HomeMyInfo } from "@/features/home/constants/homeMock";
 import { LOCKER_STATUS_BADGES } from "@/features/lockers/constants/lockers";
+import { homeQueries } from "@/shared/entities/home/homeQueries";
+import type {
+  HomeLockerStatus,
+  HomeResponse,
+} from "@/shared/entities/home/homeTypes";
+import type { LockerAssignmentStatus } from "@/shared/entities/lockers/lockersTypes";
 
 // 학생회비·사물함 배지는 각 기능의 배지 표(FEE_STATUS_BADGES·LOCKER_STATUS_BADGES)를 그대로 쓴다.
 // 학생회비 미납은 배지 대신 납부 안내 줄로 바뀐다.
+
+// 서버 배정 상태 → 사물함 배정 상태 배지
+const LOCKER_ASSIGNMENT_STATUSES: Record<
+  HomeLockerStatus,
+  LockerAssignmentStatus
+> = {
+  ASSIGNED: "assigned",
+  EXPIRED: "expired",
+  NOT_APPLIED: "none",
+};
+
+function selectMyInfo({ studentFee, openFeedback, locker }: HomeResponse) {
+  return { locker, openFeedback, studentFee };
+}
+
 interface InfoBadge {
   label: string;
   // 없으면 neutral(회색) 배지
@@ -112,8 +133,8 @@ function InfoRow({
 }
 
 // Figma: Home Info List (nodeId 3147:146284). 순서는 학생회비 → 열린피드백 → 사물함으로 고정한다.
+// 홈 데이터를 받는 동안은 HomeScreen의 Suspense가 HomeInfoListSkeleton을 보여준다.
 interface HomeInfoListProps {
-  myInfo: HomeMyInfo;
   onSelectFee: () => void;
   /** 미납 상태의 "학생회비 납부하기" — 계좌 송금 플로우로 보낸다 */
   onSelectFeeTransfer: () => void;
@@ -122,17 +143,19 @@ interface HomeInfoListProps {
 }
 
 function HomeInfoList({
-  myInfo,
   onSelectFee,
   onSelectFeeTransfer,
   onSelectFeedbacks,
   onSelectLocker,
 }: HomeInfoListProps) {
-  const { feeStatus, feedbackCount, lockerStatus, lockerLabel } = myInfo;
+  const {
+    data: { studentFee, openFeedback, locker },
+  } = useSuspenseQuery({ ...homeQueries.home(), select: selectMyInfo });
+  const feedbackCount = openFeedback.writtenCount;
 
   return (
     <div className="flex flex-col gap-4 rounded-xl bg-background-normal p-4">
-      {feeStatus === "UNPAID" ? (
+      {studentFee.status === "UNPAID" ? (
         <InfoRow
           icon={infoFee}
           // 플로우 끝에서 토스(앱 밖)로 나가는 길이라 Figma가 ↗ 화살표를 쓴다
@@ -143,7 +166,7 @@ function HomeInfoList({
         />
       ) : (
         <InfoRow
-          badge={FEE_STATUS_BADGES[feeStatus]}
+          badge={FEE_STATUS_BADGES[studentFee.status]}
           icon={infoFee}
           onSelect={onSelectFee}
           title="학생회비 납부 여부"
@@ -156,10 +179,10 @@ function HomeInfoList({
         title="열린피드백 작성내역"
       />
       <InfoRow
-        badge={LOCKER_STATUS_BADGES[lockerStatus]}
+        badge={LOCKER_STATUS_BADGES[LOCKER_ASSIGNMENT_STATUSES[locker.status]]}
         icon={infoLocker}
         onSelect={onSelectLocker}
-        subtitle={lockerStatus === "assigned" ? lockerLabel : undefined}
+        subtitle={locker.lockerNumber ?? undefined}
         title="사물함 배정 상태"
       />
     </div>

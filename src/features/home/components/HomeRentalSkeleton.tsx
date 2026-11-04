@@ -5,7 +5,7 @@ import { useSkeletonAnimation } from "@/components/ui/ScreenSkeleton";
 const ROW_KEYS = ["rental-1", "rental-2"];
 
 // 홈 대여 현황(반납 필요 대여)을 받는 동안 HomeRentalSection 자리에 보이는 스켈레톤 — 흰 카드 안에
-// 제목 줄과 물품 두 줄(2건 Figma 3147:146269)의 배치를 따른다. 다른 홈 섹션은 목데이터라 바로 그린다.
+// 제목 줄과 물품 두 줄(2건 Figma 3147:146269)의 배치를 따른다.
 function HomeRentalSkeleton() {
   const animation = useSkeletonAnimation();
 

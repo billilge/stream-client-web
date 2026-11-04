@@ -6,6 +6,7 @@ import {
 import { z } from "zod";
 
 import { api } from "@/shared/api";
+import { homeKeys } from "@/shared/entities/home/homeKeys";
 import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
 import type {
   LockerAssignment,
@@ -246,6 +247,7 @@ export interface ApplyLockerVariables {
 
 // POST /lockers/applications. 응답 형식이 달라도 서버에는 이미 배정이 생겼으니 실패로 바꾸지 않고 null을 돌려준다.
 // 실패(남이 먼저 신청·이미 배정됨)도 남은 수·내 배정이 낡았다는 뜻이라 결과와 상관없이 캐시를 갱신한다.
+// 홈의 사물함 신청 안내 카드(신청 여부)와 내 정보(배정 상태)도 바뀌어서 홈도 무효화한다.
 // 결과 화면이 이 갱신을 기다리지 않게 Promise를 돌려주지 않는다.
 export function useApplyLockerMutation() {
   const queryClient = useQueryClient();
@@ -263,6 +265,7 @@ export function useApplyLockerMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: lockersKeys.sections() });
+      queryClient.invalidateQueries({ queryKey: homeKeys.root() });
       queryClient.refetchQueries({
         exact: true,
         queryKey: lockersKeys.myApplications(),
