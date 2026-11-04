@@ -5,6 +5,13 @@ export interface KConnectUser {
   isNewUser: boolean;
 }
 
+// POST /v1/auth/login/kconnect 응답 — signUpRequired는 가입(전화번호·필수 약관)을 마치지 않았으면 true다
+export interface KConnectLoginResponse {
+  accessToken: string;
+  name: string;
+  signUpRequired: boolean;
+}
+
 export interface OnboardingSubmission {
   name: string;
   phone: string;

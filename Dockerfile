@@ -24,6 +24,8 @@ COPY . .
 # K-CONNECT client_id는 Vite가 빌드 시점에 번들에 넣는 값이라 빌드 인자로 받는다(.env.example 참고).
 # 비밀값이 아닌 공개 식별자라 시크릿이 아닌 일반 빌드 인자로 둔다. 의존성 설치 레이어 캐시가 깨지지 않도록 COPY 뒤에 둔다.
 ARG VITE_KCONNECT_CLIENT_ID
+# stream-server 주소도 같은 이유로 빌드 시점에 번들에 들어간다(.env.example 참고). 비어 있으면 API 요청이 웹 주소로 나간다.
+ARG VITE_API_BASE_URL
 RUN pnpm build
 
 # ---- Runtime stage ----

@@ -103,19 +103,7 @@ function AuthSignupScreen() {
           }
         />
       )}
-      login={({ history }) => (
-        <AuthLoginStep
-          hasFailedLogin={loginFailed === true}
-          onMockLoggedIn={(user) => {
-            if (user.isNewUser) {
-              history.push("phone", { name: user.name }, SLIDE);
-              return;
-            }
-            markLoggedIn();
-            goHome();
-          }}
-        />
-      )}
+      login={() => <AuthLoginStep hasFailedLogin={loginFailed === true} />}
       phone={({ context, history, index }) => (
         <AuthPhoneStep
           initialPhone={context.phone ?? ""}

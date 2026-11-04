@@ -33,7 +33,7 @@ apiClient.interceptors.response.use(undefined, (error: unknown) => {
   if (!error.response) {
     throw new NetworkError("서버에 연결하지 못했어요.", { cause: error });
   }
-  // 토큰이 없거나 만료됐다 — 지우고 알린다(token.ts). 로그인 화면으로 보내는 가드는 로그인 실연결 때 붙인다.
+  // 토큰이 없거나 만료됐다 — 지우고 알린다(token.ts). 알림을 받은 AuthEntryGate가 로그인 화면으로 보낸다.
   // 서버에 재발급이 생기면 여기서 재발급하고 원래 요청을 다시 보낸다.
   if (error.response.status === 401) {
     clearAccessToken();
