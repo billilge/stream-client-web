@@ -4,7 +4,7 @@ export type {
   CursorSliceResponse,
   PageResponse,
 } from "@/shared/api/apiTypes";
-export { api } from "@/shared/api/client";
+export { api, isApiResponse } from "@/shared/api/client";
 export {
   ApiError,
   isApiError,
