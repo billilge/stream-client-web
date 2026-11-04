@@ -1,14 +1,15 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { IconButton, Typography } from "@wanteddev/wds";
+import { IconButton } from "@wanteddev/wds";
 import { IconClose } from "@wanteddev/wds-icon";
 import { useMemo, useState } from "react";
 
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import ArchivesNotFound from "@/features/archives/components/ArchivesNotFound";
 import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotoViewerContentProps {
-  archiveId: string;
+  archiveId: number;
   photoIndex: string;
   onClose: () => void;
 }
@@ -24,11 +25,11 @@ function ArchivesPhotoViewerContent({
   onClose,
 }: ArchivesPhotoViewerContentProps) {
   const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
-  const photos = archive?.photos ?? [];
+  const photos = archive?.images ?? [];
 
-  // 주소의 photoIndex가 숫자가 아니거나 범위를 벗어나면 첫 장/마지막 장으로 맞춘다
+  // 주소의 photoIndex가 숫자가 아니거나 범위를 벗어나면 첫 장/마지막 장으로, 소수면 내림해서 맞춘다
   const initialIndex = Math.min(
-    Math.max(Number(photoIndex) || 0, 0),
+    Math.max(Math.floor(Number(photoIndex)) || 0, 0),
     Math.max(photos.length - 1, 0),
   );
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -36,26 +37,15 @@ function ArchivesPhotoViewerContent({
   // 장을 넘길 때마다(currentIndex) 다시 그려지므로, 사진 목록은 아카이빙이 바뀔 때만 새로 만든다
   const galleryPhotos = useMemo(
     () =>
-      (archive?.photos ?? []).map((photo, index) => ({
+      (archive?.images ?? []).map((image, index) => ({
         alt: `${archive?.title} 현장 사진 ${index + 1}`,
-        src: photo,
+        src: image.fileUrl,
       })),
     [archive],
   );
 
   if (!archive || photos.length === 0) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Typography
-          as="p"
-          color="semantic.label.alternative"
-          variant="label1"
-          weight="regular"
-        >
-          존재하지 않는 아카이빙이에요
-        </Typography>
-      </div>
-    );
+    return <ArchivesNotFound withHeader />;
   }
 
   return (
@@ -70,7 +60,7 @@ function ArchivesPhotoViewerContent({
           <img
             alt=""
             className="absolute inset-0 size-full scale-150 object-cover blur-[21.55px]"
-            src={photos[currentIndex]}
+            src={photos[currentIndex]?.fileUrl}
           />
         }
         idPrefix={`archives-${archiveId}`}

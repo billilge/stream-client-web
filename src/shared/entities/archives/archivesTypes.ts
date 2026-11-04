@@ -1,3 +1,10 @@
+import type { z } from "zod";
+
+import type {
+  archiveDetailResponseSchema,
+  archiveListResponseSchema,
+} from "@/shared/entities/archives/archivesQueries";
+
 export interface ArchiveItem {
   id: string;
   title: string;
@@ -7,13 +14,6 @@ export interface ArchiveItem {
   image: string;
 }
 
-export interface ArchiveDetail extends ArchiveItem {
-  /** 상세의 "일시" — 요일까지 붙은 표시용 문자열 (예: "2025.05.04 (금)") */
-  schedule: string;
-  location: string;
-  department: string;
-  activity: string;
-  photos: string[];
-  /** 관련 페이지 — 연결할 URL이 아직 없어 표시용 문구만 */
-  links: string[];
-}
+export type ArchiveListResponse = z.infer<typeof archiveListResponseSchema>;
+export type ArchiveListItemResponse = ArchiveListResponse["archives"][number];
+export type ArchiveDetailResponse = z.infer<typeof archiveDetailResponseSchema>;

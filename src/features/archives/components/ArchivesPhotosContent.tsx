@@ -1,12 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Typography } from "@wanteddev/wds";
 
 import LazyImage from "@/components/ui/LazyImage";
 import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
+import ArchivesNotFound from "@/features/archives/components/ArchivesNotFound";
 import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotosContentProps {
-  archiveId: string;
+  archiveId: number;
   onSelect: (photoIndex: number) => void;
 }
 
@@ -19,29 +19,17 @@ function ArchivesPhotosContent({
   const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
 
   if (!archive) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Typography
-          as="p"
-          color="semantic.label.alternative"
-          variant="label1"
-          weight="regular"
-        >
-          존재하지 않는 아카이빙이에요
-        </Typography>
-      </div>
-    );
+    return <ArchivesNotFound />;
   }
 
   return (
     <div className="scrollbar-hidden flex-1 overflow-y-auto">
       {/* pt-2: Figma Body gap(Top Navigation ↔ Photo Grid 8px) */}
       <div className="grid grid-cols-2 gap-2 px-5 pt-2 pb-4">
-        {archive.photos.map((photo, index) => (
+        {archive.images.map((image, index) => (
           <button
             className="overflow-hidden rounded-xl"
-            // biome-ignore lint/suspicious/noArrayIndexKey: 같은 사진이 여러 장일 수 있고, 사진 목록은 순서가 바뀌지 않는다
-            key={index}
+            key={image.fileId}
             onClick={() => onSelect(index)}
             type="button"
           >
@@ -49,7 +37,7 @@ function ArchivesPhotosContent({
             <LazyImage
               alt={`${archive.title} 현장 사진 ${index + 1}`}
               className="aspect-square w-full"
-              src={photo}
+              src={image.fileUrl}
             />
           </button>
         ))}

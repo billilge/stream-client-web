@@ -38,14 +38,32 @@ function SkeletonColumn({
   );
 }
 
-// 아카이빙 목록 데이터를 받는 동안 보이는 스켈레톤 — 헤더·연도 필터는 화면이 바로 그리므로
-// 2열 매스너리 카드 자리만 따른다.
+const YEAR_CHIP_KEYS = ["year-1", "year-2", "year-3", "year-older"];
+
+// 아카이빙 목록 데이터를 받는 동안 보이는 스켈레톤 — 연도 칩도 받은 연도로 그려서 칩 줄과
+// 2열 매스너리 카드 자리를 같이 따른다.
 function ArchivesListSkeleton() {
+  const animation = useSkeletonAnimation();
+
   return (
-    <div className="flex gap-2">
-      <SkeletonColumn tiles={LEFT_COLUMN_TILES} />
-      <SkeletonColumn tiles={RIGHT_COLUMN_TILES} />
-    </div>
+    <>
+      <div className="flex gap-1.5">
+        {YEAR_CHIP_KEYS.map((key) => (
+          <Skeleton
+            animation={animation}
+            height="32px"
+            key={key}
+            radius="20px"
+            variant="rectangle"
+            width="60px"
+          />
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <SkeletonColumn tiles={LEFT_COLUMN_TILES} />
+        <SkeletonColumn tiles={RIGHT_COLUMN_TILES} />
+      </div>
+    </>
   );
 }
 
