@@ -75,7 +75,12 @@ function ArchivesYearFilter({
           <MenuContent offset={8} position="bottom-start" sx={{ width: 150 }}>
             <MenuList>
               {olderYears.map((year) => (
-                <MenuItem key={year} value={String(year)}>
+                <MenuItem
+                  key={year}
+                  // 이미 고른 연도를 다시 누르면 onValueChange가 오지 않아서 여기서도 닫는다
+                  onClick={() => setIsMenuOpen(false)}
+                  value={String(year)}
+                >
                   {year}
                 </MenuItem>
               ))}

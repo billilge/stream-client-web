@@ -26,7 +26,11 @@ function toArchivesListView(
   response: ArchiveListResponse,
   year: number | null,
 ) {
-  const selectedYear = year ?? response.years[0] ?? null;
+  // 고른 연도가 다시 받은 연도 목록에서 빠졌으면 가장 최근 연도로 돌아간다
+  const selectedYear =
+    year !== null && response.years.includes(year)
+      ? year
+      : (response.years[0] ?? null);
   return {
     archives: response.archives.filter(
       (archive) => Number(archive.startDate.slice(0, 4)) === selectedYear,
@@ -48,19 +52,21 @@ function ArchivesList({ year, onYearChange, onSelect }: ArchivesListProps) {
   });
   const { archives, selectedYear, years } = data;
 
+  const emptyMessage = (
+    <div className="flex items-center justify-center py-20">
+      <Typography
+        as="p"
+        color="semantic.label.alternative"
+        variant="label1"
+        weight="regular"
+      >
+        등록된 아카이빙이 없어요
+      </Typography>
+    </div>
+  );
+
   if (selectedYear === null) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Typography
-          as="p"
-          color="semantic.label.alternative"
-          variant="label1"
-          weight="regular"
-        >
-          등록된 아카이빙이 없어요
-        </Typography>
-      </div>
-    );
+    return emptyMessage;
   }
 
   const leftItems = archives.filter((_, index) => index % 2 === 0);
@@ -75,18 +81,22 @@ function ArchivesList({ year, onYearChange, onSelect }: ArchivesListProps) {
         value={selectedYear}
         years={years}
       />
-      <div className="flex gap-2">
-        <ArchivesPhotoColumn
-          items={leftItems}
-          onItemClick={handleItemClick}
-          sizes={LEFT_COLUMN_SIZES}
-        />
-        <ArchivesPhotoColumn
-          items={rightItems}
-          onItemClick={handleItemClick}
-          sizes={RIGHT_COLUMN_SIZES}
-        />
-      </div>
+      {archives.length === 0 ? (
+        emptyMessage
+      ) : (
+        <div className="flex gap-2">
+          <ArchivesPhotoColumn
+            items={leftItems}
+            onItemClick={handleItemClick}
+            sizes={LEFT_COLUMN_SIZES}
+          />
+          <ArchivesPhotoColumn
+            items={rightItems}
+            onItemClick={handleItemClick}
+            sizes={RIGHT_COLUMN_SIZES}
+          />
+        </div>
+      )}
     </>
   );
 }
