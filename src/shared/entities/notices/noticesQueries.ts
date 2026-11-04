@@ -36,8 +36,15 @@ export const noticePageSchema = z.looseObject({
   nextCursor: z.string().nullish(),
 });
 
+// 상세의 첨부파일 — 주소는 이미지처럼 바로 받을 수 있는 공개 URL이고, fileName은 올린 파일의 원래 이름이다.
+// 서버가 파일 크기는 주지 않는다.
+export const noticeAttachmentSchema = z.looseObject({
+  fileId: z.number(),
+  fileName: z.string(),
+  fileUrl: z.string(),
+});
+
 // 상세 — 본문(content)은 서식 없는 일반 텍스트이고 줄바꿈이 보존된다. 이미지 주소는 바로 쓸 수 있는 공개 URL이다.
-// 첨부파일(attachments)도 오지만 화면에 영역이 없어서 아직 검사하지 않는다.
 export const noticeDetailSchema = z.looseObject({
   noticeId: z.number(),
   title: z.string(),
@@ -50,6 +57,7 @@ export const noticeDetailSchema = z.looseObject({
       fileUrl: z.string(),
     }),
   ),
+  attachments: z.array(noticeAttachmentSchema),
   createdAt: z.string(),
 });
 

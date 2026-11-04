@@ -2,6 +2,7 @@ import type { z } from "zod";
 
 import type {
   NOTICE_CATEGORIES,
+  noticeAttachmentSchema,
   noticeDetailSchema,
   noticeListItemSchema,
   noticePageSchema,
@@ -21,18 +22,12 @@ export type NoticePageResponse = z.infer<typeof noticePageSchema>;
 // 상세
 export type NoticeDetail = z.infer<typeof noticeDetailSchema>;
 
+// 상세의 첨부파일 한 건
+export type NoticeAttachment = z.infer<typeof noticeAttachmentSchema>;
+
 // 검색 결과의 공지 — 검색은 아직 목데이터라(서버 검색 API 연동 전) 예전 화면 모양을 그대로 쓴다.
 // 검색을 서버에 붙이면 아래 타입과 noticesMock.ts는 사라진다.
 export type NoticeCategory = "일반" | "제휴";
-
-export interface NoticeAttachment {
-  id: string;
-  /** 확장자를 포함한 원래 파일 이름 — 내려받을 때 저장 이름으로도 쓴다. */
-  name: string;
-  /** 바이트 단위 */
-  size: number;
-  url: string;
-}
 
 export interface Notice {
   id: string;
@@ -44,5 +39,4 @@ export interface Notice {
   /** 상세 화면 이미지 갤러리 총 장수 — hasThumbnail일 때만 의미가 있다. */
   photoCount?: number;
   body: string;
-  attachments?: NoticeAttachment[];
 }

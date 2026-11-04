@@ -119,7 +119,7 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
           </div>
         </div>
 
-        {notice.attachments && notice.attachments.length > 0 && (
+        {notice.attachments.length > 0 && (
           <NoticesAttachmentAccordion attachments={notice.attachments} />
         )}
 
