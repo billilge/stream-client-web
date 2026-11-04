@@ -60,7 +60,7 @@ export const eventDetailSchema = z.looseObject({
   // 장소는 운영진 입력에서 선택 항목이라 없으면 null이다 — 화면은 장소 줄을 뺀다(양식·신청 결과·신청 상세도 같다)
   place: z.string().nullable(),
   eventStartAt: z.string(),
-  // 종료 일시를 받기 전에 만든 행사는 null이다(서버 EventPeriod). 화면은 시작 일시만 쓴다
+  // 종료 일시를 받기 전에 만든 행사는 null이다(서버 EventPeriod). 상세 "일시"는 있을 때만 "~ 끝 일시"를 붙인다
   eventEndAt: z.string().nullable(),
   applyStartAt: z.string(),
   applyEndAt: z.string(),
@@ -193,6 +193,8 @@ function getNextCursor(lastPage: CursorSliceResponse<unknown>) {
 // 화면은 이 queryOptions로만 데이터를 받는다. 화면 모양으로 바꿔야 하면 화면 쪽에서 select를 더한다.
 export const eventsQueries = {
   // 행사 목록을 커서로 이어 받는다(GET /v1/app/events). recruitStatus가 null이면 거르지 않는다.
+  // 서버가 모집중(신청 마감 임박순) → 모집예정(신청 시작 임박순) → 모집종료(최근 행사순)로 정렬해 준다 —
+  // 필터를 걸어도 상태 안의 순서는 같아서 화면은 받은 순서대로 그린다.
   list: (recruitStatus: EventRecruitStatus | null) =>
     infiniteQueryOptions({
       queryKey: eventsKeys.list(recruitStatus),
