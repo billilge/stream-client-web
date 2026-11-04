@@ -1,5 +1,4 @@
 import { api, setAccessToken } from "@/shared/api";
-import { mockDelay } from "@/shared/entities/auth/authMock";
 import type {
   KConnectLoginResponse,
   KConnectUser,
@@ -28,9 +27,17 @@ export async function exchangeKConnectCode(
   return { isNewUser: response.signUpRequired, name: response.name };
 }
 
-// 온보딩 정보를 서버에 저장하는 자리 — 실 API가 붙을 때까지는 응답만 흉내 낸다.
+// 가입 제출(POST /v1/app/members/sign-up) — 로그인 때 받은 토큰으로 전화번호와 약관 동의를 서버에 남긴다.
+// 필수 약관 둘은 동의해야만 이 단계에 오므로 항상 동의로 보낸다. 선택 약관(알림 수신)은 서버에 약관 종류가 생기면
+// (stream-server #229) 보내고, 이메일은 서버의 이메일 인증(#210)이 반영되면 요청에 싣는다 — 둘 다 지금은 보내지 않는다.
 export async function submitOnboarding(
-  _submission: OnboardingSubmission,
+  submission: OnboardingSubmission,
 ): Promise<void> {
-  await mockDelay();
+  await api.post("/v1/app/members/sign-up", {
+    phoneNumber: submission.phone,
+    termAgreements: [
+      { termType: "PRIVACY_POLICY", agreed: true },
+      { termType: "TERMS_OF_SERVICE", agreed: true },
+    ],
+  });
 }
