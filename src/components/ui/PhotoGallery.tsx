@@ -23,21 +23,11 @@ interface PhotoGalleryBaseProps {
   overlay?: ReactNode;
   showCounter: boolean;
   slideClassName: string;
-  /** photos를 줄 때 각 사진 <img>에 줄 클래스 — 기본은 슬라이드를 꽉 채운다 */
-  photoClassName?: string;
-  /** 갤러리 루트에 덧붙일 클래스 — 전체 화면을 채우는 뷰어처럼 바깥 배치가 다른 경우에 쓴다 */
-  className?: string;
+  /** 갤러리가 놓이는 자리 — 기본은 상세 화면 상단(inline), 사진 한 장을 크게 보는 전체 화면은 viewer */
+  variant?: PhotoGalleryVariant;
   /** 처음 보여줄 장(1부터). 누른 사진에서 열리는 뷰어가 쓴다 */
   initialPage?: number;
   onPageChange?: (page: number) => void;
-  /** 슬라이드 스냅 기준 — 기본은 start, 전체 화면 뷰어는 center */
-  snapAlign?: "start" | "center";
-  /** true면 세게 밀어도 여러 장을 건너뛰지 않고 다음 한 장에서 멈춘다(scroll-snap-stop: always) */
-  snapStop?: boolean;
-  /** 카운터 위치 — 기본은 오른쪽 아래 모서리 */
-  counterClassName?: string;
-  /** 어두운 사진 위에 올라가는 카운터(Figma Page Indicator/Counter의 Alternative=True) */
-  counterAlternative?: boolean;
 }
 
 // 실 이미지 API가 붙은 화면은 photos로 실제 사진을, 아직 장수만 아는 화면은 photoCount로
@@ -48,10 +38,41 @@ type PhotoGalleryProps = PhotoGalleryBaseProps &
     | { photoCount: number; photos?: never }
   );
 
-const SNAP_ALIGN_CLASS_NAMES = {
-  center: "snap-center",
-  start: "snap-start",
-} as const;
+export type PhotoGalleryVariant = "inline" | "viewer";
+
+interface PhotoGalleryVariantStyle {
+  /** 갤러리 루트에 덧붙일 클래스 */
+  rootClassName: string;
+  /** photos를 줄 때 각 사진 <img>에 줄 클래스 */
+  photoClassName: string;
+  /** 슬라이드 스냅 — viewer는 세게 밀어도 여러 장을 건너뛰지 않고 다음 한 장에서 멈춘다(snap-always) */
+  slideSnapClassName: string;
+  /** 카운터 위치 */
+  counterClassName: string;
+  /** 어두운 사진 위에 올라가는 카운터(Figma Page Indicator/Counter의 Alternative=True) */
+  counterAlternative: boolean;
+}
+
+// 이 값들은 항상 한 묶음으로 바뀌어서 prop마다 따로 받지 않고 variant 하나로 고른다.
+const VARIANT_STYLES: Record<PhotoGalleryVariant, PhotoGalleryVariantStyle> = {
+  // 공지·행사 상세 상단 — 슬라이드를 꽉 채우고, 카운터는 오른쪽 아래 모서리
+  inline: {
+    counterAlternative: false,
+    counterClassName: "right-5 bottom-5",
+    photoClassName: "size-full object-cover",
+    rootClassName: "",
+    slideSnapClassName: "snap-start",
+  },
+  // 아카이빙 사진 뷰어 — 화면을 꽉 채우고, 가로는 화면 폭·세로는 사진 비율대로(아주 긴 사진만
+  // max-h-full로 화면 안에 맞춘다). 카운터는 Figma Page Indicator/Counter 위치(하단에서 47px 위, 가운데).
+  viewer: {
+    counterAlternative: true,
+    counterClassName: "inset-x-0 bottom-11.75 flex justify-center",
+    photoClassName: "max-h-full w-full object-contain",
+    rootClassName: "h-full",
+    slideSnapClassName: "snap-center snap-always",
+  },
+};
 
 // 사진 여러 장을 가로 스크롤 스냅으로 넘기는 공용 갤러리 — 공지 상세·행사 상세·아카이빙 사진
 // 뷰어가 공유한다. 웹(hover 가능 기기)에서는 화살표 버튼이 호버 시 뜨고, 모바일(터치)에서는
@@ -65,15 +86,17 @@ function PhotoGallery({
   photos,
   showCounter,
   slideClassName,
-  photoClassName = "size-full object-cover",
-  className = "",
+  variant = "inline",
   initialPage = 1,
   onPageChange,
-  snapAlign = "start",
-  snapStop = false,
-  counterClassName = "right-5 bottom-5",
-  counterAlternative = false,
 }: PhotoGalleryProps) {
+  const {
+    rootClassName,
+    photoClassName,
+    slideSnapClassName,
+    counterClassName,
+    counterAlternative,
+  } = VARIANT_STYLES[variant];
   const totalPages = photos?.length ?? photoCount ?? 0;
   const [currentPage, setCurrentPage] = useState(initialPage);
   const galleryRef = useRef<HTMLDivElement>(null);
@@ -130,12 +153,8 @@ function PhotoGallery({
     el.scrollTo({ behavior: "smooth", left: (page - 1) * el.offsetWidth });
   };
 
-  const slideSnapClassName = `${SNAP_ALIGN_CLASS_NAMES[snapAlign]}${
-    snapStop ? " snap-always" : ""
-  }`;
-
   return (
-    <div className={`group relative w-full shrink-0 ${className}`}>
+    <div className={`group relative w-full shrink-0 ${rootClassName}`}>
       {background}
 
       {/* relative: background(absolute)가 배치된 요소라, 일반 흐름인 슬라이드보다 위에 그려진다.

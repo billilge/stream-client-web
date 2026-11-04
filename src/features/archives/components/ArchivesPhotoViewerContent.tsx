@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { IconButton, Typography } from "@wanteddev/wds";
 import { IconClose } from "@wanteddev/wds-icon";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -15,7 +15,8 @@ interface ArchivesPhotoViewerContentProps {
 
 // Figma: 현장 사진 하나 클릭 시 (nodeId 1526:171364)
 // 넘기기·카운터는 공지/행사 상세와 같은 공용 PhotoGallery를 쓰고, 이 화면만의 흐린 배경과
-// 닫기 버튼을 background/overlay 슬롯으로 넘긴다. 세게 밀어도 한 장만 넘어가도록 snapStop을 켠다.
+// 닫기 버튼을 background/overlay 슬롯으로 넘긴다. 전체 화면 배치·한 장씩 멈추는 스냅·카운터 위치는
+// variant="viewer"가 정한다.
 // 사진 데이터를 받는 동안은 ArchivesPhotoViewerScreen의 Suspense가 빈 화면을 보여준다.
 function ArchivesPhotoViewerContent({
   archiveId,
@@ -31,6 +32,16 @@ function ArchivesPhotoViewerContent({
     Math.max(photos.length - 1, 0),
   );
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  // 장을 넘길 때마다(currentIndex) 다시 그려지므로, 사진 목록은 아카이빙이 바뀔 때만 새로 만든다
+  const galleryPhotos = useMemo(
+    () =>
+      (archive?.photos ?? []).map((photo, index) => ({
+        alt: `${archive?.title} 현장 사진 ${index + 1}`,
+        src: photo,
+      })),
+    [archive],
+  );
 
   if (!archive || photos.length === 0) {
     return (
@@ -62,10 +73,6 @@ function ArchivesPhotoViewerContent({
             src={photos[currentIndex]}
           />
         }
-        className="h-full"
-        counterAlternative
-        /* Figma Page Indicator/Counter — 화면 하단에서 47px 위, 가운데 */
-        counterClassName="inset-x-0 bottom-11.75 flex justify-center"
         idPrefix={`archives-${archiveId}`}
         initialPage={initialIndex + 1}
         onPageChange={(page) => setCurrentIndex(page - 1)}
@@ -89,17 +96,10 @@ function ArchivesPhotoViewerContent({
             />
           </div>
         }
-        photos={photos.map((photo, index) => ({
-          alt: `${archive.title} 현장 사진 ${index + 1}`,
-          src: photo,
-        }))}
+        photos={galleryPhotos}
         showCounter
-        /* 가로는 화면을 꽉 채우고 세로는 사진 비율대로 둔다 — 자리를 375×463으로 고정하면
-           비율이 다른 사진에 좌우 여백이 생긴다. 아주 긴 사진만 max-h-full로 화면 안에 맞춘다. */
-        photoClassName="max-h-full w-full object-contain"
         slideClassName="flex h-full items-center"
-        snapAlign="center"
-        snapStop
+        variant="viewer"
       />
     </div>
   );
