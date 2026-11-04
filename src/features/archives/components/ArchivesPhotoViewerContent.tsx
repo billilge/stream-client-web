@@ -1,10 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { IconButton, Typography } from "@wanteddev/wds";
+import { IconButton } from "@wanteddev/wds";
 import { IconClose } from "@wanteddev/wds-icon";
 import { useMemo, useState } from "react";
 
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import ScreenHeader from "@/components/ui/ScreenHeader";
+import ArchivesNotFound from "@/features/archives/components/ArchivesNotFound";
 import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotoViewerContentProps {
@@ -44,18 +45,7 @@ function ArchivesPhotoViewerContent({
   );
 
   if (!archive || photos.length === 0) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Typography
-          as="p"
-          color="semantic.label.alternative"
-          variant="label1"
-          weight="regular"
-        >
-          존재하지 않는 아카이빙이에요
-        </Typography>
-      </div>
-    );
+    return <ArchivesNotFound withHeader />;
   }
 
   return (

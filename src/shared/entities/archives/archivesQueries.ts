@@ -6,8 +6,6 @@ import { archivesKeys } from "@/shared/entities/archives/archivesKeys";
 
 const ARCHIVES_PATH = "/v1/app/archives";
 
-const ARCHIVE_NOT_FOUND = "ARCHIVE_NOT_FOUND";
-
 export const archiveListResponseSchema = z.looseObject({
   archives: z.array(
     z.looseObject({
@@ -63,7 +61,8 @@ export const archivesQueries = {
             await api.get<unknown>(`${ARCHIVES_PATH}/${archiveId}`, { signal }),
           );
         } catch (error) {
-          if (isApiError(error) && error.code === ARCHIVE_NOT_FOUND) {
+          // 서버의 ARCHIVE_NOT_FOUND와 봉투 없이 온 404(게이트웨이 등)를 같이 본다
+          if (isApiError(error) && error.status === 404) {
             return null;
           }
           throw error;

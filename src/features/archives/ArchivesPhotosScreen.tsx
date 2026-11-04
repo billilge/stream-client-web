@@ -3,9 +3,9 @@ import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { Suspense } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import ArchivesNotFound from "@/features/archives/components/ArchivesNotFound";
 import ArchivesPhotosContent from "@/features/archives/components/ArchivesPhotosContent";
 import ArchivesPhotosSkeleton from "@/features/archives/components/ArchivesPhotosSkeleton";
 
@@ -32,7 +32,7 @@ function ArchivesPhotosScreen() {
   );
 
   if (!Number.isInteger(archiveId) || archiveId <= 0) {
-    return <ComingSoonScreen />;
+    return <ArchivesNotFound />;
   }
 
   return (

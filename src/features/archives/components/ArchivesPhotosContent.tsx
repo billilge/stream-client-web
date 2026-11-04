@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Typography } from "@wanteddev/wds";
 
 import LazyImage from "@/components/ui/LazyImage";
 import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
+import ArchivesNotFound from "@/features/archives/components/ArchivesNotFound";
 import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotosContentProps {
@@ -19,18 +19,7 @@ function ArchivesPhotosContent({
   const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
 
   if (!archive) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Typography
-          as="p"
-          color="semantic.label.alternative"
-          variant="label1"
-          weight="regular"
-        >
-          존재하지 않는 아카이빙이에요
-        </Typography>
-      </div>
-    );
+    return <ArchivesNotFound />;
   }
 
   return (

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import ComingSoonScreen from "@/app/ComingSoonScreen";
+import ArchivesNotFound from "@/features/archives/components/ArchivesNotFound";
 import ArchivesPhotoViewerContent from "@/features/archives/components/ArchivesPhotoViewerContent";
 
 // Figma: 현장 사진 하나 클릭 시 (nodeId 1526:171364)
@@ -13,7 +13,7 @@ function ArchivesPhotoViewerScreen() {
   const photoIndex = params.photoIndex ?? "0";
 
   if (!Number.isInteger(archiveId) || archiveId <= 0) {
-    return <ComingSoonScreen />;
+    return <ArchivesNotFound withHeader />;
   }
 
   return (

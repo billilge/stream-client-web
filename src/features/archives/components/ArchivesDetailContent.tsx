@@ -5,6 +5,7 @@ import { IconChevronLeft, IconShare } from "@wanteddev/wds-icon";
 import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ArchivesDetailSection from "@/features/archives/components/ArchivesDetailSection";
+import ArchivesNotFound from "@/features/archives/components/ArchivesNotFound";
 import ArchivesPhotoGrid from "@/features/archives/components/ArchivesPhotoGrid";
 import { formatDate } from "@/lib/date";
 import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
@@ -39,18 +40,7 @@ function ArchivesDetailContent({
   const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
 
   if (!archive) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Typography
-          as="p"
-          color="semantic.label.alternative"
-          variant="label1"
-          weight="regular"
-        >
-          존재하지 않는 아카이빙이에요
-        </Typography>
-      </div>
-    );
+    return <ArchivesNotFound withHeader />;
   }
 
   const { relatedEvent } = archive;
