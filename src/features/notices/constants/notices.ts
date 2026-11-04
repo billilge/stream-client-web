@@ -1,16 +1,10 @@
 import { formatDate } from "@/lib/date";
-import type {
-  NoticeCategory,
-  NoticeCategoryCode,
-} from "@/shared/entities/notices/noticesTypes";
+import type { NoticeCategoryCode } from "@/shared/entities/notices/noticesTypes";
 
 export const NOTICES_PATH = "/notices";
 
 // 서버의 공지 종류 코드를 화면 라벨("일반 공지"의 앞부분)로 바꾼다
-export const NOTICE_CATEGORY_LABELS: Record<
-  NoticeCategoryCode,
-  NoticeCategory
-> = {
+export const NOTICE_CATEGORY_LABELS: Record<NoticeCategoryCode, string> = {
   GENERAL: "일반",
   PARTNERSHIP: "제휴",
 };

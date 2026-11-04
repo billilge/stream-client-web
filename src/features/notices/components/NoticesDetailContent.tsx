@@ -16,11 +16,11 @@ import {
   NOTICE_CATEGORY_LABELS,
 } from "@/features/notices/constants/notices";
 import { noticesQueries } from "@/shared/entities/notices/noticesQueries";
-import type { NoticeCategory } from "@/shared/entities/notices/noticesTypes";
+import type { NoticeCategoryCode } from "@/shared/entities/notices/noticesTypes";
 
-const CATEGORY_BADGE_COLOR: Record<NoticeCategory, ThemeColorsToken> = {
-  일반: "semantic.accent.foreground.blue",
-  제휴: "semantic.accent.foreground.redOrange",
+const CATEGORY_BADGE_COLOR: Record<NoticeCategoryCode, ThemeColorsToken> = {
+  GENERAL: "semantic.accent.foreground.blue",
+  PARTNERSHIP: "semantic.accent.foreground.redOrange",
 };
 
 interface NoticesDetailContentProps {
@@ -92,7 +92,7 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
       <div className="flex flex-col gap-5 px-5 pb-8">
         <div className="flex flex-col gap-2">
           <ContentBadge
-            accentColor={CATEGORY_BADGE_COLOR[categoryLabel]}
+            accentColor={CATEGORY_BADGE_COLOR[notice.category]}
             color="accent"
             size="medium"
             variant="solid"
