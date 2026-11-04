@@ -1,6 +1,6 @@
 import { Tab, TabList, TabListItem, TopNavigationButton } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
-import { Suspense, useState } from "react";
+import { Suspense, useDeferredValue, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -9,20 +9,24 @@ import NoticesList from "@/features/notices/components/NoticesList";
 import NoticesListSkeleton from "@/features/notices/components/NoticesListSkeleton";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
-import type { NoticeCategory } from "@/shared/entities/notices/noticesTypes";
+import type { NoticeCategoryCode } from "@/shared/entities/notices/noticesTypes";
 
 type NoticeTab = "all" | "general" | "partnership";
 
-const TAB_CATEGORY: Record<NoticeTab, NoticeCategory | "all"> = {
-  all: "all",
-  general: "일반",
-  partnership: "제휴",
+// 탭이 서버에 보내는 카테고리 — 전체는 거르지 않는다
+const TAB_CATEGORY: Record<NoticeTab, NoticeCategoryCode | null> = {
+  all: null,
+  general: "GENERAL",
+  partnership: "PARTNERSHIP",
 };
 
 // Figma: 게시판 - 공지 (nodeId 1256:81776), 탭 선택 시 (nodeId 1256:81812)
 function NoticesListScreen() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<NoticeTab>("all");
+  // 카테고리마다 서버에서 따로 받는다. 탭은 바로 바뀌고, 목록은 새 카테고리를 받는 동안 스켈레톤으로 비우지 않고
+  // 지금 목록을 띄워 둔다(빌릴게 목록과 같은 방식)
+  const listCategory = useDeferredValue(TAB_CATEGORY[tab]);
 
   // "공지"/"열린피드백" 2단 타이틀(Figma "Board Title")은 ScreenHeader의 토글 타이틀로 표현한다.
   // 열린피드백 게시판(코드 용어 feedbacks, terminology.md) 화면이 생겨서 이제 클릭하면 실제로
@@ -75,7 +79,7 @@ function NoticesListScreen() {
       <div className="scrollbar-hidden flex-1 overflow-y-auto">
         {/* 헤더·탭은 데이터와 무관해서 바로 그리고, 데이터를 받는 목록 자리만 스켈레톤으로 채운다 */}
         <Suspense fallback={<NoticesListSkeleton />}>
-          <NoticesList category={TAB_CATEGORY[tab]} />
+          <NoticesList category={listCategory} />
         </Suspense>
       </div>
     </>
