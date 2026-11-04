@@ -13,10 +13,20 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import {
+  PHONE_CHANGE_TOASTS,
+  type PhoneChangeToast,
+} from "@/features/settings/constants/settings";
+import {
   formatPhoneNumber,
   isValidPhoneNumber,
   PHONE_NUMBER_MAX_LENGTH,
+  toPhoneDigits,
 } from "@/lib/phone";
+import { isApiError } from "@/shared/api";
+import {
+  MEMBERS_ERROR_CODES,
+  useUpdatePhoneNumberMutation,
+} from "@/shared/entities/members/membersQueries";
 
 // Figma: 전화번호 변경 (nodeId 3524:152450), 입력 중 (3524:152465), 완료 토스트 (3524:152457).
 // 입력칸은 Figma `Textinput/Textfield`(445:8591, WDS 공식 문서 링크 확인)라 WDS `TextField`를
@@ -26,17 +36,30 @@ import {
 //
 // "변경하기" 버튼은 번호를 형식에 맞게 다 입력했을 때만 활성화된다(Figma 비활성 #F4F4F5 /
 // 활성 #0066FF). 높이 56px은 ActionAreaButton 기본(48px)과 달라 sx로 세로 padding만 보정한다.
-// 실제 변경 API가 없어서 누르면 Figma처럼 완료 토스트만 띄운다.
+//
+// 누르면 서버에 번호를 바꾸고 결과 토스트를 띄운다. 성공해도 이 화면에 남는다 — Figma 완료 토스트
+// 프레임이 입력값을 그대로 둔 채 버튼만 비활성으로 그려서, 방금 바꾼 번호 그대로면 버튼을 다시 막는다.
+// 다른 회원이 쓰는 번호(409)는 따로 안내하고, 그 밖의 실패는 다시 시도하라고만 한다.
 //
 // 하이픈 포맷과 유효성 판정은 온보딩 연락처 입력(#110)과 같은 로직이라 `lib/phone.ts`에 있다.
 //
 function PhoneChangeScreen() {
   const navigate = useNavigate();
+  const { mutate: updatePhoneNumber, isPending } =
+    useUpdatePhoneNumberMutation();
   const [phone, setPhone] = useState("");
+  // 마지막으로 변경에 성공한 번호 — 입력값이 이것과 같으면 버튼을 막는다
+  const [savedPhone, setSavedPhone] = useState<string | null>(null);
+  // 닫힌 뒤에도 마지막 토스트를 들고 있어서, 닫히는 동안 문구·색이 바뀌지 않는다
+  const [toast, setToast] = useState<PhoneChangeToast>(
+    PHONE_CHANGE_TOASTS.changed,
+  );
   const [toastOpen, setToastOpen] = useState(false);
   // 토스트가 떠 있는 중에 다시 저장해도 스크린리더가 재안내하도록 매번 새로 마운트한다
   // (EventsApplicationScreen·BillilgeReturnSection과 같은 패턴).
   const [toastToken, setToastToken] = useState(0);
+
+  const canSave = isValidPhoneNumber(phone) && phone !== savedPhone;
 
   useScreenHeader(
     <ScreenHeader
@@ -54,9 +77,33 @@ function PhoneChangeScreen() {
     />,
   );
 
-  const handleSave = () => {
+  const showToast = (next: PhoneChangeToast) => {
+    setToast(next);
     setToastOpen(true);
     setToastToken((token) => token + 1);
+  };
+
+  const handleSave = () => {
+    updatePhoneNumber(
+      { phoneNumber: toPhoneDigits(phone) },
+      {
+        onSuccess: () => {
+          setSavedPhone(phone);
+          showToast(PHONE_CHANGE_TOASTS.changed);
+        },
+        onError: (error) => {
+          if (
+            isApiError(error) &&
+            error.code === MEMBERS_ERROR_CODES.phoneNumberAlreadyExists
+          ) {
+            showToast(PHONE_CHANGE_TOASTS.alreadyExists);
+            return;
+          }
+          console.error(error);
+          showToast(PHONE_CHANGE_TOASTS.failed);
+        },
+      },
+    );
   };
 
   return (
@@ -94,7 +141,8 @@ function PhoneChangeScreen() {
         <ActionArea>
           {/* Figma Main Action은 56px인데 ActionAreaButton(size="large")은 48px이라 세로 padding만 보정 */}
           <ActionAreaButton
-            disabled={!isValidPhoneNumber(phone)}
+            disabled={!canSave}
+            loading={isPending}
             onClick={handleSave}
             sx={{ paddingBlock: "16px" }}
           >
@@ -108,10 +156,10 @@ function PhoneChangeScreen() {
 
       <ScreenToast
         key={toastToken}
-        message="전화번호를 변경했어요."
+        message={toast.message}
         onOpenChange={setToastOpen}
         open={toastOpen}
-        variant="positive"
+        variant={toast.variant}
       />
     </div>
   );

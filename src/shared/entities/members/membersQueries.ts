@@ -1,10 +1,15 @@
-import { queryOptions } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { z } from "zod";
 
 import { mockupResponse } from "@/lib/mockupApi";
 import { api } from "@/shared/api";
 import { membersKeys } from "@/shared/entities/members/membersKeys";
 import { APP_VERSION } from "@/shared/entities/members/membersMock";
+import type { PhoneNumberUpdateRequest } from "@/shared/entities/members/membersTypes";
 
 const MEMBERS_PATH = "/v1/app/members";
 
@@ -38,3 +43,26 @@ export const membersQueries = {
       queryFn: () => mockupResponse(() => APP_VERSION),
     }),
 };
+
+// 전화번호 변경에서 화면이 갈라 처리하는 서버 에러 코드(MemberErrorCode)
+export const MEMBERS_ERROR_CODES = {
+  // 다른 회원이 이미 쓰는 번호다(409)
+  phoneNumberAlreadyExists: "PHONE_NUMBER_ALREADY_EXISTS",
+} as const;
+
+// 전화번호 변경(PATCH /v1/app/members/me/phone-number). 서버는 하이픈이 있든 없든 숫자만 남겨 저장하고,
+// 지금 번호와 같으면 바꾸지 않고 성공으로 응답한다.
+// 성공하면 내 정보를 무효화해서 설정 화면 계정 정보 카드가 새 번호를 다시 받게 한다.
+export function useUpdatePhoneNumberMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    // 응답 data는 null이라 쓰지 않는다
+    mutationFn: async (request: PhoneNumberUpdateRequest) => {
+      await api.patch<unknown>(`${MEMBERS_PATH}/me/phone-number`, request);
+    },
+    // Promise를 돌려줘서 무효화가 끝난 뒤에 mutation이 끝나게 한다
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: membersKeys.me() }),
+  });
+}

@@ -17,6 +17,23 @@ export const SETTINGS_PATHS = {
 // 로그아웃·회원 탈퇴로 계정을 떠난 뒤 나갈 곳 — 둘 다 로그아웃 상태라 로그인 화면으로 간다.
 export const ACCOUNT_EXIT_PATH = LOGIN_PATH;
 
+// 전화번호 변경 결과 토스트 — 문구와 색을 결과마다 한 번에 고른다(빌릴게 반납 신청의 RETURN_TOASTS와 같다).
+// 성공 문구는 Figma 완료 토스트(3524:152457) 그대로고, 실패 두 문구는 Figma에 없어 정했다.
+export const PHONE_CHANGE_TOASTS = {
+  changed: { message: "전화번호를 변경했어요.", variant: "positive" },
+  alreadyExists: {
+    message: "이미 사용 중인 전화번호예요.",
+    variant: "negative",
+  },
+  failed: {
+    message: "전화번호 변경에 실패했어요. 다시 시도해 주세요.",
+    variant: "negative",
+  },
+} as const;
+
+export type PhoneChangeToast =
+  (typeof PHONE_CHANGE_TOASTS)[keyof typeof PHONE_CHANGE_TOASTS];
+
 // 의견 보내기·개인정보 처리방침은 화면을 따로 만들지 않고 구글폼으로 연결한다. 폼 주소가 아직
 // 없어서 빈 문자열로 두고, 값이 채워졌을 때만 새 탭으로 열도록 호출부에서 분기한다.
 export const SETTINGS_EXTERNAL_LINKS = {
