@@ -1,24 +1,27 @@
 import { Button, Tab, TabList, TabListItem } from "@wanteddev/wds";
 import { IconChevronRight } from "@wanteddev/wds-icon";
-import { Fragment } from "react";
+import { Fragment, Suspense } from "react";
 
 import SearchCategoryItems from "@/features/search/components/SearchCategoryItems";
+import SearchCategoryList from "@/features/search/components/SearchCategoryList";
 import SearchEmptyState from "@/features/search/components/SearchEmptyState";
+import SearchResultSkeleton from "@/features/search/components/SearchResultSkeleton";
 import SearchSectionHeader from "@/features/search/components/SearchSectionHeader";
 import {
+  getSearchPreview,
   getSearchResultCount,
   getSearchTabLabel,
   isSearchTab,
-  SEARCH_ALL_TAB_PREVIEW_COUNT,
   SEARCH_ALL_TAB_SECTIONS,
   SEARCH_CATEGORY_LABELS,
   SEARCH_TABS,
   type SearchTab,
 } from "@/features/search/constants/search";
-import type { SearchResults } from "@/shared/entities/search/searchTypes";
+import type { SearchResponse } from "@/shared/entities/search/searchTypes";
 
 interface SearchResultViewProps {
-  results: SearchResults;
+  keyword: string;
+  results: SearchResponse;
   activeTab: SearchTab;
   onTabChange: (tab: SearchTab) => void;
 }
@@ -26,14 +29,16 @@ interface SearchResultViewProps {
 // Figma: 검색 완료 - 모든 검색 UI(nodeId 3147:138695) / 행사 탭(3147:138745)
 // 탭은 결과 수를 같이 보여주고(설계서 6번 "행사 8"), 6개라 375px을 넘으면 WDS TabList가
 // 가로 스크롤한다. 탭 줄은 고정하고(shrink-0) 아래 목록만 세로 스크롤한다.
+// 탭 개수와 전체 탭 미리보기는 통합 검색 응답으로 그리고, 개별 탭은 그 탭을 열 때 목록을 따로 받는다(SearchCategoryList).
 function SearchResultView({
+  keyword,
   results,
   activeTab,
   onTabChange,
 }: SearchResultViewProps) {
   const activeCount = getSearchResultCount(results, activeTab);
   const visibleSections = SEARCH_ALL_TAB_SECTIONS.filter(
-    (category) => results[category].length > 0,
+    (category) => getSearchResultCount(results, category) > 0,
   );
 
   return (
@@ -70,8 +75,9 @@ function SearchResultView({
           // 섹션 사이는 위아래 간격 32 + 8px 회색 띠(Divider(new) 8px)다
           <div className="flex flex-col gap-8 pt-3 pb-8">
             {visibleSections.map((category, index) => {
+              const preview = getSearchPreview(results, category);
               const hiddenCount =
-                results[category].length - SEARCH_ALL_TAB_PREVIEW_COUNT;
+                getSearchResultCount(results, category) - preview.items.length;
               return (
                 <Fragment key={category}>
                   {index > 0 && (
@@ -84,7 +90,7 @@ function SearchResultView({
                       />
                     </div>
                     <SearchCategoryItems
-                      category={category}
+                      entries={preview}
                       footer={
                         hiddenCount > 0 && (
                           // 설계서 5번: 눌러서 해당 카테고리 탭으로 이동해 전체 목록을 본다
@@ -101,8 +107,6 @@ function SearchResultView({
                           </div>
                         )
                       }
-                      limit={SEARCH_ALL_TAB_PREVIEW_COUNT}
-                      results={results}
                     />
                   </section>
                 </Fragment>
@@ -110,9 +114,11 @@ function SearchResultView({
             })}
           </div>
         ) : (
-          <div className="pt-3 pb-8">
-            <SearchCategoryItems category={activeTab} results={results} />
-          </div>
+          <Suspense fallback={<SearchResultSkeleton hasTabs={false} />}>
+            <div className="pt-3 pb-8">
+              <SearchCategoryList category={activeTab} keyword={keyword} />
+            </div>
+          </Suspense>
         )}
       </div>
     </>

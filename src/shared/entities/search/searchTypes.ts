@@ -1,14 +1,6 @@
-import type { ArchiveItem } from "@/shared/entities/archives/archivesTypes";
-import type { BillilgeItem } from "@/shared/entities/billilge/billilgeTypes";
-import type { EventListItem } from "@/shared/entities/events/eventsTypes";
-import type { Feedback } from "@/shared/entities/feedbacks/feedbacksTypes";
-import type { Notice } from "@/shared/entities/notices/noticesTypes";
+import type { z } from "zod";
 
-// 검색 결과는 카테고리별 배열이다 — 키는 용어 사전(terminology.md)의 코드 용어를 그대로 쓴다.
-export interface SearchResults {
-  events: EventListItem[];
-  notices: Notice[];
-  feedbacks: Feedback[];
-  billilge: BillilgeItem[];
-  archives: ArchiveItem[];
-}
+import type { searchResponseSchema } from "@/shared/entities/search/searchQueries";
+
+// 통합 검색 응답(GET /v1/app/search) 그대로다 — searchQueries.ts의 응답 검사 스키마에서 만든다
+export type SearchResponse = z.infer<typeof searchResponseSchema>;

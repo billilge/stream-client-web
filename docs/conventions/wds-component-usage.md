@@ -432,12 +432,12 @@ WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하
 `shared/entities/notices/noticesQueries.ts`가 학생 앱 API(`/v1/app/notices/**`)를 zod로 검사해 받는다. 화면 모양(카테고리 라벨 "일반"/"제휴", 날짜 `2026.09.03`)은 `features/notices/constants/notices.ts`의 헬퍼로 화면 쪽에서 바꾼다.
 
 - **목록은 카테고리별로 서버에서 따로 받는다:** `GET /v1/app/notices?category=`는 커서(`cursor`)로 이어 받고, 고정 공지를 먼저, 그다음 최신순으로 준다. 커서는 발급된 카테고리 필터에서만 유효해서(다른 필터의 커서는 `NOTICE_INVALID_CURSOR`) 탭마다 key를 따로 두고 처음부터 받는다. 받은 것만 거르면 다음 페이지의 공지가 빠지므로 클라이언트 필터링은 하지 않는다. 스크롤이 끝에 닿으면 다음 페이지를 이어 받는다(`useInfiniteScroll`). 탭은 바로 바뀌고 목록은 `useDeferredValue`로 새 카테고리를 받는 동안 지금 목록을 유지한다(빌릴게 목록과 같은 방식).
-- **썸네일은 서버가 준 주소로 그린다:** 목록 항목의 `thumbnailUrl`(등록된 첫 이미지)이 있으면 56px 썸네일에 실제 이미지를 `LazyImage`로(받는 동안·실패 시 회색 칸), 없으면 썸네일 칸 자체를 그리지 않는다. 검색 결과 카드는 아직 목이라 `hasThumbnail`만 넘겨 회색 칸을 그린다.
+- **썸네일은 서버가 준 주소로 그린다:** 목록 항목의 `thumbnailUrl`(등록된 첫 이미지)이 있으면 56px 썸네일에 실제 이미지를 `LazyImage`로(받는 동안·실패 시 회색 칸), 없으면 썸네일 칸 자체를 그리지 않는다. 검색 결과의 공지 카드도 같은 규칙으로 그린다.
 - **고정 공지의 핀은 썸네일 유무와 상관없이 제목 앞에 붙는다.** 썸네일이 없는 카드의 제목은 여러 줄로 이어질 수 있다.
 - **상세 본문은 서식 없는 일반 텍스트다:** 서버가 줄바꿈을 보존해 저장하므로 `whiteSpace: pre-wrap`으로 그리고 HTML로 해석하지 않는다. 상세의 `images`는 바로 쓸 수 있는 공개 URL이라 `PhotoGallery`에 `photos`로 넘기고, 이미지가 하나도 없으면 흰 배경 헤더를 쓴다.
 - **첨부파일은 서버 `attachments`로 그린다:** 상세 응답의 `attachments`(`fileId`·`fileName`·`fileUrl`)를 검사해 등록일 아래 접힌 아코디언(`NoticesAttachmentAccordion`, #191)에 넘긴다. 서버가 파일 크기를 주지 않아 캡션에는 형식(확장자)만 쓴다. 파일 주소는 스토리지라 앱과 출처가 달라 `<a download>`가 먹지 않고 지금 탭이 파일로 넘어가므로, 다운로드는 `openExternalLink`로 새 탭에서 연다.
 - **없는 공지:** 서버가 404 `NOTICE_NOT_FOUND`로 주면 쿼리 안에서 `null`로 바꿔 "존재하지 않는 공지예요"를 그린다. 숫자가 아닌 주소는 서버에 보내지 않고 같은 화면으로 처리한다.
-- **검색은 아직 목이다:** 검색의 공지는 예전 화면 모양(`Notice`, `noticesMock.ts`)을 그대로 쓴다. 서버 검색 API를 붙이면 그 타입과 목은 지운다. 홈 배너는 서버가 준 공지 id(`targetId`)로 이 상세(`/notices/:noticeId`)를 연다.
+- **홈 배너:** 서버가 준 공지 id(`targetId`)로 이 상세(`/notices/:noticeId`)를 연다.
 
 ## 열린피드백은 서버 API로 받는다
 
@@ -449,7 +449,6 @@ WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하
 - **모아보기는 상세로 회차를 알아낸 뒤 그 회차를 한 번에 받는다:** 누른 피드백(`GET /v1/app/feedbacks/{id}`)의 연도·차수로 같은 회차의 공개 피드백을 최대 100건(서버 size 상한) 받는다. 한 회차가 이를 넘으면 뒤쪽이 잘리고, 누른 피드백이 잘렸으면 맨 앞에 붙인다. 없는 피드백, 남의 질문인데 공개된 답변이 없는 경우(서버가 질문이 있다는 것도 드러내지 않아 같은 404), 숫자가 아닌 주소는 모두 "존재하지 않는 피드백이에요"로 보여 준다. 숫자가 아닌 주소는 서버에 보내지 않는다.
 - **작성은 접수 중인 회차에 들어간다:** `POST /v1/app/feedbacks`. 접수 기간이 아니면 서버가 `FEEDBACK_NOT_OPEN`(409)으로 거절하고, 이때와 그 밖의 실패는 모달을 닫고 쓴 내용을 둔 채 토스트로 이유를 알린다(Figma에 없는 안내다). 성공하면 내 작성내역 캐시를 무효화하고 목록으로 이동해 완료 토스트를 띄운다.
 - **작성내역은 `GET /v1/app/feedbacks/mine`을 무한 스크롤로 받는다.** 답변대기와 답변완료는 `answer`가 있는지로 가른다 — 회차의 답변이 공개되기 전에는 서버가 내 질문의 답변도 비워서 주기 때문에, 운영진이 답변을 써 두었어도 공개 전에는 답변대기로 보인다.
-- **검색은 아직 목이다:** 검색의 열린피드백은 서버 검색 API를 붙이기 전이라 예전 화면 모양(`Feedback`, `feedbacksMock.ts`)을 그대로 쓴다. 검색을 서버에 붙이면 둘 다 지운다.
 
 ## 열린피드백 상세페이지 · 모아보기(`1410:49988`) 구현 중 확정된 매핑
 
@@ -596,6 +595,14 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 
 `/component`로 검색 진입·검색 중·검색 완료(전체/행사 탭)·결과 없음 프레임을 구현하며 확인된 내용. 코드는 `src/features/search/` 참고.
 
+### 검색 결과는 서버 API로 받는다
+
+서버 통합 검색(stream-server #263)의 구조를 그대로 따른다.
+
+- **전체 탭과 탭 개수:** `searchQueries.results(keyword)`가 `GET /v1/app/search?keyword=`를 받는다. 응답은 섹션마다 앞의 2건(`content`)과 전체 수(`totalCount`)이고, 빌릴게 섹션만 서버 이름이 `items`다(`getSearchPreview`·`getSearchResultCount`가 화면 카테고리로 바꾼다). 탭 개수와 "n개 더보기"는 서버가 센 전체 수로 그린다. 카드는 각 목록 API의 항목 응답 그대로라 도메인 스키마로 검사한다.
+- **개별 탭:** 탭을 열 때 각 도메인 목록 조회에 `keyword`를 넘겨 받는다(`SearchCategoryList`) — 행사·공지·빌릴게는 커서, 열린피드백은 페이지 번호로 이어 받고(`useInfiniteScroll`), 아카이빙은 연도 없이 한 번에 받는다. 정렬·노출 조건은 각 목록과 같다. 도메인 목록의 `keyword` 인자는 생략하면 `null`이라 기존 목록 화면은 그대로다.
+- **검색어:** 서버가 제목·이름(열린피드백은 질문)만 부분 일치로 찾고, 50자를 넘으면 400이라 입력칸에 `maxLength`(`SEARCH_KEYWORD_MAX_LENGTH`)를 둔다. 앞뒤 공백은 화면이 지워 보낸다.
+
 | WDS 컴포넌트 | 코드 export | 확인 내용 |
 |---|---|---|
 | `Tab/Tab` (결과 탭 줄) | `Tab` + `TabList` + `TabListItem` | Figma 탭 줄(`3147:138705`: 높이 40, 좌우 20, 탭 간격 24, 라벨 15px SemiBold)이 **`TabList size="small" horizontalPadding`**과 정확히 맞는다 — `small`이 Body 2/Bold + 세로 패딩 9(=높이 40)고, `horizontalPadding`이 좌우 20을 스크롤 영역 안쪽에 줘서 6개 탭이 375px을 넘을 때 화면 끝까지 스크롤된다(`tab/style.js`의 `tabPaddingStyle`·`tabSizeStyle`). 기본(`medium`, Headline 2 17px)은 높이가 48이라 어긋난다. 공지 화면처럼 바깥에 `px-5` 래퍼를 두면 스크롤이 20px 안쪽에서 잘린다 |
@@ -625,7 +632,7 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 
 - **재사용(수정 없음)**: 행사 `EventsCard`, 공지 `NoticesCard`, 열린피드백 `FeedbacksCard`
 - **빌릴게**: `BillilgeItemCard`에 `bordered` prop만 추가했다(흰 배경 위에서 테두리 `border-line-solid-neutral`). 메인 목록은 회색 배경 위라 테두리가 없다
-- **아카이빙**: Figma `Search Archiving Card`(`3013:127633`)는 Stream 로컬이고 이 화면 전용이라 `features/search/components/SearchArchivingCard.tsx`로 새로 만들었다
+- **아카이빙**: Figma `Search Archiving Card`(`3013:127633`)는 Stream 로컬이고 이 화면 전용이라 `features/search/components/SearchArchivingCard.tsx`로 새로 만들었다. 썸네일은 서버 `thumbnailUrl`을 `LazyImage`로 그리고, 없으면 회색 칸이다
 
 ## 홈 화면(`3147:146240` 2건 이하 / `3147:146297` 3건 이상 / `3562:163866` empty) 구현 중 확정된 매핑
 

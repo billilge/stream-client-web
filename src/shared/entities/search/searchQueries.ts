@@ -1,43 +1,49 @@
 import { queryOptions } from "@tanstack/react-query";
+import { z } from "zod";
 
-import { mockupResponse } from "@/lib/mockupApi";
-import { ARCHIVES } from "@/shared/entities/archives/archivesMock";
-import { BILLILGE_ITEMS } from "@/shared/entities/billilge/billilgeMock";
-import { EVENTS } from "@/shared/entities/events/eventsMock";
-import { FEEDBACKS } from "@/shared/entities/feedbacks/feedbacksMock";
-import { NOTICES } from "@/shared/entities/notices/noticesMock";
+import { api } from "@/shared/api";
+import { archiveListItemSchema } from "@/shared/entities/archives/archivesQueries";
+import { billilgeItemSchema } from "@/shared/entities/billilge/billilgeQueries";
+import { eventListItemSchema } from "@/shared/entities/events/eventsQueries";
+import { feedbackSchema } from "@/shared/entities/feedbacks/feedbacksQueries";
+import { noticeListItemSchema } from "@/shared/entities/notices/noticesQueries";
 import { searchKeys } from "@/shared/entities/search/searchKeys";
-import type { SearchResults } from "@/shared/entities/search/searchTypes";
 
-function includesKeyword(text: string, keyword: string): boolean {
-  return text.toLowerCase().includes(keyword);
+// 서버가 받는 검색어 최대 길이 — 넘으면 400 INVALID_INPUT이라 입력칸에서 막는다
+export const SEARCH_KEYWORD_MAX_LENGTH = 50;
+
+// 섹션 하나(서버 PreviewResponse) — 앞의 몇 건(지금은 2건)과 전체 수. 이어 받지 않아서 커서가 없다
+function previewSchema<T extends z.ZodType>(itemSchema: T) {
+  return z.looseObject({
+    content: z.array(itemSchema),
+    totalCount: z.number(),
+  });
 }
 
-// 목데이터 기준 클라이언트 검색이다 — 제목류 필드만 대소문자 무시 부분 일치로 본다.
-// 공지·행사 본문은 목데이터가 전부 같은 글이라 본문까지 보면 아무 키워드나 전부 걸린다.
-function searchMocks(keyword: string): SearchResults {
-  return {
-    archives: ARCHIVES.filter((item) => includesKeyword(item.title, keyword)),
-    billilge: BILLILGE_ITEMS.filter((item) =>
-      includesKeyword(item.name, keyword),
-    ),
-    events: EVENTS.filter((item) => includesKeyword(item.title, keyword)),
-    feedbacks: FEEDBACKS.filter((item) =>
-      includesKeyword(item.question, keyword),
-    ),
-    notices: NOTICES.filter((item) => includesKeyword(item.title, keyword)),
-  };
-}
+// 통합 검색 응답 — 카드는 각 목록 API의 항목 응답 그대로라 도메인 스키마를 쓴다. 섹션이 비어도 필드는 빠지지 않는다.
+// 빌릴게 섹션의 서버 이름은 items다.
+export const searchResponseSchema = z.looseObject({
+  // 다섯 섹션 전체 수의 합 — 0이면 검색 결과가 없다
+  totalCount: z.number(),
+  events: previewSchema(eventListItemSchema),
+  notices: previewSchema(noticeListItemSchema),
+  feedbacks: previewSchema(feedbackSchema),
+  items: previewSchema(billilgeItemSchema),
+  archives: previewSchema(archiveListItemSchema),
+});
 
-// 실 API가 붙으면 queryFn 안쪽만 요청 코드로 바꾼다(`/api/search`) — 화면은 이 queryOptions로만 데이터를 받는다.
-// 열린피드백은 아직 entities로 옮겨지지 않아 features의 목데이터를 직접 읽는다.
+// 화면은 이 queryOptions로만 데이터를 받는다. 탭·더보기의 전체 목록은 각 도메인 목록 조회에 keyword를 넘겨 받는다.
 export const searchQueries = {
-  // 대소문자·앞뒤 공백만 다른 검색어는 같은 결과라 정리한 검색어로 key를 만든다
-  results: (rawKeyword: string) => {
-    const keyword = rawKeyword.trim().toLowerCase();
-    return queryOptions({
+  // 검색 화면 전체 탭과 탭별 개수(GET /v1/app/search). 검색어는 화면이 앞뒤 공백을 지워 넘긴다.
+  results: (keyword: string) =>
+    queryOptions({
       queryKey: searchKeys.results(keyword),
-      queryFn: () => mockupResponse(() => searchMocks(keyword)),
-    });
-  },
+      queryFn: async ({ signal }) =>
+        searchResponseSchema.parse(
+          await api.get<unknown>("/v1/app/search", {
+            params: { keyword },
+            signal,
+          }),
+        ),
+    }),
 };
