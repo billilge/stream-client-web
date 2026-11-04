@@ -4,19 +4,144 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { z } from "zod";
 
 import { api, type CursorSliceResponse, isApiError } from "@/shared/api";
 import { eventsKeys } from "@/shared/entities/events/eventsKeys";
 import type {
   EventApplyAnswer,
-  EventApplyResult,
-  EventDetail,
-  EventForm,
-  EventListItem,
   EventRecruitStatus,
-  MyEventApplicationDetail,
-  MyEventApplicationListItem,
 } from "@/shared/entities/events/eventsTypes";
+
+// 서버 enum(RecruitStatus·RecruitType·QuestionType·EventApplicationStatus) 값 — 타입은 eventsTypes.ts가 여기서 만든다
+export const EVENT_RECRUIT_STATUSES = [
+  "BEFORE_OPEN",
+  "OPEN",
+  "CLOSED",
+] as const;
+
+export const EVENT_RECRUIT_TYPES = ["FIRST_COME", "OPEN"] as const;
+
+export const EVENT_QUESTION_TYPES = [
+  "SHORT_TEXT",
+  "LONG_TEXT",
+  "SINGLE_CHOICE",
+  "MULTIPLE_CHOICE",
+] as const;
+
+export const EVENT_APPLICATION_STATUSES = ["APPLIED", "CANCELED"] as const;
+
+// 서버 응답 검사 — 서버가 필드를 더 보내도 깨지지 않게 looseObject로 두고, 빠지거나 타입이 바뀌면 여기서 실패한다.
+// 일시는 서버 LocalDateTime 문자열("2026-06-04T18:30:00", 소수 초가 붙을 수 있다)이다.
+export const eventListItemSchema = z.looseObject({
+  eventId: z.number(),
+  title: z.string(),
+  eventStartAt: z.string(),
+  thumbnailUrl: z.string().nullable(),
+  applyStartAt: z.string(),
+  applyEndAt: z.string(),
+  recruitStatus: z.enum(EVENT_RECRUIT_STATUSES),
+  // 신청 마감일까지 남은 날 수(0이면 오늘 마감). 모집중일 때만 있다
+  daysUntilDeadline: z.number().nullable(),
+});
+
+const eventListPageSchema = z.looseObject({
+  content: z.array(eventListItemSchema),
+  hasNext: z.boolean(),
+  nextCursor: z.string().nullable(),
+});
+
+export const eventDetailSchema = z.looseObject({
+  eventId: z.number(),
+  title: z.string(),
+  // 본문. 줄바꿈을 그대로 살려 렌더링한다
+  description: z.string(),
+  place: z.string(),
+  eventStartAt: z.string(),
+  eventEndAt: z.string(),
+  applyStartAt: z.string(),
+  applyEndAt: z.string(),
+  recruitStatus: z.enum(EVENT_RECRUIT_STATUSES),
+  daysUntilDeadline: z.number().nullable(),
+  images: z.array(z.looseObject({ fileId: z.number(), fileUrl: z.string() })),
+  // 신청 조건 — stream-server#190에서 응답에 더해지는 값이라 그전에는 없다. 없으면 납부자 전용이 아니고
+  // 정원 없이 모집하는 것으로 본다. 상세 "대상" 문구는 서버가 만들지 않고 이 값들로 프론트가 조합한다.
+  feePaidOnly: z.boolean().optional(),
+  recruitType: z.enum(EVENT_RECRUIT_TYPES).optional(),
+  // 선착순일 때만 있다
+  capacity: z.number().nullish(),
+});
+
+// 신청서 질문 — 양식 조회와 신청 상세가 같이 싣는 부분. 화면에는 eventsQuestions.ts에서 EventsQuestion으로 바꿔 넘긴다
+export const eventQuestionContentSchema = z.looseObject({
+  questionId: z.number(),
+  questionText: z.string(),
+  questionType: z.enum(EVENT_QUESTION_TYPES),
+  isRequired: z.boolean(),
+  // 신청서에서 몇 번째로 보일지(1부터)
+  displayOrder: z.number(),
+  // 선택지. 텍스트형 질문은 빈 배열이다
+  options: z.array(z.string()),
+});
+
+export const eventFormSchema = z.looseObject({
+  eventId: z.number(),
+  title: z.string(),
+  eventStartAt: z.string(),
+  place: z.string(),
+  questions: z.array(
+    eventQuestionContentSchema.extend({
+      // 답변 길이 제한. 선택형 질문은 null
+      maxLength: z.number().nullable(),
+    }),
+  ),
+});
+
+// 완료 화면이 행사 요약을 그린다
+export const eventApplyResultSchema = z.looseObject({
+  applicationId: z.number(),
+  title: z.string(),
+  eventStartAt: z.string(),
+  place: z.string(),
+});
+
+export const myEventApplicationListItemSchema = z.looseObject({
+  applicationId: z.number(),
+  eventId: z.number(),
+  title: z.string(),
+  thumbnailUrl: z.string().nullable(),
+  applicationStatus: z.enum(EVENT_APPLICATION_STATUSES),
+  appliedAt: z.string(),
+  // 취소한 신청만 있다
+  canceledAt: z.string().nullable(),
+});
+
+const myEventApplicationPageSchema = z.looseObject({
+  content: z.array(myEventApplicationListItemSchema),
+  hasNext: z.boolean(),
+  nextCursor: z.string().nullable(),
+});
+
+// 신청서 질문 한 건과 그 신청에서 제출한 답변
+export const eventAnsweredQuestionSchema = eventQuestionContentSchema.extend({
+  // 텍스트형 답변. 답하지 않은 선택 질문은 null
+  answerText: z.string().nullable(),
+  // 고른 선택지의 순서 번호(0부터). 답하지 않은 선택 질문은 빈 배열
+  selectedOptions: z.array(z.number()),
+});
+
+// 행사 질문 전체에 이 신청의 답변을 붙여 준다
+export const myEventApplicationDetailSchema = z.looseObject({
+  eventId: z.number(),
+  title: z.string(),
+  place: z.string(),
+  applicationStatus: z.enum(EVENT_APPLICATION_STATUSES),
+  eventStartAt: z.string(),
+  appliedAt: z.string(),
+  // 취소한 신청만 있다
+  canceledAt: z.string().nullable(),
+  questions: z.array(eventAnsweredQuestionSchema),
+});
 
 // 화면이 갈라 처리하는 서버 에러 코드(EventErrorCode)
 export const EVENTS_ERROR_CODES = {
@@ -64,12 +189,14 @@ export const eventsQueries = {
   list: (recruitStatus: EventRecruitStatus | null) =>
     infiniteQueryOptions({
       queryKey: eventsKeys.list(recruitStatus),
-      queryFn: ({ pageParam, signal }) =>
-        api.get<CursorSliceResponse<EventListItem>>("/v1/app/events", {
-          // axios는 null인 파라미터를 보내지 않는다 — 첫 페이지는 cursor 없이, 전체는 recruitStatus 없이 간다
-          params: { cursor: pageParam, recruitStatus },
-          signal,
-        }),
+      queryFn: async ({ pageParam, signal }) =>
+        eventListPageSchema.parse(
+          await api.get<unknown>("/v1/app/events", {
+            // axios는 null인 파라미터를 보내지 않는다 — 첫 페이지는 cursor 없이, 전체는 recruitStatus 없이 간다
+            params: { cursor: pageParam, recruitStatus },
+            signal,
+          }),
+        ),
       initialPageParam: null as string | null,
       getNextPageParam: getNextCursor,
     }),
@@ -79,7 +206,9 @@ export const eventsQueries = {
       queryKey: eventsKeys.detail(eventId),
       queryFn: ({ signal }) =>
         nullOnErrorCode(
-          api.get<EventDetail>(`/v1/app/events/${eventId}`, { signal }),
+          api
+            .get<unknown>(`/v1/app/events/${eventId}`, { signal })
+            .then((data) => eventDetailSchema.parse(data)),
           [EVENTS_ERROR_CODES.eventNotFound],
         ),
     }),
@@ -89,7 +218,9 @@ export const eventsQueries = {
       queryKey: eventsKeys.form(eventId),
       queryFn: ({ signal }) =>
         nullOnErrorCode(
-          api.get<EventForm>(`/v1/app/events/${eventId}/form`, { signal }),
+          api
+            .get<unknown>(`/v1/app/events/${eventId}/form`, { signal })
+            .then((data) => eventFormSchema.parse(data)),
           EVENTS_CLOSED_ERROR_CODES,
         ),
     }),
@@ -97,10 +228,12 @@ export const eventsQueries = {
   applications: () =>
     infiniteQueryOptions({
       queryKey: eventsKeys.applications(),
-      queryFn: ({ pageParam, signal }) =>
-        api.get<CursorSliceResponse<MyEventApplicationListItem>>(
-          "/v1/app/events/applications",
-          { params: { cursor: pageParam }, signal },
+      queryFn: async ({ pageParam, signal }) =>
+        myEventApplicationPageSchema.parse(
+          await api.get<unknown>("/v1/app/events/applications", {
+            params: { cursor: pageParam },
+            signal,
+          }),
         ),
       initialPageParam: null as string | null,
       getNextPageParam: getNextCursor,
@@ -111,10 +244,11 @@ export const eventsQueries = {
       queryKey: eventsKeys.application(applicationId),
       queryFn: ({ signal }) =>
         nullOnErrorCode(
-          api.get<MyEventApplicationDetail>(
-            `/v1/app/events/applications/${applicationId}`,
-            { signal },
-          ),
+          api
+            .get<unknown>(`/v1/app/events/applications/${applicationId}`, {
+              signal,
+            })
+            .then((data) => myEventApplicationDetailSchema.parse(data)),
           [
             EVENTS_ERROR_CODES.applicationNotFound,
             EVENTS_ERROR_CODES.eventNotFound,
@@ -126,6 +260,7 @@ export const eventsQueries = {
 // 행사 신청(POST /v1/app/events/{eventId}/applications). 신청이 생기고 정원이 차서 모집 상태가 바뀔 수도 있어서
 // 신청내역과 행사 목록·상세를 무효화한다. 마감·이미 신청으로 실패해도 지금 캐시가 낡았다는 뜻이라 같이 무효화한다.
 // 신청서 양식은 무효화하지 않는다 — 신청서 화면이 떠 있는 동안 다시 받으면 마감된 양식이 화면을 마감으로 보낸다.
+// 응답 형식이 달라도 서버에는 이미 신청이 생겼으니 실패로 바꾸지 않고 null을 돌려준다(사물함 신청과 같다).
 export function useApplyEventMutation(eventId: string) {
   const queryClient = useQueryClient();
   const invalidateApplyTargets = () =>
@@ -136,10 +271,18 @@ export function useApplyEventMutation(eventId: string) {
     ]);
 
   return useMutation({
-    mutationFn: (answers: EventApplyAnswer[]) =>
-      api.post<EventApplyResult>(`/v1/app/events/${eventId}/applications`, {
-        answers,
-      }),
+    mutationFn: async (answers: EventApplyAnswer[]) => {
+      const response = eventApplyResultSchema.safeParse(
+        await api.post<unknown>(`/v1/app/events/${eventId}/applications`, {
+          answers,
+        }),
+      );
+      if (!response.success) {
+        console.error("행사 신청 응답 형식이 달라요.", response.error);
+        return null;
+      }
+      return response.data;
+    },
     // 신청서 화면은 바로 완료 화면으로 넘어가서 다시 받을 조회가 화면에 없다 — 낡은 표시만 하고 금방 끝난다
     onSuccess: invalidateApplyTargets,
     onError: (error) => {

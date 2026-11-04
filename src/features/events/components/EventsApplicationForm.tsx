@@ -106,7 +106,14 @@ function EventsApplicationForm({
         // 제출이 끝난 폼으로는 돌아갈 수 없어야 해서 히스토리를 남기지 않고 바꿔치운다
         navigate(`/events/${eventId}/apply/complete`, {
           replace: true,
-          state: { application } satisfies EventsApplicationCompleteState,
+          state: {
+            // 신청 응답 형식이 달라 null이면 신청서 양식의 행사 정보로 요약을 그린다
+            application: application ?? {
+              eventStartAt: form.eventStartAt,
+              place: form.place,
+              title: form.title,
+            },
+          } satisfies EventsApplicationCompleteState,
           viewTransition: true,
         }),
       onError: (error) => {
