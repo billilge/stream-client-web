@@ -6,7 +6,7 @@ import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
 import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotosContentProps {
-  archiveId: string;
+  archiveId: number;
   onSelect: (photoIndex: number) => void;
 }
 
@@ -16,9 +16,7 @@ function ArchivesPhotosContent({
   archiveId,
   onSelect,
 }: ArchivesPhotosContentProps) {
-  const { data: archive } = useSuspenseQuery(
-    archivesQueries.mockDetail(archiveId),
-  );
+  const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
 
   if (!archive) {
     return (
@@ -39,11 +37,10 @@ function ArchivesPhotosContent({
     <div className="scrollbar-hidden flex-1 overflow-y-auto">
       {/* pt-2: Figma Body gap(Top Navigation ↔ Photo Grid 8px) */}
       <div className="grid grid-cols-2 gap-2 px-5 pt-2 pb-4">
-        {archive.photos.map((photo, index) => (
+        {archive.images.map((image, index) => (
           <button
             className="overflow-hidden rounded-xl"
-            // biome-ignore lint/suspicious/noArrayIndexKey: 같은 사진이 여러 장일 수 있고, 사진 목록은 순서가 바뀌지 않는다
-            key={index}
+            key={image.fileId}
             onClick={() => onSelect(index)}
             type="button"
           >
@@ -51,7 +48,7 @@ function ArchivesPhotosContent({
             <LazyImage
               alt={`${archive.title} 현장 사진 ${index + 1}`}
               className="aspect-square w-full"
-              src={photo}
+              src={image.fileUrl}
             />
           </button>
         ))}

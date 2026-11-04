@@ -3,6 +3,7 @@ import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { Suspense } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import ComingSoonScreen from "@/app/ComingSoonScreen";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import ArchivesPhotosContent from "@/features/archives/components/ArchivesPhotosContent";
@@ -12,7 +13,7 @@ import ArchivesPhotosSkeleton from "@/features/archives/components/ArchivesPhoto
 // 헤더는 데이터와 무관해서 화면이 바로 그리고, 격자 자리만 스켈레톤으로 채운다.
 function ArchivesPhotosScreen() {
   const navigate = useNavigate();
-  const { archiveId = "" } = useParams<{ archiveId: string }>();
+  const archiveId = Number(useParams().archiveId);
 
   useScreenHeader(
     <ScreenHeader
@@ -29,6 +30,10 @@ function ArchivesPhotosScreen() {
       variant="normal"
     />,
   );
+
+  if (!Number.isInteger(archiveId) || archiveId <= 0) {
+    return <ComingSoonScreen />;
+  }
 
   return (
     <Suspense fallback={<ArchivesPhotosSkeleton />}>

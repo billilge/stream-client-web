@@ -8,7 +8,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotoViewerContentProps {
-  archiveId: string;
+  archiveId: number;
   photoIndex: string;
   onClose: () => void;
 }
@@ -23,10 +23,8 @@ function ArchivesPhotoViewerContent({
   photoIndex,
   onClose,
 }: ArchivesPhotoViewerContentProps) {
-  const { data: archive } = useSuspenseQuery(
-    archivesQueries.mockDetail(archiveId),
-  );
-  const photos = archive?.photos ?? [];
+  const { data: archive } = useSuspenseQuery(archivesQueries.detail(archiveId));
+  const photos = archive?.images ?? [];
 
   // 주소의 photoIndex가 숫자가 아니거나 범위를 벗어나면 첫 장/마지막 장으로 맞춘다
   const initialIndex = Math.min(
@@ -38,9 +36,9 @@ function ArchivesPhotoViewerContent({
   // 장을 넘길 때마다(currentIndex) 다시 그려지므로, 사진 목록은 아카이빙이 바뀔 때만 새로 만든다
   const galleryPhotos = useMemo(
     () =>
-      (archive?.photos ?? []).map((photo, index) => ({
+      (archive?.images ?? []).map((image, index) => ({
         alt: `${archive?.title} 현장 사진 ${index + 1}`,
-        src: photo,
+        src: image.fileUrl,
       })),
     [archive],
   );
@@ -72,7 +70,7 @@ function ArchivesPhotoViewerContent({
           <img
             alt=""
             className="absolute inset-0 size-full scale-150 object-cover blur-[21.55px]"
-            src={photos[currentIndex]}
+            src={photos[currentIndex]?.fileUrl}
           />
         }
         idPrefix={`archives-${archiveId}`}
