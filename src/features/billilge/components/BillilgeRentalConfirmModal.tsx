@@ -4,7 +4,7 @@ import { useId } from "react";
 import ModalButtonGroup from "@/components/ui/ModalButtonGroup";
 import ModalShell from "@/components/ui/ModalShell";
 
-interface BililgeRentalConfirmModalProps {
+interface BillilgeRentalConfirmModalProps {
   open: boolean;
   itemName: string;
   quantity: number;
@@ -18,14 +18,14 @@ interface BililgeRentalConfirmModalProps {
 // ConfirmModal과 달리 타이틀이 왼쪽 정렬이고, 설명 문구 대신 물품/수량/대여 시작 시간을 보여주는
 // 상세 박스가 있다. 취소 버튼도 "닫기"가 아니라 "수정"이다 — 모달만 닫고 바텀시트로 돌아가 값을
 // 바꿀 수 있게 하는 동작이라 onCancel이 시트를 닫지 않는다.
-function BililgeRentalConfirmModal({
+function BillilgeRentalConfirmModal({
   open,
   itemName,
   quantity,
   timeLabel,
   onCancel,
   onConfirm,
-}: BililgeRentalConfirmModalProps) {
+}: BillilgeRentalConfirmModalProps) {
   const titleId = useId();
 
   return (
@@ -108,4 +108,4 @@ function BililgeRentalConfirmModal({
   );
 }
 
-export default BililgeRentalConfirmModal;
+export default BillilgeRentalConfirmModal;

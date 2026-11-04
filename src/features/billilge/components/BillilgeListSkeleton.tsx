@@ -5,10 +5,10 @@ import {
   useSkeletonAnimation,
 } from "@/components/ui/ScreenSkeleton";
 
-// 대여 물품 데이터를 받는 동안 BililgeListScreen의 목록 자리에 보이는 스켈레톤 — 헤더·토글·필터는
-// 화면이 바로 그리므로 물품 카드(BililgeItemCard) 배치만 따른다. 카드는 흰 면이라 회색 화면 배경 위에
+// 대여 물품 데이터를 받는 동안 BillilgeListScreen의 목록 자리에 보이는 스켈레톤 — 헤더·토글·필터는
+// 화면이 바로 그리므로 물품 카드(BillilgeItemCard) 배치만 따른다. 카드는 흰 면이라 회색 화면 배경 위에
 // 실제 카드와 같은 흰 박스를 깔아 둔다.
-function BililgeListSkeleton() {
+function BillilgeListSkeleton() {
   const animation = useSkeletonAnimation();
 
   return (
@@ -54,4 +54,4 @@ function BililgeListSkeleton() {
   );
 }
 
-export default BililgeListSkeleton;
+export default BillilgeListSkeleton;

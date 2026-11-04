@@ -16,7 +16,7 @@
 | 사용자 | `users` |
 | 게시판(공지) | `notices` |
 | 게시판(열린피드백) | `feedbacks` |
-| 빌릴게 | `bililge` |
+| 빌릴게 | `billilge` |
 | 사물함 | `lockers` |
 | 슬랑제 | `seulrangjes` |
 | 아카이빙 | `archives` |
@@ -32,7 +32,7 @@
 - 백엔드 API 엔드포인트 경로: `/api/{코드 용어}/...`
 - 프론트 라우트 경로: `/{코드 용어}`
 - `src/features/{코드 용어}/` 폴더명
-- 그 안의 컴포넌트/타입/상수 이름의 도메인 접두사 — 코드 용어를 PascalCase로 바꿔서 쓴다 (예: `bililge` → `Bililge...`, `bililgeItems` 같은 camelCase 변수명도 동일)
+- 그 안의 컴포넌트/타입/상수 이름의 도메인 접두사 — 코드 용어를 PascalCase로 바꿔서 쓴다 (예: `billilge` → `Billilge...`, `billilgeItems` 같은 camelCase 변수명도 동일)
 - Figma 노드/화면 이름은 그대로 한글을 쓴다(디자이너와의 소통 채널이라 번역하지 않음) — 코드 파일 최상단의 `// Figma: ...` 주석에서만 한글 화면명을 남긴다.
 
 ## 예외
@@ -41,4 +41,4 @@
 
 ## 반영 사례
 
-- "빌릴게" 기능: 처음엔 `rental`로 임의 명명했다가, 이 사전을 도입하면서 `src/features/rental/` → `src/features/bililge/`로 전체 리네이밍했다(#18).
+- "빌릴게" 기능: 처음엔 `rental`로 임의 명명했다가, 이 사전을 도입하면서 `src/features/rental/` → `src/features/bililge/`로 전체 리네이밍했다(#18). 그 뒤 서버 엔드포인트(`/v1/app/billilge`)와 철자가 달라서 `bililge` → `billilge`로 다시 맞췄다(#162).

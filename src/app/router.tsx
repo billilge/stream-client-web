@@ -19,7 +19,7 @@ import AuthEntryGate, {
 import AuthSignupScreen from "@/features/auth/AuthSignupScreen";
 import { LOGIN_PATH } from "@/features/auth/constants/auth";
 import KConnectCallbackScreen from "@/features/auth/KConnectCallbackScreen";
-import BililgeListScreen from "@/features/bililge/BililgeListScreen";
+import BillilgeListScreen from "@/features/billilge/BillilgeListScreen";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
 import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
@@ -71,14 +71,14 @@ const routes = [
             path: "/",
           },
           {
-            element: <BililgeListScreen tab="rent" />,
-            path: "/bililge",
+            element: <BillilgeListScreen tab="rent" />,
+            path: "/billilge",
           },
           {
-            element: <BililgeListScreen tab="return" />,
+            element: <BillilgeListScreen tab="return" />,
             // 빌릴게의 반납 탭 — 같은 화면을 탭만 바꿔 그리고, 하단 탭은 "빌릴게"가 선택된다
-            handle: { bottomNavValue: "bililge" } satisfies ScreenRouteHandle,
-            path: "/bililge/returns",
+            handle: { bottomNavValue: "billilge" } satisfies ScreenRouteHandle,
+            path: "/billilge/returns",
           },
           {
             element: <EventsListScreen tab="event" />,
