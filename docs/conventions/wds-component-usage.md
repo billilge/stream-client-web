@@ -427,6 +427,18 @@ WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하
 
 하단 `확인했어요` 버튼을 `disabled`로 두고 문구를 `신청 기간이 아니에요`로 바꾸기로 코드에서 정했다. 유의사항 3줄은 그대로 둔다. 기간 조회(`GET /v1/app/lockers/period`)의 `status`가 `OPEN`일 때만 열리고, 신청 전(`BEFORE_OPEN`)·마감(`CLOSED`)은 같은 문구다. 보여줄 회차가 없으면(`null`) 날짜 두 줄을 숨긴다. 디자인에 없는 상태를 만든 것이라 디자이너 확인이 필요하다 — `docs/plans/#68-lockers-notice-sheet.md` 참고.
 
+## 공지는 서버 API로 받는다
+
+`shared/entities/notices/noticesQueries.ts`가 학생 앱 API(`/v1/app/notices/**`)를 zod로 검사해 받는다. 화면 모양(카테고리 라벨 "일반"/"제휴", 날짜 `2026.09.03`)은 `features/notices/constants/notices.ts`의 헬퍼로 화면 쪽에서 바꾼다.
+
+- **목록은 카테고리별로 서버에서 따로 받는다:** `GET /v1/app/notices?category=`는 커서(`cursor`)로 이어 받고, 고정 공지를 먼저, 그다음 최신순으로 준다. 커서는 발급된 카테고리 필터에서만 유효해서(다른 필터의 커서는 `NOTICE_INVALID_CURSOR`) 탭마다 key를 따로 두고 처음부터 받는다. 받은 것만 거르면 다음 페이지의 공지가 빠지므로 클라이언트 필터링은 하지 않는다. 스크롤이 끝에 닿으면 다음 페이지를 이어 받는다(`useInfiniteScroll`). 탭은 바로 바뀌고 목록은 `useDeferredValue`로 새 카테고리를 받는 동안 지금 목록을 유지한다(빌릴게 목록과 같은 방식).
+- **썸네일은 서버가 준 주소로 그린다:** 목록 항목의 `thumbnailUrl`(등록된 첫 이미지)이 있으면 56px 썸네일에 실제 이미지를, 없으면 썸네일 칸 자체를 그리지 않는다. 검색 결과 카드는 아직 목이라 `hasThumbnail`만 넘겨 회색 칸을 그린다.
+- **고정 공지의 핀은 썸네일 유무와 상관없이 제목 앞에 붙는다.** 썸네일이 없는 카드의 제목은 여러 줄로 이어질 수 있다.
+- **상세 본문은 서식 없는 일반 텍스트다:** 서버가 줄바꿈을 보존해 저장하므로 `whiteSpace: pre-wrap`으로 그리고 HTML로 해석하지 않는다. 상세의 `images`는 바로 쓸 수 있는 공개 URL이라 `PhotoGallery`에 `photos`로 넘기고, 이미지가 하나도 없으면 흰 배경 헤더를 쓴다.
+- **첨부파일은 아직 그리지 않는다:** 상세 응답에 `attachments`가 있지만 Figma 상세에 영역이 없어서 응답 검사에도 넣지 않았다.
+- **없는 공지:** 서버가 404 `NOTICE_NOT_FOUND`로 주면 쿼리 안에서 `null`로 바꿔 "존재하지 않는 공지예요"를 그린다. 숫자가 아닌 주소는 서버에 보내지 않고 같은 화면으로 처리한다.
+- **검색과 홈은 아직 목이다:** 검색의 공지는 예전 화면 모양(`Notice`, `noticesMock.ts`)을 그대로 쓰고, 홈 배너는 목 공지 id(`1`~`5`)로 상세를 연다. 서버 연동 뒤에는 그 id가 없을 수 있어 "존재하지 않는 공지예요"가 뜰 수 있다 — 홈을 서버에 붙일 때 함께 맞춘다.
+
 ## 열린피드백은 서버 API로 받는다
 
 `shared/entities/feedbacks/feedbacksQueries.ts`가 학생 앱 API(`/v1/app/feedbacks/**`)를 zod로 검사해 받는다. 화면 모양(차수 라벨 "2차", 날짜 표기)은 `features/feedbacks/constants/feedbacks.ts`의 헬퍼로 화면 쪽에서 바꾼다.
