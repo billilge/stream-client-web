@@ -4,9 +4,11 @@ import { Button, Divider, Typography } from "@wanteddev/wds";
 import returnItemsEmpty from "@/assets/icons/billilge-empty/return-items.svg";
 import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
 import BillilgeStatusBadge from "@/features/billilge/components/BillilgeStatusBadge";
-import { BILLILGE_DELETED_ITEM_NAME } from "@/features/billilge/constants/billilge";
+import {
+  BILLILGE_DELETED_ITEM_NAME,
+  getReturnDueLabel,
+} from "@/features/billilge/constants/billilge";
 import HomeEmptyState from "@/features/home/components/HomeEmptyState";
-import { getHoursUntil } from "@/lib/date";
 import { billilgeQueries } from "@/shared/entities/billilge/billilgeQueries";
 
 const VISIBLE_COUNT = 2;
@@ -65,7 +67,7 @@ function HomeRentalSection({
       </Typography>
       <div className="flex flex-col gap-4">
         {rentals.slice(0, VISIBLE_COUNT).map((rental) => {
-          const hoursUntilDue = getHoursUntil(rental.dueAt);
+          const due = getReturnDueLabel(rental.dueAt);
           return (
             <BillilgeItemCard
               actionLabel="반납 신청"
@@ -73,12 +75,8 @@ function HomeRentalSection({
               itemName={rental.itemName ?? BILLILGE_DELETED_ITEM_NAME}
               key={rental.rentalHistoryId}
               onRentRequest={() => onReturnRequest(rental.rentalHistoryId)}
-              subtitle={
-                hoursUntilDue < 0
-                  ? `반납 기한이 ${-hoursUntilDue}시간 지났어요`
-                  : `반납까지 ${hoursUntilDue}시간`
-              }
-              subtitleTone={hoursUntilDue < 0 ? "negative" : "normal"}
+              subtitle={due.text}
+              subtitleTone={due.isOverdue ? "negative" : "normal"}
               surface={false}
               // 빌릴게 반납 탭과 같다 — 이미 반납을 신청한 대여는 버튼 대신 상태를 보여 준다
               trailingBadge={

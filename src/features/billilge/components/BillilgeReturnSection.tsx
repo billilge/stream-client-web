@@ -8,9 +8,12 @@ import BillilgeEmptyState from "@/features/billilge/components/BillilgeEmptyStat
 import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
 import BillilgeRentalHistoryEntry from "@/features/billilge/components/BillilgeRentalHistoryEntry";
 import BillilgeStatusBadge from "@/features/billilge/components/BillilgeStatusBadge";
-import { BILLILGE_DELETED_ITEM_NAME } from "@/features/billilge/constants/billilge";
+import {
+  BILLILGE_DELETED_ITEM_NAME,
+  getReturnDueLabel,
+} from "@/features/billilge/constants/billilge";
 import { useBillilgeReturnRequest } from "@/features/billilge/hooks/useBillilgeReturnRequest";
-import { formatDateTime, getHoursUntil } from "@/lib/date";
+import { formatDateTime } from "@/lib/date";
 import { billilgeQueries } from "@/shared/entities/billilge/billilgeQueries";
 
 interface BillilgeReturnSectionProps {
@@ -58,7 +61,7 @@ function BillilgeReturnSection({
         {returnItems.length > 0 ? (
           <div className="flex flex-col gap-2">
             {returnItems.map((item) => {
-              const hoursUntilDue = getHoursUntil(item.dueAt);
+              const due = getReturnDueLabel(item.dueAt);
               return (
                 <BillilgeItemCard
                   actionLabel="반납 신청"
@@ -66,13 +69,8 @@ function BillilgeReturnSection({
                   itemName={item.itemName ?? BILLILGE_DELETED_ITEM_NAME}
                   key={item.rentalHistoryId}
                   onRentRequest={() => openReturnRequest(item.rentalHistoryId)}
-                  // 기한이 지나면 홈 대여 현황(3147:146331)처럼 빨간 문구로 바뀐다
-                  subtitle={
-                    hoursUntilDue < 0
-                      ? `반납 기한이 ${-hoursUntilDue}시간 지났어요`
-                      : `반납까지 ${hoursUntilDue}시간`
-                  }
-                  subtitleTone={hoursUntilDue < 0 ? "negative" : "normal"}
+                  subtitle={due.text}
+                  subtitleTone={due.isOverdue ? "negative" : "normal"}
                   // 반납은 대여 중(RENTAL)일 때만 신청할 수 있다 — 이미 신청한 대여는 버튼 대신 상태를 보여 준다
                   trailingBadge={
                     item.status === "RENTAL" ? undefined : (

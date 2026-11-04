@@ -1,3 +1,4 @@
+import { getTimeUntil } from "@/lib/date";
 import type {
   BillilgeCategory,
   BillilgeRentalStatus,
@@ -67,6 +68,19 @@ export const BILLILGE_STATUS_BADGES = {
   BillilgeRentalStatus,
   { color: "neutral" | "accent"; label: string; token: string }
 >;
+
+// 반납 기한 문구 — 빌릴게 반납 탭과 홈 대여 현황이 같이 쓴다. Figma는 "반납까지 N시간"만 있는데, 며칠짜리 대여는
+// 시간 숫자가 커져서 24시간이 넘으면 일 단위로 보여 준다(getTimeUntil). 기한이 지나면 빨간 문구(3147:146331)다.
+export function getReturnDueLabel(dueAt: string): {
+  text: string;
+  isOverdue: boolean;
+} {
+  const { amount, unit } = getTimeUntil(dueAt);
+  const unitLabel = unit === "days" ? "일" : "시간";
+  return amount < 0
+    ? { isOverdue: true, text: `반납 기한이 ${-amount}${unitLabel} 지났어요` }
+    : { isOverdue: false, text: `반납까지 ${amount}${unitLabel}` };
+}
 
 // 대여 이력에 남은 물품이 지워졌으면 서버가 이름을 null로 준다
 export const BILLILGE_DELETED_ITEM_NAME = "삭제된 물품";
