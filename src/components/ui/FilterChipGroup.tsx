@@ -22,6 +22,7 @@ function FilterChipGroup({ options, value, onChange }: FilterChipGroupProps) {
     <div className="flex gap-1.5 overflow-x-auto">
       {options.map((option) => (
         <FilterChip
+          aria-pressed={option.value === value}
           isActive={option.value === value}
           key={option.value}
           onClick={() => onChange(option.value)}
