@@ -4,7 +4,7 @@ import { Button, Typography } from "@wanteddev/wds";
 import circleMinusFill from "@/assets/icons/circle-minus-fill.svg";
 import circlePlusFill from "@/assets/icons/circle-plus-fill.svg";
 
-interface BililgeItemCardProps {
+interface BillilgeItemCardProps {
   icon: string;
   itemName: string;
   subtitle: string;
@@ -36,7 +36,7 @@ interface BililgeItemCardProps {
 // subtitle은 대여 목록의 "수량 N"과 반납 목록의 "반납까지 N시간"이 같은 자리(Caption 1/Regular)를
 // 쓰는 걸 Figma에서 확인해 호출부가 문구를 직접 넘기도록 뺐다. actionLabel도 같은 이유로
 // "대여 신청"/"반납 신청" 둘 다 표현할 수 있게 기본값만 두고 열어뒀다.
-function BililgeItemCard({
+function BillilgeItemCard({
   icon,
   itemName,
   subtitle,
@@ -50,7 +50,7 @@ function BililgeItemCard({
   stepperValue = 1,
   onStepperDecrease,
   onStepperIncrease,
-}: BililgeItemCardProps) {
+}: BillilgeItemCardProps) {
   const isStepper = trailingControl === "stepper";
 
   return (
@@ -142,4 +142,4 @@ function BililgeItemCard({
   );
 }
 
-export default BililgeItemCard;
+export default BillilgeItemCard;

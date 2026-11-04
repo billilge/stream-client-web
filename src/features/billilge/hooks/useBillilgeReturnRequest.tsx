@@ -10,7 +10,7 @@ import ScreenToast from "@/components/ui/ScreenToast";
 // API가 붙으면 confirm 안에서 요청을 보낸다.
 // 모달·토스트는 화면 포털에 그려져서 어디에 두든 화면 위에 뜬다. 쓰는 쪽은 openReturnRequest를 버튼에 걸고
 // returnRequestDialogs를 렌더하기만 하면 된다.
-export function useBililgeReturnRequest() {
+export function useBillilgeReturnRequest() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
   // 토스트가 떠 있는 동안 다시 확인해도 스크린리더가 재안내하도록, 확인마다 값을 바꿔

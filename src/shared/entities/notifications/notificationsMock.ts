@@ -7,7 +7,7 @@ export const NOTIFICATIONS: NotificationItem[] = [
     isRead: false,
     message: "우산 반납이 완료됐어요.",
     timeLabel: "1시간 전",
-    type: "bililgeReturn",
+    type: "billilgeReturn",
   },
   {
     id: "2",
@@ -15,7 +15,7 @@ export const NOTIFICATIONS: NotificationItem[] = [
     message:
       "관리자가 대여 신청을 승인했어요. 학생회실에 방문해 우산을 대여해 주세요.",
     timeLabel: "1시간 전",
-    type: "bililgeRental",
+    type: "billilgeRental",
   },
   {
     id: "3",
