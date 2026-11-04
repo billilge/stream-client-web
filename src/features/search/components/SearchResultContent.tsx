@@ -2,10 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import SearchEmptyState from "@/features/search/components/SearchEmptyState";
 import SearchResultView from "@/features/search/components/SearchResultView";
-import {
-  getSearchResultCount,
-  type SearchTab,
-} from "@/features/search/constants/search";
+import type { SearchTab } from "@/features/search/constants/search";
 import { searchQueries } from "@/shared/entities/search/searchQueries";
 
 interface SearchResultContentProps {
@@ -23,7 +20,7 @@ function SearchResultContent({
   const { data: results } = useSuspenseQuery(searchQueries.results(keyword));
 
   // 전체 결과가 하나도 없으면 탭 없이 empty만 보여준다(Figma empty 프레임에 탭이 없다)
-  if (getSearchResultCount(results, "all") === 0) {
+  if (results.totalCount === 0) {
     return (
       <div className="flex flex-1 items-center justify-center pb-[60px]">
         <SearchEmptyState />
@@ -34,6 +31,7 @@ function SearchResultContent({
   return (
     <SearchResultView
       activeTab={activeTab}
+      keyword={keyword}
       onTabChange={onTabChange}
       results={results}
     />

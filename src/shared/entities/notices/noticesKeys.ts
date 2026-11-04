@@ -5,8 +5,8 @@ import type { NoticeCategoryCode } from "@/shared/entities/notices/noticesTypes"
 export const noticesKeys = {
   root: () => ["notices"] as const,
   lists: () => [...noticesKeys.root(), "list"] as const,
-  list: (category: NoticeCategoryCode | null) =>
-    [...noticesKeys.lists(), category] as const,
+  list: (category: NoticeCategoryCode | null, keyword: string | null) =>
+    [...noticesKeys.lists(), category, keyword] as const,
   detail: (noticeId: number) =>
     [...noticesKeys.root(), "detail", noticeId] as const,
 };

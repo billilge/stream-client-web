@@ -4,22 +4,32 @@ import { Link, useNavigate } from "react-router-dom";
 import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
 import EventsCard from "@/features/events/components/EventsCard";
 import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
+import {
+  formatFeedbackRound,
+  getFeedbackPath,
+  hasFeedbackAnswer,
+} from "@/features/feedbacks/constants/feedbacks";
 import NoticesCard from "@/features/notices/components/NoticesCard";
+import {
+  formatNoticeDate,
+  getNoticePath,
+  NOTICE_CATEGORY_LABELS,
+} from "@/features/notices/constants/notices";
 import SearchArchivingCard from "@/features/search/components/SearchArchivingCard";
-import type { SearchCategory } from "@/features/search/constants/search";
-import type { SearchResults } from "@/shared/entities/search/searchTypes";
+import type {
+  SearchCategory,
+  SearchCategoryEntries,
+} from "@/features/search/constants/search";
+import { formatDate } from "@/lib/date";
 
 interface SearchCategoryItemsProps {
-  category: SearchCategory;
-  results: SearchResults;
-  /** 전체 탭 미리보기처럼 앞에서 몇 개만 보여줄 때 */
-  limit?: number;
+  entries: SearchCategoryEntries;
   /** 목록 맨 아래에 같은 간격으로 붙는 요소 — 전체 탭의 "n개 더보기" 버튼 */
   footer?: ReactNode;
 }
 
 interface ListEntry {
-  id: string;
+  id: number;
   node: ReactNode;
 }
 
@@ -37,22 +47,17 @@ const LIST_STYLE: Record<
   notices: { gapClassName: "gap-4", hasDivider: true },
 };
 
-// 검색 결과 한 카테고리의 카드 목록. 카드는 기존 화면의 것을 그대로 재사용하고(행사·공지·열린피드백),
+// 검색 결과 한 카테고리의 카드 목록. 카드는 서버 목록 응답을 받아 기존 화면의 것을 그대로 재사용하고(행사·공지·열린피드백),
 // 설계서 4번의 "UI가 달라지는 카드" 둘만 검색용으로 바꿨다 — 아카이빙(SearchArchivingCard, 신규),
 // 빌릴게(BillilgeItemCard의 bordered).
-function SearchCategoryItems({
-  category,
-  results,
-  limit,
-  footer,
-}: SearchCategoryItemsProps) {
+function SearchCategoryItems({ entries, footer }: SearchCategoryItemsProps) {
   const navigate = useNavigate();
 
   const buildEntries = (): ListEntry[] => {
-    switch (category) {
+    switch (entries.category) {
       case "events":
-        return results.events.map((event) => ({
-          id: String(event.eventId),
+        return entries.items.map((event) => ({
+          id: event.eventId,
           node: (
             <EventsCard
               event={event}
@@ -62,54 +67,59 @@ function SearchCategoryItems({
           ),
         }));
       case "notices":
-        return results.notices.map((notice) => ({
-          id: notice.id,
+        return entries.items.map((notice) => ({
+          id: notice.noticeId,
           node: (
-            <Link className="block" to={`/notices/${notice.id}`}>
+            <Link className="block" to={getNoticePath(notice.noticeId)}>
               <NoticesCard
-                category={notice.category}
-                date={notice.date}
-                hasThumbnail={notice.hasThumbnail}
-                isPinned={notice.isPinned}
+                category={NOTICE_CATEGORY_LABELS[notice.category]}
+                date={formatNoticeDate(notice.createdAt)}
+                hasThumbnail={Boolean(notice.thumbnailUrl)}
+                isPinned={notice.pinned}
+                thumbnailUrl={notice.thumbnailUrl}
                 title={notice.title}
               />
             </Link>
           ),
         }));
       case "feedbacks":
-        return results.feedbacks.map((feedback) => ({
-          id: feedback.id,
-          // 답변이 있는 피드백만 상세(모아보기)가 있다 — 열린피드백 목록과 같은 규칙
-          node: feedback.answer ? (
-            <Link className="block" to={`/feedbacks/${feedback.id}`}>
+        return entries.items.map((feedback) => ({
+          id: feedback.feedbackId,
+          // 답변이 있는 피드백만 상세(모아보기)가 있다 — 열린피드백 목록과 같은 규칙. 서버는 답변이 공개된 것만 찾아 준다
+          node: hasFeedbackAnswer(feedback) ? (
+            <Link className="block" to={getFeedbackPath(feedback.feedbackId)}>
               <FeedbacksCard
                 question={feedback.question}
-                round={feedback.round}
+                round={formatFeedbackRound(feedback.round)}
               />
             </Link>
           ) : (
             <FeedbacksCard
               question={feedback.question}
-              round={feedback.round}
+              round={formatFeedbackRound(feedback.round)}
             />
           ),
         }));
       case "archives":
-        return results.archives.map((archive) => ({
-          id: archive.id,
+        return entries.items.map((archive) => ({
+          id: archive.archiveId,
           node: (
             <Link
               className="block"
-              to={`/archives/${archive.id}`}
+              to={`/archives/${archive.archiveId}`}
               viewTransition
             >
-              <SearchArchivingCard date={archive.date} title={archive.title} />
+              <SearchArchivingCard
+                date={formatDate(archive.startDate)}
+                thumbnailUrl={archive.thumbnailUrl}
+                title={archive.title}
+              />
             </Link>
           ),
         }));
       case "billilge":
-        return results.billilge.map((item) => ({
-          id: String(item.itemId),
+        return entries.items.map((item) => ({
+          id: item.itemId,
           node: (
             <div className="px-5">
               <BillilgeItemCard
@@ -126,13 +136,11 @@ function SearchCategoryItems({
     }
   };
 
-  const { gapClassName, hasDivider } = LIST_STYLE[category];
-  const allEntries = buildEntries();
-  const entries = limit === undefined ? allEntries : allEntries.slice(0, limit);
+  const { gapClassName, hasDivider } = LIST_STYLE[entries.category];
 
   return (
     <div className={`flex flex-col ${gapClassName}`}>
-      {entries.map((entry, index) => (
+      {buildEntries().map((entry, index) => (
         <Fragment key={entry.id}>
           {hasDivider && index > 0 && (
             <div className="px-5">

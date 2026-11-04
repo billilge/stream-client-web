@@ -2,6 +2,8 @@ import { Typography } from "@wanteddev/wds";
 import { IconCircleCloseFill, IconSearch } from "@wanteddev/wds-icon";
 import type { Ref } from "react";
 
+import { SEARCH_KEYWORD_MAX_LENGTH } from "@/shared/entities/search/searchQueries";
+
 interface SearchFieldProps {
   value: string;
   onChange: (value: string) => void;
@@ -43,6 +45,8 @@ function SearchField({
         className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-label-assistive"
         color="semantic.label.normal"
         enterKeyHint="search"
+        // 서버가 50자를 넘는 검색어를 거절해서 입력에서 막는다
+        maxLength={SEARCH_KEYWORD_MAX_LENGTH}
         onChange={(event) => onChange(event.target.value)}
         placeholder="검색어를 입력하세요"
         ref={inputRef}

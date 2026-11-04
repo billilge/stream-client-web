@@ -105,15 +105,15 @@ function getNextCursor(lastPage: CursorSliceResponse<unknown>) {
 // 화면은 이 queryOptions로만 데이터를 받는다. 화면 모양으로 바꿔야 하면 화면 쪽에서 select를 더한다.
 export const billilgeQueries = {
   // 물품 목록을 이름순 커서로 이어 받는다(GET /v1/app/billilge/items). category가 null이면 거르지 않는다.
-  // 한 번에 서버 기본값(20개)씩 받는다.
-  items: (category: BillilgeCategory | null) =>
+  // 한 번에 서버 기본값(20개)씩 받는다. keyword는 검색 화면의 빌릴게 탭이 이름으로 찾을 때만 넘긴다.
+  items: (category: BillilgeCategory | null, keyword: string | null = null) =>
     infiniteQueryOptions({
-      queryKey: billilgeKeys.itemList(category),
+      queryKey: billilgeKeys.itemList(category, keyword),
       queryFn: async ({ pageParam, signal }) =>
         billilgeItemPageSchema.parse(
           await api.get<unknown>(`${BILLILGE_PATH}/items`, {
             // axios는 null인 파라미터를 보내지 않는다 — 첫 페이지는 cursor 없이, 전체는 category 없이 간다
-            params: { category, cursor: pageParam },
+            params: { category, cursor: pageParam, keyword },
             signal,
           }),
         ),
