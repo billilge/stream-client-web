@@ -18,6 +18,19 @@ export function formatDate(date: string, options: DateFormatOptions = {}) {
   return `${dotted}(${WEEKDAYS[new Date(year, month - 1, day).getDay()]})`;
 }
 
+// 서버 일시("2026-11-04T17:00:00")까지 남은 시간(시간 단위). 지났으면 음수다.
+// 남은 시간은 올리고(30분 남으면 1시간) 지난 시간은 내려서, 어느 쪽이든 0시간으로 보이지 않게 1시간부터 센다.
+// 서버 일시는 오프셋 없는 KST라 기기 시간대 기준 일시로 읽는다.
+export function getHoursUntil(value: string, now: Date = new Date()): number {
+  const [date, time] = value.split("T");
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+  const diffMs =
+    new Date(year, month - 1, day, hour, minute).getTime() - now.getTime();
+  const hours = diffMs / (60 * 60 * 1000);
+  return hours > 0 ? Math.ceil(hours) : -Math.max(1, Math.floor(-hours));
+}
+
 // "2026-09-05T13:59" → "2026.09.05 13:59", weekday면 "2026.09.05(토) 13:59"
 export function formatDateTime(value: string, options: DateFormatOptions = {}) {
   const [date, time] = value.split("T");

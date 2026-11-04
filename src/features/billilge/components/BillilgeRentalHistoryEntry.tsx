@@ -1,9 +1,11 @@
 import { ContentBadge, Typography } from "@wanteddev/wds";
 
 interface BillilgeRentalHistoryEntryProps {
-  icon: string;
+  // 물품이 지워졌거나 아이콘이 없으면 null이라 같은 크기의 빈 자리만 둔다
+  icon: string | null;
   itemName: string;
   rentedAt: string;
+  // 반납이 확인되기 전(반납완료가 아닌 상태)은 시각이 없어 "-"로 자리를 채워 줄 높이를 맞춘다
   returnedAt: string;
 }
 
@@ -20,7 +22,11 @@ function BillilgeRentalHistoryEntry({
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex flex-1 items-center gap-3">
-        <img alt="" className="size-[42px]" src={icon} />
+        {icon ? (
+          <img alt="" className="size-[42px]" src={icon} />
+        ) : (
+          <div className="size-[42px]" />
+        )}
         <div className="flex flex-col gap-1">
           <Typography
             as="p"

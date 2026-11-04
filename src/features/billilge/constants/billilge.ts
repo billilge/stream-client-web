@@ -17,6 +17,9 @@ export const BILLILGE_CATEGORY_LABELS = {
   HYGIENE: "위생용품",
 } satisfies Record<BillilgeCategory, string>;
 
+// 대여 이력에 남은 물품이 지워졌으면 서버가 이름을 null로 준다
+export const BILLILGE_DELETED_ITEM_NAME = "삭제된 물품";
+
 // 카테고리 필터에서 "전체"(필터 없음)를 뜻하는 칩 값
 export const BILLILGE_ALL_CATEGORIES = "ALL";
 

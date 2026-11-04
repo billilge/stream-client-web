@@ -14,6 +14,7 @@ import BillilgeItemList from "@/features/billilge/components/BillilgeItemList";
 import BillilgeListSkeleton from "@/features/billilge/components/BillilgeListSkeleton";
 import BillilgeRentalSheet from "@/features/billilge/components/BillilgeRentalSheet";
 import BillilgeReturnSection from "@/features/billilge/components/BillilgeReturnSection";
+import BillilgeReturnSkeleton from "@/features/billilge/components/BillilgeReturnSkeleton";
 import {
   BILLILGE_ALL_CATEGORIES,
   BILLILGE_TAB_PATHS,
@@ -110,7 +111,9 @@ function BillilgeListScreen({ tab }: BillilgeListScreenProps) {
             />
           </Suspense>
         ) : (
-          <BillilgeReturnSection onBrowseRentals={() => changeTab("rent")} />
+          <Suspense fallback={<BillilgeReturnSkeleton />}>
+            <BillilgeReturnSection onBrowseRentals={() => changeTab("rent")} />
+          </Suspense>
         )}
       </div>
 
