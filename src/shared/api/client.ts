@@ -44,7 +44,8 @@ apiClient.interceptors.response.use(undefined, (error: unknown) => {
   throw new ApiError(error.response.status, body, { cause: error });
 });
 
-function isApiResponse(value: unknown): value is ApiResponse<unknown> {
+// 챗봇 스트림(shared/entities/chat/chatStream.ts)도 시작 전 실패 본문을 이걸로 가린다
+export function isApiResponse(value: unknown): value is ApiResponse<unknown> {
   return (
     typeof value === "object" &&
     value !== null &&
