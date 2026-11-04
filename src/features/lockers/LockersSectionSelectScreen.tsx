@@ -6,9 +6,11 @@ import { useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import { HOME_PATH } from "@/features/home/constants/home";
 import LockersSectionSelectContent, {
   LockersSectionSelectBody,
 } from "@/features/lockers/components/LockersSectionSelectContent";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
 
 // Figma: 사물함 구역 선택 전 (nodeId 1737:218452), 선택완료 (1737:218489)
@@ -18,13 +20,14 @@ function LockersSectionSelectScreen() {
   );
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const handleBack = useBackNavigation(HOME_PATH);
 
   useScreenHeader(
     <ScreenHeader
       leading={
         <TopNavigationButton
           aria-label="뒤로가기"
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           variant="icon"
         >
           <IconChevronLeft />

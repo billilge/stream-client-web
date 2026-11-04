@@ -8,6 +8,7 @@ const SHEET_CLOSE_MS = 380;
 
 // Figma: 사물함 신청 전 유의사항 (nodeId 1737:218213)
 // 신청 흐름의 첫 화면이다 — 들어오면 유의사항 시트부터 띄우고, 확인하면 구역 선택으로 보낸다.
+// 구역 선택으로 갈 때 이 화면을 기록에서 바꿔치기해서, 구역 선택에서 뒤로 가면 유의사항이 아니라 들어온 곳으로 간다.
 // 시트를 닫으면(딤 탭) 들어온 곳으로 돌아간다.
 //
 // 이 화면으로 오는 진입점(홈 "사물함 상태" 퀵링크 `1737:218284` 또는 공지 상세 CTA)은
@@ -33,7 +34,7 @@ function LockersApplyScreen() {
   return (
     <LockersNoticeSheet
       onClose={handleClose}
-      onConfirm={() => navigate("/lockers/apply/sections")}
+      onConfirm={() => navigate("/lockers/apply/sections", { replace: true })}
       open={isOpen}
     />
   );
