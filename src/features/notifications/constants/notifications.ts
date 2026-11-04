@@ -1,5 +1,5 @@
-import bililgeRentalIcon from "@/assets/icons/notifications/bililge-rental.svg";
-import bililgeReturnIcon from "@/assets/icons/notifications/bililge-return.svg";
+import billilgeRentalIcon from "@/assets/icons/notifications/billilge-rental.svg";
+import billilgeReturnIcon from "@/assets/icons/notifications/billilge-return.svg";
 import eventIcon from "@/assets/icons/notifications/event.svg";
 import feedbackIcon from "@/assets/icons/notifications/feedback.svg";
 import lockerIcon from "@/assets/icons/notifications/locker.svg";
@@ -8,8 +8,8 @@ import type { NotificationType } from "@/shared/entities/notifications/notificat
 
 // Figma Notification Category — 24px 아이콘 + 라벨. 빌릴게는 대여·반납이 같은 라벨에 아이콘만 다르다.
 export const NOTIFICATION_TYPE_META = {
-  bililgeRental: { icon: bililgeRentalIcon, label: "빌릴게" },
-  bililgeReturn: { icon: bililgeReturnIcon, label: "빌릴게" },
+  billilgeRental: { icon: billilgeRentalIcon, label: "빌릴게" },
+  billilgeReturn: { icon: billilgeReturnIcon, label: "빌릴게" },
   events: { icon: eventIcon, label: "행사" },
   feedbacks: { icon: feedbackIcon, label: "열린피드백" },
   lockers: { icon: lockerIcon, label: "사물함" },
@@ -17,7 +17,11 @@ export const NOTIFICATION_TYPE_META = {
 } satisfies Record<NotificationType, { icon: string; label: string }>;
 
 // 알림 설정 카테고리 — Figma 알림 설정(nodeId 3628:110837)의 행 순서다. 게시판은 공지·열린피드백을 같이 켜고 끈다.
-export type NotificationSettingKey = "bililge" | "events" | "board" | "lockers";
+export type NotificationSettingKey =
+  | "billilge"
+  | "events"
+  | "board"
+  | "lockers";
 
 export const NOTIFICATION_SETTINGS: {
   key: NotificationSettingKey;
@@ -26,7 +30,7 @@ export const NOTIFICATION_SETTINGS: {
 }[] = [
   {
     description: "대여 진행 상황과 반납 일정을 알려 드려요",
-    key: "bililge",
+    key: "billilge",
     label: "빌릴게 알림",
   },
   {
@@ -51,7 +55,7 @@ export const INITIAL_NOTIFICATION_SETTINGS: Record<
   NotificationSettingKey,
   boolean
 > = {
-  bililge: true,
+  billilge: true,
   board: false,
   events: false,
   lockers: false,

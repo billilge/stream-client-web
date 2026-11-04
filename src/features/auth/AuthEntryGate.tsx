@@ -1,8 +1,9 @@
-import type { ReactNode } from "react";
-import { Navigate, useMatches } from "react-router-dom";
+import { type ReactNode, useEffect } from "react";
+import { Navigate, useMatches, useNavigate } from "react-router-dom";
 
 import { LOGIN_PATH } from "@/features/auth/constants/auth";
-import { isLoggedIn } from "@/shared/entities/auth/session";
+import { getAccessToken, subscribeTokens } from "@/shared/api";
+import { clearLoggedIn, isLoggedIn } from "@/shared/entities/auth/session";
 
 // 로그인 없이 열 수 있는 라우트의 표시 — router.tsx에서 `handle: { isPublic: true } satisfies AuthRouteHandle`로 지정한다
 // (레이아웃 옵션 handle과 한 객체에 같이 쓰면 `ScreenRouteHandle & AuthRouteHandle`로 검사한다).
@@ -27,11 +28,27 @@ interface AuthEntryGateProps {
 // 로그인 표시는 sessionStorage에만 있어서, 같은 탭의 새로고침은 화면이 유지되고 탭·브라우저를 새로 열 때만
 // 로그인 화면으로 보낸다. 이 가드는 화면 이동을 정리할 뿐이고 접근 통제가 아니다 — 표시는 클라이언트가
 // 바꿀 수 있어서 실제 인증은 서버 API가 검증해야 한다.
+// 토큰이 사라지면(서버가 401로 거절해 apiClient가 지웠을 때 — 토큰은 1시간짜리고 재발급이 없다) 로그인 표시도 같이 지우고
+// 로그인으로 보낸다. 요청 코드가 라우터를 직접 부르면 import가 순환해서, 토큰 변경 알림(subscribeTokens)을 여기서 받는다.
 // 로그인한 상태에서 로그인 화면으로 오는 경우는 이 가드가 아니라 로그인 퍼널(AuthSignupScreen)이 홈으로 보낸다.
 function AuthEntryGate({ children }: AuthEntryGateProps) {
   const isPublic = useMatches().some(
     (match) => isAuthRouteHandle(match.handle) && match.handle.isPublic,
   );
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isPublic) {
+      return;
+    }
+    return subscribeTokens(() => {
+      if (getAccessToken() === null) {
+        clearLoggedIn();
+        navigate(LOGIN_PATH, { replace: true });
+      }
+    });
+  }, [isPublic, navigate]);
 
   if (!isPublic && !isLoggedIn()) {
     return <Navigate replace to={LOGIN_PATH} />;

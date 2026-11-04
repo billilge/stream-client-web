@@ -1,6 +1,6 @@
 import { ContentBadge, Typography } from "@wanteddev/wds";
 
-interface BililgeRentalHistoryEntryProps {
+interface BillilgeRentalHistoryEntryProps {
   icon: string;
   itemName: string;
   rentedAt: string;
@@ -11,12 +11,12 @@ interface BililgeRentalHistoryEntryProps {
 // 구분되며 반복되는 한 줄. "반납완료" 뱃지는 WDS `ContentBadge`(color="accent",
 // accentColor="semantic.accent.foreground.green", size="small")가 배경 8% 투명도·라운드 8px·
 // Caption 1/Medium까지 정확히 일치해서 그대로 재사용한다.
-function BililgeRentalHistoryEntry({
+function BillilgeRentalHistoryEntry({
   icon,
   itemName,
   rentedAt,
   returnedAt,
-}: BililgeRentalHistoryEntryProps) {
+}: BillilgeRentalHistoryEntryProps) {
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex flex-1 items-center gap-3">
@@ -60,4 +60,4 @@ function BililgeRentalHistoryEntry({
   );
 }
 
-export default BililgeRentalHistoryEntry;
+export default BillilgeRentalHistoryEntry;

@@ -1,7 +1,7 @@
 // 알림 종류 — 아이콘·라벨이 종류마다 다르다. 빌릴게는 대여/반납 아이콘이 따로라 둘로 나눴다.
 export type NotificationType =
-  | "bililgeRental"
-  | "bililgeReturn"
+  | "billilgeRental"
+  | "billilgeReturn"
   | "notices"
   | "feedbacks"
   | "events"

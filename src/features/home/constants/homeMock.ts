@@ -1,6 +1,6 @@
-import hairDryer from "@/assets/icons/bililge-items/hair-dryer.svg";
-import powerBank from "@/assets/icons/bililge-items/power-bank.svg";
-import umbrella from "@/assets/icons/bililge-items/umbrella.svg";
+import hairDryer from "@/assets/icons/billilge-items/hair-dryer.svg";
+import powerBank from "@/assets/icons/billilge-items/power-bank.svg";
+import umbrella from "@/assets/icons/billilge-items/umbrella.svg";
 import type { FeeStatus } from "@/shared/entities/fee/feeTypes";
 import type { LockerAssignmentStatus } from "@/shared/entities/lockers/lockersTypes";
 
