@@ -23,7 +23,7 @@ interface HomeRentalSectionProps {
 }
 
 // Figma: Rental Summary 2건 (nodeId 3147:146269), 3건 이상 (3147:146326), empty (3562:163925)
-// 빌릴게 반납 탭과 같은 반납 필요 대여를 받아 그린다(홈 API가 생기면 출처만 바꾼다). 받는 동안은 HomeScreen의
+// 빌릴게 반납 탭과 같은 반납 필요 대여를 받아 그린다(홈 API는 반납 대기·확인을 나누지 않아 쓰지 않는다). 받는 동안은 HomeScreen의
 // Suspense가 HomeRentalSkeleton을 보여준다.
 function HomeRentalSection({
   onReturnRequest,

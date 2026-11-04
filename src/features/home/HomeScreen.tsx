@@ -15,25 +15,32 @@ import {
 } from "@/features/fee/constants/fee";
 import { MY_FEEDBACKS_PATH } from "@/features/feedbacks/constants/feedbacks";
 import HomeAppliedEventSection from "@/features/home/components/HomeAppliedEventSection";
-import HomeApplyCard from "@/features/home/components/HomeApplyCard";
+import HomeAppliedEventSkeleton from "@/features/home/components/HomeAppliedEventSkeleton";
+import HomeApplyCardList from "@/features/home/components/HomeApplyCardList";
 import HomeArchiveBanner from "@/features/home/components/HomeArchiveBanner";
 import HomeInfoList from "@/features/home/components/HomeInfoList";
+import HomeInfoListSkeleton from "@/features/home/components/HomeInfoListSkeleton";
 import HomeNoticeBanner from "@/features/home/components/HomeNoticeBanner";
+import HomeNoticeBannerSkeleton from "@/features/home/components/HomeNoticeBannerSkeleton";
 import HomeRentalSection from "@/features/home/components/HomeRentalSection";
 import HomeRentalSkeleton from "@/features/home/components/HomeRentalSkeleton";
-import {
-  HOME_HAS_UNREAD_NOTIFICATION,
-  HOME_MOCK_DATA,
-} from "@/features/home/constants/homeMock";
+import { HOME_HAS_UNREAD_NOTIFICATION } from "@/features/home/constants/homeMock";
 import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 import { SETTINGS_PATHS } from "@/features/settings/constants/settings";
+import { openExternalLink } from "@/lib/openExternalLink";
+import type {
+  HomeApplySection,
+  HomeBanner,
+} from "@/shared/entities/home/homeTypes";
 
 // Figma: 홈 2건 이하 (nodeId 3147:146240), 3건 이상 (3147:146297), empty (3147:146366)
 // 챗봇 FAB(Figma nodeId 2443:178457 등, 홈 화면 variant마다 우하단에 고정) —
 // 우측 20px·바텀 내비 위 24px 고정 위치는 Figma에서 홈 variant별로 다른 화면 높이에서도
 // Bottom Nav 상단과의 간격이 항상 24px로 일정한 걸 좌표로 확인해서 얻은 값이다.
+// 홈 데이터(GET /v1/app/home)는 한 번에 오지만, 섹션마다 Suspense를 따로 둬서 자기 자리에 스켈레톤을 그린다 —
+// 같은 조회라 요청은 한 번이고, 다른 조회를 쓰는 대여 현황이 늦어도 나머지 섹션을 막지 않는다.
 function HomeScreen() {
   const navigate = useNavigate();
 
@@ -44,6 +51,27 @@ function HomeScreen() {
   // 대여 현황의 반납 신청은 빌릴게로 보내지 않고 홈에서 바로 확인 모달을 띄운다
   const { openReturnRequest, returnRequestDialogs } =
     useBillilgeReturnRequest();
+
+  // 배너는 운영진이 정한 곳으로 간다 — 공지·행사 상세는 앱 안 화면이고, 외부 링크는 앱 밖이다
+  const openBanner = (banner: HomeBanner) => {
+    if (banner.landingType === "EXTERNAL_LINK") {
+      openExternalLink(banner.linkUrl);
+      return;
+    }
+    push(
+      banner.landingType === "NOTICE"
+        ? `/notices/${banner.targetId}`
+        : `/events/${banner.targetId}`,
+    );
+  };
+  // 사물함은 상세 화면이 없어서 카드도 신청(유의사항 시트 → 구역 선택)으로 보낸다. 이미 신청한 사물함은
+  // 신청 대신 배정 상태(내 사물함)로 보낸다
+  const getApplySectionPath = (section: HomeApplySection) => {
+    if (section.targetType === "EVENT") {
+      return `/events/${section.targetId}`;
+    }
+    return section.isApplied ? LOCKER_ASSIGNMENT_PATH : "/lockers/apply";
+  };
 
   return (
     <div className="relative flex h-full flex-col">
@@ -103,39 +131,25 @@ function HomeScreen() {
           />
         </div>
         <div className="flex flex-col gap-2 pt-0.5 pb-4">
-          <HomeNoticeBanner
-            notices={HOME_MOCK_DATA.notices}
-            onSelect={(noticeId) => push(`/notices/${noticeId}`)}
-          />
+          <Suspense fallback={<HomeNoticeBannerSkeleton />}>
+            <HomeNoticeBanner onSelect={openBanner} />
+          </Suspense>
           {/* 배너 카드(relative)가 뒤 섹션보다 나중에 그려져 그림자가 덮지 않게 뒤 섹션도 relative로 둔다 */}
           <div className="relative flex flex-col gap-2">
-            {HOME_MOCK_DATA.applyCards.length > 0 && (
-              <div className="flex flex-col gap-2 px-5">
-                {HOME_MOCK_DATA.applyCards.map((card) => (
-                  <HomeApplyCard
-                    card={card}
-                    key={card.id}
-                    // 사물함은 상세 화면이 없어서 카드도 신청(유의사항 시트 → 구역 선택)으로 보낸다
-                    onApply={() =>
-                      push(
-                        card.kind === "event"
-                          ? `/events/${card.eventId}/apply`
-                          : "/lockers/apply",
-                      )
-                    }
-                    onSelect={() =>
-                      push(
-                        card.kind === "event"
-                          ? `/events/${card.eventId}`
-                          : "/lockers/apply",
-                      )
-                    }
-                  />
-                ))}
-              </div>
-            )}
+            <Suspense fallback={null}>
+              <HomeApplyCardList
+                onApply={(section) =>
+                  push(
+                    section.targetType === "EVENT"
+                      ? `/events/${section.targetId}/apply`
+                      : "/lockers/apply",
+                  )
+                }
+                onSelect={(section) => push(getApplySectionPath(section))}
+              />
+            </Suspense>
             <div className="px-5">
-              {/* 대여 현황만 서버에서 받는다 — 다른 섹션은 목데이터라 이 섹션 자리만 스켈레톤으로 채운다 */}
+              {/* 대여 현황은 반납 대기·확인을 나눠 보여 주려고 홈 조회가 아니라 빌릴게 반납 조회로 받는다 */}
               <Suspense fallback={<HomeRentalSkeleton />}>
                 <HomeRentalSection
                   onBrowse={() => navigate(BILLILGE_TAB_PATHS.rent)}
@@ -145,23 +159,25 @@ function HomeScreen() {
               </Suspense>
             </div>
             <div className="px-5">
-              <HomeAppliedEventSection
-                events={HOME_MOCK_DATA.appliedEvents}
-                onBrowse={() => navigate(EVENTS_TAB_PATHS.event)}
-                onMore={() => navigate(EVENTS_TAB_PATHS.application)}
-                onSelect={(event) =>
-                  push(`${EVENTS_TAB_PATHS.application}/${event.applicationId}`)
-                }
-              />
+              <Suspense fallback={<HomeAppliedEventSkeleton />}>
+                <HomeAppliedEventSection
+                  onBrowse={() => navigate(EVENTS_TAB_PATHS.event)}
+                  onMore={() => navigate(EVENTS_TAB_PATHS.application)}
+                  // 서버가 신청 ID를 주지 않아 신청내역 상세 대신 행사 상세로 보낸다 — 홈 응답에 applicationId가
+                  // 생기면 신청내역 상세(`${EVENTS_TAB_PATHS.application}/{applicationId}`)로 바꾼다
+                  onSelect={(event) => push(`/events/${event.eventId}`)}
+                />
+              </Suspense>
             </div>
             <div className="px-5">
-              <HomeInfoList
-                myInfo={HOME_MOCK_DATA.myInfo}
-                onSelectFee={() => push(FEE_PAYMENTS_PATH)}
-                onSelectFeeTransfer={() => push(FEE_TRANSFER_PATH)}
-                onSelectFeedbacks={() => push(MY_FEEDBACKS_PATH)}
-                onSelectLocker={() => push(LOCKER_ASSIGNMENT_PATH)}
-              />
+              <Suspense fallback={<HomeInfoListSkeleton />}>
+                <HomeInfoList
+                  onSelectFee={() => push(FEE_PAYMENTS_PATH)}
+                  onSelectFeeTransfer={() => push(FEE_TRANSFER_PATH)}
+                  onSelectFeedbacks={() => push(MY_FEEDBACKS_PATH)}
+                  onSelectLocker={() => push(LOCKER_ASSIGNMENT_PATH)}
+                />
+              </Suspense>
             </div>
             <div className="px-5">
               <HomeArchiveBanner onSelect={() => push(ARCHIVES_PATH)} />
