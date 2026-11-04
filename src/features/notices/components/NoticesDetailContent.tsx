@@ -10,6 +10,11 @@ import { IconChevronLeft } from "@wanteddev/wds-icon";
 import PhotoGallery from "@/components/ui/PhotoGallery";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
+import NoticesNotFound from "@/features/notices/components/NoticesNotFound";
+import {
+  formatNoticeDate,
+  NOTICE_CATEGORY_LABELS,
+} from "@/features/notices/constants/notices";
 import { noticesQueries } from "@/shared/entities/notices/noticesQueries";
 import type { NoticeCategory } from "@/shared/entities/notices/noticesTypes";
 
@@ -19,7 +24,7 @@ const CATEGORY_BADGE_COLOR: Record<NoticeCategory, ThemeColorsToken> = {
 };
 
 interface NoticesDetailContentProps {
-  noticeId: string;
+  noticeId: number;
   onBack: () => void;
 }
 
@@ -28,7 +33,7 @@ interface NoticesDetailContentProps {
 // NoticesDetailSkeleton을 보여준다. 헤더 모양이 공지의 사진 유무로 갈려서 헤더도 여기서 등록한다.
 function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
   const { data: notice } = useSuspenseQuery(noticesQueries.detail(noticeId));
-  const photoCount = notice?.photoCount ?? 0;
+  const hasPhotos = Boolean(notice?.images.length);
 
   // 사진이 있으면 행사 상세와 같은 방식으로 뒤로가기를 사진 위 오버레이로 그려서 사진이 화면
   // 최상단부터 시작하게 한다(ScreenLayout 헤더 슬롯을 비우면 0px로 접힌다). 사진이 없으면
@@ -36,7 +41,7 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
   // 오버레이일 때만 화살표를 흰색으로 바꾼다 — 사진 위 그라데이션(PhotoGallery)과 짝을 이루는
   // 색이라, 흰 배경 헤더에 그대로 쓰면 안 보인다(Figma QA nodeId 2849:60815).
   useScreenHeader(
-    notice?.hasThumbnail ? null : (
+    hasPhotos ? null : (
       <ScreenHeader
         leading={
           <TopNavigationButton
@@ -53,26 +58,17 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
   );
 
   if (!notice) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Typography
-          as="p"
-          color="semantic.label.alternative"
-          variant="label1"
-          weight="regular"
-        >
-          존재하지 않는 공지예요
-        </Typography>
-      </div>
-    );
+    return <NoticesNotFound onBack={onBack} />;
   }
+
+  const categoryLabel = NOTICE_CATEGORY_LABELS[notice.category];
 
   return (
     <div className="scrollbar-hidden flex flex-1 flex-col gap-5 overflow-y-auto">
-      {notice.hasThumbnail && (
+      {hasPhotos && (
         <PhotoGallery
-          idPrefix={notice.id}
-          key={notice.id}
+          idPrefix={String(notice.noticeId)}
+          key={notice.noticeId}
           overlay={
             <div className="absolute top-4 left-4 z-10">
               <TopNavigationButton
@@ -84,7 +80,10 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
               </TopNavigationButton>
             </div>
           }
-          photoCount={photoCount}
+          photos={notice.images.map((image, index) => ({
+            alt: `${notice.title} 사진 ${index + 1}`,
+            src: image.fileUrl,
+          }))}
           showCounter
           slideClassName="aspect-square"
         />
@@ -93,12 +92,12 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
       <div className="flex flex-col gap-5 px-5 pb-8">
         <div className="flex flex-col gap-2">
           <ContentBadge
-            accentColor={CATEGORY_BADGE_COLOR[notice.category]}
+            accentColor={CATEGORY_BADGE_COLOR[categoryLabel]}
             color="accent"
             size="medium"
             variant="solid"
           >
-            {notice.category} 공지
+            {categoryLabel} 공지
           </ContentBadge>
           <div className="flex flex-col gap-1">
             <Typography
@@ -114,7 +113,7 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
               variant="label2"
               weight="regular"
             >
-              등록일 {notice.date}
+              등록일 {formatNoticeDate(notice.createdAt)}
             </Typography>
           </div>
         </div>
@@ -126,7 +125,7 @@ function NoticesDetailContent({ noticeId, onBack }: NoticesDetailContentProps) {
           variant="label1-reading"
           weight="regular"
         >
-          {notice.body}
+          {notice.content}
         </Typography>
       </div>
     </div>
