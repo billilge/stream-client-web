@@ -8,6 +8,7 @@ import { z } from "zod";
 import { api, isApiError } from "@/shared/api";
 import { feeKeys } from "@/shared/entities/fee/feeKeys";
 import type { FeeSubmitRequest } from "@/shared/entities/fee/feeTypes";
+import { homeKeys } from "@/shared/entities/home/homeKeys";
 
 const FEE_PATH = "/v1/app/fee";
 
@@ -69,12 +70,15 @@ export const FEE_ERROR_CODES = {
 } as const;
 
 // 학생회비 납부 요청(POST /v1/app/fee). 성공하면 납부확인중이 된다.
-// 납부 상태와 학기 수별 송금 링크가 모두 바뀌어서 회비 캐시를 통째로 무효화한다 — 이미 요청이 들어가 있다는
-// 응답(409)도 지금 캐시가 낡았다는 뜻이라 같이 무효화한다.
+// 납부 상태와 학기 수별 송금 링크가 모두 바뀌어서 회비 캐시를 통째로 무효화하고, 홈 내 정보의 납부 상태도 바뀌어서
+// 홈도 무효화한다 — 이미 요청이 들어가 있다는 응답(409)도 지금 캐시가 낡았다는 뜻이라 같이 무효화한다.
 export function useSubmitFeeMutation() {
   const queryClient = useQueryClient();
   const invalidateFee = () =>
-    queryClient.invalidateQueries({ queryKey: feeKeys.root() });
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: feeKeys.root() }),
+      queryClient.invalidateQueries({ queryKey: homeKeys.root() }),
+    ]);
 
   return useMutation({
     // 응답(납부 현황)은 쓰지 않는다 — 무효화로 다시 받는 me 조회가 스키마로 검사한다.
