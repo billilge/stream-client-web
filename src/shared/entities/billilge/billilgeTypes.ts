@@ -1,18 +1,33 @@
-// BillilgeCategoryFilter의 필터 칩과 값을 맞춘다("전체"는 필터 없음을 뜻하는 값이라 제외).
-export type BillilgeCategory = "전자기기" | "생활잡화" | "상비약" | "위생용품";
+// 서버 학생 앱 빌릴게 API(/v1/app/billilge/**) 응답 모양 그대로다 — 화면 모양은 화면 쪽에서 바꾼다.
+
+// 물품 분류(서버 ItemCategory). 화면 라벨은 features/billilge/constants/billilge.ts의 BILLILGE_CATEGORY_LABELS
+export type BillilgeCategory =
+  | "ELECTRONICS"
+  | "DAILY_SUPPLIES"
+  | "MEDICINE"
+  | "HYGIENE";
+
+// 소모품은 돌려받지 않아서 반납 정책·반납 기한 문구가 없다(서버 ItemType)
+export type BillilgeItemType = "CONSUMABLE" | "RENTAL";
+
+export interface BillilgeReturnPolicy {
+  maxRentalDays: number;
+  // 반납 마감 시각 "17:00"
+  returnDeadline: string;
+}
 
 export interface BillilgeItem {
-  id: string;
+  itemId: number;
   name: string;
-  quantity: number;
-  icon: string;
   category: BillilgeCategory;
-  // 대여 바텀시트의 "대여할 물품" 카드(Figma nodeId 1422:57184, 3013:114608)에 "수량 28 ·
-  // {returnDeadlineLabel}"로 붙는 반납 기한 문구 — "오늘 17시까지 반납"/"9/29까지 반납"처럼
-  // 오늘·내일·그 이후(월/일)를 서버가 이미 판단해서 내려주는 값이라 가정한다. 오늘/내일 여부는
-  // 보는 사람의 로컬 시각 기준이라 프런트에서 계산하는 게 일반적이지만, 이 서비스는 같은 화면을
-  // 웹과 앱이 각각 구현해야 해서 "오늘/내일 판단 기준"이 플랫폼마다 어긋나지 않도록 서버가
-  // 라벨 문자열까지 계산해서 내려주기로 했다 — 그래서 이 필드는 프런트가 다시 가공하지 않고
-  // 그대로 렌더링만 하는 완성된 문자열이다.
-  returnDeadlineLabel: string;
+  type: BillilgeItemType;
+  // 지금 남은 재고
+  count: number;
+  // 물품 아이콘(SVG) 주소. 아이콘을 안 올린 물품은 null
+  imageUrl: string | null;
+  returnPolicy: BillilgeReturnPolicy | null;
+  // 대여 바텀시트의 "대여할 물품" 카드(Figma nodeId 1422:57184, 3013:114608)에 "수량 28 · {문구}"로
+  // 붙는 반납 기한 — 오늘 빌린다고 치고 서버가 "오늘 17시까지 반납"/"내일까지 반납"/"9/29까지 반납"을
+  // 정해 내려준다(서버 #243). 반납 정책을 가진 서버가 문구까지 정해서 화면은 다시 가공하지 않는다. 소모품은 null
+  returnDeadlineLabel: string | null;
 }

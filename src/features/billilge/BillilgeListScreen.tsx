@@ -15,7 +15,9 @@ import BillilgeListSkeleton from "@/features/billilge/components/BillilgeListSke
 import BillilgeRentalSheet from "@/features/billilge/components/BillilgeRentalSheet";
 import BillilgeReturnSection from "@/features/billilge/components/BillilgeReturnSection";
 import {
+  BILLILGE_ALL_CATEGORIES,
   BILLILGE_TAB_PATHS,
+  type BillilgeCategoryFilterValue,
   type BillilgeTab,
 } from "@/features/billilge/constants/billilge";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
@@ -33,7 +35,9 @@ function BillilgeListScreen({ tab }: BillilgeListScreenProps) {
   // 탭을 바꿀 때마다 히스토리가 쌓이지 않게 replace로 바꾼다
   const changeTab = (next: BillilgeTab) =>
     navigate(BILLILGE_TAB_PATHS[next], { replace: true });
-  const [category, setCategory] = useState("전체");
+  const [category, setCategory] = useState<BillilgeCategoryFilterValue>(
+    BILLILGE_ALL_CATEGORIES,
+  );
   const [rentalItem, setRentalItem] = useState<BillilgeItem | null>(null);
   const [rentalSheetOpen, setRentalSheetOpen] = useState(false);
 

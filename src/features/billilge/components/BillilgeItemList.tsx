@@ -1,12 +1,15 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
+import {
+  BILLILGE_ALL_CATEGORIES,
+  type BillilgeCategoryFilterValue,
+} from "@/features/billilge/constants/billilge";
 import { billilgeQueries } from "@/shared/entities/billilge/billilgeQueries";
 import type { BillilgeItem } from "@/shared/entities/billilge/billilgeTypes";
 
 interface BillilgeItemListProps {
-  // "전체"는 필터 없음, 그 외는 BillilgeCategory 값(BillilgeCategoryFilter 칩 값)
-  category: string;
+  category: BillilgeCategoryFilterValue;
   onRentRequest: (item: BillilgeItem) => void;
 }
 
@@ -18,14 +21,17 @@ function BillilgeItemList({ category, onRentRequest }: BillilgeItemListProps) {
   return (
     <div className="flex flex-col gap-2 px-5 pb-4">
       {items
-        .filter((item) => category === "전체" || item.category === category)
+        .filter(
+          (item) =>
+            category === BILLILGE_ALL_CATEGORIES || item.category === category,
+        )
         .map((item) => (
           <BillilgeItemCard
-            icon={item.icon}
+            icon={item.imageUrl}
             itemName={item.name}
-            key={item.id}
+            key={item.itemId}
             onRentRequest={() => onRentRequest(item)}
-            subtitle={`수량 ${item.quantity}`}
+            subtitle={`수량 ${item.count}`}
           />
         ))}
     </div>

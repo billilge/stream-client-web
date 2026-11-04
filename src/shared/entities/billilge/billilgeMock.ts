@@ -13,178 +13,68 @@ import powerBank from "@/assets/icons/billilge-items/power-bank.svg";
 import sanitaryPad from "@/assets/icons/billilge-items/sanitary-pad.svg";
 import umbrella from "@/assets/icons/billilge-items/umbrella.svg";
 import usbCCharger from "@/assets/icons/billilge-items/usb-c-charger.svg";
-import type { BillilgeItem } from "@/shared/entities/billilge/billilgeTypes";
+import type {
+  BillilgeCategory,
+  BillilgeItem,
+} from "@/shared/entities/billilge/billilgeTypes";
 
-// 목데이터는 실 서버가 없어 위 필드를 흉내내는 값이다 — 실행 시점 기준으로 오늘/내일/그 이후
-// 라벨을 미리 계산해두되, 컴포넌트 쪽에는 이 계산 로직 자체를 노출하지 않는다(export하지 않음).
-// 실 API가 붙으면 이 함수와 호출부는 통째로 지우고 응답 필드를 그대로 쓰면 된다.
-// 오늘 마감은 시각이 물품마다 다른 게 아니라 "17시"로 고정된 정책값이라 파라미터로 받지 않는다.
-function mockReturnDeadlineLabel(daysFromNow: number): string {
-  if (daysFromNow <= 0) {
+// 서버(ItemListItemResponse)가 반납 정책으로 만드는 반납 기한 문구를 흉내낸다 — 0일이면 당일 마감 시각까지,
+// 1일이면 "내일", 그 밖은 날짜(M/d). 마감 시각은 서버가 17시로 고정한다.
+function mockReturnDeadlineLabel(maxRentalDays: number): string {
+  if (maxRentalDays === 0) {
     return "오늘 17시까지 반납";
   }
-  if (daysFromNow === 1) {
+  if (maxRentalDays === 1) {
     return "내일까지 반납";
   }
   const date = new Date();
-  date.setDate(date.getDate() + daysFromNow);
+  date.setDate(date.getDate() + maxRentalDays);
   return `${date.getMonth() + 1}/${date.getDate()}까지 반납`;
 }
 
-// Figma: 빌릴게 Item Grid (nodeId 1243:73343) 순서·물품명·수량을 그대로 옮긴 목데이터 — 실 API 연동 전까지 사용.
-// category는 Figma에 카테고리별 그룹핑이 따로 없어(칩 자체만 정의돼 있음) 물품명 기준으로 임의
-// 분류했다 — 실제 분류 기준이 정해지면 API 연동 시 교체한다.
+// 대여품은 반납 정책(빌릴 수 있는 날 수)이 있고, 소모품(maxRentalDays null)은 반납 정책·문구가 없다
+function mockItem(
+  itemId: number,
+  name: string,
+  category: BillilgeCategory,
+  imageUrl: string,
+  maxRentalDays: number | null,
+): BillilgeItem {
+  const isRental = maxRentalDays !== null;
+  return {
+    category,
+    count: 28,
+    imageUrl,
+    itemId,
+    name,
+    returnDeadlineLabel: isRental
+      ? mockReturnDeadlineLabel(maxRentalDays)
+      : null,
+    returnPolicy: isRental ? { maxRentalDays, returnDeadline: "17:00" } : null,
+    type: isRental ? "RENTAL" : "CONSUMABLE",
+  };
+}
+
+// Figma: 빌릴게 Item Grid (nodeId 1243:73343) 순서·물품명·수량을 그대로 옮긴 목데이터 — 대여 탭 목록(물품 목록
+// API를 붙이기 전까지)과 통합 검색(검색 API가 붙으면 지운다)이 쓴다. 분류·대여품 여부는 Figma에 없어 물품명 기준으로 정했다.
 export const BILLILGE_ITEMS: BillilgeItem[] = [
-  {
-    category: "전자기기",
-    icon: curlingIron,
-    id: "curling-iron",
-    name: "고데기",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0),
-  },
-  {
-    category: "전자기기",
-    icon: laptopCharger,
-    id: "laptop-charger",
-    name: "노트북 충전기(C타입)",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(1),
-  },
-  {
-    category: "전자기기",
-    icon: hairDryer,
-    id: "hair-dryer",
-    name: "드라이기",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0),
-  },
-  {
-    category: "위생용품",
-    icon: mask,
-    id: "mask",
-    name: "마스크",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(3),
-  },
-  {
-    category: "상비약",
-    icon: bandAid,
-    id: "band-aid",
-    name: "밴드",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(3),
-  },
-  {
-    category: "전자기기",
-    icon: powerBank,
-    id: "power-bank",
-    name: "보조배터리",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(1),
-  },
-  {
-    category: "위생용품",
-    icon: sanitaryPad,
-    id: "sanitary-pad-large",
-    name: "생리대(대형)",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0),
-  },
-  {
-    category: "위생용품",
-    icon: sanitaryPad,
-    id: "sanitary-pad-small",
-    name: "생리대(소형)",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0),
-  },
-  {
-    category: "상비약",
-    icon: alcoholSwab,
-    id: "alcohol-swab",
-    name: "알콜스왑",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(2),
-  },
-  {
-    category: "생활잡화",
-    icon: umbrella,
-    id: "umbrella",
-    name: "우산",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(2),
-  },
-  {
-    category: "상비약",
-    icon: pill,
-    id: "stomach-medicine",
-    name: "위장약",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(1),
-  },
-  {
-    category: "상비약",
-    icon: pill,
-    id: "easyen-6",
-    name: "이지엔6",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(1),
-  },
-  {
-    category: "상비약",
-    icon: eyeDrops,
-    id: "eye-drops",
-    name: "인공눈물",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0),
-  },
-  {
-    category: "상비약",
-    icon: pill,
-    id: "cold-medicine",
-    name: "종합감기약",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(1),
-  },
-  {
-    category: "전자기기",
-    icon: usbCCharger,
-    id: "usb-c-cable",
-    name: "케이블(C to C)",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0),
-  },
-  {
-    category: "상비약",
-    icon: pill,
-    id: "tylenol",
-    name: "타이레놀",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(2),
-  },
-  {
-    category: "상비약",
-    icon: painReliefPatch,
-    id: "pain-relief-patch",
-    name: "파스",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(2),
-  },
-  {
-    category: "상비약",
-    icon: ointment,
-    id: "ointment",
-    name: "후시딘",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(1),
-  },
-  {
-    category: "전자기기",
-    icon: eightPinCharger,
-    id: "8pin-charger",
-    name: "8핀 충전기",
-    quantity: 28,
-    returnDeadlineLabel: mockReturnDeadlineLabel(0),
-  },
+  mockItem(1, "고데기", "ELECTRONICS", curlingIron, 0),
+  mockItem(2, "노트북 충전기(C타입)", "ELECTRONICS", laptopCharger, 1),
+  mockItem(3, "드라이기", "ELECTRONICS", hairDryer, 0),
+  mockItem(4, "마스크", "HYGIENE", mask, null),
+  mockItem(5, "밴드", "MEDICINE", bandAid, null),
+  mockItem(6, "보조배터리", "ELECTRONICS", powerBank, 1),
+  mockItem(7, "생리대(대형)", "HYGIENE", sanitaryPad, null),
+  mockItem(8, "생리대(소형)", "HYGIENE", sanitaryPad, null),
+  mockItem(9, "알콜스왑", "MEDICINE", alcoholSwab, null),
+  mockItem(10, "우산", "DAILY_SUPPLIES", umbrella, 2),
+  mockItem(11, "위장약", "MEDICINE", pill, null),
+  mockItem(12, "이지엔6", "MEDICINE", pill, null),
+  mockItem(13, "인공눈물", "MEDICINE", eyeDrops, null),
+  mockItem(14, "종합감기약", "MEDICINE", pill, null),
+  mockItem(15, "케이블(C to C)", "ELECTRONICS", usbCCharger, 0),
+  mockItem(16, "타이레놀", "MEDICINE", pill, null),
+  mockItem(17, "파스", "MEDICINE", painReliefPatch, null),
+  mockItem(18, "후시딘", "MEDICINE", ointment, null),
+  mockItem(19, "8핀 충전기", "ELECTRONICS", eightPinCharger, 0),
 ];

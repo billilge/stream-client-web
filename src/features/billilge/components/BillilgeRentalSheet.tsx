@@ -127,21 +127,26 @@ function BillilgeRentalSheet({
                 대여할 물품
               </Typography>
               <BillilgeItemCard
-                icon={item.icon}
+                icon={item.imageUrl}
                 itemName={item.name}
                 onStepperDecrease={() =>
                   setStepperValue((value) => Math.max(1, value - 1))
                 }
                 onStepperIncrease={() =>
-                  setStepperValue((value) => Math.min(item.quantity, value + 1))
+                  setStepperValue((value) => Math.min(item.count, value + 1))
                 }
                 // Figma: 대여할 물품 카드(nodeId 1422:57184, 3013:114608)에 "수량 28 · 오늘
                 // 17시까지 반납" / "수량 28 · 9/29까지 반납"처럼 수량 뒤에 반납 기한이 강조
                 // 서체(SemiBold)로 붙는다 — 기한 라벨(returnDeadlineLabel)은 서버가 오늘/내일/
                 // 날짜를 미리 판단해 내려주는 완성된 문자열이라 여기서는 이어붙이기만 한다.
+                // 돌려받지 않는 소모품은 라벨이 없어 수량만 보인다.
                 stepperValue={stepperValue}
-                subtitle={`수량 ${item.quantity} · `}
-                subtitleEmphasis={item.returnDeadlineLabel}
+                subtitle={
+                  item.returnDeadlineLabel
+                    ? `수량 ${item.count} · `
+                    : `수량 ${item.count}`
+                }
+                subtitleEmphasis={item.returnDeadlineLabel ?? undefined}
                 trailingControl="stepper"
               />
             </div>
