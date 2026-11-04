@@ -3,9 +3,9 @@ import { Divider } from "@wanteddev/wds";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
 
-import { noticesQueries } from "@/entities/notices/noticesApi";
-import type { NoticeCategory } from "@/entities/notices/types";
 import NoticesCard from "@/features/notices/components/NoticesCard";
+import { noticesQueries } from "@/shared/entities/notices/noticesQueries";
+import type { NoticeCategory } from "@/shared/entities/notices/noticesTypes";
 
 interface NoticesListProps {
   category: NoticeCategory | "all";

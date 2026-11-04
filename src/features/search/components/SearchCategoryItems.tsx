@@ -1,13 +1,13 @@
 import { Divider } from "@wanteddev/wds";
 import { Fragment, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import type { SearchResults } from "@/entities/search/types";
-import BililgeItemCard from "@/features/bililge/components/BililgeItemCard";
+import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
 import EventsCard from "@/features/events/components/EventsCard";
 import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
 import NoticesCard from "@/features/notices/components/NoticesCard";
 import SearchArchivingCard from "@/features/search/components/SearchArchivingCard";
 import type { SearchCategory } from "@/features/search/constants/search";
+import type { SearchResults } from "@/shared/entities/search/searchTypes";
 
 interface SearchCategoryItemsProps {
   category: SearchCategory;
@@ -31,7 +31,7 @@ const LIST_STYLE: Record<
   { gapClassName: string; hasDivider: boolean }
 > = {
   archives: { gapClassName: "gap-4", hasDivider: true },
-  bililge: { gapClassName: "gap-2", hasDivider: false },
+  billilge: { gapClassName: "gap-2", hasDivider: false },
   events: { gapClassName: "gap-6", hasDivider: true },
   feedbacks: { gapClassName: "gap-4", hasDivider: true },
   notices: { gapClassName: "gap-4", hasDivider: true },
@@ -39,7 +39,7 @@ const LIST_STYLE: Record<
 
 // 검색 결과 한 카테고리의 카드 목록. 카드는 기존 화면의 것을 그대로 재사용하고(행사·공지·열린피드백),
 // 설계서 4번의 "UI가 달라지는 카드" 둘만 검색용으로 바꿨다 — 아카이빙(SearchArchivingCard, 신규),
-// 빌릴게(BililgeItemCard의 bordered).
+// 빌릴게(BillilgeItemCard의 bordered).
 function SearchCategoryItems({
   category,
   results,
@@ -111,17 +111,17 @@ function SearchCategoryItems({
             </Link>
           ),
         }));
-      case "bililge":
-        return results.bililge.map((item) => ({
+      case "billilge":
+        return results.billilge.map((item) => ({
           id: item.id,
           node: (
             <div className="px-5">
-              <BililgeItemCard
+              <BillilgeItemCard
                 bordered
                 // 대여 바텀시트는 빌릴게 화면 안의 상태라 검색에서는 빌릴게 화면으로 보낸다.
                 icon={item.icon}
                 itemName={item.name}
-                onRentRequest={() => navigate("/bililge")}
+                onRentRequest={() => navigate("/billilge")}
                 subtitle={`수량 ${item.quantity}`}
               />
             </div>

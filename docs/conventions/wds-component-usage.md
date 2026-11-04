@@ -110,13 +110,13 @@ WDS 컴포넌트만 합산하면 파일 안에서 **약 350회 이상**의 인�
 </Button>
 ```
 
-hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참조했고, `Button` 자체(접근성 속성, `disabled`/`loading` 상태 처리 등)는 그대로 재사용한다. `src/features/bililge/components/BililgeItemCard.tsx` 참고.
+hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참조했고, `Button` 자체(접근성 속성, `disabled`/`loading` 상태 처리 등)는 그대로 재사용한다. `src/features/billilge/components/BillilgeItemCard.tsx` 참고.
 
 ### 빌릴게 대여 바텀시트 — `Action Area/Action Area`, `Icon/Normal/Circle Info`, 그리고 Time Picker는 의도적으로 WDS를 안 씀
 
 `/component`로 빌릴게 대여 바텀시트(Figma nodeId `1422:57155`, 실제 시트 콘텐츠는 `1422:57176`)를 구현하며 확인된 내용.
 
-- **`Action Area/Action Area` + `ActionAreaButton`**: 버튼 하나(대여 신청하기)만 있는 액션 영역도 `@wanteddev/wds`의 `ActionArea`(기본 `variant="strong"`) + `ActionAreaButton`(기본 `variant="main"`)으로 그대로 재현된다. `ActionAreaButton`의 `main` variant가 내부적으로 `Button`을 `size="large"` `fullWidth` `variant="solid"` `color="primary"`로 렌더링해서 Figma의 파란 통 너비 버튼과 정확히 일치했다(`node_modules/@wanteddev/wds/dist/components/action-area/index.js` 확인). `src/features/bililge/components/BililgeRentalSheet.tsx` 참고.
+- **`Action Area/Action Area` + `ActionAreaButton`**: 버튼 하나(대여 신청하기)만 있는 액션 영역도 `@wanteddev/wds`의 `ActionArea`(기본 `variant="strong"`) + `ActionAreaButton`(기본 `variant="main"`)으로 그대로 재현된다. `ActionAreaButton`의 `main` variant가 내부적으로 `Button`을 `size="large"` `fullWidth` `variant="solid"` `color="primary"`로 렌더링해서 Figma의 파란 통 너비 버튼과 정확히 일치했다(`node_modules/@wanteddev/wds/dist/components/action-area/index.js` 확인). `src/features/billilge/components/BillilgeRentalSheet.tsx` 참고.
 - **`Icon/Normal/Circle Info`**: 안내 문구("대여 시작 시간은 최소 5분 뒤부터...") 앞 아이콘. 위 표에서 이미 확정된 매핑 재사용(`@wanteddev/wds-icon`의 `IconCircleInfo`).
 - **Time Picker(휠 피커)는 예외적으로 WDS를 쓰지 않기로 결정했다.** `@wanteddev/wds`에 `time-picker` 컴포넌트가 실제로 존재하지만(`node_modules/@wanteddev/wds/dist/components/time-picker/`), 이건 `<input>` 기반 텍스트 필드형 컴포넌트라 Figma가 그리는 iOS 스타일 휠 스크롤 피커(오전/오후·시·분 3열, 가운데 값만 진하게)와는 UI 패턴 자체가 다르다. 사용자가 명시적으로 지정한 [`@ncdai/react-wheel-picker`](https://react-wheel-picker.chanhdai.com)(unstyled core, `WheelPicker`/`WheelPickerWrapper`)로 구현했다:
   - `optionItem`/`highlightItem`/`highlightWrapper` classNames로 텍스트 스타일만 입히고(선택 안 됨: `text-label-disable` 17px medium, 선택됨: `text-label-normal` 18px semibold), Figma의 "Selection Highlight"(3열을 가로지르는 pill 배경, `bg-background-alternative`)는 라이브러리 밖에서 별도 `absolute` div로 얹었다 — 각 컬럼마다 하이라이트 배경을 따로 안 그리기 위해서다.
@@ -135,7 +135,7 @@ hex를 하드코딩하지 않고 `index.css`의 색상 토큰을 그대로 참�
   - 단답형(50자)도 같은 `TextArea`를 쓴다(Figma 텍스트 입력 예시 `1133:43105`의 디자이너 메모).
   - 글자 스타일이 `body1-reading`(16px)으로 고정돼 있고 prop으로 못 바꾼다. Figma 입력 글자·안내 문구는 `Label 1/Reading`(14px)이라(`1658:183424`), `sx`에 `& textarea, & textarea::placeholder { typographyStyle("label1-reading", "regular") }`를 줘서 덮는다(`EventsQuestionField`의 `TEXT_AREA_TYPOGRAPHY`). 위 숨김 textarea도 같은 글자로 높이를 재야 자동 높이가 맞아서 `textarea` 전체를 잡는다. 처음엔 16px 그대로였다가 행사 신청내역(#115) `/figma-check`에서 잡혔다. 신청 폼(`1658:183424`)과 신청내역 상세 둘 다 Figma가 14px다. **WDS를 올릴 때 확인할 곳**: WDS 내부 클래스가 아니라 `textarea` 태그를 잡는 거라 WDS가 textarea를 계속 쓰는 한 유지되지만, 업데이트 뒤 신청 폼 입력 글자가 14px인지·자동 높이가 맞는지 한 번 본다.
 - **`Action Area/Action Area` → `ActionArea background` + `ActionAreaButton`**: `background`를 켜면 `::before`가 영역 위로 `margin-y`(20px)만큼 더 올라가 그라데이션 마스크로 스크롤 내용을 흐리게 덮는다(Figma `Gradient/Solid`와 일치). `divider`는 기본값이 `true`지만 `extra` 모드에서만 선을 그려서 일반 모드에는 영향 없다. Figma Action Area(110px = 위 20 + 버튼 56 + 아래 34)는 버튼 아래가 iOS **Bottom Safe Area까지 합쳐 34px**인데 WDS `ActionArea`는 아래 padding 20px만 줘서, 모자란 **14px**을 `bg-background-elevated-normal` div로 따로 붙였다(`BottomSheet`에서 14px을 더한 것과 같은 이유). 처음엔 Safe Area 34px을 통째로 더해서 버튼 아래가 54px로 벌어졌었다 — ActionArea 자체 padding과 겹치는지 먼저 확인한다. 이때 `--color-background-elevated-normal`(`--semantic-background-elevated-normal` 별칭) 토큰을 추가했다.
-- **Action Area 메인 버튼 높이**: `ActionAreaButton`(`main`)은 항상 `Button size="large"`(padding `12px 28px` → **48px**)로 그리는데, Figma `┗ Main Action`은 padding `16px 28px`(**56px**)이다. WDS에 56px 크기가 없어서 `sx={{ paddingBlock: "16px" }}`로 세로 padding만 맞췄다(`ActionAreaButton`은 `props.sx`를 내부 `Button` 스타일 맨 뒤에 붙여서 덮어쓰기가 된다). 빌릴게 대여 바텀시트 Figma(`1422:57205`)의 "대여 신청하기" 버튼도 같은 56px 스펙이지만, `BililgeRentalSheet.tsx`는 아직 `sx` 없이 48px로 렌더링된다(위 "빌릴게 대여 바텀시트" 절의 "정확히 일치" 기록은 높이까지는 대조하지 않은 것으로 보인다).
+- **Action Area 메인 버튼 높이**: `ActionAreaButton`(`main`)은 항상 `Button size="large"`(padding `12px 28px` → **48px**)로 그리는데, Figma `┗ Main Action`은 padding `16px 28px`(**56px**)이다. WDS에 56px 크기가 없어서 `sx={{ paddingBlock: "16px" }}`로 세로 padding만 맞췄다(`ActionAreaButton`은 `props.sx`를 내부 `Button` 스타일 맨 뒤에 붙여서 덮어쓰기가 된다). 빌릴게 대여 바텀시트 Figma(`1422:57205`)의 "대여 신청하기" 버튼도 같은 56px 스펙이지만, `BillilgeRentalSheet.tsx`는 아직 `sx` 없이 48px로 렌더링된다(위 "빌릴게 대여 바텀시트" 절의 "정확히 일치" 기록은 높이까지는 대조하지 않은 것으로 보인다).
 - **기타(직접 입력) 입력칸은 WDS가 아니라 plain `<input>`**: Figma `Other Option`(`1658:183954`)은 체크박스 아래에 밑줄만 있는 입력칸이라, WDS `TextField`(배경·테두리·12px radius가 있는 박스형)와 생김새가 다르다. 밑줄은 `Primary/Normal` 0.7px(에셋 SVG의 stroke로 확인, `get_variable_defs`만으로는 선 색이 안 나온다). 글자는 `Typography as="input"`으로 Figma `Label 1/Reading - Regular`(`variant="label1-reading"`, 14px·줄 높이 22px)를 받는다(`component-convention.md` 타이포그래피 참고).
 - **Top Navigation 뒤로가기**: `TopNavigationButton`에는 back 전용 variant가 없어서(`'text' | 'icon'`) `variant="icon"` + `IconChevronLeft`를 `ScreenHeader variant="normal"`의 `leading`에 넣는다.
 - **`Icon/Normal/Clock`, `Icon/Normal/Location`**: 위 표의 기존 매핑 재사용(`IconClock`, `IconLocation`). 색은 `get_variable_defs`로 확인한 `Label/Assistive`(`text-label-assistive`) — 옆 텍스트(`Label/Alternative`)보다 옅다.
@@ -377,7 +377,7 @@ Figma 모달(nodeId `1133:50014`)이 WDS `Alert`(코드 컴포넌트로 존재)�
 
 ### 반례 — 반납 신청 완료 토스트는 WDS `useToast`/`Toast`를 안 쓴다
 
-WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하고 있지만, 내부적으로 `#wds-region-manager-bottom`이라는 전역 포털 컨테이너(실제 브라우저 뷰포트 기준)에 렌더링된다. 이 앱은 375×812 고정 프레임을 데스크톱 화면 가운데 띄우는 구조(`App.tsx`)라, WDS 토스트를 그대로 쓰면 프레임 밖 실제 뷰포트 하단에 떠버린다 — **Bottom Nav를 WDS `BottomNavigation` 대신 로컬로 다시 만든 것과 정확히 같은 이유**(위 "Bottom Nav — 구현 시점 판단 결과" 절 참고)다. `BottomSheet`가 쓰는 것과 같은 화면 전용 포털(`useScreenSheetPortal`)에 직접 그리는 Stream 로컬 컴포넌트로 만들었다. 아이콘(`IconCircleCheckFill`)·타이포(`Typography` body2)는 WDS를 그대로 재사용했고, 배경(두 겹 반투명 레이어 + `backdrop-blur-[32px]`)만 Figma 값 그대로 옮겼다. 코드는 `src/features/bililge/components/BililgeReturnToast.tsx` 참고.
+WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하고 있지만, 내부적으로 `#wds-region-manager-bottom`이라는 전역 포털 컨테이너(실제 브라우저 뷰포트 기준)에 렌더링된다. 이 앱은 375×812 고정 프레임을 데스크톱 화면 가운데 띄우는 구조(`App.tsx`)라, WDS 토스트를 그대로 쓰면 프레임 밖 실제 뷰포트 하단에 떠버린다 — **Bottom Nav를 WDS `BottomNavigation` 대신 로컬로 다시 만든 것과 정확히 같은 이유**(위 "Bottom Nav — 구현 시점 판단 결과" 절 참고)다. `BottomSheet`가 쓰는 것과 같은 화면 전용 포털(`useScreenSheetPortal`)에 직접 그리는 Stream 로컬 컴포넌트로 만들었다. 아이콘(`IconCircleCheckFill`)·타이포(`Typography` body2)는 WDS를 그대로 재사용했고, 배경(두 겹 반투명 레이어 + `backdrop-blur-[32px]`)만 Figma 값 그대로 옮겼다. 코드는 `src/features/billilge/components/BillilgeReturnToast.tsx` 참고.
 
 **앞으로 화면 전용 포털에 뭔가 띄워야 하는데(모달·토스트·바텀시트) WDS 컴포넌트가 있는 걸 발견하면, 먼저 그 컴포넌트가 어디에 렌더링되는지(`document.querySelector`/포털 대상)부터 확인한다** — 전역 뷰포트 기준이면 이 앱 구조상 항상 로컬로 다시 만들어야 한다.
 
@@ -419,9 +419,9 @@ WDS는 `useToast` 훅 + `Toast` 컴포넌트로 토스트 시스템을 완비하
 
 ### Action Area 메인 버튼 높이 보정은 `paddingBlock`으로 통일한다
 
-같은 56px 보정이 코드에 두 형태로 섞여 있었다 — 행사 화면 3곳은 `sx={{ paddingBlock: "16px" }}`, `BililgeRentalSheet.tsx:176`은 `sx={{ height: "56px" }}`다.
+같은 56px 보정이 코드에 두 형태로 섞여 있었다 — 행사 화면 3곳은 `sx={{ paddingBlock: "16px" }}`, `BillilgeRentalSheet.tsx:176`은 `sx={{ height: "56px" }}`다.
 
-**`paddingBlock` 쪽이 맞다.** Figma 스펙이 `padding: 16px 28px`이라 그대로 옮기는 형태이고, 높이를 고정하면 버튼 문구가 길어져 줄바꿈될 때 잘린다. 이 시트는 신청 기간이 아닐 때 문구가 `신청 기간이 아니에요`로 길어져서 실제로 걸릴 수 있는 자리다. `BililgeRentalSheet`도 정리 대상이다(이번 범위 밖).
+**`paddingBlock` 쪽이 맞다.** Figma 스펙이 `padding: 16px 28px`이라 그대로 옮기는 형태이고, 높이를 고정하면 버튼 문구가 길어져 줄바꿈될 때 잘린다. 이 시트는 신청 기간이 아닐 때 문구가 `신청 기간이 아니에요`로 길어져서 실제로 걸릴 수 있는 자리다. `BillilgeRentalSheet`도 정리 대상이다(이번 범위 밖).
 
 ### 신청 기간이 아닐 때의 상태는 Figma에 없다
 
@@ -476,7 +476,7 @@ WDS에 이름이 비슷한 `ProgressIndicator`가 실제로 존재해서(`제외
 | `small` | `4px 6px` | Caption 1 (12px) |
 | `medium` | `5px 8px` | Label 2 (14px) |
 
-이 화면의 뱃지는 Figma가 `px-6 py-3` + 11px이라 **`xsmall`**이다. `BililgeRentalHistoryEntry.tsx:52`가 쓰는 `small`과 다르다 — "`Content Badge`의 `size`는 화면마다 실측해야 한다" 절의 사례가 하나 더 늘었다.
+이 화면의 뱃지는 Figma가 `px-6 py-3` + 11px이라 **`xsmall`**이다. `BillilgeRentalHistoryEntry.tsx:52`가 쓰는 `small`과 다르다 — "`Content Badge`의 `size`는 화면마다 실측해야 한다" 절의 사례가 하나 더 늘었다.
 
 혼잡도 3단계는 `color="accent"` + `accentColor`(green/orange/red)로, 배경이 accentColor의 8% 투명도로 깔린다. **마감은 `color="neutral"`**이고 이때 배경은 `semantic.fill.normal`, 글자는 `neutralColor`가 된다(`style.js`의 color 분기 확인) — Figma의 마감 뱃지(`Fill/Normal` 배경 + `Label/Alternative` 글자)와 정확히 맞는다.
 
@@ -600,7 +600,7 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 설계서 4번 "기존 UI card와 달라지는 card: 아카이빙, 빌릴게" 그대로다.
 
 - **재사용(수정 없음)**: 행사 `EventsCard`, 공지 `NoticesCard`, 열린피드백 `FeedbacksCard`
-- **빌릴게**: `BililgeItemCard`에 `bordered` prop만 추가했다(흰 배경 위에서 테두리 `border-line-solid-neutral`). 메인 목록은 회색 배경 위라 테두리가 없다
+- **빌릴게**: `BillilgeItemCard`에 `bordered` prop만 추가했다(흰 배경 위에서 테두리 `border-line-solid-neutral`). 메인 목록은 회색 배경 위라 테두리가 없다
 - **아카이빙**: Figma `Search Archiving Card`(`3013:127633`)는 Stream 로컬이고 이 화면 전용이라 `features/search/components/SearchArchivingCard.tsx`로 새로 만들었다
 
 ## 홈 화면(`3147:146240` 2건 이하 / `3147:146297` 3건 이상 / `3562:163866` empty) 구현 중 확정된 매핑
@@ -611,7 +611,7 @@ A-1 본문의 `Zone Grid Row`(`2159:110823`)가 `h-px`라 `위쪽 칸/아래쪽 
 | `Button/Icon/Normal` + `Push Badge` (`3147:146473`) | `TopNavigationButton` + `PushBadge variant="dot"` | 알림 점은 WDS `PushBadge` 기본 크기·`top-right`가 Figma 위치와 같다 |
 | `Page Indicator/Counter` (`471:13822`) | `PageCounter size="small" alternative` | 카드마다 자기 순서를 표시한다 |
 | `Content Badge` (신청마감·학생회비·사물함 상태) | `ContentBadge size="small" variant="solid"` | 강조색 redOrange·orange·red·green은 `color="accent"`, 회색(미신청)은 `color="neutral"` + `semantic.label.alternative` |
-| `Menu/Resource/Action Area/Trailing Content/Button` (반납 신청) | `BililgeItemCard` 재사용 | 홈은 흰 카드 안의 줄이라 `surface={false}`, 기한이 지나면 `subtitleTone="negative"` |
+| `Menu/Resource/Action Area/Trailing Content/Button` (반납 신청) | `BillilgeItemCard` 재사용 | 홈은 흰 카드 안의 줄이라 `surface={false}`, 기한이 지나면 `subtitleTone="negative"` |
 | 빈 상태 버튼 `대여하러 가기` / `행사 둘러보기` | `Button size="small"` | 앞은 `color="assistive" variant="solid"`, 뒤는 반납 신청과 같은 연파랑 `sx` 보정 |
 
 ### 공지 배너는 템플릿 6종 — 그림·배경색은 공지마다가 아니라 종류별이다
@@ -626,7 +626,7 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 
 ### 빈 상태는 WDS `FallbackView`가 아니라 홈 로컬 `HomeEmptyState`
 
-일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/bililge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/common/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.
+일러스트 44px + 문구 한 줄 + 작은 버튼이라 행사 목록 Empty State 때와 같은 이유(`FallbackView`의 일러스트 폭·패딩 고정)로 맞지 않는다. 그림은 빌릴게 반납 빈 상태(`icons/billilge-empty/return-items.svg`)·행사 목록 빈 상태(`icons/common/empty-events.svg`)와 같은 도형이라 크기만 줄여 그대로 쓴다.
 
 ### 홈에서 다른 화면으로 가는 연결(#114)
 
@@ -636,15 +636,15 @@ Figma는 헤더 배경이 없어서 배너 그림자(`Shadow/Spread/Small`, 60px
 | 신청 카드(행사) | 카드(배지·제목 영역) → 행사 상세 `/events/:eventId`, `신청하기` → 행사 신청 `/events/:eventId/apply` |
 | 신청 카드(사물함) | 카드·`신청하기` 둘 다 → 사물함 신청 `/lockers/apply`(사물함은 상세 화면이 없다) |
 | 대여 현황 `반납 신청` | 이동하지 않고 홈에서 반납 신청 확인 모달 → 완료 토스트 |
-| 대여 현황 `N건 더보기` / 빈 상태 `대여하러 가기` | 빌릴게 반납 탭 `/bililge/returns` / 대여 탭 `/bililge` |
+| 대여 현황 `N건 더보기` / 빈 상태 `대여하러 가기` | 빌릴게 반납 탭 `/billilge/returns` / 대여 탭 `/billilge` |
 | 신청한 행사 행 / `N건 더보기` / 빈 상태 `행사 둘러보기` | 신청내역 상세 `/events/applications/:applicationId` / 신청내역 탭 `/events/applications` / 행사 탭 `/events` |
 | 내 정보 학생회비 납부 여부·열린피드백 작성내역·사물함 배정 상태 | `FEE_PAYMENTS_PATH`·`MY_FEEDBACKS_PATH`·`LOCKER_ASSIGNMENT_PATH`(`/my/fee`·`/my/feedbacks`·`/my/locker`) |
 | 헤더 알림 | 알림 목록 `NOTIFICATIONS_PATH`(#108에서 연결) |
 | 아카이빙 배너 | 아카이빙 목록 `ARCHIVES_PATH`(`/archives`) — 배너 전체가 버튼이다 |
 
-- **탭은 경로로 연다**: 빌릴게(`/bililge`·`/bililge/returns`)와 행사(`/events`·`/events/applications`) 목록은 같은 화면을 라우터가 `tab` prop으로 골라 넘긴다(화면이 주소를 비교하지 않아 끝에 `/`가 붙어도 맞다). 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않고, 하단 탭은 두 번째 탭 라우트의 `handle.bottomNavValue`로 그 화면이 선택된다.
+- **탭은 경로로 연다**: 빌릴게(`/billilge`·`/billilge/returns`)와 행사(`/events`·`/events/applications`) 목록은 같은 화면을 라우터가 `tab` prop으로 골라 넘긴다(화면이 주소를 비교하지 않아 끝에 `/`가 붙어도 맞다). 탭을 바꿀 때는 replace라 히스토리가 쌓이지 않고, 하단 탭은 두 번째 탭 라우트의 `handle.bottomNavValue`로 그 화면이 선택된다.
 - **이동 방식**: 상세·신청·내 내역처럼 화면을 쌓는 이동은 `viewTransition`(슬라이드), 하단 탭 화면과 그 탭으로는 바로 바꾼다.
-- **반납 신청은 빌릴게 반납 탭과 같은 흐름**: 확인 모달·토스트를 `useBililgeReturnRequest` 훅으로 꺼내 두 화면이 같이 쓴다. 모달 왼쪽 버튼은 Figma(`1133:50014`)대로 `닫기`다 — 처음엔 `수정`으로 잘못 들어가 있었다(사물함 칸 선택 확인 모달의 `수정`은 칸을 다시 고른다는 뜻이라 그대로다).
+- **반납 신청은 빌릴게 반납 탭과 같은 흐름**: 확인 모달·토스트를 `useBillilgeReturnRequest` 훅으로 꺼내 두 화면이 같이 쓴다. 모달 왼쪽 버튼은 Figma(`1133:50014`)대로 `닫기`다 — 처음엔 `수정`으로 잘못 들어가 있었다(사물함 칸 선택 확인 모달의 `수정`은 칸을 다시 고른다는 뜻이라 그대로다).
 - **누를 수 있는 줄·카드는 버튼으로 그린다**: 신청 카드는 버튼 안에 버튼을 둘 수 없어서 카드 선택을 배지·제목 영역에만 건다(행사 목록 카드와 같은 방식). 공지 배너의 맨 끝 복제 카드는 키보드 포커스를 받지 않는다. 화면 모양은 버튼으로 바꾸기 전과 픽셀 단위로 같다.
 - **아직 연결하지 않은 곳**: 학생회비 미납 줄의 납부하기(#105)는 송금 화면 PR(#107)이 머지된 뒤 연결한다. 헤더 설정은 설정 화면 PR(#97)이 직접 연결한다.
 
@@ -709,7 +709,7 @@ Figma 초기 상태가 전체 꺼짐 + 빌릴게만 켜짐이라 "전체"는 독
 
 ## 스플래시·로그인·온보딩(`3658:112096` / `3738:73115`, 화면설계서 `3747:74283` / `3747:74298`) 구현 중 확정된 매핑
 
-코드는 `src/features/auth/`, `src/entities/auth/` 참고.
+코드는 `src/features/auth/`, `src/shared/entities/auth/` 참고.
 
 | Figma | 코드 | 확인 내용 |
 |---|---|---|
@@ -739,11 +739,11 @@ Figma 프레임의 상태 표시줄(54px)과 홈 바(34px)는 앱 셸 몫이라 
 
 ### K-CONNECT 로그인은 `@billilge/oauth-kconnect`(웹용 `/react`)로 한다
 
-`K-CONNECT로 시작하기`는 `useKConnectLogin({ clientId }).login()`으로 K-CONNECT 인증 사이트로 페이지를 이동시키고(PKCE, `state`는 패키지가 sessionStorage에 보관), 인증 후 K-CONNECT가 되돌려 보내는 `/oauth/kconnect`(`KConnectCallbackScreen`)가 `useKConnectCallback()`으로 `{ code, codeVerifier, redirectUri }`를 받는다. 이 경로는 K-CONNECT에 등록한 redirect URI이자 패키지가 정한 값이라 바꾸지 않는다. 받은 값은 서버(`POST /auth/kconnect`)로 보내 서비스 로그인을 마치는데, 서버 주소·응답 형식이 아직 없어서 `entities/auth/authApi.ts`의 `exchangeKConnectCode`가 응답만 흉내 낸다. 신규 사용자는 `/login`으로 이동하면서 이름을 navigate state로 넘겨 로그인 퍼널이 `initial`(주소에 단계가 없을 때만 쓰임)로 이메일 인증 단계에서 시작하고, 기존 사용자는 홈으로 간다. 취소·오류(국민대 학생이 아니어서 거부된 경우 포함)나 서버 실패는 `/login`으로 돌아와 실패 토스트를 띄운다. 어느 경우든 주소창에 `code`가 남지 않도록 `replace`로 이동한다.
+`K-CONNECT로 시작하기`는 `useKConnectLogin({ clientId }).login()`으로 K-CONNECT 인증 사이트로 페이지를 이동시키고(PKCE, `state`는 패키지가 sessionStorage에 보관), 인증 후 K-CONNECT가 되돌려 보내는 `/oauth/kconnect`(`KConnectCallbackScreen`)가 `useKConnectCallback()`으로 `{ code, codeVerifier, redirectUri }`를 받는다. 이 경로는 K-CONNECT에 등록한 redirect URI이자 패키지가 정한 값이라 바꾸지 않는다. 받은 값은 서버(`POST /auth/kconnect`)로 보내 서비스 로그인을 마치는데, 서버 주소·응답 형식이 아직 없어서 `shared/entities/auth/authQueries.ts`의 `exchangeKConnectCode`가 응답만 흉내 낸다. 신규 사용자는 `/login`으로 이동하면서 이름을 navigate state로 넘겨 로그인 퍼널이 `initial`(주소에 단계가 없을 때만 쓰임)로 연락처 단계에서 시작하고, 기존 사용자는 홈으로 간다. 취소·오류(국민대 학생이 아니어서 거부된 경우 포함)나 서버 실패는 `/login`으로 돌아와 실패 토스트를 띄운다. 어느 경우든 주소창에 `code`가 남지 않도록 `replace`로 이동한다.
 
 - **설정:** `client_id`는 환경 변수 `VITE_KCONNECT_CLIENT_ID`(`.env.example` 참고)로 받는다. K-CONNECT의 "허가된 Redirect URI"에 `http://localhost:5173/oauth/kconnect`(개발)와 배포 주소의 `/oauth/kconnect`가 등록돼 있어야 한다 — 폰으로 `192.168.x.x:5173`처럼 접속하면 등록되지 않은 주소라 로그인이 거부된다.
 - **설치:** 패키지는 GitHub Packages 비공개 배포라 `.npmrc`에 `@billilge:registry`가 필요하고 `read:packages` 토큰이 있어야 한다(토큰은 파일에 쓰지 않고 환경 변수·사용자 npmrc로 둔다). 패키지가 Expo용 `expo-auth-session`을 optional peer로 선언하는데 pnpm `autoInstallPeers`가 설치까지 해서 웹에 필요 없는 Expo 의존성 수백 개가 딸려 오므로, `pnpm-workspace.yaml`의 `overrides`로 뺐다.
-- **로그인 표시 지우기:** 로그아웃·회원 탈퇴처럼 계정을 떠나는 흐름은 `entities/auth/session.ts`의 `clearLoggedIn()`을 불러야 한다. 지우지 않으면 `AuthEntryGate`를 그대로 통과해서 방금 떠난 계정으로 화면이 열린다. 설정 화면의 로그아웃·회원 탈퇴는 `useAccountExit` 훅이 이 함수를 부르고 로그인 화면으로 보낸다.
+- **로그인 표시 지우기:** 로그아웃·회원 탈퇴처럼 계정을 떠나는 흐름은 `shared/entities/auth/session.ts`의 `clearLoggedIn()`을 불러야 한다. 지우지 않으면 `AuthEntryGate`를 그대로 통과해서 방금 떠난 계정으로 화면이 열린다. 설정 화면의 로그아웃·회원 탈퇴는 `useAccountExit` 훅이 이 함수를 부르고 로그인 화면으로 보낸다.
 - **연락처는 010 고정:** 가입 연락처는 `010`으로 시작하는 숫자 11자리여야 `다음`이 켜진다(`isValidPhoneDigits`). 설정의 전화번호 변경(#97)과 같은 기준이라, 구 번호(011·016 등)로 가입한 뒤 설정에서 같은 번호로 바꾸지 못하는 일이 없다.
 - **로그인 가드는 모든 화면에 걸린다:** `AuthEntryGate`가 레이아웃 라우트(`ScreenLayoutRoute`)를 감싸서, 이 탭에 로그인 표시가 없으면 `/login`으로 `replace`한다(모르는 경로 `*`도 마찬가지). 로그인 없이 열려야 하는 화면은 라우트 `handle`에 `isPublic: true`(`AuthRouteHandle`)로 표시하며 지금은 `/login`과 `/oauth/kconnect` 둘이다. 표시가 없으면 보호 화면으로 보므로 새 화면을 추가해도 가드가 자동으로 걸린다. 로그인한 상태로 `/login`에 오면 퍼널이 홈(`/home`)으로 보낸다. 홈은 `/home`이고 `/`는 `/home`으로 리다이렉트한다(앱 WebView 진입 주소 호환). 이 가드는 화면 이동을 정리할 뿐이고, 표시는 클라이언트가 바꿀 수 있어서 실제 인증은 서버 API가 검증해야 한다. 로그인 후 원래 가려던 화면으로 돌아가는 동작은 없고 항상 홈으로 간다.
 - **K-CONNECT 인증 우회(개발 서버 전용):** `/login?mockKConnect=new`(신규 → 온보딩) 또는 `?mockKConnect=existing`(기존 → 홈)으로 열고 `K-CONNECT로 시작하기`를 누르면 인증 사이트로 가지 않고 인증된 것으로 친다(신규는 연락처 입력 단계로 이어진다). `import.meta.env.DEV`로 가려서 배포 빌드에는 들어가지 않는다(번들에 `mockKConnect`가 없음을 확인).
@@ -767,7 +767,7 @@ K-CONNECT 인증을 마친 신규 사용자는 연락처 입력(`AuthPhoneStep`)
 - **칸 실측:** 48×60, 모서리 8px, 배경 `Background/Normal/Alternative`(`bg-background-alternative`), 칸 사이 9px, 숫자 Title 2/Bold 28px `Primary/Normal` — Figma와 일치.
 - **6자리를 채우면 바로 확인한다.** 이 화면에는 하단 버튼이 없다(Figma 5번). 맞으면 약관 동의 단계로 가고(뒤로가기는 이메일 단계), `다시 보내기`는 새 인증번호를 보내면서 5분 타이머(`04:59`)를 다시 센다.
 - **Figma에 없는 것:** 인증번호 오류·만료·발송 실패는 디자인이 없어서 공용 `ScreenToast`로 알린다. 칸의 포커스 표시도 없어서(Figma `state=on/off`만 있다), 입력칸에 포커스가 있을 때 다음에 채울 칸에 `Primary/Normal` 색 세로선이 1초 주기로 깜빡이는 커서를 더했다(모션 줄이기에서는 깜빡이지 않는다). 키패드가 안 올라온 상태와 구분되고 칸을 눌러 입력하라는 단서가 된다. 어느 칸을 눌러도 입력은 맨 뒤에 붙는다. 단계 표시는 연락처 `1 / 3`, 이메일·인증번호 `2 / 3`, 약관 `3 / 3`으로 맞췄다(Figma 이메일인증 4·5에는 표시가 없고 연락처·약관 화면의 표시와 이어지게 더했다).
-- **서버 API가 없어서 목이다:** 인증번호 발송·확인은 `entities/auth/authApi.ts`의 `requestEmailVerification`·`verifyEmailCode`가 응답만 흉내 내고, `authMock.ts`의 `MOCK_EMAIL_CODE`(`123456`)만 통과한다. 서버 API가 생기면 두 함수의 안쪽만 `api.post`로 바꾸고 목 번호를 지운다.
+- **서버 API가 없어서 목이다:** 인증번호 발송·확인은 `shared/entities/auth/authQueries.ts`의 `requestEmailVerification`·`verifyEmailCode`가 응답만 흉내 내고, `authMock.ts`의 `MOCK_EMAIL_CODE`(`123456`)만 통과한다. 서버 API가 생기면 두 함수의 안쪽만 `api.post`로 바꾸고 목 번호를 지운다.
 - **이메일은 형식만 확인한다**(`isValidEmail`). 허용 도메인 제한은 서버 정책이 정해지면 더한다.
 
 ## 설정 화면 (설정 `3524:152322` / 전화번호 변경 `3524:152450` / 회원 탈퇴 `3524:152473`)

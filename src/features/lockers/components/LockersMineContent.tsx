@@ -2,13 +2,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Navigate } from "react-router-dom";
 
-import { lockersQueries } from "@/entities/lockers/lockersApi";
 import LockersLayoutRenderer from "@/features/lockers/components/LockersLayoutRenderer";
 import LockersLegend from "@/features/lockers/components/LockersLegend";
 import LockersMapView from "@/features/lockers/components/LockersMapView";
 import LockersMineBar from "@/features/lockers/components/LockersMineBar";
 import LockersSectionPhotoModal from "@/features/lockers/components/LockersSectionPhotoModal";
 import { LOCKERS_SECTION_DETAILS } from "@/features/lockers/constants/lockersSectionDetails";
+import { lockersQueries } from "@/shared/entities/lockers/lockersQueries";
 
 interface LockersMineContentProps {
   /** 배정이 없거나 구역 배치가 없으면 보낼 곳 — 이동할 경로는 화면이 정한다 */
@@ -18,7 +18,7 @@ interface LockersMineContentProps {
 }
 
 // 배정된 구역의 칸 배치를 보기 전용으로 그리고 내 칸만 표시한다.
-// 내 칸은 배정 정보(entities/lockers)의 칸 이름 하나로 정한다 — 구역 칸 데이터의 isMine에 기대지 않고,
+// 내 칸은 배정 정보(shared/entities/lockers)의 칸 이름 하나로 정한다 — 구역 칸 데이터의 isMine에 기대지 않고,
 // 그 칸을 선택된 칸으로 넘겨 선택 모양(파란 배경)으로 그린다.
 function LockersMineContent({
   fallbackPath,

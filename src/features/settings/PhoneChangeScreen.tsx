@@ -35,7 +35,7 @@ function PhoneChangeScreen() {
   const [phone, setPhone] = useState("");
   const [toastOpen, setToastOpen] = useState(false);
   // 토스트가 떠 있는 중에 다시 저장해도 스크린리더가 재안내하도록 매번 새로 마운트한다
-  // (EventsApplicationScreen·BililgeReturnSection과 같은 패턴).
+  // (EventsApplicationScreen·BillilgeReturnSection과 같은 패턴).
   const [toastToken, setToastToken] = useState(0);
 
   useScreenHeader(

@@ -1,5 +1,7 @@
 import { Typography } from "@wanteddev/wds";
 
+import LazyImage from "@/components/ui/LazyImage";
+
 // Figma: Archives Photo Card (Left-Large 1276:95411, Left-Medium 1276:95412, Right-Small 1276:95416)
 export type ArchivesPhotoCardSize = "small" | "medium" | "large";
 
@@ -12,9 +14,9 @@ interface ArchivesPhotoCardProps {
 }
 
 const HEIGHT_CLASS_NAMES: Record<ArchivesPhotoCardSize, string> = {
-  large: "h-[258px]",
-  medium: "h-[220px]",
-  small: "h-[184px]",
+  large: "h-64.5",
+  medium: "h-55",
+  small: "h-46",
 };
 
 // Figma의 Left-*/Right-* variant는 열 위치만 다르고 구조는 같아서 높이(size) 하나로 합쳤다.
@@ -32,11 +34,8 @@ function ArchivesPhotoCard({
       onClick={onClick}
       type="button"
     >
-      <img
-        alt=""
-        className="absolute inset-0 size-full object-cover"
-        src={image}
-      />
+      {/* 화면 밖 카드의 사진은 스크롤로 가까워질 때 받는다 — 그 전에는 회색 자리가 보인다 */}
+      <LazyImage alt="" className="absolute inset-0 size-full" src={image} />
       <div className="absolute inset-0 bg-linear-to-t from-gradient-overlay to-40% to-transparent" />
       <div className="relative flex flex-col">
         <Typography

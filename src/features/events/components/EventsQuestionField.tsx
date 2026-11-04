@@ -12,16 +12,16 @@ import {
 } from "@wanteddev/wds";
 import { useId } from "react";
 
-import type {
-  EventsAnswer,
-  EventsChoiceAnswer,
-  EventsQuestion,
-} from "@/entities/events/types";
 import {
   EVENTS_OTHER_MAX_LENGTH,
   EVENTS_OTHER_OPTION_LABEL,
   EVENTS_TEXT_MAX_LENGTH,
 } from "@/features/events/constants/eventsApplication";
+import type {
+  EventsAnswer,
+  EventsChoiceAnswer,
+  EventsQuestion,
+} from "@/shared/entities/events/eventsTypes";
 
 interface EventsQuestionFieldBaseProps {
   question: EventsQuestion;

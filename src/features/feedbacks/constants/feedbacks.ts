@@ -1,4 +1,7 @@
-import type { Feedback, FeedbackRound } from "@/entities/feedbacks/types";
+import type {
+  Feedback,
+  FeedbackRound,
+} from "@/shared/entities/feedbacks/feedbacksTypes";
 
 // "전체 피드백" 필터는 연도와 차수를 같이 건다. 이 값이면 그 조건으로는 거르지 않는다.
 export const FEEDBACK_FILTER_ALL = "all";

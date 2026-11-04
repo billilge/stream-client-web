@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Typography } from "@wanteddev/wds";
 
+import LazyImage from "@/components/ui/LazyImage";
 import ScreenBottomSafeArea from "@/components/ui/ScreenBottomSafeArea";
-import { archivesQueries } from "@/entities/archives/archivesApi";
+import { archivesQueries } from "@/shared/entities/archives/archivesQueries";
 
 interface ArchivesPhotosContentProps {
   archiveId: string;
@@ -45,11 +46,9 @@ function ArchivesPhotosContent({
             type="button"
           >
             {/* 버튼 안에 글자가 없어서 이 alt가 곧 버튼 이름이다(아카이빙 목록 카드는 제목·날짜가 그 역할을 한다) */}
-            <img
+            <LazyImage
               alt={`${archive.title} 현장 사진 ${index + 1}`}
-              className="aspect-square w-full object-cover"
-              decoding="async"
-              loading="lazy"
+              className="aspect-square w-full"
               src={photo}
             />
           </button>

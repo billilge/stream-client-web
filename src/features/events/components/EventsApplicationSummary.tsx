@@ -1,7 +1,7 @@
 import StatusSummaryCard from "@/components/ui/StatusSummaryCard";
-import type { MyEventApplication } from "@/entities/events/types";
 import { EVENTS_APPLICATION_STATUS_BADGES } from "@/features/events/constants/events";
 import { formatDateTime } from "@/lib/date";
+import type { MyEventApplication } from "@/shared/entities/events/eventsTypes";
 
 // Figma: 신청내역 상세 Event Summary (nodeId 1133:46188), 신청취소 상세 (1133:46223).
 // 신청내역에서 "행사·신청·(취소)" 행을 만들어 공용 StatusSummaryCard에 넘긴다 — 취소 행은 취소된 신청에만 있다.

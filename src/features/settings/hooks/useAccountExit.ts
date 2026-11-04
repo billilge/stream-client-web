@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
-import { clearLoggedIn } from "@/entities/auth/session";
 import { ACCOUNT_EXIT_PATH } from "@/features/settings/constants/settings";
+import { clearLoggedIn } from "@/shared/entities/auth/session";
 
 // 로그아웃 확정과 회원 탈퇴 완료는 "계정에서 나가기"라는 같은 동작이라 한곳에 둔다 —
 // 두 화면이 각자 navigate를 들고 있으면 세션 정리를 붙일 때 한쪽을 빠뜨리기 쉽다

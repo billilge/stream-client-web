@@ -10,7 +10,7 @@ import { useNativeSafeAreaColors } from "@/components/ui/useNativeSafeAreaColors
 
 // Bottom Nav 탭 ↔ 라우트 경로 매핑. 화면이 늘어나면 여기에 추가한다.
 const BOTTOM_NAV_PATHS: Record<BottomNavValue, string> = {
-  bililge: "/bililge",
+  billilge: "/billilge",
   // 게시판(공지) 목록 라우트 경로. 용어 사전(terminology.md)의 코드 용어가 `notices`라 그대로 맞춘다.
   board: "/notices",
   // 행사 목록 라우트 경로. 용어 사전(terminology.md)의 코드 용어가 `events`이고

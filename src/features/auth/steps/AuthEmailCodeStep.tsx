@@ -4,11 +4,6 @@ import { useState } from "react";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
-import {
-  EmailCodeMismatchError,
-  requestEmailVerification,
-  verifyEmailCode,
-} from "@/entities/auth/authApi";
 import AuthBackButton from "@/features/auth/components/AuthBackButton";
 import AuthOnboardingHeading from "@/features/auth/components/AuthOnboardingHeading";
 import VerificationCodeInput from "@/features/auth/components/VerificationCodeInput";
@@ -22,6 +17,11 @@ import {
 } from "@/features/auth/constants/auth";
 import { useCountdown } from "@/features/auth/hooks/useCountdown";
 import { formatCountdown } from "@/features/auth/utils/formatCountdown";
+import {
+  EmailCodeMismatchError,
+  requestEmailVerification,
+  verifyEmailCode,
+} from "@/shared/entities/auth/authQueries";
 
 // 온보딩 2/3 인증번호 입력 — Figma 이메일인증 5 (nodeId 4473:48952). 6자리를 모두 채우면 바로 확인하고, 맞으면
 // 약관 동의 단계로 간다. `다시 보내기`는 새 인증번호를 보내면서 5분 타이머를 처음부터 센다.
