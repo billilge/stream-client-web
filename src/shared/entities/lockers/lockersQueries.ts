@@ -209,6 +209,20 @@ export const lockersQueries = {
     }),
 };
 
+// 이번 회차에 이미 배정받았는지 — 유의사항·구역 선택·칸 선택이 신청 흐름을 막는 데 쓴다
+export function hasLockerInPeriod(
+  response: MyLockerApplicationListResponse,
+  lockerPeriodId: number,
+): boolean {
+  return (
+    response?.applications.some(
+      (application) =>
+        application.lockerPeriodId === lockerPeriodId &&
+        application.applicationStatus === "ASSIGNED",
+    ) ?? false
+  );
+}
+
 // 배정 상태·위치 보기가 같이 쓰는 select. 신청 일시 최신순이라 첫 건이 지금 배정이다.
 export function toLockerAssignment(
   response: MyLockerApplicationListResponse,
