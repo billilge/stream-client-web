@@ -13,7 +13,8 @@ export type AuthSignupSteps = {
   login: Record<never, never>;
   phone: { name: string; phone?: string };
   email: { name: string; phone: string; email?: string };
-  emailCode: { name: string; phone: string; email: string };
+  // codeSentAt: 인증번호를 보낸 시각(ms) — 새로고침해도 5분 타이머를 이어서 센다
+  emailCode: { name: string; phone: string; email: string; codeSentAt: number };
   terms: {
     name: string;
     phone: string;
@@ -59,7 +60,8 @@ export const AUTH_SIGNUP_STEP_OPTIONS = {
       isRecord(data) &&
       typeof data.name === "string" &&
       typeof data.phone === "string" &&
-      typeof data.email === "string",
+      typeof data.email === "string" &&
+      typeof data.codeSentAt === "number",
   },
   login: {
     guard: (data: unknown): data is AuthSignupSteps["login"] => isRecord(data),

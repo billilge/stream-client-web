@@ -8,6 +8,7 @@ import AuthBackButton from "@/features/auth/components/AuthBackButton";
 import AuthBottomAction from "@/features/auth/components/AuthBottomAction";
 import AuthOnboardingHeading from "@/features/auth/components/AuthOnboardingHeading";
 import { EMAIL_SEND_FAILURE_MESSAGE } from "@/features/auth/constants/auth";
+import { getEmailSendErrorMessage } from "@/features/auth/utils/emailVerificationErrorMessage";
 import { isValidEmail } from "@/features/auth/utils/isValidEmail";
 
 // 온보딩 2/3 이메일 입력 — Figma 이메일인증 4 (nodeId 4473:48819). 단계 표시(2 / 3)는 Figma에 없고 연락처·약관 화면과 맞춰 더했다.
@@ -28,6 +29,7 @@ function AuthEmailStep({
 }) {
   const [email, setEmail] = useState(initialEmail);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [toastOpen, setToastOpen] = useState(false);
   // 발송이 연달아 실패해도 스크린리더가 토스트를 다시 안내하도록 실패마다 ScreenToast를 새로 마운트한다
   const [toastToken, setToastToken] = useState(0);
@@ -45,6 +47,7 @@ function AuthEmailStep({
       await onNext(email.trim());
     } catch (error) {
       console.warn(EMAIL_SEND_FAILURE_MESSAGE, error);
+      setToastMessage(getEmailSendErrorMessage(error));
       setToastOpen(true);
       setToastToken((token) => token + 1);
     } finally {
@@ -102,7 +105,7 @@ function AuthEmailStep({
 
       <ScreenToast
         key={toastToken}
-        message={EMAIL_SEND_FAILURE_MESSAGE}
+        message={toastMessage}
         onOpenChange={setToastOpen}
         open={toastOpen}
       />

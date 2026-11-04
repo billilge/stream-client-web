@@ -31,6 +31,18 @@ export const EMAIL_CODE_EXPIRED_MESSAGE =
   "인증번호가 만료됐어요. 다시 보내기를 눌러 주세요.";
 export const EMAIL_CODE_VERIFY_FAILURE_MESSAGE =
   "인증번호를 확인하지 못했어요. 다시 시도해 주세요.";
+export const EMAIL_SEND_COOLDOWN_MESSAGE =
+  "인증번호는 1분에 한 번 보낼 수 있어요. 잠시 후 다시 시도해 주세요.";
+export const EMAIL_SEND_DAILY_LIMIT_MESSAGE =
+  "오늘은 인증번호를 더 보낼 수 없어요. 내일 다시 시도해 주세요.";
+export const EMAIL_ALREADY_EXISTS_MESSAGE =
+  "이미 가입에 사용된 이메일이에요. 다른 이메일을 입력해 주세요.";
+export const EMAIL_CODE_ATTEMPTS_EXCEEDED_MESSAGE =
+  "인증번호를 여러 번 틀렸어요. 다시 보내기를 눌러 주세요.";
+export const EMAIL_CODE_NOT_FOUND_MESSAGE =
+  "받은 인증번호가 없어요. 다시 보내기를 눌러 주세요.";
+export const EMAIL_NOT_VERIFIED_MESSAGE =
+  "이메일 인증 시간이 지났어요. 이메일을 다시 인증해 주세요.";
 
 // Figma 로그인 1~3 — 슬라이드 순서와 문구(nodeId 3658:113051, 3658:113028, 3658:113074)
 export const LOGIN_SLIDES = [

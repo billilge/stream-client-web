@@ -11,28 +11,37 @@ import {
   EMAIL_CODE_EXPIRED_MESSAGE,
   EMAIL_CODE_EXPIRY_SECONDS,
   EMAIL_CODE_LENGTH,
-  EMAIL_CODE_MISMATCH_MESSAGE,
   EMAIL_CODE_VERIFY_FAILURE_MESSAGE,
   EMAIL_SEND_FAILURE_MESSAGE,
 } from "@/features/auth/constants/auth";
 import { useCountdown } from "@/features/auth/hooks/useCountdown";
+import {
+  getEmailCodeErrorMessage,
+  getEmailSendErrorMessage,
+} from "@/features/auth/utils/emailVerificationErrorMessage";
 import { formatCountdown } from "@/features/auth/utils/formatCountdown";
 import {
-  EmailCodeMismatchError,
   requestEmailVerification,
   verifyEmailCode,
 } from "@/shared/entities/auth/authQueries";
 
 // 온보딩 2/3 인증번호 입력 — Figma 이메일인증 5 (nodeId 4473:48952). 6자리를 모두 채우면 바로 확인하고, 맞으면
 // 약관 동의 단계로 간다. `다시 보내기`는 새 인증번호를 보내면서 5분 타이머를 처음부터 센다.
+// 타이머는 발송 시각(퍼널 context)부터 세서 새로고침해도 이어지고, 이 화면은 들어올 때 인증번호를 보내지 않는다.
 // 단계 표시(2 / 3, 이메일 입력과 같은 단계)와 오류·만료 토스트는 Figma에 없고 더한 것이다.
 function AuthEmailCodeStep({
   email,
+  codeSentAt,
   onBack,
+  onResent,
   onVerified,
 }: {
   email: string;
+  /** 지금 인증번호를 보낸 시각(ms) — 5분 타이머의 기준이다 */
+  codeSentAt: number;
   onBack: () => void;
+  /** 다시 보내기에 성공했을 때 새 발송 시각을 퍼널 context에 남긴다 */
+  onResent: (sentAt: number) => void;
   onVerified: () => void;
 }) {
   const [code, setCode] = useState("");
@@ -41,7 +50,9 @@ function AuthEmailCodeStep({
   const [toastOpen, setToastOpen] = useState(false);
   // 같은 문구가 연달아 떠도 스크린리더가 다시 안내하도록 토스트마다 ScreenToast를 새로 마운트한다
   const [toastToken, setToastToken] = useState(0);
-  const { remainingSeconds, restart } = useCountdown(EMAIL_CODE_EXPIRY_SECONDS);
+  const remainingSeconds = useCountdown(
+    codeSentAt + EMAIL_CODE_EXPIRY_SECONDS * 1000,
+  );
 
   useScreenHeader(
     <ScreenHeader
@@ -69,11 +80,7 @@ function AuthEmailCodeStep({
       console.warn(EMAIL_CODE_VERIFY_FAILURE_MESSAGE, error);
       setCode("");
       setIsVerifying(false);
-      showToast(
-        error instanceof EmailCodeMismatchError
-          ? EMAIL_CODE_MISMATCH_MESSAGE
-          : EMAIL_CODE_VERIFY_FAILURE_MESSAGE,
-      );
+      showToast(getEmailCodeErrorMessage(error));
       return;
     }
     setIsVerifying(false);
@@ -85,11 +92,11 @@ function AuthEmailCodeStep({
       await requestEmailVerification(email);
     } catch (error) {
       console.warn(EMAIL_SEND_FAILURE_MESSAGE, error);
-      showToast(EMAIL_SEND_FAILURE_MESSAGE);
+      showToast(getEmailSendErrorMessage(error));
       return;
     }
     setCode("");
-    restart();
+    onResent(Date.now());
   };
 
   return (
