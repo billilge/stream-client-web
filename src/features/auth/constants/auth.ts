@@ -19,6 +19,19 @@ export const LOGIN_FAILURE_MESSAGE = "로그인에 실패했어요. 다시 시�
 export const ONBOARDING_FAILURE_MESSAGE =
   "가입 정보를 저장하지 못했어요. 다시 시도해 주세요.";
 
+// 이메일 인증 — 인증번호는 6자리이고 받은 뒤 5분 안에 입력해야 한다(Figma 이메일인증 5의 타이머 04:59)
+export const EMAIL_CODE_LENGTH = 6;
+export const EMAIL_CODE_EXPIRY_SECONDS = 300;
+
+export const EMAIL_SEND_FAILURE_MESSAGE =
+  "인증번호를 보내지 못했어요. 다시 시도해 주세요.";
+export const EMAIL_CODE_MISMATCH_MESSAGE =
+  "인증번호가 올바르지 않아요. 다시 입력해 주세요.";
+export const EMAIL_CODE_EXPIRED_MESSAGE =
+  "인증번호가 만료됐어요. 다시 보내기를 눌러 주세요.";
+export const EMAIL_CODE_VERIFY_FAILURE_MESSAGE =
+  "인증번호를 확인하지 못했어요. 다시 시도해 주세요.";
+
 // Figma 로그인 1~3 — 슬라이드 순서와 문구(nodeId 3658:113051, 3658:113028, 3658:113074)
 export const LOGIN_SLIDES = [
   {

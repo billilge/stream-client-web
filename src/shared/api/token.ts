@@ -37,8 +37,7 @@ export function clearAccessToken(): void {
   notifyTokenListeners();
 }
 
-// 토큰이 바뀌면 알린다 — 토큰이 사라지면 로그인 화면으로 보내는 가드가 구독할 자리다.
-// 가드는 로그인 실연결 때 만든다(지금은 토큰을 넣는 곳이 없어 401이 나지 않는다).
+// 토큰이 바뀌면 알린다 — 토큰이 사라지면 로그인 화면으로 보내는 가드(AuthEntryGate)가 구독한다.
 // 요청 코드(apiClient)가 라우터를 직접 부르지 않게 하려고 둔다(router → 화면 → entities → apiClient 순환 import).
 export function subscribeTokens(listener: TokenListener): () => void {
   listeners.add(listener);
