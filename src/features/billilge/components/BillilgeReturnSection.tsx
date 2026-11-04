@@ -64,7 +64,7 @@ function BillilgeReturnSection({
                   icon={item.itemImageUrl}
                   itemName={item.itemName ?? BILLILGE_DELETED_ITEM_NAME}
                   key={item.rentalHistoryId}
-                  onRentRequest={openReturnRequest}
+                  onRentRequest={() => openReturnRequest(item.rentalHistoryId)}
                   // 기한이 지나면 홈 대여 현황(3147:146331)처럼 빨간 문구로 바뀐다
                   subtitle={
                     hoursUntilDue < 0

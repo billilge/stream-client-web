@@ -53,6 +53,8 @@ export const BILLILGE_ERROR_CODES = {
   // 그새 재고가 떨어졌거나 물품이 지워졌다 — 물품 목록이 낡았다
   outOfStock: "ITEM_OUT_OF_STOCK",
   itemNotFound: "ITEM_NOT_FOUND",
+  // 반납 신청할 수 있는 대여(대여 중인 내 대여)가 아니다 — 이미 반납을 신청했거나 상태가 바뀌었다
+  rentalNotFound: "RENTAL_NOT_FOUND",
 } as const;
 
 // 대여 신청. 학생 신청은 승인 대기(PENDING)로 시작하고 재고는 신청할 때 바로 줄어든다.
@@ -75,6 +77,30 @@ export function useApplyBillilgeRentalMutation() {
           error.code === BILLILGE_ERROR_CODES.itemNotFound)
       ) {
         return invalidateBillilge();
+      }
+    },
+  });
+}
+
+// 반납 신청. 대여 중(RENTAL)인 내 대여만 받고, 바로 끝나지 않고 반납 승인 대기(RETURN_PENDING)가 된다.
+// 성공하면 반납 필요 대여·대여 내역의 상태가 바뀌어서 대여 이력 캐시를 무효화한다 — 반납할 수 없는 대여라는 거절도
+// 지금 캐시가 낡았다는 뜻이라 같이 무효화한다.
+export function useReturnBillilgeRentalMutation() {
+  const queryClient = useQueryClient();
+  const invalidateHistories = () =>
+    queryClient.invalidateQueries({ queryKey: billilgeKeys.histories() });
+
+  return useMutation({
+    mutationFn: (rentalHistoryId: number) =>
+      api.patch<null>(`/v1/app/billilge/histories/${rentalHistoryId}/return`),
+    // Promise를 돌려줘서 다시 받은 상태가 들어온 뒤에 mutation이 끝나게 한다
+    onSuccess: invalidateHistories,
+    onError: (error) => {
+      if (
+        isApiError(error) &&
+        error.code === BILLILGE_ERROR_CODES.rentalNotFound
+      ) {
+        return invalidateHistories();
       }
     },
   });
