@@ -13,20 +13,16 @@ import SettingsAppVersionRow from "@/features/settings/components/SettingsAppVer
 import SettingsAppVersionRowSkeleton from "@/features/settings/components/SettingsAppVersionRowSkeleton";
 import SettingsRow from "@/features/settings/components/SettingsRow";
 import SettingsSection from "@/features/settings/components/SettingsSection";
-import {
-  SETTINGS_EXTERNAL_LINKS,
-  SETTINGS_PATHS,
-} from "@/features/settings/constants/settings";
+import SettingsServiceLinkRows from "@/features/settings/components/SettingsServiceLinkRows";
+import SettingsServiceLinkRowsSkeleton from "@/features/settings/components/SettingsServiceLinkRowsSkeleton";
+import { SETTINGS_PATHS } from "@/features/settings/constants/settings";
 import { useAccountExit } from "@/features/settings/hooks/useAccountExit";
-import { openExternalLink } from "@/lib/openExternalLink";
 
 // Figma: 설정 (nodeId 3524:152322) — 계정 정보 / 알림 설정 / 서비스 정보 / 로그아웃 네 장의 흰
 // 카드가 회색 배경 위에 8px 간격으로 쌓이고, 맨 아래에 Copyright가 깔린다.
 //
-// 의견 보내기·개인정보 처리방침은 화면을 따로 만들지 않고 구글폼으로 연결한다. 폼 주소가 아직
-// 없어서(SETTINGS_EXTERNAL_LINKS가 빈 문자열) 그동안은 두 행을 비활성으로 그린다 — 누를 수
-// 있어 보이는데 반응이 없는 상태를 피한다. 주소를 상수에 채우면 저절로 활성으로 돌아온다.
-// Figma에는 이 비활성 상태가 없다(디자인에는 주소가 있다고 보고 그려져 있다).
+// 계정 정보, 의견 보내기·개인정보 처리방침 링크, 앱 버전은 각각 다른 요청이라 데이터 영역마다
+// Suspense를 따로 둔다 — 하나가 늦어도 나머지 카드는 먼저 그린다.
 // 로그아웃은 확인 모달(3524:152426)을 공용 ConfirmModal(tone="negative")로 붙였고,
 // 회원 탈퇴는 별도 화면(3524:152473)으로 이동한다.
 //
@@ -75,20 +71,9 @@ function SettingsScreen() {
         </SettingsSection>
 
         <SettingsSection title="서비스 정보">
-          <SettingsRow
-            disabled={!SETTINGS_EXTERNAL_LINKS.feedbackForm}
-            label="의견 보내기"
-            onClick={() =>
-              openExternalLink(SETTINGS_EXTERNAL_LINKS.feedbackForm)
-            }
-          />
-          <SettingsRow
-            disabled={!SETTINGS_EXTERNAL_LINKS.privacyPolicy}
-            label="개인정보 처리방침"
-            onClick={() =>
-              openExternalLink(SETTINGS_EXTERNAL_LINKS.privacyPolicy)
-            }
-          />
+          <Suspense fallback={<SettingsServiceLinkRowsSkeleton />}>
+            <SettingsServiceLinkRows />
+          </Suspense>
           <Suspense fallback={<SettingsAppVersionRowSkeleton />}>
             <SettingsAppVersionRow />
           </Suspense>

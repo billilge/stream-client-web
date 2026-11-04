@@ -4,10 +4,9 @@ import { LOGIN_PATH } from "@/features/auth/constants/auth";
 // (알림의 `NOTIFICATIONS_PATH`와 같은 방식). 경로와 컴포넌트 이름의 형태를 맞춘다
 // (`/withdrawal` ↔ `Withdrawal*`).
 //
-// 백엔드 연동 시 확인할 것: `settings`는 용어 사전(terminology.md)에 없는 이름이다. 화면 묶음을
-// 가리키는 말이라 폴더·라우트에만 쓰고, 데이터는 사전에 있는 `users` 도메인으로 뒀다
-// (`shared/entities/users/`). 백엔드가 설정 전용 엔드포인트를 따로 내면 그때 사전에 추가하고 여기를
-// 맞춘다 — 프론트에서 먼저 정하지 않는다(terminology.md 원칙).
+// `settings`는 용어 사전(terminology.md)에 없는 이름이다. 화면 묶음을 가리키는 말이라 폴더·라우트에만
+// 쓰고, 데이터는 서버 경로와 같은 도메인에 뒀다 — 계정 정보·전화번호는 `members`
+// (`/v1/app/members`), 의견 보내기·개인정보 처리방침 링크는 `service-links`(`/v1/app/service-links`).
 export const SETTINGS_PATHS = {
   phoneChange: "/settings/phone",
   root: "/settings",
@@ -18,12 +17,22 @@ export const SETTINGS_PATHS = {
 // 로그아웃·회원 탈퇴로 계정을 떠난 뒤 나갈 곳 — 둘 다 로그아웃 상태라 로그인 화면으로 간다.
 export const ACCOUNT_EXIT_PATH = LOGIN_PATH;
 
-// 의견 보내기·개인정보 처리방침은 화면을 따로 만들지 않고 구글폼으로 연결한다. 폼 주소가 아직
-// 없어서 빈 문자열로 두고, 값이 채워졌을 때만 새 탭으로 열도록 호출부에서 분기한다.
-export const SETTINGS_EXTERNAL_LINKS = {
-  feedbackForm: "",
-  privacyPolicy: "",
-};
+// 전화번호 변경 결과 토스트 — 문구와 색을 결과마다 한 번에 고른다(빌릴게 반납 신청의 RETURN_TOASTS와 같다).
+// 성공 문구는 Figma 완료 토스트(3524:152457) 그대로고, 실패 두 문구는 Figma에 없어 정했다.
+export const PHONE_CHANGE_TOASTS = {
+  changed: { message: "전화번호를 변경했어요.", variant: "positive" },
+  alreadyExists: {
+    message: "이미 사용 중인 전화번호예요.",
+    variant: "negative",
+  },
+  failed: {
+    message: "전화번호 변경에 실패했어요. 다시 시도해 주세요.",
+    variant: "negative",
+  },
+} as const;
+
+export type PhoneChangeToast =
+  (typeof PHONE_CHANGE_TOASTS)[keyof typeof PHONE_CHANGE_TOASTS];
 
 interface WithdrawalNotice {
   id: string;
