@@ -1,7 +1,7 @@
 import { Typography } from "@wanteddev/wds";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-interface AuthCodeInputProps {
+interface VerificationCodeInputProps {
   value: string;
   /** 인증번호 자릿수 — 칸 수와 입력 길이가 같다 */
   length: number;
@@ -25,13 +25,13 @@ function moveCaretToEnd(input: HTMLInputElement) {
 // 붙여넣기, 문자 인증번호 자동 완성(`one-time-code`)이 칸마다 입력칸을 두는 것보다 안정적이다.
 // 입력칸이 보이지 않아 기본 커서도 안 보이므로, 포커스가 있을 때 다음에 채울 칸에 깜빡이는 커서를 직접 그린다
 // (Figma에는 없는 표시).
-function AuthCodeInput({
+function VerificationCodeInput({
   value,
   length,
   disabled = false,
   onChange,
   onComplete,
-}: AuthCodeInputProps) {
+}: VerificationCodeInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   // map 콜백의 index를 key로 쓰면 noArrayIndexKey에 걸려서 미리 만들어 둔다(PhotoGallery와 같다)
@@ -105,4 +105,4 @@ function AuthCodeInput({
   );
 }
 
-export default AuthCodeInput;
+export default VerificationCodeInput;

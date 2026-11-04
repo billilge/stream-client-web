@@ -762,7 +762,7 @@ K-CONNECT 인증을 마친 신규 사용자는 연락처 입력(`AuthPhoneStep`)
 | `Textinput/Textfield` (`445:8591`) | `TextField`(`@wanteddev/wds`) | 이미 확정한 매핑. 라벨("이메일")은 `TextField`가 그리지 않아 형제 `Typography as="label"`로 그린다(설정 전화번호 변경과 같다). 값이 있을 때 뜨는 지움(X) 버튼은 기본 제공이라 Figma와 맞는다 |
 | `Top Navigation/Resource/Contents` | `ScreenHeader`(`leading` 뒤로가기) | 연락처·약관 단계와 같다 |
 | `Action Area`(`인증번호 받기`) | `AuthBottomAction` | 연락처 단계와 같은 56px 보정 버튼 |
-| `인증번호 칸` (`4519:50281`, `state=off/on`) | Stream 로컬 `AuthCodeInput` | WDS에 인증번호 입력 컴포넌트가 없다(`dist/components`에서 확인 — `virtual-input`은 폼용 숨은 입력 도우미). 칸 6개는 보이기만 하고 실제 입력은 투명한 `<input>` 하나가 받는다(`inputMode="numeric"`, `autoComplete="one-time-code"`) |
+| `인증번호 칸` (`4519:50281`, `state=off/on`) | Stream 로컬 `VerificationCodeInput` | WDS에 인증번호 입력 컴포넌트가 없다(`dist/components`에서 확인 — `virtual-input`은 폼용 숨은 입력 도우미). 칸 6개는 보이기만 하고 실제 입력은 투명한 `<input>` 하나가 받는다(`inputMode="numeric"`, `autoComplete="one-time-code"`) |
 
 - **칸 실측:** 48×60, 모서리 8px, 배경 `Background/Normal/Alternative`(`bg-background-alternative`), 칸 사이 9px, 숫자 Title 2/Bold 28px `Primary/Normal` — Figma와 일치.
 - **6자리를 채우면 바로 확인한다.** 이 화면에는 하단 버튼이 없다(Figma 5번). 맞으면 약관 동의 단계로 가고(뒤로가기는 이메일 단계), `다시 보내기`는 새 인증번호를 보내면서 5분 타이머(`04:59`)를 다시 센다.

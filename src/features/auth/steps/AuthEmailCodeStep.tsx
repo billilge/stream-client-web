@@ -10,8 +10,8 @@ import {
   verifyEmailCode,
 } from "@/entities/auth/authApi";
 import AuthBackButton from "@/features/auth/components/AuthBackButton";
-import AuthCodeInput from "@/features/auth/components/AuthCodeInput";
 import AuthOnboardingHeading from "@/features/auth/components/AuthOnboardingHeading";
+import VerificationCodeInput from "@/features/auth/components/VerificationCodeInput";
 import {
   EMAIL_CODE_EXPIRED_MESSAGE,
   EMAIL_CODE_EXPIRY_SECONDS,
@@ -111,7 +111,7 @@ function AuthEmailCodeStep({
         </div>
 
         <div className="flex flex-col items-center gap-4">
-          <AuthCodeInput
+          <VerificationCodeInput
             disabled={isVerifying}
             length={EMAIL_CODE_LENGTH}
             onChange={setCode}
