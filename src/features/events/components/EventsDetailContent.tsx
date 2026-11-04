@@ -14,8 +14,8 @@ import PhotoGallery from "@/components/ui/PhotoGallery";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
 import {
   EVENTS_FEE_PAID_ONLY_LABEL,
-  getEventActionLabel,
   getEventAudience,
+  getEventDetailActionLabel,
   getEventSchedule,
   getEventStatusLabel,
 } from "@/features/events/constants/events";
@@ -38,7 +38,7 @@ interface EventsDetailContentProps {
 //
 // 상태별로 갈리는 건 뱃지와 하단 CTA뿐이다.
 // - 모집중: 활성. 단 신청 자격(isFeeEligible)이 없으면 disabled에 "학생회비 납부자만 신청할 수 있어요"
-// - 모집예정: disabled에 신청 시작일("8월 10일 오픈")
+// - 모집예정: disabled에 신청 시작 일시("8월 10일 18시 오픈")
 // - 모집종료: Figma "CTA 없음"(1156:54125)대로 하단 버튼(Action Area)을 그리지 않는다
 function EventsDetailContent({
   eventId,
@@ -67,7 +67,7 @@ function EventsDetailContent({
   const actionLabel =
     event.recruitStatus === "OPEN" && isFeeRequired
       ? EVENTS_FEE_PAID_ONLY_LABEL
-      : getEventActionLabel(event);
+      : getEventDetailActionLabel(event);
   const hasActionArea = event.recruitStatus !== "CLOSED";
   // 사진이 없는 행사도 Hero 자리는 둔다 — 뒤로가기 버튼과 상단 그라데이션이 그 위에 얹힌다
   const photoCount = Math.max(event.images.length, 1);
@@ -147,7 +147,7 @@ function EventsDetailContent({
                   variant="label1"
                   weight="medium"
                 >
-                  {getEventSchedule(event.eventStartAt)}
+                  {getEventSchedule(event)}
                 </Typography>
                 {event.place !== null && (
                   <Typography
