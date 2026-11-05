@@ -27,6 +27,7 @@ interface EventsDetailContentProps {
   eventId: string;
   onBack: () => void;
   onApply: (eventId: string) => void;
+  onViewApplication: (applicationId: string) => void;
 }
 
 // Figma: 행사 상세 (nodeId 1133:42433 모집중 / 1156:53992 모집예정 / 1156:54125 모집종료)
@@ -43,10 +44,13 @@ interface EventsDetailContentProps {
 // - 모집중: 활성. 단 신청 자격(isFeeEligible)이 없으면 disabled에 "학생회비 납부자만 신청할 수 있어요"
 // - 모집예정: disabled에 신청 시작 일시("8월 10일 18시 오픈")
 // - 모집종료: Figma "CTA 없음"(1156:54125)대로 하단 버튼(Action Area)을 그리지 않는다
+// 이미 신청한 행사는 모집 상태와 상관없이 하단 버튼이 "신청내역 보기"가 돼 신청내역 상세로 보낸다 —
+// 모집종료여도 내 신청을 확인하러 올 수 있어서 버튼을 그린다. Figma에 이 상태가 없어서 정한 것이다.
 function EventsDetailContent({
   eventId,
   onBack,
   onApply,
+  onViewApplication,
 }: EventsDetailContentProps) {
   const { data: event } = useSuspenseQuery(eventsQueries.detail(eventId));
   const photoCount = event?.images.length ?? 0;
@@ -85,11 +89,25 @@ function EventsDetailContent({
   // 레거시 납부자를 미납으로 보여서 쓰지 않는다
   const isFeeRequired = !event.isFeeEligible;
   const canApply = event.recruitStatus === "OPEN" && !isFeeRequired;
-  const actionLabel =
+  const applyLabel =
     event.recruitStatus === "OPEN" && isFeeRequired
       ? EVENTS_FEE_PAID_ONLY_LABEL
       : getEventDetailActionLabel(event);
-  const hasActionArea = event.recruitStatus !== "CLOSED";
+  const { applicationId } = event;
+  const action =
+    applicationId === null
+      ? {
+          disabled: !canApply,
+          label: applyLabel,
+          onClick: () => onApply(eventId),
+        }
+      : {
+          disabled: false,
+          label: "신청내역 보기",
+          onClick: () => onViewApplication(String(applicationId)),
+        };
+  const hasActionArea =
+    applicationId !== null || event.recruitStatus !== "CLOSED";
 
   return (
     // Figma 상세 루트 배경은 Background/Normal/Normal(#FFFFFF)이다 — ScreenLayout 기본
@@ -218,7 +236,7 @@ function EventsDetailContent({
         {/* Action Area가 본문을 덮으므로 끝부분이 영구히 가리지 않도록 같은 높이를 비워둔다.
             96px = Action Area 위아래 padding 20+20 + 버튼 56. 데스크톱 프레임에서는
             홈 인디케이터 여백 14px이 더 붙는다(아래 filler와 같은 규칙).
-            모집종료는 Action Area가 없어서 이 여백도 두지 않는다 — Figma(1156:54125)도 본문에서 끝난다. */}
+            신청하지 않은 모집종료는 Action Area가 없어서 이 여백도 두지 않는다 — Figma(1156:54125)도 본문에서 끝난다. */}
         {hasActionArea && <div className="h-24 sm:h-[110px]" />}
       </div>
 
@@ -228,11 +246,11 @@ function EventsDetailContent({
             {/* WDS ActionAreaButton은 항상 Button size="large"(padding 12px 28px → 48px)로 그리는데,
                 Figma Main Action은 padding 16px 28px(56px)이라 세로 padding만 sx로 맞춘다. */}
             <ActionAreaButton
-              disabled={!canApply}
-              onClick={() => onApply(eventId)}
+              disabled={action.disabled}
+              onClick={action.onClick}
               sx={{ paddingBlock: "16px" }}
             >
-              {actionLabel}
+              {action.label}
             </ActionAreaButton>
           </ActionArea>
           {/* Figma Action Area(110px)는 버튼 아래가 iOS Home Bar 여백까지 합쳐 34px인데,
