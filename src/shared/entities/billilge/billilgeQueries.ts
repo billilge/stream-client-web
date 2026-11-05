@@ -9,11 +9,14 @@ import { z } from "zod";
 import { api, type CursorSliceResponse, isApiError } from "@/shared/api";
 import { billilgeKeys } from "@/shared/entities/billilge/billilgeKeys";
 import type {
+  BillilgeAdminRentalStatusUpdate,
   BillilgeCategory,
   BillilgeRentalApplyRequest,
 } from "@/shared/entities/billilge/billilgeTypes";
+import { notificationsKeys } from "@/shared/entities/notifications/notificationsKeys";
 
 const BILLILGE_PATH = "/v1/app/billilge";
+const BILLILGE_ADMIN_PATH = "/v1/admin/billilge";
 
 // 서버 enum(ItemCategory·ItemType·RentalStatus) 값 — 타입은 billilgeTypes.ts가 여기서 만든다
 export const BILLILGE_CATEGORIES = [
@@ -155,6 +158,8 @@ export const BILLILGE_ERROR_CODES = {
   itemNotFound: "ITEM_NOT_FOUND",
   // 반납 신청할 수 있는 대여(대여 중인 내 대여)가 아니다 — 이미 반납을 신청했거나 상태가 바뀌었다
   rentalNotFound: "RENTAL_NOT_FOUND",
+  // 관리자 상태 변경 — 화면에서 본 상태와 지금 상태가 다르다(다른 관리자가 먼저 처리했거나 옛 화면에서 눌렀다)
+  rentalStatusChanged: "RENTAL_STATUS_CHANGED",
 } as const;
 
 // 대여 신청. 학생 신청은 승인 대기(PENDING)로 시작하고 재고는 신청할 때 바로 줄어든다.
@@ -201,6 +206,38 @@ export function useReturnBillilgeRentalMutation() {
         error.code === BILLILGE_ERROR_CODES.rentalNotFound
       ) {
         return invalidateHistories();
+      }
+    },
+  });
+}
+
+// 관리자 대여 상태 변경(PATCH /v1/admin/billilge/histories/{id}). 관리자 알림 화면은 화면에서 본 상태(expectedStatus)를
+// 같이 보내서, 그사이 다른 관리자가 처리했으면 서버가 RENTAL_STATUS_CHANGED(409)로 거절하고 아무것도 바꾸지 않는다.
+// 성공해도, 그렇게 거절돼도 관리자 알림 목록의 대여 상태가 낡아서 다시 받는다 — Promise를 돌려줘서 다시 받은 상태가
+// 들어온 뒤에 mutation이 끝나게 한다(버튼 로딩이 그때까지 이어진다).
+export function useUpdateAdminRentalStatusMutation() {
+  const queryClient = useQueryClient();
+  const refetchAdminNotifications = () =>
+    queryClient.invalidateQueries({
+      queryKey: notificationsKeys.adminList(),
+    });
+
+  return useMutation({
+    mutationFn: ({
+      rentalHistoryId,
+      ...request
+    }: BillilgeAdminRentalStatusUpdate) =>
+      api.patch<unknown>(
+        `${BILLILGE_ADMIN_PATH}/histories/${rentalHistoryId}`,
+        request,
+      ),
+    onSuccess: refetchAdminNotifications,
+    onError: (error) => {
+      if (
+        isApiError(error) &&
+        error.code === BILLILGE_ERROR_CODES.rentalStatusChanged
+      ) {
+        return refetchAdminNotifications();
       }
     },
   });

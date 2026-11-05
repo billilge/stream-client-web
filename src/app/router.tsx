@@ -274,13 +274,22 @@ const routes = [
             path: "/search",
           },
           {
-            element: <NotificationsScreen />,
+            element: <NotificationsScreen tab="mine" />,
             // Figma 알림 화면에는 Bottom Nav가 없고(뒤로가기로 진입한 화면에 복귀) 배경이 흰 면이다
             handle: {
               background: "normal",
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/notifications",
+          },
+          {
+            element: <NotificationsScreen tab="admin" />,
+            // 알림 화면의 관리자 알림 탭 — 같은 화면을 탭만 바꿔 그리고, 알림 화면과 같은 이유로 Bottom Nav 없이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: "/notifications/admin",
           },
           {
             element: <NotificationsSettingsScreen />,

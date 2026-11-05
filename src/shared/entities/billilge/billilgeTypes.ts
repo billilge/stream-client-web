@@ -53,3 +53,11 @@ export interface BillilgeRentalApplyRequest {
   // false면 같은 물품에 끝나지 않은 신청이 있을 때 RENTAL_ITEM_DUPLICATED로 거절된다 — true로 다시 보내면 그래도 신청한다
   ignoreDuplicate: boolean;
 }
+
+// 관리자 대여 상태 변경(PATCH /v1/admin/billilge/histories/{id}) — 관리자 알림 화면의 반려·승인·완료 버튼이 쓴다
+export interface BillilgeAdminRentalStatusUpdate {
+  rentalHistoryId: number;
+  rentalStatus: BillilgeRentalStatus;
+  // 화면에서 본 지금 상태 — 실제 지금 상태와 다르면 서버가 RENTAL_STATUS_CHANGED로 거절하고 아무것도 바꾸지 않는다
+  expectedStatus: BillilgeRentalStatus;
+}
