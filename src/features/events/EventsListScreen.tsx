@@ -112,6 +112,11 @@ function EventsListScreen({ tab }: EventsListScreenProps) {
               onSelect={(eventId) =>
                 navigate(`/events/${eventId}`, { viewTransition: true })
               }
+              onViewApplication={(applicationId) =>
+                navigate(`${EVENTS_TAB_PATHS.application}/${applicationId}`, {
+                  viewTransition: true,
+                })
+              }
               statusFilter={listStatusFilter}
             />
           </Suspense>

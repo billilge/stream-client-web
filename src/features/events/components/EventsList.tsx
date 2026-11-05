@@ -39,6 +39,7 @@ interface EventsListProps {
   statusFilter: EventStatusFilter;
   onSelect: (eventId: string) => void;
   onApply: (eventId: string) => void;
+  onViewApplication: (applicationId: string) => void;
   onBrowseArchives: () => void;
 }
 
@@ -48,6 +49,7 @@ function EventsList({
   statusFilter,
   onSelect,
   onApply,
+  onViewApplication,
   onBrowseArchives,
 }: EventsListProps) {
   // 모집 상태는 서버가 걸러 준다 — 페이지로 나눠 받아서 받은 것만 거르면 다음 페이지의 행사가 빠진다
@@ -104,6 +106,9 @@ function EventsList({
               event={event}
               onApply={() => onApply(String(event.eventId))}
               onSelect={() => onSelect(String(event.eventId))}
+              onViewApplication={(applicationId) =>
+                onViewApplication(String(applicationId))
+              }
             />
           </Fragment>
         ))}
