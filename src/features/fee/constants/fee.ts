@@ -14,13 +14,12 @@ export const FEE_TITLE = "소프트웨어융합대학 학생회비";
 
 // 아직 받지 못한 외부 연동 주소들. 값이 있을 때만 열도록 해서 빈 창이 뜨는 걸 막는다.
 //
-// - kSmartMentor: 학점이수현황을 확인하는 국민대 K-스마트멘토 주소
 // - studentCouncilKakaoChannel: 학생회 카카오톡 채널. 비어 있으면 확인필요 카드에
 //   문의하기 버튼을 그리지 않는다.
 //
 // 토스 송금 딥링크는 남은 학기 수마다 금액이 달라서 서버가 계산해 준다(feeQueries.transferGuide).
+// K스마트멘토 주소는 운영진이 등록하는 서비스 링크(serviceLinksQueries의 kSmartMentorUrl)로 받는다.
 export const FEE_EXTERNAL_LINKS = {
-  kSmartMentor: "",
   studentCouncilKakaoChannel: "",
 } as const;
 
