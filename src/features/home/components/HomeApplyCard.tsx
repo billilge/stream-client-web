@@ -34,7 +34,10 @@ function HomeApplyCard({ section, onSelect, onApply }: HomeApplyCardProps) {
           variant="body1"
           weight="bold"
         >
-          {section.title}
+          {/* 사물함 제목은 운영 회차 이름(예: 2026-2학기)이라 무엇을 신청하는지 붙여 준다 */}
+          {section.targetType === "LOCKER"
+            ? `${section.title} 사물함 배정`
+            : section.title}
         </Typography>
       </button>
       <Button onClick={onApply} size="small">
