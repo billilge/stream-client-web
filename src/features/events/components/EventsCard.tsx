@@ -1,4 +1,5 @@
 import { Button, Typography } from "@wanteddev/wds";
+import LazyImage from "@/components/ui/LazyImage";
 import EventsStatusBadge from "@/features/events/components/EventsStatusBadge";
 import {
   getEventActionLabel,
@@ -22,19 +23,23 @@ interface EventsCardProps {
 // disabled 상태 색(label.assistive + interaction.disable)도 모집예정/모집종료 스펙과 그대로 일치한다
 // (button/style.js의 &[aria-disabled='true'] 블록 확인). 그래서 sx 없이 disabled prop만 쓴다.
 function EventsCard({ event, onApply, onSelect }: EventsCardProps) {
-  const { title, recruitStatus } = event;
+  const { title, recruitStatus, thumbnailUrl } = event;
   const isOpen = recruitStatus === "OPEN";
 
   return (
     <div className="flex items-center gap-3 px-5">
-      {/* 썸네일(thumbnailUrl)을 그리기 전까지는 Figma와 같은 단색 placeholder.
+      {/* 썸네일이 없으면 Figma와 같은 단색 placeholder.
           CTA 버튼 안에 버튼을 중첩할 수 없어서, 상세 진입은 썸네일과 텍스트 블록에만 건다. */}
       <button
         aria-label={`${title} 상세 보기`}
-        className="size-28 shrink-0 rounded-xl bg-thumbnail-placeholder"
+        className="size-28 shrink-0 overflow-hidden rounded-xl bg-thumbnail-placeholder"
         onClick={onSelect}
         type="button"
-      />
+      >
+        {thumbnailUrl && (
+          <LazyImage alt="" className="size-full" src={thumbnailUrl} />
+        )}
+      </button>
 
       {/* Figma에서 오른쪽 칼럼은 썸네일과 같은 높이(112)에 justify-between이라 뱃지는 위, 버튼은 아래 끝에 붙는다 */}
       <div className="flex h-28 min-w-px flex-1 flex-col justify-between">

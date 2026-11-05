@@ -1,5 +1,6 @@
 import { Button, ContentBadge, Typography } from "@wanteddev/wds";
 
+import LazyImage from "@/components/ui/LazyImage";
 import { EVENTS_APPLICATION_STATUS_BADGES } from "@/features/events/constants/events";
 import { formatDateTime } from "@/lib/date";
 import type { MyEventApplicationListItem } from "@/shared/entities/events/eventsTypes";
@@ -29,8 +30,16 @@ function EventsApplicationCard({
   return (
     <div className="flex flex-col gap-4 px-5">
       <div className="flex items-center gap-3">
-        {/* 썸네일(thumbnailUrl)을 그리기 전까지는 행사 목록 카드와 같은 단색 자리 */}
-        <div className="size-17.5 shrink-0 rounded-xl bg-thumbnail-placeholder" />
+        {/* 썸네일이 없으면 행사 목록 카드와 같은 단색 자리 */}
+        {application.thumbnailUrl ? (
+          <LazyImage
+            alt=""
+            className="size-17.5 shrink-0 rounded-xl"
+            src={application.thumbnailUrl}
+          />
+        ) : (
+          <div className="size-17.5 shrink-0 rounded-xl bg-thumbnail-placeholder" />
+        )}
         <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
           <ContentBadge
             accentColor={`semantic.accent.foreground.${badge.color}`}

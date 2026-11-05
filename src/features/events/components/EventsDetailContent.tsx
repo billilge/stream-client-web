@@ -100,8 +100,7 @@ function EventsDetailContent({
     // Action Area 위에서 끝나 버려서, 글이 그 아래로 흘러 들어가며 사라지는 효과가 안 난다.
     <div className="relative flex-1 overflow-hidden bg-background-normal">
       <div className="scrollbar-hidden h-full overflow-y-auto">
-        {/* Hero — 행사 사진(images)을 그리기 전까지 장수만 맞춘 Figma와 같은 단색 placeholder.
-            Figma는 375×375 정사각이라 폭이 유동인 지금 레이아웃에서는 aspect-square로 둔다.
+        {/* Hero — 행사 사진(images). Figma는 375×375 정사각이라 폭이 유동인 지금 레이아웃에서는 aspect-square로 둔다.
             이미지가 여러 장이면 가로 스크롤 스냅으로 한 장씩 넘긴다(공지 상세와 같은 PhotoGallery). */}
         {photoCount > 0 && (
           <PhotoGallery
@@ -120,7 +119,10 @@ function EventsDetailContent({
                 </TopNavigationButton>
               </div>
             }
-            photoCount={photoCount}
+            photos={event.images.map((image, index) => ({
+              alt: `${event.title} 사진 ${index + 1}`,
+              src: image.fileUrl,
+            }))}
             showCounter={photoCount > 1}
             slideClassName="aspect-square"
           />
