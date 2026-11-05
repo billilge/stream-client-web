@@ -6,7 +6,7 @@ import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import AuthBackButton from "@/features/auth/components/AuthBackButton";
 import AuthBottomAction from "@/features/auth/components/AuthBottomAction";
-import AuthOnboardingHeading from "@/features/auth/components/AuthOnboardingHeading";
+import AuthSignUpHeading from "@/features/auth/components/AuthSignUpHeading";
 import { EMAIL_SEND_FAILURE_MESSAGE } from "@/features/auth/constants/auth";
 import { getEmailSendErrorMessage } from "@/features/auth/utils/emailVerificationErrorMessage";
 import { isValidEmail } from "@/features/auth/utils/isValidEmail";
@@ -58,9 +58,7 @@ function AuthEmailStep({
   return (
     <div className="flex h-full flex-col justify-between bg-background-normal">
       <div className="flex flex-col gap-2 px-5 pt-3">
-        <AuthOnboardingHeading step="2 / 3">
-          이메일을 알려주세요
-        </AuthOnboardingHeading>
+        <AuthSignUpHeading step="2 / 3">이메일을 알려주세요</AuthSignUpHeading>
         <div className="flex flex-col gap-5">
           <Typography
             as="p"

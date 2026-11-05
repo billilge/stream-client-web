@@ -16,7 +16,7 @@ import ArchivesPhotoViewerScreen from "@/features/archives/ArchivesPhotoViewerSc
 import AuthEntryGate, {
   type AuthRouteHandle,
 } from "@/features/auth/AuthEntryGate";
-import AuthSignupScreen from "@/features/auth/AuthSignupScreen";
+import AuthSignUpScreen from "@/features/auth/AuthSignUpScreen";
 import { LOGIN_PATH } from "@/features/auth/constants/auth";
 import KConnectCallbackScreen from "@/features/auth/KConnectCallbackScreen";
 import BillilgeListScreen from "@/features/billilge/BillilgeListScreen";
@@ -292,7 +292,7 @@ const routes = [
             path: "/notifications/settings",
           },
           {
-            element: <AuthSignupScreen />,
+            element: <AuthSignUpScreen />,
             // 로그인·온보딩 퍼널 하나가 모든 단계(로그인, 연락처, 약관 동의, 약관 상세, 가입 완료)를 그린다.
             // Figma 로그인·온보딩에는 Bottom Nav가 없고 배경이 흰 면이다. 로그인 전에도 열려야 해서 공개 라우트다
             handle: {

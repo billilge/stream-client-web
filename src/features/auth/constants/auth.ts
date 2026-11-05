@@ -1,6 +1,8 @@
 import eventsIllustration from "@/assets/images/auth/login-events.webp";
 import feedbacksIllustration from "@/assets/images/auth/login-feedbacks.webp";
 import noticesIllustration from "@/assets/images/auth/login-notices.webp";
+import { TERM_TYPES } from "@/shared/entities/members/membersQueries";
+import type { TermType } from "@/shared/entities/members/membersTypes";
 
 // 로그인·가입 퍼널의 라우트 경로 — 로그인 가드, K-CONNECT 콜백, 계정 나가기(설정)가 같이 쓰므로 한곳에 둔다.
 // 연락처·약관 동의 같은 단계는 이 경로 하나 안에서 useFunnel이 `?auth.step=`으로 나눈다.
@@ -16,7 +18,7 @@ export const PHONE_DIGIT_COUNT = 11;
 export const PHONE_PREFIX = "010";
 
 export const LOGIN_FAILURE_MESSAGE = "로그인에 실패했어요. 다시 시도해 주세요.";
-export const ONBOARDING_FAILURE_MESSAGE =
+export const SIGN_UP_FAILURE_MESSAGE =
   "가입 정보를 저장하지 못했어요. 다시 시도해 주세요.";
 
 // 이메일 인증 — 인증번호는 6자리이고 받은 뒤 5분 안에 입력해야 한다(Figma 이메일인증 5의 타이머 04:59)
@@ -66,21 +68,24 @@ export const LOGIN_SLIDES = [
   },
 ] as const;
 
-export type TermsId = "service" | "privacy" | "notifications";
-
-export const TERMS_IDS: TermsId[] = ["service", "privacy", "notifications"];
+// 약관 동의 목록의 순서(Figma) — 서버 약관 종류(TermType) 그대로 쓴다
+export const TERM_TYPES_IN_ORDER: TermType[] = [
+  "TERMS_OF_SERVICE",
+  "PRIVACY_POLICY",
+  "NOTIFICATION_CONSENT",
+];
 
 // 약관별 동의 여부 — 온보딩 퍼널의 context로 단계 사이를 오간다. "전체 동의"는 따로 저장하지 않고 파생한다.
-export type TermsAgreements = Record<TermsId, boolean>;
+export type TermAgreements = Record<TermType, boolean>;
 
-export const INITIAL_TERMS_AGREEMENTS: TermsAgreements = {
-  notifications: false,
-  privacy: false,
-  service: false,
+export const INITIAL_TERM_AGREEMENTS: TermAgreements = {
+  NOTIFICATION_CONSENT: false,
+  PRIVACY_POLICY: false,
+  TERMS_OF_SERVICE: false,
 };
 
-export function isTermsId(value: string | undefined): value is TermsId {
-  return TERMS_IDS.some((id) => id === value);
+export function isTermType(value: string | undefined): value is TermType {
+  return TERM_TYPES.some((termType) => termType === value);
 }
 
 interface TermsSection {
@@ -100,8 +105,8 @@ interface Terms {
 
 // Figma 온보딩의 약관 상세 3종(nodeId 3738:73022, 3738:73116, 3738:73209) 본문이다. 실제 약관 문구와
 // 게시 방식(서버·정적 문서)이 정해지면 교체한다.
-export const TERMS: Record<TermsId, Terms> = {
-  notifications: {
+export const TERMS: Record<TermType, Terms> = {
+  NOTIFICATION_CONSENT: {
     isRequired: false,
     label: "선택적 정보 알림 수신 동의",
     sections: [
@@ -128,7 +133,7 @@ export const TERMS: Record<TermsId, Terms> = {
     ],
     title: "선택적 정보 알림 수신 동의",
   },
-  privacy: {
+  PRIVACY_POLICY: {
     isRequired: true,
     label: "개인정보 수집 및 이용 동의",
     sections: [
@@ -158,7 +163,7 @@ export const TERMS: Record<TermsId, Terms> = {
     ],
     title: "개인정보 수집 및 이용 동의",
   },
-  service: {
+  TERMS_OF_SERVICE: {
     isRequired: true,
     label: "서비스 이용약관 동의",
     sections: [

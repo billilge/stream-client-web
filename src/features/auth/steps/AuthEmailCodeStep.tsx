@@ -5,7 +5,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import AuthBackButton from "@/features/auth/components/AuthBackButton";
-import AuthOnboardingHeading from "@/features/auth/components/AuthOnboardingHeading";
+import AuthSignUpHeading from "@/features/auth/components/AuthSignUpHeading";
 import VerificationCodeInput from "@/features/auth/components/VerificationCodeInput";
 import {
   EMAIL_CODE_EXPIRED_MESSAGE,
@@ -23,7 +23,7 @@ import { formatCountdown } from "@/features/auth/utils/formatCountdown";
 import {
   requestEmailVerification,
   verifyEmailCode,
-} from "@/shared/entities/auth/authQueries";
+} from "@/shared/entities/members/membersQueries";
 
 // 온보딩 2/3 인증번호 입력 — Figma 이메일인증 5 (nodeId 4473:48952). 6자리를 모두 채우면 바로 확인하고, 맞으면
 // 약관 동의 단계로 간다. `다시 보내기`는 새 인증번호를 보내면서 5분 타이머를 처음부터 센다.
@@ -103,10 +103,10 @@ function AuthEmailCodeStep({
     <div className="flex h-full flex-col bg-background-normal">
       <div className="flex flex-col gap-14 px-5 pt-3">
         <div className="flex flex-col gap-2">
-          <AuthOnboardingHeading step="2 / 3">
+          <AuthSignUpHeading step="2 / 3">
             <span className="block">이메일로 받은</span>
             <span className="block">인증번호 6자리를 입력해 주세요</span>
-          </AuthOnboardingHeading>
+          </AuthSignUpHeading>
           <Typography
             as="p"
             color="semantic.label.alternative"

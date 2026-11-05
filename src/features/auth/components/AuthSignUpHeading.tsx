@@ -1,7 +1,7 @@
 import { Typography } from "@wanteddev/wds";
 import type { ReactNode } from "react";
 
-interface AuthOnboardingHeadingProps {
+interface AuthSignUpHeadingProps {
   /** "1 / 2"처럼 전체 단계 중 현재 단계(페이지 인디케이터, 화면설계서 2·5번) */
   step: string;
   /** 줄바꿈이 있는 제목은 줄마다 요소로 넘긴다 */
@@ -9,7 +9,7 @@ interface AuthOnboardingHeadingProps {
 }
 
 // Figma: Onboarding Copy (nodeId 3658:112629) — 단계 표시 + 제목(Heading 1/Bold 22px).
-function AuthOnboardingHeading({ step, children }: AuthOnboardingHeadingProps) {
+function AuthSignUpHeading({ step, children }: AuthSignUpHeadingProps) {
   return (
     <div className="flex flex-col gap-2">
       <Typography
@@ -32,4 +32,4 @@ function AuthOnboardingHeading({ step, children }: AuthOnboardingHeadingProps) {
   );
 }
 
-export default AuthOnboardingHeading;
+export default AuthSignUpHeading;

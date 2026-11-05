@@ -11,7 +11,7 @@ import {
   EMAIL_SEND_FAILURE_MESSAGE,
 } from "@/features/auth/constants/auth";
 import { isApiError } from "@/shared/api";
-import { AUTH_ERROR_CODES } from "@/shared/entities/auth/authQueries";
+import { MEMBERS_ERROR_CODES } from "@/shared/entities/members/membersQueries";
 
 // 서버 에러 코드를 토스트 문구로 바꾼다. 모르는 코드나 네트워크 실패는 단계마다 정한 "다시 시도" 문구로 둔다
 // (발송 대기열이 가득 찬 EMAIL_SEND_FAILED도 다시 시도하면 되는 실패라 같은 문구다).
@@ -22,11 +22,11 @@ export function getEmailSendErrorMessage(error: unknown): string {
     return EMAIL_SEND_FAILURE_MESSAGE;
   }
   switch (error.code) {
-    case AUTH_ERROR_CODES.emailVerificationCooldown:
+    case MEMBERS_ERROR_CODES.emailVerificationCooldown:
       return EMAIL_SEND_COOLDOWN_MESSAGE;
-    case AUTH_ERROR_CODES.emailVerificationDailyLimitExceeded:
+    case MEMBERS_ERROR_CODES.emailVerificationDailyLimitExceeded:
       return EMAIL_SEND_DAILY_LIMIT_MESSAGE;
-    case AUTH_ERROR_CODES.emailAlreadyExists:
+    case MEMBERS_ERROR_CODES.emailAlreadyExists:
       return EMAIL_ALREADY_EXISTS_MESSAGE;
     default:
       return EMAIL_SEND_FAILURE_MESSAGE;
@@ -39,13 +39,13 @@ export function getEmailCodeErrorMessage(error: unknown): string {
     return EMAIL_CODE_VERIFY_FAILURE_MESSAGE;
   }
   switch (error.code) {
-    case AUTH_ERROR_CODES.emailVerificationCodeMismatch:
+    case MEMBERS_ERROR_CODES.emailVerificationCodeMismatch:
       return EMAIL_CODE_MISMATCH_MESSAGE;
-    case AUTH_ERROR_CODES.emailVerificationExpired:
+    case MEMBERS_ERROR_CODES.emailVerificationExpired:
       return EMAIL_CODE_EXPIRED_MESSAGE;
-    case AUTH_ERROR_CODES.emailVerificationAttemptsExceeded:
+    case MEMBERS_ERROR_CODES.emailVerificationAttemptsExceeded:
       return EMAIL_CODE_ATTEMPTS_EXCEEDED_MESSAGE;
-    case AUTH_ERROR_CODES.emailVerificationNotFound:
+    case MEMBERS_ERROR_CODES.emailVerificationNotFound:
       return EMAIL_CODE_NOT_FOUND_MESSAGE;
     default:
       return EMAIL_CODE_VERIFY_FAILURE_MESSAGE;
@@ -58,9 +58,9 @@ export function getSignUpEmailErrorMessage(error: unknown): string | null {
     return null;
   }
   switch (error.code) {
-    case AUTH_ERROR_CODES.emailNotVerified:
+    case MEMBERS_ERROR_CODES.emailNotVerified:
       return EMAIL_NOT_VERIFIED_MESSAGE;
-    case AUTH_ERROR_CODES.emailAlreadyExists:
+    case MEMBERS_ERROR_CODES.emailAlreadyExists:
       return EMAIL_ALREADY_EXISTS_MESSAGE;
     default:
       return null;

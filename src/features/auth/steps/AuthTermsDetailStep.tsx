@@ -6,18 +6,19 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import AuthBackButton from "@/features/auth/components/AuthBackButton";
 import AuthBottomAction from "@/features/auth/components/AuthBottomAction";
 import AuthTermsSection from "@/features/auth/components/AuthTermsSection";
-import { TERMS, type TermsId } from "@/features/auth/constants/auth";
+import { TERMS } from "@/features/auth/constants/auth";
+import type { TermType } from "@/shared/entities/members/membersTypes";
 
 // 약관 상세 — 화면설계서 7번. 하단 `확인했어요`나 뒤로가기는 약관 동의로 돌아가기만 한다 — 상세를 보거나
 // 확인했다는 것만으로는 동의 상태가 바뀌지 않는다.
 function AuthTermsDetailStep({
-  termsId,
+  termType,
   onBack,
 }: {
-  termsId: TermsId;
+  termType: TermType;
   onBack: () => void;
 }) {
-  const terms = TERMS[termsId];
+  const terms = TERMS[termType];
 
   useScreenHeader(
     <ScreenHeader
