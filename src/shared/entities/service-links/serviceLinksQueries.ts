@@ -27,3 +27,10 @@ export const serviceLinksQueries = {
         ),
     }),
 };
+
+// 운영진이 입력한 값을 그대로 열기 때문에 `https://` 주소만 연다(`javascript:` 같은 주소를 막는다).
+// 그 밖의 주소는 링크가 없을 때(null)와 같게 다룬다 — 화면은 링크가 없으면 누를 수 없게 그린다.
+// 이 검사를 openExternalLink에 넣지 않는 건 토스 송금 딥링크(`supertoss://`)도 그 함수로 열기 때문이다.
+export function toOpenableUrl(url: string | null): string | null {
+  return url?.startsWith("https://") ? url : null;
+}
