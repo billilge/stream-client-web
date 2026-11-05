@@ -1,9 +1,9 @@
 import {
-  isTermsId,
-  TERMS_IDS,
-  type TermsAgreements,
-  type TermsId,
+  isTermType,
+  type TermAgreements,
 } from "@/features/auth/constants/auth";
+import { TERM_TYPES } from "@/shared/entities/members/membersQueries";
+import type { TermType } from "@/shared/entities/members/membersTypes";
 
 // 가입(로그인 → [K-CONNECT 인증] → 연락처 → 이메일 입력 → 인증번호 입력 → 약관 동의 → 약관 상세 → 가입 완료) 퍼널의
 // 단계와 단계별 context 타입이다. 이메일 인증은 K-CONNECT 인증을 마친 신규 사용자가 연락처 다음에 거친다.
@@ -24,14 +24,14 @@ export type AuthSignUpSteps = {
     name: string;
     phoneNumber: string;
     email: string;
-    agreements: TermsAgreements;
+    agreements: TermAgreements;
   };
   termsDetail: {
     name: string;
     phoneNumber: string;
     email: string;
-    agreements: TermsAgreements;
-    termsId: TermsId;
+    agreements: TermAgreements;
+    termType: TermType;
   };
   complete: { name: string };
 };
@@ -40,9 +40,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function isTermsAgreements(value: unknown): value is TermsAgreements {
+function isTermAgreements(value: unknown): value is TermAgreements {
   return (
-    isRecord(value) && TERMS_IDS.every((id) => typeof value[id] === "boolean")
+    isRecord(value) &&
+    TERM_TYPES.every((termType) => typeof value[termType] === "boolean")
   );
 }
 
@@ -83,7 +84,7 @@ export const AUTH_SIGN_UP_STEP_OPTIONS = {
       typeof data.name === "string" &&
       typeof data.phoneNumber === "string" &&
       typeof data.email === "string" &&
-      isTermsAgreements(data.agreements),
+      isTermAgreements(data.agreements),
   },
   termsDetail: {
     guard: (data: unknown): data is AuthSignUpSteps["termsDetail"] =>
@@ -91,8 +92,8 @@ export const AUTH_SIGN_UP_STEP_OPTIONS = {
       typeof data.name === "string" &&
       typeof data.phoneNumber === "string" &&
       typeof data.email === "string" &&
-      isTermsAgreements(data.agreements) &&
-      typeof data.termsId === "string" &&
-      isTermsId(data.termsId),
+      isTermAgreements(data.agreements) &&
+      typeof data.termType === "string" &&
+      isTermType(data.termType),
   },
 };

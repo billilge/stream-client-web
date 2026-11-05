@@ -10,11 +10,11 @@ import AuthSignUpHeading from "@/features/auth/components/AuthSignUpHeading";
 import AuthTermsAgreementRow from "@/features/auth/components/AuthTermsAgreementRow";
 import {
   SIGN_UP_FAILURE_MESSAGE,
+  TERM_TYPES_IN_ORDER,
   TERMS,
-  TERMS_IDS,
-  type TermsAgreements,
-  type TermsId,
+  type TermAgreements,
 } from "@/features/auth/constants/auth";
+import type { TermType } from "@/shared/entities/members/membersTypes";
 
 // 온보딩 3/3 약관 동의 — 화면설계서 4~7번. 필수 약관 2개(서비스 이용약관, 개인정보 수집·이용)에 모두 동의해야 `다음`이
 // 켜지고, 선택 약관(알림 수신)은 미동의여도 진행한다. 각 행 오른쪽 화살표는 약관 상세로 간다.
@@ -27,19 +27,21 @@ function AuthTermsStep({
   onOpenDetail,
   onComplete,
 }: {
-  agreements: TermsAgreements;
+  agreements: TermAgreements;
   onBack: () => void;
-  onChangeAgreements: (next: TermsAgreements) => void;
-  onOpenDetail: (termsId: TermsId) => void;
+  onChangeAgreements: (next: TermAgreements) => void;
+  onOpenDetail: (termType: TermType) => void;
   onComplete: () => Promise<void>;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
   // 저장이 연달아 실패해도 스크린리더가 토스트를 다시 안내하도록 실패마다 ScreenToast를 새로 마운트한다
   const [toastToken, setToastToken] = useState(0);
-  const isAllAgreed = TERMS_IDS.every((id) => agreements[id]);
-  const isRequiredAgreed = TERMS_IDS.every(
-    (id) => !TERMS[id].isRequired || agreements[id],
+  const isAllAgreed = TERM_TYPES_IN_ORDER.every(
+    (termType) => agreements[termType],
+  );
+  const isRequiredAgreed = TERM_TYPES_IN_ORDER.every(
+    (termType) => !TERMS[termType].isRequired || agreements[termType],
   );
 
   useScreenHeader(
@@ -76,22 +78,22 @@ function AuthTermsStep({
             label="전체 동의하기"
             onCheckedChange={(checked) =>
               onChangeAgreements({
-                notifications: checked,
-                privacy: checked,
-                service: checked,
+                NOTIFICATION_CONSENT: checked,
+                PRIVACY_POLICY: checked,
+                TERMS_OF_SERVICE: checked,
               })
             }
           />
           <Divider color="semantic.line.normal.normal" />
-          {TERMS_IDS.map((id) => (
+          {TERM_TYPES_IN_ORDER.map((termType) => (
             <AuthTermsAgreementRow
-              checked={agreements[id]}
-              key={id}
-              label={`[${TERMS[id].isRequired ? "필수" : "선택"}] ${TERMS[id].label}`}
+              checked={agreements[termType]}
+              key={termType}
+              label={`[${TERMS[termType].isRequired ? "필수" : "선택"}] ${TERMS[termType].label}`}
               onCheckedChange={(checked) =>
-                onChangeAgreements({ ...agreements, [id]: checked })
+                onChangeAgreements({ ...agreements, [termType]: checked })
               }
-              onOpenDetail={() => onOpenDetail(id)}
+              onOpenDetail={() => onOpenDetail(termType)}
             />
           ))}
         </div>

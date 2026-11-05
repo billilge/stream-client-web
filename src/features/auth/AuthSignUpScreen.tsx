@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import ScreenToast from "@/components/ui/ScreenToast";
-import { INITIAL_TERMS_AGREEMENTS } from "@/features/auth/constants/auth";
+import {
+  INITIAL_TERM_AGREEMENTS,
+  TERM_TYPES_IN_ORDER,
+} from "@/features/auth/constants/auth";
 import {
   AUTH_SIGN_UP_STEP_OPTIONS,
   type AuthSignUpSteps,
@@ -117,7 +120,7 @@ function AuthSignUpScreen() {
             onVerified={() =>
               history.replace(
                 "terms",
-                { agreements: INITIAL_TERMS_AGREEMENTS },
+                { agreements: INITIAL_TERM_AGREEMENTS },
                 SLIDE,
               )
             }
@@ -152,14 +155,14 @@ function AuthSignUpScreen() {
             }
             onComplete={async () => {
               try {
-                // 필수 약관 둘은 동의해야만 제출할 수 있어서 항상 동의로 보낸다
+                // 선택 약관(알림 수신)도 동의 여부를 그대로 보낸다 — 동의해야 알림 설정에서 수신을 켤 수 있다
                 await signUp({
                   email: context.email,
                   phoneNumber: context.phoneNumber,
-                  termAgreements: [
-                    { agreed: true, termType: "PRIVACY_POLICY" },
-                    { agreed: true, termType: "TERMS_OF_SERVICE" },
-                  ],
+                  termAgreements: TERM_TYPES_IN_ORDER.map((termType) => ({
+                    agreed: context.agreements[termType],
+                    termType,
+                  })),
                 });
               } catch (error) {
                 // 인증한 지 30분이 지났거나 그사이 다른 회원이 이 이메일로 가입했다 — 이메일 단계로 돌아가 다시 인증한다.
@@ -178,15 +181,15 @@ function AuthSignUpScreen() {
               // 가입을 마치면 약관 동의로 돌아올 일이 없어서 히스토리를 대체한다
               history.replace("complete", {}, SLIDE);
             }}
-            onOpenDetail={(termsId) =>
-              history.push("termsDetail", { termsId }, SLIDE)
+            onOpenDetail={(termType) =>
+              history.push("termsDetail", { termType }, SLIDE)
             }
           />
         )}
         termsDetail={({ context, history }) => (
           <AuthTermsDetailStep
             onBack={() => history.back()}
-            termsId={context.termsId}
+            termType={context.termType}
           />
         )}
       />
