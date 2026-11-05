@@ -89,3 +89,38 @@ export function formatDateTime(value: string, options: DateFormatOptions = {}) {
   const [date, time] = value.split("T");
   return `${formatDate(date, options)} ${time.slice(0, 5)}`;
 }
+
+const MINUTE_MS = 60 * 1000;
+
+// 서버 일시가 지금부터 얼마나 지났는지 — 알림 목록의 시간 표기다. 1분이 안 됐으면 "방금 전", 1시간이 안 됐으면 "N분 전",
+// 하루가 안 됐으면 "N시간 전", 7일이 안 됐으면 "N일 전", 그 뒤로는 "8월 10일"로 쓴다.
+// 서버 일시는 오프셋 없는 KST라 기기 시간대 기준 일시로 읽는다(getTimeUntil과 같다).
+export function formatTimeAgo(value: string, now: Date = new Date()) {
+  const [date, time] = value.split("T");
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+  const minutes = Math.floor(
+    (now.getTime() - new Date(year, month - 1, day, hour, minute).getTime()) /
+      MINUTE_MS,
+  );
+
+  if (minutes < 1) {
+    return "방금 전";
+  }
+  if (minutes < 60) {
+    return `${minutes}분 전`;
+  }
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return `${hours}시간 전`;
+  }
+  const days = Math.floor(hours / 24);
+  return days < 7 ? `${days}일 전` : formatMonthDay(value);
+}
+
+// 일시("2026-08-10T14:30:00")의 시각 → "오후 2:30". 정오는 "오후 12:00", 자정은 "오전 12:00"이다
+export function formatMeridiemTime(value: string) {
+  const [hour, minute] = value.split("T")[1].split(":").map(Number);
+  const meridiem = hour < 12 ? "오전" : "오후";
+  return `${meridiem} ${hour % 12 || 12}:${String(minute).padStart(2, "0")}`;
+}

@@ -37,6 +37,32 @@ export function clearAccessToken(): void {
   notifyTokenListeners();
 }
 
+// 서버는 토큰 payload의 roles 클레임에 역할을 싣는다 — 관리자는 ["ADMIN", "STUDENT"]다(stream-server AuthTokenIssuer).
+// 관리자 전용 UI(알림 화면의 관리자 알림 탭)를 보일지만 정한다. 서명은 확인하지 않으므로 실제 권한은 서버가
+// /v1/admin/**에서 막는다. 역할이 바뀌면 다시 로그인해 새 토큰을 받아야 반영된다.
+export function hasAdminRole(): boolean {
+  const payload = getAccessToken()?.split(".")[1];
+  if (payload === undefined) {
+    return false;
+  }
+  try {
+    // JWT payload는 base64url이다 — atob이 읽는 base64로 바꾼다(패딩은 없어도 읽는다)
+    const claims: unknown = JSON.parse(
+      window.atob(payload.replace(/-/g, "+").replace(/_/g, "/")),
+    );
+    return (
+      typeof claims === "object" &&
+      claims !== null &&
+      "roles" in claims &&
+      Array.isArray(claims.roles) &&
+      claims.roles.includes("ADMIN")
+    );
+  } catch (error) {
+    console.warn("액세스 토큰의 역할을 읽지 못했어요.", error);
+    return false;
+  }
+}
+
 // 토큰이 바뀌면 알린다 — 토큰이 사라지면 로그인 화면으로 보내는 가드(AuthEntryGate)가 구독한다.
 // 요청 코드(apiClient)가 라우터를 직접 부르지 않게 하려고 둔다(router → 화면 → entities → apiClient 순환 import).
 export function subscribeTokens(listener: TokenListener): () => void {
