@@ -5,7 +5,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import AuthBackButton from "@/features/auth/components/AuthBackButton";
-import AuthOnboardingHeading from "@/features/auth/components/AuthOnboardingHeading";
+import AuthSignUpHeading from "@/features/auth/components/AuthSignUpHeading";
 import VerificationCodeInput from "@/features/auth/components/VerificationCodeInput";
 import {
   EMAIL_CODE_EXPIRED_MESSAGE,
@@ -103,10 +103,10 @@ function AuthEmailCodeStep({
     <div className="flex h-full flex-col bg-background-normal">
       <div className="flex flex-col gap-14 px-5 pt-3">
         <div className="flex flex-col gap-2">
-          <AuthOnboardingHeading step="2 / 3">
+          <AuthSignUpHeading step="2 / 3">
             <span className="block">이메일로 받은</span>
             <span className="block">인증번호 6자리를 입력해 주세요</span>
-          </AuthOnboardingHeading>
+          </AuthSignUpHeading>
           <Typography
             as="p"
             color="semantic.label.alternative"

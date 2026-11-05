@@ -16,7 +16,7 @@ export const PHONE_DIGIT_COUNT = 11;
 export const PHONE_PREFIX = "010";
 
 export const LOGIN_FAILURE_MESSAGE = "로그인에 실패했어요. 다시 시도해 주세요.";
-export const ONBOARDING_FAILURE_MESSAGE =
+export const SIGN_UP_FAILURE_MESSAGE =
   "가입 정보를 저장하지 못했어요. 다시 시도해 주세요.";
 
 // 이메일 인증 — 인증번호는 6자리이고 받은 뒤 5분 안에 입력해야 한다(Figma 이메일인증 5의 타이머 04:59)

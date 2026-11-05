@@ -5,7 +5,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import AuthBackButton from "@/features/auth/components/AuthBackButton";
 import AuthBottomAction from "@/features/auth/components/AuthBottomAction";
-import AuthOnboardingHeading from "@/features/auth/components/AuthOnboardingHeading";
+import AuthSignUpHeading from "@/features/auth/components/AuthSignUpHeading";
 import {
   formatPhoneNumber,
   isValidPhoneDigits,
@@ -16,19 +16,19 @@ import {
 // 하이픈이 자동으로 들어간다. 010으로 시작하는 11자리를 모두 입력해야 `다음`이 켜진다.
 function AuthPhoneStep({
   name,
-  initialPhone,
+  initialPhoneNumber,
   onBack,
-  onChangePhone,
+  onChangePhoneNumber,
   onNext,
 }: {
   name: string;
-  initialPhone: string;
+  initialPhoneNumber: string;
   onBack: () => void;
   /** 입력할 때마다 퍼널 context에 반영한다 — 이메일 입력에서 뒤로 돌아와도 번호가 남는다 */
-  onChangePhone: (phone: string) => void;
-  onNext: (phone: string) => void;
+  onChangePhoneNumber: (phoneNumber: string) => void;
+  onNext: (phoneNumber: string) => void;
 }) {
-  const [digits, setDigits] = useState(() => toPhoneDigits(initialPhone));
+  const [digits, setDigits] = useState(() => toPhoneDigits(initialPhoneNumber));
 
   useScreenHeader(
     <ScreenHeader
@@ -40,10 +40,10 @@ function AuthPhoneStep({
   return (
     <div className="flex h-full flex-col justify-between bg-background-normal">
       <div className="flex flex-col gap-2 px-5 pt-3">
-        <AuthOnboardingHeading step="1 / 3">
+        <AuthSignUpHeading step="1 / 3">
           <span className="block">{name} 님, 반가워요!</span>
           <span className="block">연락처를 알려 주세요</span>
-        </AuthOnboardingHeading>
+        </AuthSignUpHeading>
         <div className="flex flex-col gap-5">
           <Typography
             as="p"
@@ -60,7 +60,7 @@ function AuthPhoneStep({
             onChange={(event) => {
               const nextDigits = toPhoneDigits(event.target.value);
               setDigits(nextDigits);
-              onChangePhone(nextDigits);
+              onChangePhoneNumber(nextDigits);
             }}
             placeholder="ex) 010-1234-5677"
             type="tel"

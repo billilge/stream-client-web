@@ -1,6 +1,9 @@
 import type { z } from "zod";
 
-import type { memberResponseSchema } from "@/shared/entities/members/membersQueries";
+import type {
+  memberResponseSchema,
+  TERM_TYPES,
+} from "@/shared/entities/members/membersQueries";
 
 // 내 정보(서버 MemberResponse) — 필드 설명은 membersQueries의 스키마에 있다.
 // 용어 사전(terminology.md)의 `회원 → members` 도메인이다.
@@ -11,13 +14,14 @@ export interface PhoneNumberUpdateRequest {
   phoneNumber: string;
 }
 
-// POST /v1/app/members/sign-up로 보내는 가입 정보 — 요청 본문은 membersQueries의 submitOnboarding이 만든다
-export interface OnboardingSubmission {
-  name: string;
-  phone: string;
+// 약관 종류(서버 TermType). 화면 라벨·본문은 features/auth/constants/auth.ts의 TERMS
+export type TermType = (typeof TERM_TYPES)[number];
+
+// POST /v1/app/members/sign-up 요청(서버 MemberSignUpRequest) — 전화번호는 화면이 하이픈을 뺀 숫자로 보낸다
+export interface MemberSignUpRequest {
+  phoneNumber: string;
   email: string;
-  /** 선택 약관(정보 알림 수신) 동의 여부 — 필수 약관 둘은 동의해야만 여기까지 온다 */
-  hasAgreedNotifications: boolean;
+  termAgreements: { termType: TermType; agreed: boolean }[];
 }
 
 // Figma는 "26.0.1 · 최신버전"처럼 한 줄로 보여 주지만, 버전과 최신 여부는 서버가 내려 주는

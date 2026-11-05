@@ -4,9 +4,9 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import ScreenToast from "@/components/ui/ScreenToast";
 import { INITIAL_TERMS_AGREEMENTS } from "@/features/auth/constants/auth";
 import {
-  AUTH_SIGNUP_STEP_OPTIONS,
-  type AuthSignupSteps,
-} from "@/features/auth/constants/authSignupFunnel";
+  AUTH_SIGN_UP_STEP_OPTIONS,
+  type AuthSignUpSteps,
+} from "@/features/auth/constants/authSignUpFunnel";
 import AuthCompleteStep from "@/features/auth/steps/AuthCompleteStep";
 import AuthEmailCodeStep from "@/features/auth/steps/AuthEmailCodeStep";
 import AuthEmailStep from "@/features/auth/steps/AuthEmailStep";
@@ -21,7 +21,7 @@ import { useFunnel } from "@/lib/useFunnel";
 import { isLoggedIn, markLoggedIn } from "@/shared/entities/auth/session";
 import {
   requestEmailVerification,
-  submitOnboarding,
+  signUp,
 } from "@/shared/entities/members/membersQueries";
 
 // 로그인과 가입(연락처 → 이메일 인증 → 약관 동의 → 약관 상세 → 가입 완료)을 useFunnel 하나로 묶은 화면이다. 연락처와 이메일 인증은
@@ -35,7 +35,7 @@ import {
 // 켜지 않는다. 뒤로가기는 React Router가 앞선 이동을 기억해 반대 방향으로 자동 적용한다(coding-style.md 라우팅).
 const SLIDE = { viewTransition: true };
 
-function AuthSignupScreen() {
+function AuthSignUpScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   // K-CONNECT 콜백(KConnectCallbackScreen)이 신규 사용자를 이름과 함께 보내면 로그인을 건너뛰고 연락처 단계에서 시작한다.
@@ -49,14 +49,14 @@ function AuthSignupScreen() {
         : ({ context: {}, step: "login" } as const),
     [kConnectName],
   );
-  const funnel = useFunnel<AuthSignupSteps>({
+  const funnel = useFunnel<AuthSignUpSteps>({
     // use-funnel은 퍼널이 언마운트될 때 주소의 단계(`?auth.step=`)와 context를 지운다. 개발 모드의 StrictMode는 첫
     // 마운트 직후 한 번 언마운트했다가 다시 붙여서, 새로고침하면 이 정리가 돌아 단계가 사라지고 첫 단계로 돌아간다.
     // 퍼널을 떠날 때는 다른 주소로 이동해서 지울 단계가 남지 않으므로 정리를 끈다.
     disableCleanup: true,
     id: "auth",
     initial,
-    steps: AUTH_SIGNUP_STEP_OPTIONS,
+    steps: AUTH_SIGN_UP_STEP_OPTIONS,
   });
   // 단계를 옮기면서 띄우는 안내(가입 때 이메일을 다시 인증해야 할 때) — 단계 화면의 토스트는 단계가 바뀌면 함께
   // 사라져서 퍼널이 들고 있는다
@@ -126,7 +126,7 @@ function AuthSignupScreen() {
         login={() => <AuthLoginStep hasFailedLogin={loginFailed === true} />}
         phone={({ context, history, index }) => (
           <AuthPhoneStep
-            initialPhone={context.phone ?? ""}
+            initialPhoneNumber={context.phoneNumber ?? ""}
             name={context.name}
             // K-CONNECT 콜백에서 바로 연락처 단계로 들어온 경우 퍼널 기록이 이 단계 하나뿐이라, 뒤로가기가 K-CONNECT 쪽
             // 페이지로 나가 버린다 — 이때는 로그인 단계로 대체해서 로그인 화면으로 돌아가게 한다.
@@ -134,10 +134,12 @@ function AuthSignupScreen() {
               index === 0 ? history.replace("login", {}) : history.back()
             }
             // 단계를 바꾸지 않고 context만 갈아 끼운다(replace)
-            onChangePhone={(phone) =>
-              history.replace("phone", (prev) => ({ ...prev, phone }))
+            onChangePhoneNumber={(phoneNumber) =>
+              history.replace("phone", (prev) => ({ ...prev, phoneNumber }))
             }
-            onNext={(phone) => history.push("email", { phone }, SLIDE)}
+            onNext={(phoneNumber) =>
+              history.push("email", { phoneNumber }, SLIDE)
+            }
           />
         )}
         terms={({ context, history }) => (
@@ -150,11 +152,14 @@ function AuthSignupScreen() {
             }
             onComplete={async () => {
               try {
-                await submitOnboarding({
+                // 필수 약관 둘은 동의해야만 제출할 수 있어서 항상 동의로 보낸다
+                await signUp({
                   email: context.email,
-                  hasAgreedNotifications: context.agreements.notifications,
-                  name: context.name,
-                  phone: context.phone,
+                  phoneNumber: context.phoneNumber,
+                  termAgreements: [
+                    { agreed: true, termType: "PRIVACY_POLICY" },
+                    { agreed: true, termType: "TERMS_OF_SERVICE" },
+                  ],
                 });
               } catch (error) {
                 // 인증한 지 30분이 지났거나 그사이 다른 회원이 이 이메일로 가입했다 — 이메일 단계로 돌아가 다시 인증한다.
@@ -194,4 +199,4 @@ function AuthSignupScreen() {
   );
 }
 
-export default AuthSignupScreen;
+export default AuthSignUpScreen;

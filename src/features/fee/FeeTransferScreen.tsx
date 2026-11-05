@@ -32,7 +32,7 @@ import { useUploadFileMutation } from "@/shared/entities/files/filesQueries";
 
 // 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 토스 이동 → 송금 확인 → 확인요청 완료)을
 // useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에 하나씩 나눠 두고, 이 파일은 단계 전환
-// (어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다 — 로그인·온보딩 퍼널(AuthSignupScreen)과 같은 구성이다.
+// (어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다 — 로그인·온보딩 퍼널(AuthSignUpScreen)과 같은 구성이다.
 // 단계는 `/fee/transfer?fee.step=...`으로 나뉘고 단계마다 브라우저 뒤로가기가 한 단계씩 돌아간다.
 // 단계 사이에 넘기는 값(남은 학기 수·올린 캡처의 파일 키·송금 링크)은 퍼널 context가 들고 있어서
 // 뒤로 돌아와도 유지된다. 고른 캡처 파일만은 context(history.state)에 담지 못해서 이 화면이 메모리에 들고

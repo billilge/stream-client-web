@@ -6,10 +6,10 @@ import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import AuthBackButton from "@/features/auth/components/AuthBackButton";
 import AuthBottomAction from "@/features/auth/components/AuthBottomAction";
-import AuthOnboardingHeading from "@/features/auth/components/AuthOnboardingHeading";
+import AuthSignUpHeading from "@/features/auth/components/AuthSignUpHeading";
 import AuthTermsAgreementRow from "@/features/auth/components/AuthTermsAgreementRow";
 import {
-  ONBOARDING_FAILURE_MESSAGE,
+  SIGN_UP_FAILURE_MESSAGE,
   TERMS,
   TERMS_IDS,
   type TermsAgreements,
@@ -54,7 +54,7 @@ function AuthTermsStep({
     try {
       await onComplete();
     } catch (error) {
-      console.warn(ONBOARDING_FAILURE_MESSAGE, error);
+      console.warn(SIGN_UP_FAILURE_MESSAGE, error);
       setToastOpen(true);
       setToastToken((token) => token + 1);
     } finally {
@@ -65,10 +65,10 @@ function AuthTermsStep({
   return (
     <div className="flex h-full flex-col justify-between bg-background-normal">
       <div className="flex flex-col gap-5 px-5 pt-3">
-        <AuthOnboardingHeading step="3 / 3">
+        <AuthSignUpHeading step="3 / 3">
           <span className="block">서비스 이용을 위해</span>
           <span className="block">약관 동의가 필요해요</span>
-        </AuthOnboardingHeading>
+        </AuthSignUpHeading>
         <div className="flex flex-col gap-1">
           <AuthTermsAgreementRow
             checked={isAllAgreed}
@@ -105,7 +105,7 @@ function AuthTermsStep({
 
       <ScreenToast
         key={toastToken}
-        message={ONBOARDING_FAILURE_MESSAGE}
+        message={SIGN_UP_FAILURE_MESSAGE}
         onOpenChange={setToastOpen}
         open={toastOpen}
       />

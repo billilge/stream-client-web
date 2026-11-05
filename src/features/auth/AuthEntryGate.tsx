@@ -30,7 +30,7 @@ interface AuthEntryGateProps {
 // 바꿀 수 있어서 실제 인증은 서버 API가 검증해야 한다.
 // 토큰이 사라지면(서버가 401로 거절해 apiClient가 지웠을 때 — 토큰은 1시간짜리고 재발급이 없다) 로그인 표시도 같이 지우고
 // 로그인으로 보낸다. 요청 코드가 라우터를 직접 부르면 import가 순환해서, 토큰 변경 알림(subscribeTokens)을 여기서 받는다.
-// 로그인한 상태에서 로그인 화면으로 오는 경우는 이 가드가 아니라 로그인 퍼널(AuthSignupScreen)이 홈으로 보낸다.
+// 로그인한 상태에서 로그인 화면으로 오는 경우는 이 가드가 아니라 로그인 퍼널(AuthSignUpScreen)이 홈으로 보낸다.
 function AuthEntryGate({ children }: AuthEntryGateProps) {
   const isPublic = useMatches().some(
     (match) => isAuthRouteHandle(match.handle) && match.handle.isPublic,

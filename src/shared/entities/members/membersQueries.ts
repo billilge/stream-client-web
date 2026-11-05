@@ -10,12 +10,20 @@ import { api } from "@/shared/api";
 import { membersKeys } from "@/shared/entities/members/membersKeys";
 import { APP_VERSION } from "@/shared/entities/members/membersMock";
 import type {
-  OnboardingSubmission,
+  MemberSignUpRequest,
   PhoneNumberUpdateRequest,
 } from "@/shared/entities/members/membersTypes";
 
 const MEMBERS_PATH = "/v1/app/members";
 const EMAIL_VERIFICATIONS_PATH = `${MEMBERS_PATH}/email-verifications`;
+
+// 서버 enum(TermType) 값 — 가입 때 약관마다 동의 여부를 보낸다. 타입은 membersTypes.ts가 여기서 만든다.
+// PRIVACY_POLICY·TERMS_OF_SERVICE는 필수, NOTIFICATION_CONSENT(정보 알림 수신)는 선택이다.
+export const TERM_TYPES = [
+  "PRIVACY_POLICY",
+  "TERMS_OF_SERVICE",
+  "NOTIFICATION_CONSENT",
+] as const;
 
 // 내 정보(서버 MemberResponse) — 설정 화면 계정 정보 카드가 쓴다.
 export const memberResponseSchema = z.looseObject({
@@ -85,20 +93,10 @@ export async function verifyEmailCode(
   await api.post(`${EMAIL_VERIFICATIONS_PATH}/confirm`, { code, email });
 }
 
-// 가입 제출(POST /v1/app/members/sign-up) — 로그인 때 받은 토큰으로 전화번호·인증한 이메일·약관 동의를 서버에 남긴다.
-// 필수 약관 둘은 동의해야만 이 단계에 오므로 항상 동의로 보낸다. 선택 약관(알림 수신)은 서버에 약관 종류가 생기면
-// (stream-server #229) 보낸다 — 지금은 보내지 않는다.
-export async function submitOnboarding(
-  submission: OnboardingSubmission,
-): Promise<void> {
-  await api.post(`${MEMBERS_PATH}/sign-up`, {
-    email: submission.email,
-    phoneNumber: submission.phone,
-    termAgreements: [
-      { termType: "PRIVACY_POLICY", agreed: true },
-      { termType: "TERMS_OF_SERVICE", agreed: true },
-    ],
-  });
+// 회원가입(POST /v1/app/members/sign-up) — 로그인 때 받은 토큰으로 전화번호·인증한 이메일·약관 동의를 서버에 남긴다.
+// 필수 약관에 모두 동의하지 않으면 서버가 REQUIRED_TERMS_NOT_AGREED로 거절한다.
+export async function signUp(request: MemberSignUpRequest): Promise<void> {
+  await api.post(`${MEMBERS_PATH}/sign-up`, request);
 }
 
 // 전화번호 변경(PATCH /v1/app/members/me/phone-number). 서버는 하이픈이 있든 없든 숫자만 남겨 저장하고,
