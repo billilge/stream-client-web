@@ -44,6 +44,8 @@ export const eventListItemSchema = z.looseObject({
   recruitStatus: z.enum(EVENT_RECRUIT_STATUSES),
   // 신청 마감일까지 남은 날 수(0이면 오늘 마감). 모집중일 때만 있다
   daysUntilDeadline: z.number().nullable(),
+  // 이 학생이 낸 신청 중 취소하지 않은 것의 ID(stream-server#302). 신청하지 않았거나 취소했으면 null이다
+  applicationId: z.number().nullable(),
 });
 
 const eventListPageSchema = z.looseObject({
@@ -75,6 +77,8 @@ export const eventDetailSchema = z.looseObject({
   // 이 학생이 학생회비 조건을 채우는지. 납부자 전용이 아니면 항상 true, 납부자 전용이면 납부자 명부에 있을 때만 true다.
   // 모집 기간·정원은 반영하지 않아서 recruitStatus와 같이 본다
   isFeeEligible: z.boolean(),
+  // 목록 항목과 같다 — 신청했으면 모집 상태와 상관없이 있다
+  applicationId: z.number().nullable(),
 });
 
 // 신청서 질문 — 양식 조회와 신청 상세가 같이 싣는 부분. 화면에는 eventsQuestions.ts에서 EventsQuestion으로 바꿔 넘긴다
