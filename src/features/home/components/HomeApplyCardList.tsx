@@ -7,8 +7,9 @@ import type {
   HomeResponse,
 } from "@/shared/entities/home/homeTypes";
 
+// 이미 신청한 대상은 홈에서 더 안내할 게 없어 뺀다
 function selectApplySections(home: HomeResponse) {
-  return home.applySections;
+  return home.applySections.filter((section) => !section.isApplied);
 }
 
 interface HomeApplyCardListProps {
