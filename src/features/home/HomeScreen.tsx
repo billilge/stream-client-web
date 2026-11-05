@@ -64,14 +64,11 @@ function HomeScreen() {
         : `/events/${banner.targetId}`,
     );
   };
-  // 사물함은 상세 화면이 없어서 카드도 신청(유의사항 시트 → 구역 선택)으로 보낸다. 이미 신청한 사물함은
-  // 신청 대신 배정 상태(내 사물함)로 보낸다
-  const getApplySectionPath = (section: HomeApplySection) => {
-    if (section.targetType === "EVENT") {
-      return `/events/${section.targetId}`;
-    }
-    return section.isApplied ? LOCKER_ASSIGNMENT_PATH : "/lockers/apply";
-  };
+  // 사물함은 상세 화면이 없어서 카드도 신청(유의사항 시트 → 구역 선택)으로 보낸다
+  const getApplySectionPath = (section: HomeApplySection) =>
+    section.targetType === "EVENT"
+      ? `/events/${section.targetId}`
+      : "/lockers/apply";
 
   return (
     <div className="relative flex h-full flex-col">

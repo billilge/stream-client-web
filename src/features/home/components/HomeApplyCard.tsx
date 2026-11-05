@@ -6,7 +6,6 @@ import type { HomeApplySection } from "@/shared/entities/home/homeTypes";
 // Figma: Upcoming Event Card (nodeId 3147:146262), Upcoming Application Card (3491:149798)
 // 행사·사물함이 같은 모양이다. 배지 옆 `행사일` 문구는 Figma에서 투명 처리돼 있어 그리지 않는다.
 // 버튼 안에 버튼을 둘 수 없어서, 카드 선택은 배지·제목 영역에만 건다(행사 목록 카드와 같은 방식).
-// 이미 신청한 대상은 Figma에 상태가 없어서, 행사 신청내역 배지와 같은 "신청완료" 문구로 버튼만 막는다.
 interface HomeApplyCardProps {
   section: HomeApplySection;
   onSelect: () => void;
@@ -38,8 +37,8 @@ function HomeApplyCard({ section, onSelect, onApply }: HomeApplyCardProps) {
           {section.title}
         </Typography>
       </button>
-      <Button disabled={section.isApplied} onClick={onApply} size="small">
-        {section.isApplied ? "신청완료" : "신청하기"}
+      <Button onClick={onApply} size="small">
+        신청하기
       </Button>
     </div>
   );
