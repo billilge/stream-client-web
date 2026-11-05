@@ -15,6 +15,7 @@ export {
 export {
   clearAccessToken,
   getAccessToken,
+  hasAdminRole,
   setAccessToken,
   subscribeTokens,
 } from "@/shared/api/token";
