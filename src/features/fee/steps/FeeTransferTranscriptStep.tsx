@@ -13,7 +13,9 @@ import FeeUploadedFileCard from "@/features/fee/components/FeeUploadedFileCard";
 //
 // 네 프레임이 한 단계의 상태 변화라 퍼널 단계를 나누지 않고 업로드 여부·모달 열림으로 토글한다.
 // 고른 파일은 퍼널(FeeTransferScreen)이 메모리에 들고 있고(미리보기는 objectURL), "다음"을 누르면 퍼널이 서버에 올린다.
-// K-스마트멘토를 여는 일은 퍼널(FeeTransferScreen)이 맡고 여기는 `onOpenGuide`만 부른다.
+// K-스마트멘토를 여는 일은 퍼널(FeeTransferScreen)이 맡고 여기는 `onOpenGuide`만 부른다. 운영진이 링크를
+// 등록하지 않아 `onOpenGuide`가 없으면 "K스마트멘토"를 일반 텍스트로 보여 주고 이동 확인 모달도 띄우지 않는다 —
+// 누를 수 있어 보이는데 반응이 없는 상태를 피한다(설정 화면의 서비스 링크 행과 같은 이유). Figma에는 이 상태가 없다.
 function FeeTransferTranscriptStep({
   isNextPending,
   transcript,
@@ -33,8 +35,8 @@ function FeeTransferTranscriptStep({
    */
   onChangeTranscript: (transcript: File | undefined) => void;
   onNext: (transcript: File) => void;
-  /** 이동 확인 모달에서 "이동하기"를 눌렀을 때 — K-스마트멘토를 연다 */
-  onOpenGuide: () => void;
+  /** 이동 확인 모달에서 "이동하기"를 눌렀을 때 — K-스마트멘토를 연다. 열 링크가 없으면 넘기지 않는다 */
+  onOpenGuide?: () => void;
 }) {
   const [previewUrl, setPreviewUrl] = useState("");
   const [isPreviewOpen, setPreviewOpen] = useState(false);
@@ -54,7 +56,7 @@ function FeeTransferTranscriptStep({
 
   const handleGuideConfirm = () => {
     setGuideModalOpen(false);
-    onOpenGuide();
+    onOpenGuide?.();
   };
 
   return (
@@ -75,20 +77,24 @@ function FeeTransferTranscriptStep({
         title={
           <>
             {/* Figma에서 "K스마트멘토↗"만 primary + 밑줄이고, 누르면 이동 확인 모달이 뜬다 */}
-            <button
-              className="underline"
-              onClick={() => setGuideModalOpen(true)}
-              type="button"
-            >
-              <Typography
-                as="span"
-                color="semantic.primary.normal"
-                variant="heading1"
-                weight="bold"
+            {onOpenGuide ? (
+              <button
+                className="underline"
+                onClick={() => setGuideModalOpen(true)}
+                type="button"
               >
-                K스마트멘토↗
-              </Typography>
-            </button>
+                <Typography
+                  as="span"
+                  color="semantic.primary.normal"
+                  variant="heading1"
+                  weight="bold"
+                >
+                  K스마트멘토↗
+                </Typography>
+              </button>
+            ) : (
+              "K스마트멘토"
+            )}
             에서
             <br />
             학점이수현황을 캡처해 주세요

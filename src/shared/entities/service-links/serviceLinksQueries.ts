@@ -6,13 +6,15 @@ import { serviceLinksKeys } from "@/shared/entities/service-links/serviceLinksKe
 
 const SERVICE_LINKS_PATH = "/v1/app/service-links";
 
-// 설정 화면 서비스 정보의 외부 링크(서버 ServiceLinkResponse). 운영진이 등록하지 않은 링크는 null이다.
-// 값은 그대로 열 수 있는 전체 URL이다.
+// 운영진이 등록하는 학생 앱의 외부 링크(서버 ServiceLinkResponse) — 설정 화면 서비스 정보와 학생회비 캡처 단계가 쓴다.
+// 운영진이 등록하지 않은 링크는 null이다. 값은 그대로 열 수 있는 전체 URL이다.
 export const serviceLinkResponseSchema = z.looseObject({
   // '의견 보내기'가 여는 구글폼 주소 — 앱 서비스에 대한 의견이라 열린피드백과는 다르다
   feedbackFormUrl: z.string().nullable(),
   // '개인정보 처리방침'이 여는 노션 페이지 주소
   privacyPolicyUrl: z.string().nullable(),
+  // 학생회비 송금 캡처 단계의 'K스마트멘토↗'가 여는 국민대 K스마트멘토 주소(학점이수현황을 확인하는 곳)
+  kSmartMentorUrl: z.string().nullable(),
 });
 
 // 화면은 이 queryOptions로만 데이터를 받는다

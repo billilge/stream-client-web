@@ -1,11 +1,10 @@
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQueries } from "@tanstack/react-query";
 import { Suspense, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
 
 import ScreenToast from "@/components/ui/ScreenToast";
 import FeeTransferSkeleton from "@/features/fee/components/FeeTransferSkeleton";
 import {
-  FEE_EXTERNAL_LINKS,
   FEE_PAYMENTS_PATH,
   isAcceptableTranscript,
 } from "@/features/fee/constants/fee";
@@ -28,7 +27,13 @@ import {
   feeQueries,
   useSubmitFeeMutation,
 } from "@/shared/entities/fee/feeQueries";
+import type { FeeResponse } from "@/shared/entities/fee/feeTypes";
 import { useUploadFileMutation } from "@/shared/entities/files/filesQueries";
+import {
+  serviceLinksQueries,
+  toOpenableUrl,
+} from "@/shared/entities/service-links/serviceLinksQueries";
+import type { ServiceLinkResponse } from "@/shared/entities/service-links/serviceLinksTypes";
 
 // 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 토스 이동 → 송금 확인 → 확인요청 완료)을
 // useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에 하나씩 나눠 두고, 이 파일은 단계 전환
@@ -57,10 +62,22 @@ const TOAST_MESSAGES = {
 } as const;
 
 function FeeTransferFunnel() {
-  const { data: entryFeeStatus } = useSuspenseQuery({
-    ...feeQueries.me(),
-    select: (fee) => fee.feeStatus,
-  });
+  // 내 납부 상태와 캡처 단계의 K스마트멘토 주소(운영진이 등록하는 서비스 링크)를 한 번에 기다린다 —
+  // 요청이 줄줄이 이어지지 않게 하고, 캡처 단계에 닿았을 때 링크가 이미 준비돼 있게 한다.
+  const [{ data: entryFeeStatus }, { data: kSmartMentorUrl }] =
+    useSuspenseQueries({
+      queries: [
+        {
+          ...feeQueries.me(),
+          select: (fee: FeeResponse) => fee.feeStatus,
+        },
+        {
+          ...serviceLinksQueries.all(),
+          select: (links: ServiceLinkResponse) =>
+            toOpenableUrl(links.kSmartMentorUrl),
+        },
+      ],
+    });
   // 들어올 때의 상태로만 판단한다 — 납부 요청을 보내면 납부확인중으로 바뀌는데, 그때 완료 단계에서
   // 쫓겨나면 안 된다. 미납·확인필요만 낼 수 있다(서버도 그 외에는 409로 거절한다).
   const [canPay] = useState(
@@ -223,12 +240,12 @@ function FeeTransferFunnel() {
                 })
                 .finally(() => setPreparingToss(false));
             }}
-            // 주소를 아직 못 받아서 비어 있을 수 있다 — 빈 주소로 열면 빈 탭이 뜬다
-            onOpenGuide={() => {
-              if (FEE_EXTERNAL_LINKS.kSmartMentor) {
-                openExternalLink(FEE_EXTERNAL_LINKS.kSmartMentor);
-              }
-            }}
+            // 운영진이 링크를 등록하지 않았으면 넘기지 않는다 — 캡처 단계가 "K스마트멘토"를 일반 텍스트로 보여 준다
+            onOpenGuide={
+              kSmartMentorUrl
+                ? () => openExternalLink(kSmartMentorUrl)
+                : undefined
+            }
           />
         )}
       />
@@ -247,7 +264,7 @@ function FeeTransferFunnel() {
   );
 }
 
-// 들어올 때 내 납부 상태부터 받는다 — 받는 동안 첫 단계 모양의 스켈레톤을 보여 준다
+// 들어올 때 내 납부 상태와 서비스 링크부터 받는다 — 받는 동안 첫 단계 모양의 스켈레톤을 보여 준다
 function FeeTransferScreen() {
   return (
     <Suspense fallback={<FeeTransferSkeleton />}>
