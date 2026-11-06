@@ -96,7 +96,10 @@ function ModalShell({
       // 닫혀 있어도 사라지는 애니메이션 때문에 DOM에는 남는다 — inert로 보조기기·키보드 양쪽에서 제외한다
       inert={!open}
       onKeyDown={handleKeyDown}
-      className={`absolute inset-0 transition-opacity duration-200 ease-out motion-reduce:transition-none ${
+      // BottomSheet와 같은 포털 슬롯에 그려서 z가 없으면 DOM에 붙은 순서로 겹친다. 시트 안에서 여는 모달(빌릴게 대여 확인)은
+      // 시트와 같은 렌더에 한꺼번에 마운트되면 모달 포털이 시트보다 먼저 붙어 시트 뒤로 숨는다 —
+      // 붙는 순서와 상관없이 모달이 늘 시트 위에 오도록 z-10으로 올린다.
+      className={`absolute inset-0 z-10 transition-opacity duration-200 ease-out motion-reduce:transition-none ${
         open
           ? "pointer-events-auto opacity-100"
           : "pointer-events-none opacity-0"
