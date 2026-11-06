@@ -4,9 +4,10 @@ import type { ReactNode } from "react";
 
 import circleMinusFill from "@/assets/icons/circle-minus-fill.svg";
 import circlePlusFill from "@/assets/icons/circle-plus-fill.svg";
+import BillilgeItemIcon from "@/features/billilge/components/BillilgeItemIcon";
 
 interface BillilgeItemCardProps {
-  // 서버 물품 아이콘 주소. 아이콘을 안 올렸거나 지워진 물품은 null이라 같은 크기의 빈 자리만 둔다
+  // 서버 물품 아이콘 주소. 아이콘을 안 올렸거나 지워진 물품은 null이라 회색 칸만 둔다
   icon: string | null;
   itemName: string;
   subtitle: string;
@@ -67,11 +68,7 @@ function BillilgeItemCard({
     >
       <div className="flex h-[42px] w-full items-center justify-between">
         <div className="flex items-center gap-3">
-          {icon ? (
-            <img alt="" className="size-[42px]" src={icon} />
-          ) : (
-            <div className="size-[42px]" />
-          )}
+          <BillilgeItemIcon src={icon} />
           <div className="flex flex-col gap-0.5">
             <Typography
               as="p"
