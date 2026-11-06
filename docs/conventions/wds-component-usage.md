@@ -303,6 +303,8 @@ Figma 상세는 뒤로가기 버튼이 Hero 이미지 **위에 떠 있는** 오�
 - 폭에 `min-width: 356px`(`breakpoint.sm` 이상)이 걸려 있는데, 그 기준이 앱 프레임이 아니라 **브라우저 창**이다. 데스크톱에서 보면 375px 프레임(좌우 20px 여백 기준 335px)을 넘친다 → 같은 미디어 쿼리 안에서 `minWidth: 0`으로 되돌린다. 평평한 `sx={{ minWidth: 0 }}`는 안 먹는다(emotion이 중첩 미디어 쿼리 블록을 평 선언보다 뒤에 붙여서 `min-width: 356px`가 이긴다).
 
 코드는 `src/components/ui/ScreenToast.tsx`. 화면 위에 토스트를 띄우는 자리는 앞으로도 같을 것이라 공용으로 뒀다.
+떠 있는 시간은 WDS Toast 기본값 3초(`duration="short"`)이고 `"long"`은 5초다(16초는 Snackbar의 long이다). 읽고 옮겨 적어야 하는 문구(복사가 막혔을 때의 학생회비 계좌번호)는 ms 숫자로 길게 준다(15초).
+메인 버튼 아래 텍스트 버튼이 하나 더 쌓인 화면(`ActionArea variant="strong"` — 학생회비 송금 확인)에서는 기본 위치(아래에서 100px)면 토스트가 메인 버튼을 28px 가린다. `aboveStackedActions`를 켜면 152px로 올라가 메인 버튼과의 간격이 버튼 하나일 때와 같은 24px이 된다(텍스트 버튼 44px + 간격 8px만큼).
 
 ## 행사 신청 완료 화면(`1712:192283`) 구현 중 확정된 매핑
 
@@ -877,12 +879,19 @@ Figma는 같은 알림 설정 화면을 **설정 섹션(`3524:152367`)과 알림
 
 ### 계좌 송금은 useFunnel 퍼널 하나(`FeeTransferScreen`)다
 
-남은 학기 수 → 학점이수현황 캡처 → 토스 이동 → 송금 확인 → 확인요청 완료를 `@use-funnel/react-router-dom`의 `useFunnel`로 묶었다(라우트 `/fee/transfer`, 단계는 `?fee.step=`). 로그인·가입 퍼널(`AuthSignUpScreen`)과 같은 구성이다 — 퍼널 파일(`FeeTransferScreen.tsx`)은 단계 전환만 맡고, 단계 화면은 `features/fee/steps/`에 파일 하나씩(`FeeTransferSemesterStep`, `FeeTransferTranscriptStep`, `FeeTransferTossStep`, `FeeTransferConfirmStep`, `FeeTransferCompleteStep`) 두며 전환은 콜백 prop으로 받는다. 단계·context 타입과 `guard`는 `constants/feeTransferFunnel.ts`에 있고, 단계 화면이 공유하는 뼈대는 `components/FeeTransferStepLayout.tsx`다(뒤로가기는 `onBack` prop으로 받아서 첫 단계는 플로우 밖으로, 나머지는 이전 단계로 간다).
+남은 학기 수 → 학점이수현황 캡처 → 송금 방법 → 송금 확인 → 확인요청 완료를 `@use-funnel/react-router-dom`의 `useFunnel`로 묶었다(라우트 `/fee/transfer`, 단계는 `?fee.step=`). 로그인·가입 퍼널(`AuthSignUpScreen`)과 같은 구성이다 — 퍼널 파일(`FeeTransferScreen.tsx`)은 단계 전환만 맡고, 단계 화면은 `features/fee/steps/`에 파일 하나씩(`FeeTransferSemesterStep`, `FeeTransferTranscriptStep`, `FeeTransferMethodStep`, `FeeTransferConfirmStep`, `FeeTransferCompleteStep`) 두며 전환은 콜백 prop으로 받는다. 단계·context 타입과 `guard`는 `constants/feeTransferFunnel.ts`에 있고, 단계 화면이 공유하는 뼈대는 `components/FeeTransferStepLayout.tsx`다(뒤로가기는 `onBack` prop으로 받아서 첫 단계는 플로우 밖으로, 나머지는 이전 단계로 간다).
 
-처음에는 단계마다 라우트를 따로 뒀는데(`/fee/transfer/semester` 등 5개), 그러면 단계 사이에 값을 navigate state로 넘겨야 해서 남은 학기 수가 캡처 단계에서 읽히지 않고 고른 파일도 다음 단계로 넘어가지 않았다. 퍼널 context로 바꾸면서 두 값이 플로우 끝까지 이어지고, 토스 단계에서 뒤로 돌아와도 입력이 남는다. 학기 수 입력은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) `guard`가 걸러서 첫 단계로 돌려보낸다.
+처음에는 단계마다 라우트를 따로 뒀는데(`/fee/transfer/semester` 등 5개), 그러면 단계 사이에 값을 navigate state로 넘겨야 해서 남은 학기 수가 캡처 단계에서 읽히지 않고 고른 파일도 다음 단계로 넘어가지 않았다. 퍼널 context로 바꾸면서 두 값이 플로우 끝까지 이어지고, 송금 단계에서 뒤로 돌아와도 입력이 남는다. 학기 수 입력은 단계를 바꾸지 않고 `history.replace`로 context만 갈아 끼운다(히스토리가 늘지 않음). 앞 단계 값 없이 중간 단계로 들어오면(새로고침·주소 직접 입력) `guard`가 걸러서 첫 단계로 돌려보낸다.
 
-**캡처 이미지(`File`)는 context에 담지 않는다.** context는 history.state에 실리는데, Chromium(Android WebView 포함)은 `File`이 든 history.state를 뒤로가기로 되살리지 못하고 state를 통째로 `null`로 돌려준다 — 처음엔 `File`을 context에 담았다가 토스 단계에서 뒤로 가면 퍼널이 첫 단계로 초기화되는 걸 확인하고 바꿨다. 고른 파일은 퍼널 화면(`FeeTransferScreen`)의 state가 들고 있고(단계를 오가도 화면은 그대로라 남는다), context에는 문자열·숫자만 싣는다. 새로고침하면 캡처만 다시 고르면 된다. 캡처 단계에서 "다음"을 누르면 퍼널이 캡처를 올리고(`useUploadFileMutation`) 송금 링크를 받아(`feeQueries.transferGuide`) 파일 키(`proofImageKey`)와 링크(`transferLinkUrl`)를 다음 단계 context에 싣는다 — 업로드 실패를 송금하기 **전에** 알리기 위해서다. 토스에서 돌아와 같은 파일로 다시 누르면 또 올리지 않는다.
+**캡처 이미지(`File`)는 context에 담지 않는다.** context는 history.state에 실리는데, Chromium(Android WebView 포함)은 `File`이 든 history.state를 뒤로가기로 되살리지 못하고 state를 통째로 `null`로 돌려준다 — 처음엔 `File`을 context에 담았다가 송금 단계에서 뒤로 가면 퍼널이 첫 단계로 초기화되는 걸 확인하고 바꿨다. 고른 파일은 퍼널 화면(`FeeTransferScreen`)의 state가 들고 있고(단계를 오가도 화면은 그대로라 남는다), context에는 문자열·숫자만 싣는다. 새로고침하면 캡처만 다시 고르면 된다. 캡처 단계에서 "다음"을 누르면 퍼널이 캡처를 올리고(`useUploadFileMutation`) 송금 링크를 받아(`feeQueries.transferGuide`) 파일 키(`proofImageKey`)와 링크(`transferLinkUrl`)를 다음 단계 context에 싣는다 — 업로드 실패를 송금하기 **전에** 알리기 위해서다. 토스에서 돌아와 같은 파일로 다시 누르면 또 올리지 않는다.
 
 퍼널은 들어올 때 내 납부 상태(`feeQueries.me`)를 한 번만 보고, 미납·확인필요가 아니면 납부내역으로 보낸다. 들어올 때의 값만 보는 이유는 납부 요청을 보내면 상태가 납부확인중으로 바뀌는데, 그때 완료 단계에서 쫓겨나면 안 되기 때문이다. 단계를 넘기지 못한 실패(업로드·송금 링크·납부 요청)는 퍼널이 토스트 하나로 알린다 — 송금 확인 단계의 실패는 이미 송금한 뒤라 "다시 송금하라"로 읽히지 않게 요청 실패로만 안내한다.
 
-토스 이동 안내/실패(`3562:163025` / `3562:163046`)와 캡처 업로드 전/후(`3562:162845` / `3562:162891`)는 각각 **한 단계 안의 state**다. Figma가 프레임을 나눠 뒀지만 퍼널 단계로는 올리지 않았다 — 뒤로가기로 돌아갈 지점이 아니기 때문이다.
+토스 이동 실패(`3562:163046`)와 캡처 업로드 전/후(`3562:162845` / `3562:162891`)는 각각 **한 단계 안의 state**다. Figma가 프레임을 나눠 뒀지만 퍼널 단계로는 올리지 않았다 — 뒤로가기로 돌아갈 지점이 아니기 때문이다.
+
+**송금 방법 단계(`FeeTransferMethodStep`)는 Figma에 없다.** 토스를 쓰지 않는 학생도 낼 수 있게 토스 이동 안내(`3562:163025`) 자리를 "어떻게 송금할까요?"로 바꿨다. WDS `RadioGroup` 안에 선택 카드 두 개(`FeeTransferMethodOption` — `RadioGroupItem`에 label prop이 없어서 카드 전체를 `<label htmlFor>`로 감쌌다)를 두고, 고른 방법에 따라 메인 버튼만 "토스로 이동하기" / "계좌번호 복사하기"로 바뀐다. 어느 쪽이든 누르면 송금 확인 단계로 넘어간다(은행 앱·토스에서 돌아오면 그 화면이 기다린다).
+
+- **계좌번호는 화면에 보여 주지 않는다.** 복사(`lib/copyText` — `navigator.clipboard`가 막히면 `execCommand("copy")`로 한 번 더)하고 `positive` 토스트("계좌번호를 복사했어요.")로 알린다. 복사 문자열은 `{은행} {계좌번호}`(예: `국민 94160201434699`)다 — 은행 앱이 붙여 넣은 계좌를 알아보기 쉽다. 둘 다 막히면 계좌번호를 담은 `cautionary` 토스트를 15초 띄우고 그래도 송금 확인으로 넘긴다 — 멈추면 다음으로 갈 길이 없다.
+- **설명에 금액 근거를 적는다:** "학생회비는 한 학기에 10,000원이에요. 남은 3학기만큼 **30,000원**을 보내 주세요." 보낼 금액은 계좌이체면 은행 앱에 직접 넣어야 해서 `Typography color="semantic.primary.normal" weight="bold"`로 강조하고, 토스트에는 다시 적지 않는다. 한 학기 금액은 서버가 따로 주지 않아서 송금 금액 ÷ 남은 학기 수로 구한다(서버가 남은 학기 수 × 한 학기 금액으로 계산한다).
+- 고른 방법은 퍼널 화면 state라 송금 확인에서 뒤로 와도 남는다. 토스 이동 실패 화면의 뒤로가기는 방법 고르기로 돌아온다(계좌이체로 바꿀 수 있게).
+- 문구는 토스 UX 라이팅 규칙(해요체·능동형 "복사했어요"·긍정형·한자어 명사 나열 풀어 쓰기)에 맞췄다.

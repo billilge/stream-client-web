@@ -24,7 +24,7 @@ function FeeTransferTranscriptStep({
   onNext,
   onOpenGuide,
 }: {
-  /** "다음"을 누른 뒤 토스 단계로 넘어갈 준비(캡처 업로드·송금 링크 받기)를 하는 중인지 */
+  /** "다음"을 누른 뒤 송금 방법 단계로 넘어갈 준비(캡처 업로드·송금 안내 받기)를 하는 중인지 */
   isNextPending: boolean;
   /** 고른 캡처 — 퍼널이 들고 있는 값이 유일한 출처다 */
   transcript: File | undefined;
