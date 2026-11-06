@@ -19,6 +19,12 @@ interface ScreenToastProps {
    * 읽고 옮겨 적어야 하는 문구(복사가 막혔을 때의 학생회비 계좌번호 등)는 숫자로 길게 준다.
    */
   duration?: "short" | "long" | number;
+  /**
+   * 메인 버튼 아래에 텍스트 버튼이 하나 더 쌓인 화면(`ActionArea variant="strong"` — 학생회비 송금 확인 등)이면 켠다.
+   * 기본 위치(아래에서 100px)는 버튼이 하나인 화면 기준이라, 버튼이 쌓이면 메인 버튼을 28px 가린다.
+   * 켜면 쌓인 높이(텍스트 버튼 44px + 간격 8px)만큼 올려 152px에 둔다 — 메인 버튼과의 간격(24px)이 버튼 하나일 때와 같다.
+   */
+  aboveStackedActions?: boolean;
 }
 
 // Figma: Toast/Toast (nodeId 1450:93026 negative / 1410:50080 positive / 2212:160680 cautionary).
@@ -33,6 +39,7 @@ function ScreenToast({
   onOpenChange,
   variant = "negative",
   duration = "short",
+  aboveStackedActions = false,
 }: ScreenToastProps) {
   const portalEl = useScreenSheetPortal();
 
@@ -41,7 +48,11 @@ function ScreenToast({
   }
 
   return createPortal(
-    <div className="pointer-events-none absolute inset-x-5 bottom-[100px]">
+    <div
+      className={`pointer-events-none absolute inset-x-5 ${
+        aboveStackedActions ? "bottom-[152px]" : "bottom-[100px]"
+      }`}
+    >
       <Toast
         disablePortal
         duration={duration}
