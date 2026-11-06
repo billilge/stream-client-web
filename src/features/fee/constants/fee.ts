@@ -2,7 +2,7 @@ import type { FeePaymentStatus } from "@/shared/entities/fee/feeTypes";
 
 // 학생회비 계좌 송금 플로우 경로. 화면설계서(687:20584)에는 경로 표기 컬럼이 아예 없어서
 // 용어 사전(terminology.md)의 `회비 납부 → fee`와 "프론트 라우트 경로: /{코드 용어}" 규칙으로 정했다.
-// 단계(남은 학기 수·캡처 업로드·토스 이동·송금 확인·완료)는 이 경로 하나 안에서 useFunnel이
+// 단계(남은 학기 수·캡처 업로드·송금 방법·송금 확인·완료)는 이 경로 하나 안에서 useFunnel이
 // `?fee.step=`으로 나눈다 — 로그인·온보딩 퍼널(`/login`)과 같은 방식이다.
 export const FEE_TRANSFER_PATH = "/fee/transfer";
 
@@ -11,6 +11,11 @@ export const FEE_PAYMENTS_PATH = "/my/fee";
 
 // 납부내역 카드 제목 — 서버 응답에 없는 값이라 화면이 들고 있는다
 export const FEE_TITLE = "소프트웨어융합대학 학생회비";
+
+// 송금 안내 문구의 금액 표기 — 30000 → "30,000원"
+export function formatWon(amount: number) {
+  return `${amount.toLocaleString("ko-KR")}원`;
+}
 
 // 아직 받지 못한 외부 연동 주소들. 값이 있을 때만 열도록 해서 빈 창이 뜨는 걸 막는다.
 //

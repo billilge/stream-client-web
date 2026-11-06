@@ -6,19 +6,22 @@ import ScreenToast from "@/components/ui/ScreenToast";
 import FeeTransferSkeleton from "@/features/fee/components/FeeTransferSkeleton";
 import {
   FEE_PAYMENTS_PATH,
+  formatWon,
   isAcceptableTranscript,
 } from "@/features/fee/constants/fee";
 import {
   FEE_TRANSFER_STEP_OPTIONS,
+  type FeeTransferMethod,
   type FeeTransferSteps,
 } from "@/features/fee/constants/feeTransferFunnel";
 import FeeTransferCompleteStep from "@/features/fee/steps/FeeTransferCompleteStep";
 import FeeTransferConfirmStep from "@/features/fee/steps/FeeTransferConfirmStep";
+import FeeTransferMethodStep from "@/features/fee/steps/FeeTransferMethodStep";
 import FeeTransferSemesterStep from "@/features/fee/steps/FeeTransferSemesterStep";
-import FeeTransferTossStep from "@/features/fee/steps/FeeTransferTossStep";
 import FeeTransferTranscriptStep from "@/features/fee/steps/FeeTransferTranscriptStep";
 import { HOME_PATH } from "@/features/home/constants/home";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
+import { copyText } from "@/lib/copyText";
 import { openExternalLink } from "@/lib/openExternalLink";
 import { useFunnel, useFunnelExit } from "@/lib/useFunnel";
 import { isApiError } from "@/shared/api";
@@ -35,13 +38,13 @@ import {
 } from "@/shared/entities/service-links/serviceLinksQueries";
 import type { ServiceLinkResponse } from "@/shared/entities/service-links/serviceLinksTypes";
 
-// 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 토스 이동 → 송금 확인 → 확인요청 완료)을
+// 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 송금 방법 → 송금 확인 → 확인요청 완료)을
 // useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에 하나씩 나눠 두고, 이 파일은 단계 전환
 // (어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다 — 로그인·온보딩 퍼널(AuthSignUpScreen)과 같은 구성이다.
 // 단계는 `/fee/transfer?fee.step=...`으로 나뉘고 단계마다 브라우저 뒤로가기가 한 단계씩 돌아간다.
-// 단계 사이에 넘기는 값(남은 학기 수·올린 캡처의 파일 키·송금 링크)은 퍼널 context가 들고 있어서
-// 뒤로 돌아와도 유지된다. 고른 캡처 파일만은 context(history.state)에 담지 못해서 이 화면이 메모리에 들고
-// 있는다(feeTransferFunnel.ts 참고) — 새로고침하면 캡처만 다시 고르면 된다.
+// 단계 사이에 넘기는 값(남은 학기 수·올린 캡처의 파일 키·송금 안내)은 퍼널 context가 들고 있어서
+// 뒤로 돌아와도 유지된다. 고른 캡처 파일과 송금 방법은 이 화면이 들고 있는다 — 캡처는 context(history.state)에
+// 담지 못해서다(feeTransferFunnel.ts 참고). 새로고침하면 캡처만 다시 고르면 된다.
 
 // 단계가 바뀌는 이동에만 슬라이드를 켠다 — 학기 수 입력처럼 같은 단계의 context만
 // 갈아 끼우는 replace에는 켜지 않는다. 뒤로가기는 React Router가 앞선 이동을 기억해 반대 방향으로
@@ -57,9 +60,30 @@ const INITIAL_STATE = { context: {}, step: "semester" } as const;
 const TOAST_MESSAGES = {
   invalidProofImage: "캡처를 확인하지 못했어요. 다시 올려 주세요.",
   invalidTranscript: "10MB 이하의 PNG·JPG·WEBP 이미지만 올릴 수 있어요.",
-  prepareTossFailed: "다음 단계로 넘어가지 못했어요. 다시 시도해 주세요.",
+  prepareTransferFailed: "다음 단계로 넘어가지 못했어요. 다시 시도해 주세요.",
   submitFailed: "납부 확인 요청에 실패했어요. 다시 시도해 주세요.",
 } as const;
+
+// 계좌이체 안내 — 계좌번호는 화면에 보여 주지 않아서 토스트로만 알린다. 은행 앱에서 금액을 직접 넣어야 해서
+// 보낼 금액을 같이 적는다. 복사가 막히면(앱 WebView 등) 계좌번호를 토스트에 담아 길게 띄워 보고 보낼 수 있게 한다.
+// 계좌번호 끝 숫자에 따라 조사(로/으로)가 달라져서 "계좌로"로 끝맺는다. 은행 이름과 계좌번호 사이는
+// 줄바꿈 없는 공백(U+00A0)이라 토스트에서 둘이 다른 줄로 갈라지지 않는다.
+// 복사가 막혔을 때는 계좌번호를 읽고 옮겨 적어야 해서 15초 띄운다(WDS Toast long은 5초뿐이다).
+const ACCOUNT_COPY_FAILED_TOAST_DURATION_MS = 15_000;
+
+const ACCOUNT_TOAST_MESSAGES = {
+  copied: (amount: string) => `계좌번호를 복사했어요. ${amount}을 보내 주세요.`,
+  copyFailed: (bank: string, accountNo: string, amount: string) =>
+    `복사하지 못했어요. ${bank}\u00a0${accountNo} 계좌로 ${amount}을 보내 주세요.`,
+};
+
+interface ToastState {
+  isOpen: boolean;
+  key: number;
+  message: string;
+  variant?: "negative" | "positive" | "cautionary";
+  duration?: "short" | "long" | number;
+}
 
 function FeeTransferFunnel() {
   // 내 납부 상태와 캡처 단계의 K스마트멘토 주소(운영진이 등록하는 서비스 링크)를 한 번에 기다린다 —
@@ -97,18 +121,33 @@ function FeeTransferFunnel() {
   const queryClient = useQueryClient();
   const { mutateAsync: uploadFile } = useUploadFileMutation();
   const { mutate: submitFee, isPending: isSubmitting } = useSubmitFeeMutation();
-  // 고른 캡처 — 단계를 오가도 이 화면은 그대로 떠 있어서 토스에서 돌아와도 남는다
+  // 고른 캡처 — 단계를 오가도 이 화면은 그대로 떠 있어서 송금 단계에서 돌아와도 남는다
   const [transcript, setTranscript] = useState<File>();
-  // 캡처 단계의 "다음" — 캡처를 올리고 송금 링크를 받는 동안 버튼을 막는다
-  const [isPreparingToss, setPreparingToss] = useState(false);
-  // 마지막으로 올린 캡처와 그 키 — 토스에서 돌아와 같은 파일로 다시 "다음"을 누르면 또 올리지 않는다
+  // 고른 송금 방법 — 캡처처럼 이 화면이 들고 있어서 송금 확인에서 뒤로 돌아와도 남는다
+  const [transferMethod, setTransferMethod] =
+    useState<FeeTransferMethod>("toss");
+  // 캡처 단계의 "다음" — 캡처를 올리고 송금 안내를 받는 동안 버튼을 막는다
+  const [isPreparingTransfer, setPreparingTransfer] = useState(false);
+  // 마지막으로 올린 캡처와 그 키 — 송금 단계에서 돌아와 같은 파일로 다시 "다음"을 누르면 또 올리지 않는다
   const lastUploadRef = useRef<{ file: File; fileKey: string } | null>(null);
   // 닫힌 뒤에도 마지막 문구를 들고 있어서 닫히는 동안 문구가 바뀌지 않는다.
   // 떠 있는 동안 다시 띄워도 새로 안내되게 key를 올린다(ScreenToast의 key)
-  const [toast, setToast] = useState({ isOpen: false, key: 0, message: "" });
+  const [toast, setToast] = useState<ToastState>({
+    isOpen: false,
+    key: 0,
+    message: "",
+  });
 
-  const showToast = (message: string) =>
-    setToast((prev) => ({ isOpen: true, key: prev.key + 1, message }));
+  const showToast = (
+    message: string,
+    options: Pick<ToastState, "variant" | "duration"> = {},
+  ) =>
+    setToast((prev) => ({
+      isOpen: true,
+      key: prev.key + 1,
+      message,
+      ...options,
+    }));
 
   const uploadTranscript = async (file: File) => {
     const lastUpload = lastUploadRef.current;
@@ -190,10 +229,40 @@ function FeeTransferFunnel() {
             }
           />
         )}
-        toss={({ context, history }) => (
-          <FeeTransferTossStep
+        method={({ context, history }) => (
+          <FeeTransferMethodStep
             hasTossLink={Boolean(context.transferLinkUrl)}
+            method={transferMethod}
             onBack={() => history.back()}
+            onChangeMethod={setTransferMethod}
+            // 은행 앱에서 보내고 돌아오면 송금 확인 단계가 기다리게 바로 넘긴다(토스와 같다).
+            // 복사가 막혀도 토스트에 담긴 계좌로 보낼 수 있어서 같이 넘긴다 — 여기서 멈추면 다음으로 갈 길이 없다
+            onCopyAccount={() => {
+              const amount = formatWon(context.transferAmount);
+              // 은행 앱이 붙여 넣은 계좌를 알아보기 쉽게 은행 이름을 붙여 복사한다
+              copyText(`${context.bank} ${context.accountNo}`).then(
+                (isCopied) => {
+                  if (isCopied) {
+                    showToast(ACCOUNT_TOAST_MESSAGES.copied(amount), {
+                      variant: "positive",
+                    });
+                  } else {
+                    showToast(
+                      ACCOUNT_TOAST_MESSAGES.copyFailed(
+                        context.bank,
+                        context.accountNo,
+                        amount,
+                      ),
+                      {
+                        duration: ACCOUNT_COPY_FAILED_TOAST_DURATION_MS,
+                        variant: "cautionary",
+                      },
+                    );
+                  }
+                  history.push("confirm", {}, SLIDE);
+                },
+              );
+            }}
             onOpenToss={() => {
               if (!context.transferLinkUrl) {
                 return;
@@ -203,11 +272,13 @@ function FeeTransferFunnel() {
               // 알 수 없어서 열기만 하고 넘긴다 — 송금하지 못했으면 그 단계에서 빠져나간다.
               history.push("confirm", {}, SLIDE);
             }}
+            remainingSemesters={context.semester}
+            transferAmount={context.transferAmount}
           />
         )}
         transcript={({ context, history }) => (
           <FeeTransferTranscriptStep
-            isNextPending={isPreparingToss}
+            isNextPending={isPreparingTransfer}
             transcript={transcript}
             onBack={() => history.back()}
             onChangeTranscript={(nextTranscript) => {
@@ -218,27 +289,42 @@ function FeeTransferFunnel() {
               setTranscript(nextTranscript);
             }}
             // 송금하러 가기 전에 캡처를 올려 둔다 — 업로드가 실패하면 송금 전에 알 수 있다.
-            // 송금 링크는 남은 학기 수마다 금액이 달라서 이때 같이 받는다
+            // 송금 안내(금액·토스 링크·계좌)는 남은 학기 수마다 금액이 달라서 이때 같이 받는다
             onNext={(file) => {
-              setPreparingToss(true);
+              setPreparingTransfer(true);
               Promise.all([
                 uploadTranscript(file),
                 queryClient.fetchQuery(
                   feeQueries.transferGuide(context.semester),
                 ),
               ])
-                .then(([proofImageKey, { transferLinkUrl }]) =>
-                  history.push(
-                    "toss",
-                    { proofImageKey, transferLinkUrl },
-                    SLIDE,
-                  ),
+                .then(
+                  ([
+                    proofImageKey,
+                    { transferLinkUrl, bank, accountNo, transferAmount },
+                  ]) => {
+                    // 금액은 지금 낼 수 있는 상태(미납·확인필요)면 서버가 항상 계산해 준다 — 없으면 넘기지 않는다
+                    if (transferAmount === null) {
+                      throw new Error("송금 금액을 받지 못했어요");
+                    }
+                    history.push(
+                      "method",
+                      {
+                        accountNo,
+                        bank,
+                        proofImageKey,
+                        transferAmount,
+                        transferLinkUrl,
+                      },
+                      SLIDE,
+                    );
+                  },
                 )
                 .catch((error: unknown) => {
                   console.error(error);
-                  showToast(TOAST_MESSAGES.prepareTossFailed);
+                  showToast(TOAST_MESSAGES.prepareTransferFailed);
                 })
-                .finally(() => setPreparingToss(false));
+                .finally(() => setPreparingTransfer(false));
             }}
             // 운영진이 링크를 등록하지 않았으면 넘기지 않는다 — 캡처 단계가 "K스마트멘토"를 일반 텍스트로 보여 준다
             onOpenGuide={
@@ -251,6 +337,7 @@ function FeeTransferFunnel() {
       />
 
       <ScreenToast
+        duration={toast.duration}
         key={toast.key}
         message={toast.message}
         onOpenChange={(open) => {
@@ -259,6 +346,7 @@ function FeeTransferFunnel() {
           }
         }}
         open={toast.isOpen}
+        variant={toast.variant}
       />
     </>
   );
