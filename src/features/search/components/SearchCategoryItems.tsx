@@ -2,6 +2,10 @@ import { Divider } from "@wanteddev/wds";
 import { Fragment, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
+import {
+  BILLILGE_TAB_PATHS,
+  type BillilgeListLocationState,
+} from "@/features/billilge/constants/billilge";
 import EventsCard from "@/features/events/components/EventsCard";
 import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
 import {
@@ -124,10 +128,17 @@ function SearchCategoryItems({ entries, footer }: SearchCategoryItemsProps) {
             <div className="px-5">
               <BillilgeItemCard
                 bordered
-                // 대여 바텀시트는 빌릴게 화면 안의 상태라 검색에서는 빌릴게 화면으로 보낸다.
+                // 대여 바텀시트는 빌릴게 화면 안의 상태라, 물품을 state로 실어 빌릴게 화면으로 보내면
+                // 빌릴게 화면이 그 물품의 대여 시트를 열어 준다.
                 icon={item.imageUrl}
                 itemName={item.name}
-                onRentRequest={() => navigate("/billilge")}
+                onRentRequest={() =>
+                  navigate(BILLILGE_TAB_PATHS.rent, {
+                    state: {
+                      rentalItem: item,
+                    } satisfies BillilgeListLocationState,
+                  })
+                }
                 subtitle={`수량 ${item.count}`}
               />
             </div>
