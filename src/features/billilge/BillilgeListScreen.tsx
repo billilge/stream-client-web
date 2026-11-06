@@ -4,8 +4,14 @@ import {
   TopNavigationButton,
 } from "@wanteddev/wds";
 import { IconBell, IconSearch } from "@wanteddev/wds-icon";
-import { Suspense, startTransition, useDeferredValue, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  Suspense,
+  startTransition,
+  useDeferredValue,
+  useEffect,
+  useState,
+} from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
@@ -19,6 +25,7 @@ import {
   BILLILGE_ALL_CATEGORIES,
   BILLILGE_TAB_PATHS,
   type BillilgeCategoryFilterValue,
+  type BillilgeListLocationState,
   type BillilgeTab,
 } from "@/features/billilge/constants/billilge";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
@@ -33,6 +40,7 @@ interface BillilgeListScreenProps {
 // Figma: 빌릴게 (nodeId 1243:73331)
 function BillilgeListScreen({ tab }: BillilgeListScreenProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   // 탭을 바꿀 때마다 히스토리가 쌓이지 않게 replace로 바꾼다
   const changeTab = (next: BillilgeTab) =>
     navigate(BILLILGE_TAB_PATHS[next], { replace: true });
@@ -44,6 +52,51 @@ function BillilgeListScreen({ tab }: BillilgeListScreenProps) {
   const listCategory = useDeferredValue(category);
   const [rentalItem, setRentalItem] = useState<BillilgeItem | null>(null);
   const [rentalSheetOpen, setRentalSheetOpen] = useState(false);
+
+  // 물품 카드의 "대여 신청"을 눌렀을 때 대여 시트를 연다.
+  // 바텀시트를 여는 것(슬라이드 애니메이션)은 즉시 반영하고, 그 안의 휠
+  // 피커(특히 분 60개) 마운트처럼 무거운 작업은 startTransition으로 낮은
+  // 우선순위로 미뤄서 첫 프레임이 버벅이지 않게 한다 — 처음 열 때만 해당하고,
+  // rentalItem은 닫아도 null로 안 돌아가서 두 번째부터는 이 마운트 비용 자체가 없다.
+  const openRentalSheet = (item: BillilgeItem) => {
+    setRentalSheetOpen(true);
+    startTransition(() => {
+      setRentalItem(item);
+    });
+  };
+
+  // 검색 결과에서 대여 신청을 누르고 넘어오면(navigate state) 화면이 뜬 뒤 그 물품으로 대여 신청을 누른 것과
+  // 같이 시트를 연다. 넘어온 물품은 열 때까지 여기 들고 있는다.
+  const [pendingRentalItem, setPendingRentalItem] =
+    useState<BillilgeItem | null>(
+      () =>
+        (location.state as BillilgeListLocationState | null)?.rentalItem ??
+        null,
+    );
+
+  // 새로고침·뒤로가기로 돌아왔을 때 다시 열리지 않게 받자마자 state를 비운다(열린피드백 전송 토스트와 같은 방식)
+  useEffect(() => {
+    if ((location.state as BillilgeListLocationState | null)?.rentalItem) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.pathname, location.state, navigate]);
+
+  // 닫힌 시트(화면 아래)가 한 번 그려진 다음 열어야 목록에서 누를 때처럼 아래에서 올라오는 애니메이션이 보인다.
+  // 화면이 뜬 직후 바로 열면 닫힌 위치가 그려지기 전에 열린 위치로 바뀌어서 시트가 애니메이션 없이 한 번에 나타난다.
+  // 그래서 다음 프레임이 그려진 뒤(requestAnimationFrame 두 번)에 연다.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 넘어온 물품이 정해질 때만 연다(openRentalSheet는 매 렌더 새로 만들어진다)
+  useEffect(() => {
+    if (!pendingRentalItem) {
+      return;
+    }
+    let frameId = requestAnimationFrame(() => {
+      frameId = requestAnimationFrame(() => {
+        openRentalSheet(pendingRentalItem);
+        setPendingRentalItem(null);
+      });
+    });
+    return () => cancelAnimationFrame(frameId);
+  }, [pendingRentalItem]);
 
   useScreenHeader(
     <ScreenHeader
@@ -101,16 +154,7 @@ function BillilgeListScreen({ tab }: BillilgeListScreenProps) {
           <Suspense fallback={<BillilgeListSkeleton />}>
             <BillilgeItemList
               category={listCategory}
-              onRentRequest={(item) => {
-                // 바텀시트를 여는 것(슬라이드 애니메이션)은 즉시 반영하고, 그 안의 휠
-                // 피커(특히 분 60개) 마운트처럼 무거운 작업은 startTransition으로 낮은
-                // 우선순위로 미뤄서 첫 프레임이 버벅이지 않게 한다 — 처음 열 때만 해당하고,
-                // rentalItem은 닫아도 null로 안 돌아가서 두 번째부터는 이 마운트 비용 자체가 없다.
-                setRentalSheetOpen(true);
-                startTransition(() => {
-                  setRentalItem(item);
-                });
-              }}
+              onRentRequest={openRentalSheet}
             />
           </Suspense>
         ) : (

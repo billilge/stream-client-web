@@ -1,6 +1,7 @@
 import { getTimeUntil } from "@/lib/date";
 import type {
   BillilgeCategory,
+  BillilgeItem,
   BillilgeRentalStatus,
 } from "@/shared/entities/billilge/billilgeTypes";
 
@@ -12,6 +13,12 @@ export const BILLILGE_TAB_PATHS = {
 } as const;
 
 export type BillilgeTab = keyof typeof BILLILGE_TAB_PATHS;
+
+// 빌릴게 대여 탭으로 보내면서 넘기는 history state — 검색 결과에서 대여 신청을 누르면 그 물품을 실어 보내서,
+// 빌릴게 화면이 들어오자마자 그 물품의 대여 바텀시트를 연다(대여 시트는 빌릴게 화면 안의 상태라 검색 화면에서 직접 열 수 없다).
+export interface BillilgeListLocationState {
+  rentalItem?: BillilgeItem;
+}
 
 // 카테고리 칩 라벨 — 칩 값은 서버 ItemCategory를 그대로 쓴다. 순서는 Figma Filter Row(1243:73337)
 export const BILLILGE_CATEGORY_LABELS = {
