@@ -1,4 +1,4 @@
-import { ActionAreaButton, RadioGroup } from "@wanteddev/wds";
+import { ActionAreaButton, RadioGroup, Typography } from "@wanteddev/wds";
 import { useState } from "react";
 
 import FeeTransferMethodOption from "@/features/fee/components/FeeTransferMethodOption";
@@ -93,7 +93,21 @@ function FeeTransferMethodStep({
           </ActionAreaButton>
         )
       }
-      description={`학생회비는 한 학기에 ${formatWon(amountPerSemester)}이에요.\n남은 ${remainingSemesters}학기만큼 ${formatWon(transferAmount)}을 보내 주세요.`}
+      // 보낼 금액은 계좌이체면 은행 앱에 직접 넣어야 해서(토스트에는 적지 않는다) Primary 굵게 강조한다
+      description={
+        <>
+          {`학생회비는 한 학기에 ${formatWon(amountPerSemester)}이에요.\n남은 ${remainingSemesters}학기만큼 `}
+          <Typography
+            as="strong"
+            color="semantic.primary.normal"
+            variant="body2"
+            weight="bold"
+          >
+            {formatWon(transferAmount)}
+          </Typography>
+          을 보내 주세요.
+        </>
+      }
       onBack={onBack}
       title="어떻게 송금할까요?"
     >

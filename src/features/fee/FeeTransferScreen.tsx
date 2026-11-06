@@ -6,7 +6,6 @@ import ScreenToast from "@/components/ui/ScreenToast";
 import FeeTransferSkeleton from "@/features/fee/components/FeeTransferSkeleton";
 import {
   FEE_PAYMENTS_PATH,
-  formatWon,
   isAcceptableTranscript,
 } from "@/features/fee/constants/fee";
 import {
@@ -64,17 +63,17 @@ const TOAST_MESSAGES = {
   submitFailed: "납부 확인 요청에 실패했어요. 다시 시도해 주세요.",
 } as const;
 
-// 계좌이체 안내 — 계좌번호는 화면에 보여 주지 않아서 토스트로만 알린다. 은행 앱에서 금액을 직접 넣어야 해서
-// 보낼 금액을 같이 적는다. 복사가 막히면(앱 WebView 등) 계좌번호를 토스트에 담아 길게 띄워 보고 보낼 수 있게 한다.
+// 계좌이체 안내 — 계좌번호는 화면에 보여 주지 않아서 토스트로만 알린다. 보낼 금액은 송금 방법 화면 설명에서
+// 강조해 보여 줘서 토스트에는 적지 않는다. 복사가 막히면(앱 WebView 등) 계좌번호를 토스트에 담아 길게 띄워 보고 보낼 수 있게 한다.
 // 계좌번호 끝 숫자에 따라 조사(로/으로)가 달라져서 "계좌로"로 끝맺는다. 은행 이름과 계좌번호 사이는
 // 줄바꿈 없는 공백(U+00A0)이라 토스트에서 둘이 다른 줄로 갈라지지 않는다.
 // 복사가 막혔을 때는 계좌번호를 읽고 옮겨 적어야 해서 15초 띄운다(WDS Toast long은 5초뿐이다).
 const ACCOUNT_COPY_FAILED_TOAST_DURATION_MS = 15_000;
 
 const ACCOUNT_TOAST_MESSAGES = {
-  copied: (amount: string) => `계좌번호를 복사했어요. ${amount}을 보내 주세요.`,
-  copyFailed: (bank: string, accountNo: string, amount: string) =>
-    `복사하지 못했어요. ${bank}\u00a0${accountNo} 계좌로 ${amount}을 보내 주세요.`,
+  copied: "계좌번호를 복사했어요.",
+  copyFailed: (bank: string, accountNo: string) =>
+    `복사하지 못했어요. ${bank}\u00a0${accountNo} 계좌로 보내 주세요.`,
 };
 
 interface ToastState {
@@ -238,12 +237,11 @@ function FeeTransferFunnel() {
             // 은행 앱에서 보내고 돌아오면 송금 확인 단계가 기다리게 바로 넘긴다(토스와 같다).
             // 복사가 막혀도 토스트에 담긴 계좌로 보낼 수 있어서 같이 넘긴다 — 여기서 멈추면 다음으로 갈 길이 없다
             onCopyAccount={() => {
-              const amount = formatWon(context.transferAmount);
               // 은행 앱이 붙여 넣은 계좌를 알아보기 쉽게 은행 이름을 붙여 복사한다
               copyText(`${context.bank} ${context.accountNo}`).then(
                 (isCopied) => {
                   if (isCopied) {
-                    showToast(ACCOUNT_TOAST_MESSAGES.copied(amount), {
+                    showToast(ACCOUNT_TOAST_MESSAGES.copied, {
                       variant: "positive",
                     });
                   } else {
@@ -251,7 +249,6 @@ function FeeTransferFunnel() {
                       ACCOUNT_TOAST_MESSAGES.copyFailed(
                         context.bank,
                         context.accountNo,
-                        amount,
                       ),
                       {
                         duration: ACCOUNT_COPY_FAILED_TOAST_DURATION_MS,
@@ -345,6 +342,8 @@ function FeeTransferFunnel() {
             setToast((prev) => ({ ...prev, isOpen: false }));
           }
         }}
+        // 송금 확인 단계만 메인 버튼 아래 "다음에 할게요"가 쌓여 있어서 그 위로 올린다(복사 안내·요청 실패 토스트가 버튼을 가리지 않게)
+        aboveStackedActions={funnel.step === "confirm"}
         open={toast.isOpen}
         variant={toast.variant}
       />
