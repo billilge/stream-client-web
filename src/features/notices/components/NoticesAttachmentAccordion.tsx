@@ -32,6 +32,9 @@ interface NoticesAttachmentAccordionProps {
 // 다운로드 버튼을 누르면 `ListCell`이 행 어디를 눌러도 그 버튼을 대신 눌러 준다(ListCell 안의 첫 링크·버튼을
 // 클릭으로 넘기는 WDS 동작). 파일 주소는 스토리지라 앱과 출처가 달라서 `<a download>`가 먹지 않고 지금 탭이
 // 파일로 넘어가 앱을 벗어난다 — openExternalLink로 새 탭에서 연다(앱 WebView 처리도 거기서 한곳에서 바꾼다).
+// 요약 줄·파일 행·다운로드 버튼은 `disableInteraction`으로 누름·호버 회색 배경을 끈다. WDS 기본 배경은 좌우로
+// 12px씩 넓게 그려져 화면 좌우 패딩을 넘고 제목·본문보다 넓어 보였다. 배경만 끄는 옵션이라 행을 눌러 다운로드
+// 버튼을 대신 누르는 동작은 그대로다.
 function NoticesAttachmentAccordion({
   attachments,
 }: NoticesAttachmentAccordionProps) {
@@ -40,6 +43,7 @@ function NoticesAttachmentAccordion({
       <Divider color="semantic.line.normal.alternative" />
       <Accordion>
         <AccordionSummary
+          disableInteraction
           leadingContent={
             <AccordionSummaryContent variant="icon">
               <IconAttachment />
@@ -58,6 +62,7 @@ function NoticesAttachmentAccordion({
               return (
                 <ListCell
                   alignItems="center"
+                  disableInteraction
                   ellipsis
                   key={attachment.fileId}
                   textProps={{
@@ -70,6 +75,7 @@ function NoticesAttachmentAccordion({
                     <ListCellContent variant="icon-button">
                       <IconButton
                         aria-label={`${attachment.fileName} 내려받기`}
+                        disableInteraction
                         onClick={() => openExternalLink(attachment.fileUrl)}
                       >
                         <IconDownload />
