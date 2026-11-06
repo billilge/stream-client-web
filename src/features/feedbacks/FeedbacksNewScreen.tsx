@@ -24,7 +24,11 @@ import {
   useCreateFeedbackMutation,
 } from "@/shared/entities/feedbacks/feedbacksQueries";
 
-const FEEDBACKS_QUESTION_MAX_LENGTH = 500;
+const FEEDBACKS_QUESTION_MAX_LENGTH = 1000;
+
+// 작성 칸이 한 줄(80px)이라 쓰기 답답하다는 피드백이 있어서, 처음부터 7줄(236px, 약 3배)을 잡는다.
+// 한 줄이 26px이고 그 위아래 패딩·글자 수 줄은 그대로라 줄 수로 높이가 정해진다.
+const FEEDBACKS_QUESTION_MIN_ROWS = 7;
 
 // Figma: 피드백 질문 (nodeId 1410:49972), 피드백 질문 확인 모달 (nodeId 1410:49980)
 // 확인 모달에서 "보내기"를 누르면 질문을 서버에 보내고, 성공하면 열린피드백 목록으로 이동하면서
@@ -99,7 +103,7 @@ function FeedbacksNewScreen() {
             aria-labelledby={headingId}
             aria-required="true"
             maxLength={FEEDBACKS_QUESTION_MAX_LENGTH}
-            minRows={1}
+            minRows={FEEDBACKS_QUESTION_MIN_ROWS}
             onChange={(event) => setContent(event.target.value)}
             placeholder="피드백 내용을 입력하세요."
             trailingContent={
