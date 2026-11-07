@@ -13,6 +13,7 @@ import type {
   EventRecruitStatus,
 } from "@/shared/entities/events/eventsTypes";
 import { homeKeys } from "@/shared/entities/home/homeKeys";
+import { searchKeys } from "@/shared/entities/search/searchKeys";
 
 // 서버 enum(RecruitStatus·RecruitType·QuestionType·EventApplicationStatus) 값 — 타입은 eventsTypes.ts가 여기서 만든다
 export const EVENT_RECRUIT_STATUSES = [
@@ -44,6 +45,8 @@ export const eventListItemSchema = z.looseObject({
   recruitStatus: z.enum(EVENT_RECRUIT_STATUSES),
   // 신청 마감일까지 남은 날 수(0이면 오늘 마감). 모집중일 때만 있다
   daysUntilDeadline: z.number().nullable(),
+  // 이 학생이 낸 신청 중 취소하지 않은 것의 ID(stream-server#302). 신청하지 않았거나 취소했으면 null이다
+  applicationId: z.number().nullable(),
 });
 
 const eventListPageSchema = z.looseObject({
@@ -75,6 +78,8 @@ export const eventDetailSchema = z.looseObject({
   // 이 학생이 학생회비 조건을 채우는지. 납부자 전용이 아니면 항상 true, 납부자 전용이면 납부자 명부에 있을 때만 true다.
   // 모집 기간·정원은 반영하지 않아서 recruitStatus와 같이 본다
   isFeeEligible: z.boolean(),
+  // 목록 항목과 같다 — 신청했으면 모집 상태와 상관없이 있다
+  applicationId: z.number().nullable(),
 });
 
 // 신청서 질문 — 양식 조회와 신청 상세가 같이 싣는 부분. 화면에는 eventsQuestions.ts에서 EventsQuestion으로 바꿔 넘긴다
@@ -270,7 +275,8 @@ export const eventsQueries = {
 };
 
 // 행사 신청(POST /v1/app/events/{eventId}/applications). 신청이 생기고 정원이 차서 모집 상태가 바뀔 수도 있어서
-// 신청내역과 행사 목록·상세를 무효화한다. 홈의 신청 안내 카드(신청 여부)와 신청한 행사도 바뀌어서 홈도 무효화한다.
+// 신청내역과 행사 목록·상세를 무효화한다. 홈의 신청 안내 카드(신청 여부)와 신청한 행사도 바뀌어서 홈도 무효화하고,
+// 통합 검색의 행사 카드도 신청 여부(applicationId)를 그려서 같이 무효화한다.
 // 마감·이미 신청·신청 자격 없음으로 실패해도 지금 캐시가 낡았다는 뜻이라 같이 무효화한다.
 // 신청서 양식은 무효화하지 않는다 — 신청서 화면이 떠 있는 동안 다시 받으면 마감된 양식이 화면을 마감으로 보낸다.
 // 응답 형식이 달라도 서버에는 이미 신청이 생겼으니 실패로 바꾸지 않고 null을 돌려준다(사물함 신청과 같다).
@@ -282,6 +288,7 @@ export function useApplyEventMutation(eventId: string) {
       queryClient.invalidateQueries({ queryKey: eventsKeys.lists() }),
       queryClient.invalidateQueries({ queryKey: eventsKeys.detail(eventId) }),
       queryClient.invalidateQueries({ queryKey: homeKeys.root() }),
+      queryClient.invalidateQueries({ queryKey: searchKeys.root() }),
     ]);
 
   return useMutation({
@@ -314,7 +321,8 @@ export function useApplyEventMutation(eventId: string) {
 
 // 신청 취소(PATCH /v1/app/events/applications/{applicationId}/cancel). 신청 기록은 남고 상태만 취소로 바뀐다.
 // 성공하면 신청내역 목록·상세를 다시 받아 취소 상태를 보여 준다. 홈의 신청한 행사·신청 안내 카드도 바뀌어서
-// 홈도 무효화한다. 이미 취소된 신청이었다면 지금 캐시가 낡았다는 뜻이라 똑같이 다시 받는다.
+// 홈도 무효화한다. 행사 목록·상세·통합 검색도 신청 여부(applicationId)를 그려서 무효화한다 — 취소는 어느 행사인지
+// 받지 않아서 행사 상세는 모두 무효화한다. 이미 취소된 신청이었다면 지금 캐시가 낡았다는 뜻이라 똑같이 다시 받는다.
 export function useCancelEventApplicationMutation() {
   const queryClient = useQueryClient();
   // Promise를 돌려줘서 다시 받은 데이터가 들어온 뒤에 mutation이 끝나게 한다 —
@@ -330,6 +338,9 @@ export function useCancelEventApplicationMutation() {
         queryKey: eventsKeys.applications(),
       }),
       queryClient.invalidateQueries({ queryKey: homeKeys.root() }),
+      queryClient.invalidateQueries({ queryKey: eventsKeys.lists() }),
+      queryClient.invalidateQueries({ queryKey: eventsKeys.details() }),
+      queryClient.invalidateQueries({ queryKey: searchKeys.root() }),
     ]);
 
   return useMutation({

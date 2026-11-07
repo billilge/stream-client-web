@@ -7,6 +7,7 @@ import {
   type BillilgeListLocationState,
 } from "@/features/billilge/constants/billilge";
 import EventsCard from "@/features/events/components/EventsCard";
+import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
 import FeedbacksCard from "@/features/feedbacks/components/FeedbacksCard";
 import {
   formatFeedbackRound,
@@ -67,6 +68,9 @@ function SearchCategoryItems({ entries, footer }: SearchCategoryItemsProps) {
               event={event}
               onApply={() => navigate(`/events/${event.eventId}/apply`)}
               onSelect={() => navigate(`/events/${event.eventId}`)}
+              onViewApplication={(applicationId) =>
+                navigate(`${EVENTS_TAB_PATHS.application}/${applicationId}`)
+              }
             />
           ),
         }));
