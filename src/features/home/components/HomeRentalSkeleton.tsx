@@ -24,7 +24,7 @@ function HomeRentalSkeleton() {
             <Skeleton
               animation={animation}
               height="42px"
-              radius="8px"
+              radius="10px"
               variant="rectangle"
               width="42px"
             />
