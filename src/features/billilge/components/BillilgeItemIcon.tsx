@@ -7,7 +7,7 @@ function BillilgeItemIcon({ src }: BillilgeItemIconProps) {
   return (
     <div className="flex size-[42px] shrink-0 items-center justify-center rounded-[10px] bg-background-alternative">
       {src && (
-        <img alt="" className="max-h-7 max-w-7 object-contain" src={src} />
+        <img alt="" className="max-h-8 max-w-8 object-contain" src={src} />
       )}
     </div>
   );
