@@ -11,6 +11,8 @@ import type { EventListItem } from "@/shared/entities/events/eventsTypes";
 interface EventsCardProps {
   event: EventListItem;
   onApply?: () => void;
+  /** 이미 신청한 행사의 "신청완료" 버튼 탭 — 신청내역 상세로 보낸다 */
+  onViewApplication?: (applicationId: number) => void;
   /** 카드(CTA 제외 영역) 탭 — 상세 화면으로 보낸다 */
   onSelect?: () => void;
 }
@@ -22,8 +24,16 @@ interface EventsCardProps {
 // 색 보정이 필요 없다 — WDS Button의 size="small"이 padding 7/14·radius 8·label2로 Figma와 맞고,
 // disabled 상태 색(label.assistive + interaction.disable)도 모집예정/모집종료 스펙과 그대로 일치한다
 // (button/style.js의 &[aria-disabled='true'] 블록 확인). 그래서 sx 없이 disabled prop만 쓴다.
-function EventsCard({ event, onApply, onSelect }: EventsCardProps) {
-  const { title, recruitStatus, thumbnailUrl } = event;
+//
+// 이미 신청한 행사는 모집 상태와 상관없이 "신청완료"를 outlined로 그리고, 누르면 신청내역 상세로 보낸다.
+// Figma에 이 상태가 없어서 정한 것이다 — disabled로 막으면 모집예정·모집종료와 같은 회색이 돼 구분되지 않는다.
+function EventsCard({
+  event,
+  onApply,
+  onViewApplication,
+  onSelect,
+}: EventsCardProps) {
+  const { title, recruitStatus, thumbnailUrl, applicationId } = event;
   const isOpen = recruitStatus === "OPEN";
 
   return (
@@ -70,15 +80,26 @@ function EventsCard({ event, onApply, onSelect }: EventsCardProps) {
         </button>
 
         <div className="flex justify-end">
-          <Button
-            color="primary"
-            disabled={!isOpen}
-            onClick={onApply}
-            size="small"
-            variant="solid"
-          >
-            {getEventActionLabel(event)}
-          </Button>
+          {applicationId === null ? (
+            <Button
+              color="primary"
+              disabled={!isOpen}
+              onClick={onApply}
+              size="small"
+              variant="solid"
+            >
+              {getEventActionLabel(event)}
+            </Button>
+          ) : (
+            <Button
+              color="primary"
+              onClick={() => onViewApplication?.(applicationId)}
+              size="small"
+              variant="outlined"
+            >
+              신청완료
+            </Button>
+          )}
         </div>
       </div>
     </div>
