@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- 홈 화면에 추가했을 때의 아이콘·이름. 아이콘 PNG는 public/stream.svg에서 만든다.
+         iOS는 SVG 아이콘을 쓰지 못해 apple-touch-icon(PNG)과 apple-mobile-web-app-title을 읽고,
+         Android는 manifest의 이름·아이콘을 읽는다. 앱 WebView는 둘 다 읽지 않는다. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="STREAM" />
+    <link rel="manifest" href="/manifest.json" />
     <!-- viewport-fit=cover: 페이지를 노치·홈 인디케이터 밑까지 펼친다. 이게 없으면 브라우저가
          알아서 안전 영역 안으로 잘라 넣고, 그 대신 env(safe-area-inset-*)이 항상 0이 된다.
          펼친 만큼 피하는 건 우리 책임이 되며 index.css의 safe-area 유틸이 담당한다. -->
