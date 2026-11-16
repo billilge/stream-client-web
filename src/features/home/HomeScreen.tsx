@@ -161,11 +161,7 @@ function HomeScreen() {
                 <HomeAppliedEventSection
                   onBrowse={() => navigate(EVENTS_TAB_PATHS.event)}
                   onMore={() => navigate(EVENTS_TAB_PATHS.application)}
-                  onSelect={(event) =>
-                    push(
-                      `${EVENTS_TAB_PATHS.application}/${event.applicationId}`,
-                    )
-                  }
+                  onSelect={(event) => push(`/events/${event.eventId}`)}
                 />
               </Suspense>
             </div>
