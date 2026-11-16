@@ -26,11 +26,13 @@ function NoticesCard({
   hasThumbnail = false,
   thumbnailUrl,
 }: NoticesCardProps) {
+  // 썸네일이 있으면 제목이 한 줄(noWrap)이라, 글 칸이 제목 길이만큼 버티지 않게 min-w-0으로 줄여서 썸네일 앞에서
+  // 말줄임되게 한다. Figma는 제목이 짧아 제목·썸네일 사이 간격이 없는데, 말줄임표가 썸네일에 붙지 않게 12를 둔다.
   return (
     <div
-      className={`flex w-full items-center justify-between px-5 ${hasThumbnail ? "" : "py-[7px]"}`}
+      className={`flex w-full items-center justify-between gap-3 px-5 ${hasThumbnail ? "" : "py-[7px]"}`}
     >
-      <div className="flex flex-1 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         {/* 고정 공지의 핀은 썸네일 유무와 상관없이 제목 앞에 붙는다. 썸네일이 없으면 제목이 여러 줄로 이어진다 */}
         <div className="flex items-center gap-1">
           {isPinned && <img alt="" className="size-5 shrink-0" src={pinIcon} />}
