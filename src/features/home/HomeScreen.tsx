@@ -1,4 +1,4 @@
-import { PushBadge, TopNavigationButton } from "@wanteddev/wds";
+import { Loading, PushBadge, TopNavigationButton } from "@wanteddev/wds";
 import { IconBell, IconSearch, IconSetting } from "@wanteddev/wds-icon";
 import { Suspense, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -25,11 +25,13 @@ import HomeNoticeBannerSkeleton from "@/features/home/components/HomeNoticeBanne
 import HomeRentalSection from "@/features/home/components/HomeRentalSection";
 import HomeRentalSkeleton from "@/features/home/components/HomeRentalSkeleton";
 import { HOME_HAS_UNREAD_NOTIFICATION } from "@/features/home/constants/homeMock";
+import { useHomePullToRefresh } from "@/features/home/hooks/useHomePullToRefresh";
 import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 import { SETTINGS_PATHS } from "@/features/settings/constants/settings";
 import { openExternalLink } from "@/lib/openExternalLink";
+import { useRefreshHomeQueries } from "@/shared/entities/home/homeQueries";
 import type {
   HomeApplySection,
   HomeBanner,
@@ -45,6 +47,10 @@ function HomeScreen() {
   const navigate = useNavigate();
 
   const [isScrolled, setIsScrolled] = useState(false);
+  // 로고를 누르거나 맨 위에서 당기면 맨 위로 올리고 홈 데이터를 다시 받는다
+  const refreshHomeQueries = useRefreshHomeQueries();
+  const { indicatorRef, isRefreshing, refresh, scrollRef } =
+    useHomePullToRefresh(refreshHomeQueries);
 
   // 상세·신청·내 내역처럼 화면을 쌓는 이동은 슬라이드로, 하단 탭 화면(빌릴게·행사와 그 탭)으로는 바로 바꾼다
   const push = (to: string) => navigate(to, { viewTransition: true });
@@ -72,10 +78,20 @@ function HomeScreen() {
 
   return (
     <div className="relative flex h-full flex-col">
+      {/* 새로고침 로딩 표시 — 당기거나 새로고침하는 동안 스크롤 영역이 내려간 만큼 위에 펼쳐진다(useHomePullToRefresh) */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 flex h-0 items-center justify-center overflow-hidden"
+        ref={indicatorRef}
+      >
+        {/* WDS Loading은 size를 단위 없이 CSS에 넣어서 숫자(24)를 주면 크기가 0이 된다 — 단위를 붙인다 */}
+        <Loading size="24px" variant="circular" />
+      </div>
       {/* 스크롤 영역 자체를 flex로 두면 내용이 길 때 섹션이 줄어들어서(배너 가로 스크롤 영역은 최소 높이가 0) 안쪽에서 쌓는다 */}
       <div
-        className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto"
+        aria-busy={isRefreshing}
+        className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto overscroll-y-contain"
         onScroll={(event) => setIsScrolled(event.currentTarget.scrollTop > 0)}
+        ref={scrollRef}
       >
         {/* Figma: Top Navigation State=Home (nodeId 547:31364), 알림 있을 때 (3147:146473)
             홈만 헤더를 스크롤 영역 안에 둔다. Figma는 헤더 배경이 없어 배너 그림자가 헤더까지 번지는데,
@@ -87,7 +103,9 @@ function HomeScreen() {
           <ScreenHeader
             title={
               <h2>
-                <img alt="stream" className="h-8 w-28" src={logo} />
+                <button className="block" onClick={refresh} type="button">
+                  <img alt="stream" className="h-8 w-28" src={logo} />
+                </button>
               </h2>
             }
             trailing={

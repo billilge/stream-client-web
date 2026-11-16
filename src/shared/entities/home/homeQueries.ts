@@ -1,7 +1,8 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 
 import { api } from "@/shared/api";
+import { billilgeKeys } from "@/shared/entities/billilge/billilgeKeys";
 import { FEE_STATUSES } from "@/shared/entities/fee/feeQueries";
 import { homeKeys } from "@/shared/entities/home/homeKeys";
 
@@ -87,3 +88,15 @@ export const homeQueries = {
         ),
     }),
 };
+
+// 홈 새로고침(로고·당겨서 새로고침) — 홈 조회와, 대여 현황이 쓰는 빌릴게 대여 이력(반납 필요·대여 내역) 조회를 다시 받는다.
+// 페이지를 새로고침한 것처럼 보이게 받아 둔 데이터를 비우고(resetQueries) 받는다 — 받는 동안 섹션마다 스켈레톤이 보인다.
+// 다 받은 뒤에 끝나는 Promise를 돌려준다.
+export function useRefreshHomeQueries() {
+  const queryClient = useQueryClient();
+  return () =>
+    Promise.all([
+      queryClient.resetQueries({ queryKey: homeKeys.root() }),
+      queryClient.resetQueries({ queryKey: billilgeKeys.histories() }),
+    ]);
+}
