@@ -37,27 +37,26 @@ function EventsCard({
   const isOpen = recruitStatus === "OPEN";
 
   return (
-    <div className="flex items-center gap-3 px-5">
-      {/* 썸네일이 없으면 Figma와 같은 단색 placeholder.
-          CTA 버튼 안에 버튼을 중첩할 수 없어서, 상세 진입은 썸네일과 텍스트 블록에만 건다. */}
+    <div className="relative isolate flex items-center gap-3 px-5">
+      {/* 버튼 안에 CTA 버튼을 중첩할 수 없어서, 상세 진입 버튼을 카드 전체에 덮어 깔고 CTA만 그 위로 올린다.
+          isolate로 카드 안에서만 z 순서를 정해 목록 위에 겹치는 헤더 같은 요소와 섞이지 않게 한다. */}
       <button
         aria-label={`${title} 상세 보기`}
-        className="size-28 shrink-0 overflow-hidden rounded-xl bg-thumbnail-placeholder"
+        className="absolute inset-0 z-10"
         onClick={onSelect}
         type="button"
-      >
+      />
+
+      {/* 썸네일이 없으면 Figma와 같은 단색 placeholder */}
+      <div className="size-28 shrink-0 overflow-hidden rounded-xl bg-thumbnail-placeholder">
         {thumbnailUrl && (
           <LazyImage alt="" className="size-full" src={thumbnailUrl} />
         )}
-      </button>
+      </div>
 
       {/* Figma에서 오른쪽 칼럼은 썸네일과 같은 높이(112)에 justify-between이라 뱃지는 위, 버튼은 아래 끝에 붙는다 */}
       <div className="flex h-28 min-w-px flex-1 flex-col justify-between">
-        <button
-          className="flex flex-col items-start gap-1 text-left"
-          onClick={onSelect}
-          type="button"
-        >
+        <div className="flex flex-col items-start gap-1">
           <EventsStatusBadge
             status={recruitStatus}
             statusLabel={getEventStatusLabel(event)}
@@ -77,9 +76,10 @@ function EventsCard({
           >
             행사일 {formatDate(event.eventStartAt.slice(0, 10))}
           </Typography>
-        </button>
+        </div>
 
-        <div className="flex justify-end">
+        {/* CTA 옆 빈 자리는 상세 진입으로 남겨야 해서 래퍼를 줄 전체가 아니라 버튼 너비로만 둔다 */}
+        <div className="relative z-20 self-end">
           {applicationId === null ? (
             <Button
               color="primary"
