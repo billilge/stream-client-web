@@ -281,6 +281,27 @@
   }
 }
 
+/* 홈 챗봇 FAB가 제자리에서 둥둥 뜨는 효과 — Figma에는 모션이 없어서 ready.talk 위젯 FAB의
+   float(3초 주기)를 참고했다. 원본 5px은 너무 얌전해서 8px로 키웠다. 모션 줄이기 설정에서는 움직이지 않는다. */
+@keyframes chatbot-fab-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@utility chatbot-fab-float {
+  animation: chatbot-fab-float 3s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 /* 인증번호 입력(VerificationCodeInput)의 깜빡이는 커서. 모션 줄이기 설정에서는 깜빡이지 않고 켜진 채로 둔다. */
 @keyframes auth-code-caret {
   0%,

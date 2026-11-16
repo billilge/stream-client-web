@@ -186,7 +186,7 @@ function HomeScreen() {
       </div>
       <button
         aria-label="챗봇 열기"
-        className="absolute right-5 bottom-6 flex size-14 items-center justify-center rounded-full bg-primary drop-shadow-chatbot-fab"
+        className="chatbot-fab-float absolute right-5 bottom-6 flex size-14 items-center justify-center rounded-full bg-primary drop-shadow-chatbot-fab"
         onClick={() => navigate("/chat")}
         type="button"
       >
