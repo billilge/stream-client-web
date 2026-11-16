@@ -30,8 +30,9 @@ function FeedbacksAllSection() {
     });
   };
 
+  // 필터와 목록 사이 — 공지 목록 위 여백과 같은 12다
   return (
-    <div className="flex flex-col gap-4 pb-24">
+    <div className="flex flex-col gap-3 pb-24">
       <div className="flex flex-col gap-3">
         <div className="px-5">
           <Typography

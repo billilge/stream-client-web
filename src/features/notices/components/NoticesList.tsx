@@ -39,9 +39,10 @@ function NoticesList({ category }: NoticesListProps) {
     isFetchingNextPage,
   });
 
+  // Figma(1256:81800)는 목록 위 여백·카드 사이 간격이 16인데, 넓어 보여서 둘 다 12로 줄였다(열린피드백 목록과 같다)
   return (
-    <div className="py-4">
-      <div className="flex flex-col gap-4">
+    <div className="py-3">
+      <div className="flex flex-col gap-3">
         {notices.map((notice, index) => (
           <Fragment key={notice.noticeId}>
             {index > 0 && (
