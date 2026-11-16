@@ -28,52 +28,45 @@ export const BILLILGE_CATEGORY_LABELS = {
   HYGIENE: "위생용품",
 } satisfies Record<BillilgeCategory, string>;
 
-// 대여 상태 뱃지 — Figma 빌릴게 대여내역 뱃지(1133:50036). 승인을 기다리는 두 상태만 회색(neutral)이고
-// 나머지는 accent 색이다. 대여 내역·반납이 필요한 물품·홈 대여 현황이 같이 쓴다.
+// 대여 상태 뱃지 — Figma 빌릴게 대여내역 뱃지(1133:50036). 대여 내역·반납이 필요한 물품·홈 대여 현황이 같이 쓴다.
+// Figma는 승인을 기다리는 두 상태(대여·반납 승인대기)가 회색인데, 반려로 오해할 수 있어서 홈 학생회비 "납부확인중"
+// 뱃지(3147:146354)와 같은 주황으로 바꿨다. 그래서 모든 상태가 accent 색이라 색 종류(neutral/accent)는 두지 않는다.
 export const BILLILGE_STATUS_BADGES = {
   PENDING: {
-    color: "neutral",
     label: "대여 승인대기",
-    token: "semantic.label.alternative",
+    token: "semantic.accent.foreground.orange",
   },
   CONFIRMED: {
-    color: "accent",
     label: "수령대기",
     token: "semantic.accent.foreground.orange",
   },
   RENTAL: {
-    color: "accent",
     label: "대여중",
     token: "semantic.accent.foreground.blue",
   },
   RETURN_PENDING: {
-    color: "neutral",
     label: "반납 승인대기",
-    token: "semantic.label.alternative",
+    token: "semantic.accent.foreground.orange",
   },
   RETURN_CONFIRMED: {
-    color: "accent",
     label: "반납대기",
     token: "semantic.accent.foreground.orange",
   },
   RETURNED: {
-    color: "accent",
     label: "반납완료",
     token: "semantic.accent.foreground.green",
   },
   CANCEL: {
-    color: "accent",
     label: "대기취소",
     token: "semantic.accent.foreground.red",
   },
   REJECTED: {
-    color: "accent",
     label: "대여불가",
     token: "semantic.accent.foreground.red",
   },
 } as const satisfies Record<
   BillilgeRentalStatus,
-  { color: "neutral" | "accent"; label: string; token: string }
+  { label: string; token: string }
 >;
 
 // 반납 기한 문구 — 빌릴게 반납 탭과 홈 대여 현황이 같이 쓴다. Figma는 "반납까지 N시간"만 있는데, 며칠짜리 대여는
