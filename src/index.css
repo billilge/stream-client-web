@@ -281,6 +281,78 @@
   }
 }
 
+/* 홈 챗봇 FAB가 제자리에서 둥둥 뜨는 효과 — Figma에는 모션이 없어서 ready.talk 위젯 FAB의
+   float(3초 주기)를 참고했다. 원본 5px은 너무 얌전해서 8px로 키웠다. 모션 줄이기 설정에서는 움직이지 않는다. */
+@keyframes chatbot-fab-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@utility chatbot-fab-float {
+  animation: chatbot-fab-float 3s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* 홈 챗봇 FAB 테두리를 따라 빛이 도는 효과 — ready.talk 위젯 FAB의 링 스윕을 옮겼다.
+   원뿔 그라데이션의 밝은 구간(200~360deg)을 테두리 안쪽 링 모양(반지름 26~28px, FAB 56px 기준)으로만
+   남기고 흐리게 번지게 한 뒤 돌린다. 키프레임 구간이 고르지 않아서 천천히 출발해 빨라졌다가 다시 느려진다.
+   빛 색은 primary(#0066FF)를 흰색 쪽으로 55%·90% 섞은 값이다.
+   멈춘 링은 잘린 얼룩처럼 보여서 모션 줄이기 설정에서는 아예 숨긴다. */
+@keyframes chatbot-fab-light-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  18% {
+    transform: rotate(22deg);
+  }
+
+  50% {
+    transform: rotate(180deg);
+  }
+
+  90% {
+    transform: rotate(344deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@utility chatbot-fab-light {
+  background: conic-gradient(
+    transparent 0deg,
+    transparent 200deg,
+    rgb(140 186 255 / 0.5) 230deg,
+    rgb(230 240 255 / 0.95) 285deg,
+    rgb(140 186 255 / 0.5) 340deg,
+    transparent 360deg
+  );
+  mask: radial-gradient(
+    circle at center,
+    transparent 25px,
+    black 26px,
+    black 28px,
+    transparent 29px
+  );
+  filter: blur(3px);
+  animation: chatbot-fab-light-spin 1.4s linear -0.5s infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}
+
 /* 인증번호 입력(VerificationCodeInput)의 깜빡이는 커서. 모션 줄이기 설정에서는 깜빡이지 않고 켜진 채로 둔다. */
 @keyframes auth-code-caret {
   0%,
