@@ -13,6 +13,8 @@ import { useScreenHeader } from "@/components/ui/useScreenHeader";
 interface ResultScreenAction {
   label: string;
   onClick: () => void;
+  // 누른 뒤 기다리는 동안 버튼에 로딩을 보이고 다시 누르지 못하게 한다
+  loading?: boolean;
 }
 
 // 그림과 문구 사이 간격. Figma가 마감·오류 화면은 16px, 완료 화면(체크 모션)은 8px로 잡아뒀다.
@@ -116,6 +118,7 @@ function ResultScreen({
             <ActionAreaButton
               buttonColor="assistive"
               buttonVariant="solid"
+              loading={secondaryAction.loading}
               onClick={secondaryAction.onClick}
               sx={{ padding: "16px 28px" }}
               variant="alternative"
@@ -123,6 +126,7 @@ function ResultScreen({
               {secondaryAction.label}
             </ActionAreaButton>
             <ActionAreaButton
+              loading={primaryAction.loading}
               onClick={primaryAction.onClick}
               sx={{ padding: "16px 28px" }}
             >
@@ -132,6 +136,7 @@ function ResultScreen({
         ) : (
           <ActionArea>
             <ActionAreaButton
+              loading={primaryAction.loading}
               onClick={primaryAction.onClick}
               sx={{ paddingBlock: "16px" }}
             >
