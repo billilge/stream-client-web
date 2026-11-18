@@ -45,8 +45,9 @@ function clampRatio(value: number) {
 }
 
 // Figma: Minimap (nodeId 2159:110757) — Stream 로컬
-// Figma는 칸·글자를 따로 줄여 그렸지만, 본문 배치를 zoom으로 줄여 그린다(배치를 두 벌 관리하지 않고,
-// 4px 글자가 브라우저 최소 글자 크기에 걸리지 않는다). 높이는 고정, 폭은 배치 비율에 맞추되 남은 폭을 넘지 않는다.
+// Figma는 칸·글자를 따로 줄여 그렸지만, 본문 배치를 transform으로 줄여 그린다(배치를 두 벌 관리하지 않고,
+// 4px 글자가 브라우저 최소 글자 크기에 걸리지 않는다). zoom은 WebKit이 rem 크기(Tailwind 간격)에 적용하지 않고
+// 잰 크기도 브라우저마다 달라서 쓰지 않는다. 높이는 고정, 폭은 배치 비율에 맞추되 남은 폭을 넘지 않는다.
 function LockersMinimap({
   children,
   layoutWidth,
@@ -68,8 +69,7 @@ function LockersMinimap({
       return;
     }
     const update = () => {
-      const currentScale = Number(content.style.zoom) || 1;
-      const height = content.getBoundingClientRect().height / currentScale;
+      const height = content.offsetHeight;
       setLayoutHeight(height);
       setScale(
         Math.min(
@@ -172,7 +172,8 @@ function LockersMinimap({
         <div
           inert
           ref={contentRef}
-          style={{ width: layoutWidth, zoom: scale ?? 1 }}
+          className="origin-top-left"
+          style={{ transform: `scale(${scale ?? 1})`, width: layoutWidth }}
         >
           {children}
         </div>
