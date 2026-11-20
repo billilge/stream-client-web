@@ -1,14 +1,13 @@
 // 받은 답변 조각을 바로 붙이지 않고 쌓아 두었다가 일정한 속도로 조금씩 꺼내 주는 대기열.
 // AI 게이트웨이가 답변을 40자 안팎씩 0.2초마다 몰아서 보내서, 받는 대로 붙이면 몇 줄씩 뚝뚝 끊겨 보인다.
-// 그래서 TICK_MS마다 몇 글자씩만 꺼내 말풍선에 붙인다 — 화면에서는 글자가 흘러가듯 나온다.
+// 그래서 화면이 새로 그려질 때마다(requestAnimationFrame, 초당 약 60번) 1~3글자씩만 꺼내 말풍선에 붙인다.
+// 한 번에 여러 글자를 꺼내면 덩어리로 쏟아져 보이므로, 자주 조금씩 꺼내는 쪽이 흘러가듯 보인다.
 
-// 몇 ms마다 꺼낼지. 화면 갱신(약 16ms)보다 길게 잡아 렌더링이 밀리지 않게 한다
-const TICK_MS = 30;
-// 한 번에 꺼낼 최소 글자 수. 30ms에 2글자 ≈ 초당 66글자로, 눈으로 따라 읽을 만한 속도다
-const MIN_CHARS_PER_TICK = 2;
-// 밀린 글자를 몇 번 안에 따라잡을지. 20번 × 30ms ≈ 0.6초 — 답변이 한꺼번에 많이 와도
-// 받은 것보다 1초 넘게 늦게 보이지 않도록, 밀린 만큼 한 번에 꺼내는 양을 늘린다
-const CATCH_UP_TICKS = 20;
+// 기본 속도(초당 글자 수). 눈으로 따라 읽을 만한 속도다
+const BASE_CHARS_PER_SECOND = 70;
+// 밀린 글자를 몇 초에 걸쳐 따라잡을지. 답변이 한꺼번에 많이 오면 그만큼 빨라지고, 남은 글자가 줄수록
+// 다시 느려진다 — 끝으로 갈수록 자연스럽게 감속한다. 받은 것보다 크게 늦게 보이지 않을 만큼만 길게 잡았다
+const CATCH_UP_SECONDS = 0.6;
 
 interface PendingBubble {
   // 아직 화면에 붙이지 않은 글자. 이모지가 반으로 잘리지 않게 글자(코드 포인트) 단위로 나눠 둔다
@@ -30,7 +29,10 @@ export function createTypingQueue(
   reveal: (text: string, opensBubble: boolean) => void,
 ): TypingQueue {
   const pending: PendingBubble[] = [];
-  let timer: ReturnType<typeof setInterval> | null = null;
+  let frame: number | null = null;
+  let lastFrameAt: number | null = null;
+  // 이번 프레임까지 꺼내도 되는 글자 수. 프레임마다 시간만큼 쌓이고, 1 이상이 되면 그만큼 꺼낸다
+  let budget = 0;
   let isStreamDone = false;
   let resolveFinish: (() => void) | null = null;
 
@@ -39,13 +41,16 @@ export function createTypingQueue(
   }
 
   function stop() {
-    if (timer !== null) {
-      clearInterval(timer);
-      timer = null;
+    if (frame !== null) {
+      cancelAnimationFrame(frame);
+      frame = null;
     }
+    lastFrameAt = null;
+    budget = 0;
   }
 
-  function tick() {
+  function step(now: number) {
+    frame = null;
     const bubble = pending[0];
     if (!bubble) {
       stop();
@@ -54,30 +59,40 @@ export function createTypingQueue(
       }
       return;
     }
-    const count = Math.max(
-      MIN_CHARS_PER_TICK,
-      Math.ceil(pendingCount() / CATCH_UP_TICKS),
+    // 탭을 내렸다 돌아오면 그 사이 시간이 한꺼번에 쌓이지 않게 한 프레임은 최대 0.1초로 본다
+    const elapsed = Math.min(now - (lastFrameAt ?? now), 100) / 1000;
+    lastFrameAt = now;
+    const charsPerSecond = Math.max(
+      BASE_CHARS_PER_SECOND,
+      pendingCount() / CATCH_UP_SECONDS,
     );
-    const size = takeSize(
-      bubble.chars,
-      count,
-      isStreamDone || pending.length > 1,
-    );
-    if (size === 0) {
-      // 굵게·링크 표시가 닫히는 글자를 아직 못 받았다 — 다음 조각을 기다린다
-      return;
+    budget += charsPerSecond * elapsed;
+
+    const count = Math.floor(budget);
+    if (count > 0) {
+      const size = takeSize(
+        bubble.chars,
+        count,
+        isStreamDone || pending.length > 1,
+      );
+      // 0이면 굵게·링크 표시가 닫히는 글자를 아직 못 받은 것이다 — 다음 프레임에 다시 본다
+      if (size > 0) {
+        const text = bubble.chars.splice(0, size).join("");
+        reveal(text, bubble.opensBubble);
+        bubble.opensBubble = false;
+        if (bubble.chars.length === 0) {
+          pending.shift();
+        }
+        // 굵게·링크를 통째로 꺼내 budget보다 많이 꺼냈어도 0 아래로 내리지 않는다 — 뒤 글자가 멈칫하지 않게
+        budget = Math.max(0, budget - size);
+      }
     }
-    const text = bubble.chars.splice(0, size).join("");
-    reveal(text, bubble.opensBubble);
-    bubble.opensBubble = false;
-    if (bubble.chars.length === 0) {
-      pending.shift();
-    }
+    frame = requestAnimationFrame(step);
   }
 
   function start() {
-    if (timer === null) {
-      timer = setInterval(tick, TICK_MS);
+    if (frame === null) {
+      frame = requestAnimationFrame(step);
     }
   }
 
