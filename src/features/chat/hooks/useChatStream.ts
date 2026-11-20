@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
+import {
+  createTypingQueue,
+  type TypingQueue,
+} from "@/features/chat/utils/typingQueue";
 import { streamChatMessage } from "@/shared/entities/chat/chatStream";
 
 interface ChatUserMessage {
@@ -32,11 +36,14 @@ export function useChatStream({ onFailure }: UseChatStreamOptions) {
   const [isAnswering, setIsAnswering] = useState(false);
   const nextMessageIdRef = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const typingQueueRef = useRef<TypingQueue | null>(null);
 
-  // 답변 중에 화면을 떠나면(종료하기·뒤로가기) 연결을 끊는다 — 서버도 학생이 끊으면 중계를 멈춘다
+  // 답변 중에 화면을 떠나면(종료하기·뒤로가기) 연결을 끊는다 — 서버도 학생이 끊으면 중계를 멈춘다.
+  // 아직 화면에 붙이지 못한 글자도 버린다(그릴 화면이 없다)
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
+      typingQueueRef.current?.cancel();
     };
   }, []);
 
@@ -62,6 +69,33 @@ export function useChatStream({ onFailure }: UseChatStreamOptions) {
     ]);
     setIsAnswering(true);
 
+    // 받은 조각은 대기열에 쌓고, 대기열이 일정한 속도로 꺼내 줄 때 말풍선에 붙인다(utils/typingQueue)
+    const typingQueue = createTypingQueue((text, opensBubble) => {
+      if (botMessageId === null) {
+        const id = nextMessageId();
+        botMessageId = id;
+        setMessages((prev) => [
+          ...prev,
+          { bubbles: [text], id, sender: "bot" },
+        ]);
+        return;
+      }
+      const id = botMessageId;
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === id && message.sender === "bot"
+            ? {
+                ...message,
+                bubbles: opensBubble
+                  ? [...message.bubbles, text]
+                  : appendToLastBubble(message.bubbles, text),
+              }
+            : message,
+        ),
+      );
+    });
+    typingQueueRef.current = typingQueue;
+
     try {
       await streamChatMessage(
         { conversationId, message: question },
@@ -70,35 +104,16 @@ export function useChatStream({ onFailure }: UseChatStreamOptions) {
             isNewBubblePending = true;
           },
           onDelta: (text) => {
-            if (botMessageId === null) {
-              const id = nextMessageId();
-              botMessageId = id;
-              setMessages((prev) => [
-                ...prev,
-                { bubbles: [text], id, sender: "bot" },
-              ]);
-              return;
-            }
-            const id = botMessageId;
-            const opensBubble = isNewBubblePending;
+            typingQueue.push(text, isNewBubblePending);
             isNewBubblePending = false;
-            setMessages((prev) =>
-              prev.map((message) =>
-                message.id === id && message.sender === "bot"
-                  ? {
-                      ...message,
-                      bubbles: opensBubble
-                        ? [...message.bubbles, text]
-                        : appendToLastBubble(message.bubbles, text),
-                    }
-                  : message,
-              ),
-            );
           },
         },
         controller.signal,
       );
+      // 다 받았어도 화면에는 아직 글자가 남아 있다 — 다 보여준 뒤에 입력창을 연다
+      await typingQueue.finish();
     } catch (error) {
+      typingQueue.cancel();
       // 화면을 떠나 끊은 요청 — 그릴 화면이 없다
       if (controller.signal.aborted) {
         return;
