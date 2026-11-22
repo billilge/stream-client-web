@@ -1,7 +1,7 @@
 import { Loading, PushBadge, TopNavigationButton } from "@wanteddev/wds";
 import { IconBell, IconSearch, IconSetting } from "@wanteddev/wds-icon";
 import { Suspense, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import chatbotIcon from "@/assets/icons/chat/bot.svg";
 import logo from "@/assets/icons/home/logo.svg";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -24,9 +24,17 @@ import HomeNoticeBanner from "@/features/home/components/HomeNoticeBanner";
 import HomeNoticeBannerSkeleton from "@/features/home/components/HomeNoticeBannerSkeleton";
 import HomeRentalSection from "@/features/home/components/HomeRentalSection";
 import HomeRentalSkeleton from "@/features/home/components/HomeRentalSkeleton";
+import {
+  HOME_LOCKER_NOTICE_PATH,
+  HOME_PATH,
+} from "@/features/home/constants/home";
 import { HOME_HAS_UNREAD_NOTIFICATION } from "@/features/home/constants/homeMock";
 import { useHomePullToRefresh } from "@/features/home/hooks/useHomePullToRefresh";
-import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
+import LockersNoticeSheet from "@/features/lockers/components/LockersNoticeSheet";
+import {
+  LOCKER_ASSIGNMENT_PATH,
+  LOCKERS_SECTIONS_PATH,
+} from "@/features/lockers/constants/lockers";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 import { SETTINGS_PATHS } from "@/features/settings/constants/settings";
@@ -70,11 +78,27 @@ function HomeScreen() {
         : `/events/${banner.targetId}`,
     );
   };
+
+  // 사물함 신청 유의사항 시트는 홈 위에 띄운다(시안: 시트 뒤에 홈). 주소로 열어서 뒤로가기로 닫힌다
+  const [searchParams] = useSearchParams();
+  const isLockerNoticeOpen = searchParams.get("sheet") === "locker-notice";
+  const openLockerNotice = () => navigate(HOME_LOCKER_NOTICE_PATH);
+  const closeLockerNotice = () => {
+    // 주소로 바로 들어와 뒤로 갈 곳이 없으면 시트만 닫는다
+    if ((window.history.state?.idx ?? 0) > 0) {
+      navigate(-1);
+    } else {
+      navigate(HOME_PATH, { replace: true });
+    }
+  };
   // 사물함은 상세 화면이 없어서 카드도 신청(유의사항 시트 → 구역 선택)으로 보낸다
-  const getApplySectionPath = (section: HomeApplySection) =>
-    section.targetType === "EVENT"
-      ? `/events/${section.targetId}`
-      : "/lockers/apply";
+  const openApplySection = (section: HomeApplySection) => {
+    if (section.targetType === "EVENT") {
+      push(`/events/${section.targetId}`);
+    } else {
+      openLockerNotice();
+    }
+  };
 
   return (
     <div className="relative flex h-full flex-col">
@@ -165,13 +189,11 @@ function HomeScreen() {
             <Suspense fallback={null}>
               <HomeApplyCardList
                 onApply={(section) =>
-                  push(
-                    section.targetType === "EVENT"
-                      ? `/events/${section.targetId}/apply`
-                      : "/lockers/apply",
-                  )
+                  section.targetType === "EVENT"
+                    ? push(`/events/${section.targetId}/apply`)
+                    : openLockerNotice()
                 }
-                onSelect={(section) => push(getApplySectionPath(section))}
+                onSelect={openApplySection}
               />
             </Suspense>
             <div className="px-5">
@@ -212,6 +234,12 @@ function HomeScreen() {
         <img alt="" className="relative" src={chatbotIcon} />
       </button>
       {returnRequestDialogs}
+      <LockersNoticeSheet
+        onClose={closeLockerNotice}
+        // 구역 선택에서 뒤로 가면 시트가 아니라 홈으로 오게 시트 기록을 바꿔치기한다
+        onConfirm={() => navigate(LOCKERS_SECTIONS_PATH, { replace: true })}
+        open={isLockerNoticeOpen}
+      />
     </div>
   );
 }

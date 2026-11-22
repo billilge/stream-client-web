@@ -1,3 +1,6 @@
 // 홈 화면의 라우트 경로 — 뒤로가기 폴백, 완료 화면의 "홈으로 가기", 로그인 후 이동처럼 여러 기능이 같이 쓰므로
 // 문자열을 흩지 않고 한곳에 둔다(알림의 `NOTIFICATIONS_PATH`와 같은 방식). `/`는 이 경로로 리다이렉트한다.
 export const HOME_PATH = "/home";
+
+// 홈 위에 사물함 신청 유의사항 시트를 띄운 주소 — 시트를 주소로 열어 뒤로가기로 닫힌다
+export const HOME_LOCKER_NOTICE_PATH = `${HOME_PATH}?sheet=locker-notice`;
