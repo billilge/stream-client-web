@@ -58,6 +58,7 @@ function EventsCard({
       <div className="flex h-28 min-w-px flex-1 flex-col justify-between">
         <div className="flex flex-col items-start gap-1">
           <EventsStatusBadge
+            applied={applicationId !== null}
             status={recruitStatus}
             statusLabel={getEventStatusLabel(event)}
           />

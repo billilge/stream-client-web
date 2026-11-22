@@ -6,6 +6,8 @@ interface EventsStatusBadgeProps {
   status: EventRecruitStatus;
   /** 뱃지 문구 — 모집중은 "신청마감 D-2"처럼 마감까지 남은 일수가 들어가서 상태만으로 못 정한다 */
   statusLabel: string;
+  /** 이미 신청한 행사 — 모집 상태와 상관없이 "신청완료"를 그린다 */
+  applied?: boolean;
   /** 목록 카드는 small(캡션 12px), 상세는 medium(라벨 13px) — Figma 스펙이 화면마다 다르다 */
   size?: "small" | "medium";
 }
@@ -20,15 +22,23 @@ const STATUS_BADGE = {
   OPEN: { color: "accent", token: "semantic.accent.foreground.redOrange" },
 } as const;
 
+// "신청완료"는 Figma(5365:91404 목록 / 5365:91436 상세)에서 화면마다 색 토큰이 다르다 —
+// 목록은 Accent/Foreground/Blue(#005EEB), 상세는 Primary/Normal(#0066FF). 둘 다 accent 구조라 토큰만 갈린다.
+const APPLIED_BADGE = {
+  medium: { color: "accent", token: "semantic.primary.normal" },
+  small: { color: "accent", token: "semantic.accent.foreground.blue" },
+} as const;
+
 // Figma: Content Badge/Content Badge (메인 컴포넌트 445:5656)
 // 목록 카드(1243:70867 등)와 상세(1133:42440 / 1156:53999)가 같은 상태-색 규칙을 쓰기 때문에
-// 매핑을 두 곳에 적지 않도록 여기로 모았다. 화면별로 다른 건 size뿐이다.
+// 매핑을 두 곳에 적지 않도록 여기로 모았다. 화면별로 다른 건 size와 신청완료 색뿐이다.
 function EventsStatusBadge({
   status,
   statusLabel,
+  applied = false,
   size = "small",
 }: EventsStatusBadgeProps) {
-  const badge = STATUS_BADGE[status];
+  const badge = applied ? APPLIED_BADGE[size] : STATUS_BADGE[status];
 
   return (
     <ContentBadge
@@ -38,7 +48,7 @@ function EventsStatusBadge({
       size={size}
       variant="solid"
     >
-      {statusLabel}
+      {applied ? "신청완료" : statusLabel}
     </ContentBadge>
   );
 }

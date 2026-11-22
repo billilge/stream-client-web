@@ -44,8 +44,8 @@ interface EventsDetailContentProps {
 // - 모집중: 활성. 단 신청 자격(isFeeEligible)이 없으면 disabled에 "학생회비 납부자만 신청할 수 있어요"
 // - 모집예정: disabled에 신청 시작 일시("8월 10일 18시 오픈")
 // - 모집종료: Figma "CTA 없음"(1156:54125)대로 하단 버튼(Action Area)을 그리지 않는다
-// 이미 신청한 행사는 모집 상태와 상관없이 하단 버튼이 "신청내역 보기"가 돼 신청내역 상세로 보낸다 —
-// 모집종료여도 내 신청을 확인하러 올 수 있어서 버튼을 그린다. Figma에 이 상태가 없어서 정한 것이다.
+// 이미 신청한 행사는 Figma(5365:91436)대로 뱃지가 "신청완료", 하단 버튼이 "신청내역 보기"가 돼 신청내역 상세로 보낸다.
+// 모집 상태와 상관없이 이렇게 그린다 — 모집종료여도 내 신청을 확인하러 올 수 있어서 버튼을 그린다.
 function EventsDetailContent({
   eventId,
   onBack,
@@ -153,6 +153,7 @@ function EventsDetailContent({
           <div className="flex flex-col gap-3">
             <div className="flex flex-col items-start gap-2">
               <EventsStatusBadge
+                applied={event.applicationId !== null}
                 size="medium"
                 status={event.recruitStatus}
                 statusLabel={getEventStatusLabel(event)}
