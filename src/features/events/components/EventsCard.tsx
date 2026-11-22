@@ -25,8 +25,9 @@ interface EventsCardProps {
 // disabled 상태 색(label.assistive + interaction.disable)도 모집예정/모집종료 스펙과 그대로 일치한다
 // (button/style.js의 &[aria-disabled='true'] 블록 확인). 그래서 sx 없이 disabled prop만 쓴다.
 //
-// 이미 신청한 행사는 모집 상태와 상관없이 "신청완료"를 outlined로 그리고, 누르면 신청내역 상세로 보낸다.
-// Figma에 이 상태가 없어서 정한 것이다 — disabled로 막으면 모집예정·모집종료와 같은 회색이 돼 구분되지 않는다.
+// 이미 신청한 행사는 Figma(5365:91404)대로 뱃지를 "신청완료"로, 버튼을 "신청내역 보기" outlined로 그리고,
+// 버튼을 누르면 신청내역 상세로 보낸다. WDS outlined primary가 글자 Primary/Normal + 테두리 Line/Normal/Neutral이라
+// Figma 버튼과 그대로 맞는다. 모집종료여도 내 신청을 확인하러 올 수 있어서 모집 상태와 상관없이 이렇게 그린다.
 function EventsCard({
   event,
   onApply,
@@ -98,7 +99,7 @@ function EventsCard({
               size="small"
               variant="outlined"
             >
-              신청완료
+              신청내역 보기
             </Button>
           )}
         </div>
