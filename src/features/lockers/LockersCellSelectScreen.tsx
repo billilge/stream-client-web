@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft, IconImage, IconReset } from "@wanteddev/wds-icon";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import {
   Navigate,
   useLocation,
@@ -41,6 +41,8 @@ import type {
   LockerPeriodResponse,
   LockersSectionDetail,
 } from "@/shared/entities/lockers/lockersTypes";
+
+const REFRESH_MIN_HIDDEN_MS = 300;
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
 function LockersCellSelectScreen() {
@@ -107,6 +109,8 @@ function SectionLockerSelect({
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isUnavailableToastOpen, setIsUnavailableToastOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const isRefreshingRef = useRef(false);
   // 선택 불가 칸을 연달아 눌러도 토스트가 처음부터 다시 뜨고 스크린리더가 다시 읽도록 key로 새로 그린다
   const [unavailableTapCount, setUnavailableTapCount] = useState(0);
   const { isSubmitting, submit } = useLockersApplySubmit(
@@ -135,6 +139,24 @@ function SectionLockerSelect({
     }
     setUnavailableTapCount((count) => count + 1);
     setIsUnavailableToastOpen(true);
+  };
+
+  // 크롬 새로고침처럼 칸 배치를 잠깐 지웠다가 다시 받은 뒤 보여 준다. 응답이 빨라도 사라진 게 보이게
+  // 최소 시간을 두고, 그동안 다시 눌러도 한 번만 받는다
+  const refresh = async () => {
+    if (isRefreshingRef.current) {
+      return;
+    }
+    isRefreshingRef.current = true;
+    setIsRefreshing(true);
+    await Promise.all([
+      queryClient.refetchQueries({
+        queryKey: lockersKeys.sectionDetail(lockerPeriodId, detail.sectionId),
+      }),
+      new Promise((resolve) => setTimeout(resolve, REFRESH_MIN_HIDDEN_MS)),
+    ]);
+    isRefreshingRef.current = false;
+    setIsRefreshing(false);
   };
 
   useScreenHeader(
@@ -168,14 +190,7 @@ function SectionLockerSelect({
           )}
           <TopNavigationButton
             aria-label="새로고침"
-            onClick={() =>
-              queryClient.refetchQueries({
-                queryKey: lockersKeys.sectionDetail(
-                  lockerPeriodId,
-                  detail.sectionId,
-                ),
-              })
-            }
+            onClick={refresh}
             variant="icon"
           >
             <IconReset />
@@ -209,7 +224,17 @@ function SectionLockerSelect({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <LockersMapView legend={<LockersLegend />} map={map} />
+      {/* 사라질 때는 바로, 나타날 때만 서서히 */}
+      <div
+        aria-busy={isRefreshing}
+        className={`flex min-h-0 flex-1 flex-col ${
+          isRefreshing
+            ? "opacity-0"
+            : "opacity-100 transition-opacity duration-200 ease-out"
+        }`}
+      >
+        <LockersMapView legend={<LockersLegend />} map={map} />
+      </div>
 
       <LockersSelectedLockerBar
         lockerLabel={selectableLocker?.lockerLabel ?? null}
