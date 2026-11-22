@@ -23,6 +23,7 @@
 | 검색 | `search` |
 | 알림 | `notifications` |
 | 챗봇 | `chat` |
+| 학사 일정 | `calendars` |
 | 파일 | `files` |
 | 행사(event) | `events` |
 | 홈 | `home` |
