@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { TopNavigationButton } from "@wanteddev/wds";
 import { IconChevronLeft, IconImage, IconReset } from "@wanteddev/wds-icon";
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import {
   Navigate,
   useLocation,
@@ -31,6 +31,7 @@ import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelec
 import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import { LOCKERS_APPLY_SUBMITTING_TEXT } from "@/features/lockers/constants/lockersApplySubmit";
 import { useLockersApplySubmit } from "@/features/lockers/hooks/useLockersApplySubmit";
+import { useLockersRefresh } from "@/features/lockers/hooks/useLockersRefresh";
 import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
 import {
   hasLockerInPeriod,
@@ -41,8 +42,6 @@ import type {
   LockerPeriodResponse,
   LockersSectionDetail,
 } from "@/shared/entities/lockers/lockersTypes";
-
-const REFRESH_MIN_HIDDEN_MS = 300;
 
 // Figma: A-1구역 (nodeId 2159:110753), A-2구역 (2159:109533), A-1구역 실제사진 (2159:110174)
 function LockersCellSelectScreen() {
@@ -109,8 +108,6 @@ function SectionLockerSelect({
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isUnavailableToastOpen, setIsUnavailableToastOpen] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const isRefreshingRef = useRef(false);
   // 선택 불가 칸을 연달아 눌러도 토스트가 처음부터 다시 뜨고 스크린리더가 다시 읽도록 key로 새로 그린다
   const [unavailableTapCount, setUnavailableTapCount] = useState(0);
   const { isSubmitting, submit } = useLockersApplySubmit(
@@ -141,23 +138,11 @@ function SectionLockerSelect({
     setIsUnavailableToastOpen(true);
   };
 
-  // 크롬 새로고침처럼 칸 배치를 잠깐 지웠다가 다시 받은 뒤 보여 준다. 응답이 빨라도 사라진 게 보이게
-  // 최소 시간을 두고, 그동안 다시 눌러도 한 번만 받는다
-  const refresh = async () => {
-    if (isRefreshingRef.current) {
-      return;
-    }
-    isRefreshingRef.current = true;
-    setIsRefreshing(true);
-    await Promise.all([
-      queryClient.refetchQueries({
-        queryKey: lockersKeys.sectionDetail(lockerPeriodId, detail.sectionId),
-      }),
-      new Promise((resolve) => setTimeout(resolve, REFRESH_MIN_HIDDEN_MS)),
-    ]);
-    isRefreshingRef.current = false;
-    setIsRefreshing(false);
-  };
+  const { fadeClassName, isRefreshing, refresh } = useLockersRefresh(() =>
+    queryClient.refetchQueries({
+      queryKey: lockersKeys.sectionDetail(lockerPeriodId, detail.sectionId),
+    }),
+  );
 
   useScreenHeader(
     <ScreenHeader
@@ -224,14 +209,9 @@ function SectionLockerSelect({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      {/* 사라질 때는 바로, 나타날 때만 서서히 */}
       <div
         aria-busy={isRefreshing}
-        className={`flex min-h-0 flex-1 flex-col ${
-          isRefreshing
-            ? "opacity-0"
-            : "opacity-100 transition-opacity duration-200 ease-out"
-        }`}
+        className={`flex min-h-0 flex-1 flex-col ${fadeClassName}`}
       >
         <LockersMapView legend={<LockersLegend />} map={map} />
       </div>
