@@ -3,6 +3,7 @@ import { PageCounter, Typography } from "@wanteddev/wds";
 import { useEffect, useRef } from "react";
 
 import noticeGeneral from "@/assets/images/home/notice-general.jpg";
+import noticeSurvey from "@/assets/images/home/notice-survey.jpg";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { homeQueries } from "@/shared/entities/home/homeQueries";
 import type {
@@ -12,10 +13,10 @@ import type {
 
 const AUTO_SLIDE_MS = 5000;
 
-// 배너가 하나도 없을 때 보여 주는 카드 — 누를 곳이 없다
+// 배너가 하나도 없을 때 보여 주는 stream 만족도조사 카드(Figma 5365:84424) — 아직 누를 곳이 없다
 const DEFAULT_BANNER = {
-  subtitle: "새 소식이 생기면 여기에서 알려 드릴게요",
-  title: "stream에 오신 것을 환영해요",
+  subtitle: "여러분의 의견을 들려 주세요",
+  title: "stream에\n바라는 점이 있다면?",
 };
 
 interface HomeNoticeCardProps {
@@ -27,6 +28,8 @@ interface HomeNoticeCardProps {
   total: number;
   // 마지막 카드 뒤에 붙는 첫 카드 복제본 — 스크린리더가 두 번 읽지 않게 숨긴다
   isClone?: boolean;
+  // 배너가 없을 때의 기본 카드 — 일반공지 그림 대신 만족도조사 그림을 깐다
+  isDefault?: boolean;
   // 없으면 누를 수 없는 카드(배너가 없을 때의 기본 카드)
   onSelect?: () => void;
 }
@@ -34,7 +37,8 @@ interface HomeNoticeCardProps {
 // Figma: Notice Carousel (nodeId 3562:163869) — 일반공지 3562:163870, 행사 3562:163888,
 // 제휴 3562:163897, 사물함 3562:163906, 간식 3562:163915
 // 배경은 서버가 이미지 한 장(카드 전체 크기, 그림과 배경색을 합친 것)으로 준다 — 운영진이 고른 카테고리의
-// 정해진 이미지거나 직접 올린 이미지다. 기본 카드와 이미지가 지워진 배너만 일반공지 그림과 배경색을 직접 깐다.
+// 정해진 이미지거나 직접 올린 이미지다. 이미지가 지워진 배너는 일반공지 그림을, 기본 카드는 만족도조사 그림을
+// 배경색 위에 직접 깐다.
 function HomeNoticeCard({
   title,
   subtitle,
@@ -42,6 +46,7 @@ function HomeNoticeCard({
   index,
   total,
   isClone,
+  isDefault,
   onSelect,
 }: HomeNoticeCardProps) {
   // 공지·행사·외부 링크로 가는 카드는 버튼으로 그린다
@@ -68,7 +73,7 @@ function HomeNoticeCard({
         <img
           alt=""
           className="absolute top-0 left-1/2 w-83.75 max-w-none -translate-x-1/2"
-          src={noticeGeneral}
+          src={isDefault ? noticeSurvey : noticeGeneral}
         />
       )}
       <div className="relative flex items-end justify-between gap-2">
@@ -235,6 +240,7 @@ function HomeNoticeBanner({ onSelect }: HomeNoticeBannerProps) {
       {banners.length === 0 ? (
         <HomeNoticeCard
           index={0}
+          isDefault
           subtitle={DEFAULT_BANNER.subtitle}
           title={DEFAULT_BANNER.title}
           total={1}
