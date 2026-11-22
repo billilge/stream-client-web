@@ -223,11 +223,12 @@ function SectionLockerSelect({
         sectionName={detail.section}
       />
 
-      {/* Figma: 사물함 선택 확인 모달 (nodeId 1737:218322) */}
+      {/* Figma: 사물함 선택 확인 모달 (nodeId 5365:90947) */}
       <ConfirmModal
         cancelLabel="수정"
         confirmLabel="신청하기"
         description="신청 후에는 변경할 수 없어요."
+        descriptionTone="negative"
         highlight={selectableLocker?.lockerLabel}
         onCancel={() => setIsConfirmOpen(false)}
         onConfirm={() => {

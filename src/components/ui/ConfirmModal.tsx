@@ -13,6 +13,8 @@ interface ConfirmModalProps {
   highlight?: string;
   title: string;
   description?: string;
+  /** negative: 설명을 빨간 글씨로 — 되돌릴 수 없다는 안내를 강조할 때 */
+  descriptionTone?: "default" | "negative";
   cancelLabel: string;
   confirmLabel: string;
   onCancel: () => void;
@@ -32,6 +34,7 @@ function ConfirmModal({
   highlight,
   title,
   description,
+  descriptionTone = "default",
   cancelLabel,
   confirmLabel,
   onCancel,
@@ -87,9 +90,13 @@ function ConfirmModal({
             <Typography
               as="p"
               className="whitespace-pre-line"
-              color="semantic.label.alternative"
+              color={
+                descriptionTone === "negative"
+                  ? "semantic.status.negative"
+                  : "semantic.label.alternative"
+              }
               variant="label1-reading"
-              weight="regular"
+              weight={descriptionTone === "negative" ? "medium" : "regular"}
             >
               {description}
             </Typography>
