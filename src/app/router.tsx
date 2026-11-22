@@ -20,6 +20,8 @@ import AuthSignUpScreen from "@/features/auth/AuthSignUpScreen";
 import { LOGIN_PATH } from "@/features/auth/constants/auth";
 import KConnectCallbackScreen from "@/features/auth/KConnectCallbackScreen";
 import BillilgeListScreen from "@/features/billilge/BillilgeListScreen";
+import CalendarsScreen from "@/features/calendars/CalendarsScreen";
+import { CALENDARS_PATH } from "@/features/calendars/constants/calendars";
 import ChatEntryScreen from "@/features/chat/ChatEntryScreen";
 import EventsApplicationClosedScreen from "@/features/events/EventsApplicationClosedScreen";
 import EventsApplicationCompleteScreen from "@/features/events/EventsApplicationCompleteScreen";
@@ -272,6 +274,15 @@ const routes = [
               hasBottomNav: false,
             } satisfies ScreenRouteHandle,
             path: "/search",
+          },
+          {
+            element: <CalendarsScreen />,
+            // Figma 학사일정 상세(5365:90635)에는 Bottom Nav가 없고 배경이 흰 면이다
+            handle: {
+              background: "normal",
+              hasBottomNav: false,
+            } satisfies ScreenRouteHandle,
+            path: CALENDARS_PATH,
           },
           {
             element: <NotificationsScreen tab="mine" />,
