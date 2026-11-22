@@ -13,7 +13,6 @@ interface ConfirmModalProps {
   highlight?: string;
   title: string;
   description?: string;
-  /** negative: 설명을 빨간 글씨로 — 되돌릴 수 없다는 안내를 강조할 때 */
   descriptionTone?: "default" | "negative";
   cancelLabel: string;
   confirmLabel: string;
