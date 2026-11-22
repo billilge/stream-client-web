@@ -7,9 +7,9 @@ interface BillilgeStatusBadgeProps {
   status: BillilgeRentalStatus;
 }
 
-// Figma: 빌릴게 대여내역 뱃지(1133:50036)의 Content Badge/Content Badge. WDS ContentBadge가 color="accent"면
+// Figma: 빌릴게 대여내역 뱃지(5365:90486)의 Content Badge/Content Badge. WDS ContentBadge가 color="accent"면
 // accentColor의 8% 배경에 원색 글자를 깔아서 Figma 구조와 같다(EventsStatusBadge와 같은 방식).
-// 승인대기도 주황으로 바꿔서 모든 상태가 accent다. 크기는 대여 내역 카드(1243:74983)에서 실측한 small이다.
+// 모든 상태가 accent다. 크기는 대여 내역 카드(1243:74983)에서 실측한 small이다.
 function BillilgeStatusBadge({ status }: BillilgeStatusBadgeProps) {
   const badge = BILLILGE_STATUS_BADGES[status];
 
