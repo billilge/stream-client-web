@@ -7,6 +7,7 @@ import FeeTransferStepLayout from "@/features/fee/components/FeeTransferStepLayo
 // Figma: 계좌 송금 - 토스 다녀와서 확인 버튼 (nodeId 3562:162973)
 // 토스에서 송금하고 돌아온 사용자에게 확인을 받는 단계. 실제 입금 확인은 학생회가 수동으로
 // 하기 때문에 여기서 "네"를 눌러야 확인 요청이 접수된다.
+// 아이콘과 제목 사이는 8px이다(수정 5364:3200에서 12 → 8px).
 //
 // 종이비행기(3562:162980)는 기울기·크기·위치가 함께 튀어 들어오는(overshoot) Figma Motion이라
 // Lottie로 받아 재생한다. 플러그인이 이징을 매 프레임으로 구워서 키프레임만 보면 끝을 알 수
@@ -49,7 +50,7 @@ function FeeTransferConfirmStep({
         </>
       }
       actionsVariant="strong"
-      contentGap={12}
+      contentGap={8}
       illustration={
         <FeeLottieIcon animation={sendFastMotion} settledFrame={49} />
       }
