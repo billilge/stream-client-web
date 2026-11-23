@@ -133,7 +133,8 @@ function FeedbacksNewScreen() {
       <ConfirmModal
         cancelLabel="수정"
         confirmLabel="보내기"
-        description="보내 주신 피드백은 정기 답변에서 함께 답변해 드려요."
+        // Figma 수정 요청(5364:2863): "피드백은" 뒤에서 줄을 바꿔 두 줄로 보여준다 — ConfirmModal이 \n을 줄바꿈으로 그린다
+        description={"보내 주신 피드백은\n정기 답변에서 함께 답변해 드려요."}
         onCancel={() => setIsConfirmOpen(false)}
         onConfirm={handleSend}
         open={isConfirmOpen}
