@@ -1,8 +1,8 @@
-// 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 송금 방법 → 송금 확인 → 확인요청 완료)
+// 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 송금 방법 → (계좌이체면 송금 후 복귀 안내) → 송금 확인 → 확인요청 완료)
 // 퍼널의 단계와 단계별 context 타입이다.
 // Figma: 남은 학기 수(nodeId 3562:162833) / 학점이수현황 업로드(3562:162845) /
 // 토스 이동 실패(3562:163046) / 송금 확인(3562:162973) / 확인요청 완료(3562:163013).
-// 송금 방법 단계(토스·계좌이체 고르기)는 Figma에 없다 — 토스 이동 안내(3562:163025)를 대신한다.
+// 송금 방법(5365:89327)이 토스 이동 안내(3562:163025)를 대신하고, 계좌이체를 고르면 송금 후 복귀 안내(5365:88979)를 거친다.
 //
 // context는 history.state에 실려서 문자열·숫자만 담는다. 캡처 이미지(`File`)는 담지 않는다 —
 // Chromium(Android WebView 포함)은 `File`이 든 history.state를 뒤로가기로 되살리지 못하고 state를
@@ -25,6 +25,7 @@ export type FeeTransferSteps = {
     accountNo: string;
     transferAmount: number;
   };
+  returnGuide: { semester: number; proofImageKey: string };
   confirm: { semester: number; proofImageKey: string };
   complete: Record<never, never>;
 };
@@ -69,6 +70,12 @@ export const FEE_TRANSFER_STEP_OPTIONS = {
       typeof data.bank === "string" &&
       typeof data.accountNo === "string" &&
       typeof data.transferAmount === "number",
+  },
+  returnGuide: {
+    guard: (data: unknown): data is FeeTransferSteps["returnGuide"] =>
+      isRecord(data) &&
+      isSemester(data.semester) &&
+      typeof data.proofImageKey === "string",
   },
   semester: {
     guard: (data: unknown): data is FeeTransferSteps["semester"] =>

@@ -16,6 +16,7 @@ import {
 import FeeTransferCompleteStep from "@/features/fee/steps/FeeTransferCompleteStep";
 import FeeTransferConfirmStep from "@/features/fee/steps/FeeTransferConfirmStep";
 import FeeTransferMethodStep from "@/features/fee/steps/FeeTransferMethodStep";
+import FeeTransferReturnGuideStep from "@/features/fee/steps/FeeTransferReturnGuideStep";
 import FeeTransferSemesterStep from "@/features/fee/steps/FeeTransferSemesterStep";
 import FeeTransferTranscriptStep from "@/features/fee/steps/FeeTransferTranscriptStep";
 import { HOME_PATH } from "@/features/home/constants/home";
@@ -37,7 +38,7 @@ import {
 } from "@/shared/entities/service-links/serviceLinksQueries";
 import type { ServiceLinkResponse } from "@/shared/entities/service-links/serviceLinksTypes";
 
-// 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 송금 방법 → 송금 확인 → 확인요청 완료)을
+// 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 송금 방법 → (계좌이체면 송금 후 복귀 안내) → 송금 확인 → 확인요청 완료)을
 // useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에 하나씩 나눠 두고, 이 파일은 단계 전환
 // (어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다 — 로그인·온보딩 퍼널(AuthSignUpScreen)과 같은 구성이다.
 // 단계는 `/fee/transfer?fee.step=...`으로 나뉘고 단계마다 브라우저 뒤로가기가 한 단계씩 돌아간다.
@@ -234,7 +235,7 @@ function FeeTransferFunnel() {
             method={transferMethod}
             onBack={() => history.back()}
             onChangeMethod={setTransferMethod}
-            // 은행 앱에서 보내고 돌아오면 송금 확인 단계가 기다리게 바로 넘긴다(토스와 같다).
+            // 복사하면 송금 후 복귀 안내로 넘긴다 — 은행 앱에서 보내고 돌아와 그 화면에서 송금 확인으로 간다.
             // 복사가 막혀도 토스트에 담긴 계좌로 보낼 수 있어서 같이 넘긴다 — 여기서 멈추면 다음으로 갈 길이 없다
             onCopyAccount={() => {
               // 은행 앱이 붙여 넣은 계좌를 알아보기 쉽게 은행 이름을 붙여 복사한다
@@ -256,7 +257,7 @@ function FeeTransferFunnel() {
                       },
                     );
                   }
-                  history.push("confirm", {}, SLIDE);
+                  history.push("returnGuide", {}, SLIDE);
                 },
               );
             }}
@@ -271,6 +272,13 @@ function FeeTransferFunnel() {
             }}
             remainingSemesters={context.semester}
             transferAmount={context.transferAmount}
+          />
+        )}
+        returnGuide={({ history, index }) => (
+          <FeeTransferReturnGuideStep
+            onBack={() => history.back()}
+            onContinue={() => history.push("confirm", {}, SLIDE)}
+            onPostpone={() => exitFunnel(index)}
           />
         )}
         transcript={({ context, history }) => (
@@ -342,8 +350,10 @@ function FeeTransferFunnel() {
             setToast((prev) => ({ ...prev, isOpen: false }));
           }
         }}
-        // 송금 확인 단계만 메인 버튼 아래 "다음에 할게요"가 쌓여 있어서 그 위로 올린다(복사 안내·요청 실패 토스트가 버튼을 가리지 않게)
-        aboveStackedActions={funnel.step === "confirm"}
+        // 송금 확인·송금 후 복귀 안내는 메인 버튼 아래 "다음에 할게요"가 쌓여 있어서 그 위로 올린다(복사 안내·요청 실패 토스트가 버튼을 가리지 않게)
+        aboveStackedActions={
+          funnel.step === "confirm" || funnel.step === "returnGuide"
+        }
         open={toast.isOpen}
         variant={toast.variant}
       />
