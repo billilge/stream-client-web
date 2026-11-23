@@ -48,6 +48,8 @@ function FeedbacksFilter({
 }: FeedbacksFilterProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isAllYears = year === null;
+  // 연도가 걸려 있거나 차수를 안 골랐으면 첫 칩이 활성이다
+  const isYearChipActive = !isAllYears || round === null;
 
   // WDS Menu는 항목을 골라도 스스로 닫히지 않아서, 선택과 동시에 직접 닫는다.
   const handleYearChange = (value?: string | string[]) => {
@@ -67,8 +69,14 @@ function FeedbacksFilter({
       >
         <MenuTrigger>
           <FilterChip
-            isActive={!isAllYears || round === null}
-            trailing={<IconChevronDown className="size-3.5" />}
+            isActive={isYearChipActive}
+            // 화살표 색을 주지 않으면 버튼 기본색(검정)이 되어 파란 라벨과 따로 논다(Figma 수정 요청 5364:2796) —
+            // 라벨과 같은 색(활성 Primary, 비활성 Label/Alternative)으로 맞춘다
+            trailing={
+              <IconChevronDown
+                className={`size-3.5 ${isYearChipActive ? "text-primary" : "text-label-alternative"}`}
+              />
+            }
           >
             {isAllYears ? "전체" : year}
           </FilterChip>
