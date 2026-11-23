@@ -60,6 +60,9 @@
   /* 학생회비 송금 — 업로드한 파일 행 배경(Figma "Atomic/Blue/99", 3562:162922).
      primary-subtle(Blue/95)보다 훨씬 옅어서 흰 카드 위에서 행만 살짝 떠 보인다 */
   --color-blue-99: var(--atomic-blue-99);
+  /* 열린피드백 소개 버튼 — '피드백 작성하기' 배경과 '작성내역 보기' 테두리(Figma "Atomic/Blue/60", 5421:95620).
+     primary(Blue/50)보다 한 단계 밝은 파랑이다 */
+  --color-blue-60: var(--atomic-blue-60);
   --color-line-solid-alternative: var(--semantic-line-solid-alternative);
 
   --color-status-positive: var(--semantic-status-positive);
