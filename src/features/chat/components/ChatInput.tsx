@@ -37,7 +37,7 @@ const ChatInput = forwardRef<HTMLInputElement, ChatInputProps>(
           disabled={disabled}
           maxLength={CHAT_MESSAGE_MAX_LENGTH}
           onChange={(event) => onChange(event.target.value)}
-          placeholder="Stream AI에게 무엇이든 물어보세요"
+          placeholder="stream AI에게 무엇이든 물어보세요"
           ref={ref}
           value={value}
           variant="body2"
