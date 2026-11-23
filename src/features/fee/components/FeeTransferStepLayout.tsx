@@ -6,9 +6,15 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 
 // 본문 스택 간격. Figma가 화면마다 다르게 잡아뒀다 —
-// 토스 안내·실패는 8px(3562:163031), 송금 확인은 12px(3562:162979),
-// 입력이 있는 단계는 16px(3562:162839, 3562:162853).
+// 토스 이동 실패·송금 확인·송금 후 복귀 안내는 8px(3562:163031, 5365:88985 — 송금 확인은 수정 5364:3200에서 12 → 8px),
+// 송금 방법은 12px(5365:89331), 입력이 있는 단계는 16px(3562:162839, 3562:162853).
 type FeeTransferContentGap = 8 | 12 | 16;
+
+// 제목 글자. 대부분 Heading 1 + Label/Strong이고, 송금 방법(5365:89334)만 Heading 2 + Label/Normal이다.
+const TITLE_STYLES = {
+  heading1: { color: "semantic.label.strong", variant: "heading1" },
+  heading2: { color: "semantic.label.normal", variant: "heading2" },
+} as const;
 
 const CONTENT_GAP_CLASS_NAMES: Record<FeeTransferContentGap, string> = {
   8: "gap-2",
@@ -20,6 +26,8 @@ interface FeeTransferStepLayoutProps {
   /** 제목 위에 놓이는 48px 일러스트 */
   illustration?: ReactNode;
   title: ReactNode;
+  /** 제목 글자 — 기본 heading1. 송금 방법 화면만 heading2다 */
+  titleVariant?: keyof typeof TITLE_STYLES;
   description?: ReactNode;
   contentGap?: FeeTransferContentGap;
   /** 제목/설명 아래에 붙는 입력·카드 등 */
@@ -37,17 +45,18 @@ interface FeeTransferStepLayoutProps {
 
 // Figma: 계좌 송금 퍼널의 단계 화면들이 공유하는 뼈대 —
 // 남은 학기 수(3562:162833) / 학점이수현황 업로드(3562:162845) /
-// 송금 방법(Figma 없음 — 토스 이동 안내 3562:163025 자리) / 토스 이동 실패(3562:163046) / 송금 확인(3562:162973).
+// 송금 방법(5365:89327) / 토스 이동 실패(3562:163046) / 송금 후 복귀 안내(5365:88979) / 송금 확인(3562:162973).
 //
-// 네 단계 모두 `뒤로가기만 있는 헤더 → 12px → (일러스트) 제목·설명 → 본문 → 하단 고정 버튼`
-// 구조가 같고 간격과 문구만 다르다. 제목은 Label/Strong(#000000)으로, 설명은
-// Label/Alternative로 고정이라 prop으로 빼지 않았다.
+// 모든 단계가 `뒤로가기만 있는 헤더 → 12px → (일러스트) 제목·설명 → 본문 → 하단 고정 버튼`
+// 구조가 같고 간격과 문구만 다르다. 제목은 대부분 Heading 1 + Label/Strong(#000000)이고(송금 방법만
+// `titleVariant="heading2"`), 설명은 Label/Alternative로 고정이라 prop으로 빼지 않았다.
 //
 // 완료 단계(3562:163013)만 이 뼈대를 쓰지 않는다 — 뒤로가기가 아니라 X로 닫고 중앙 정렬이라
 // 신청 결과 화면 공용 컴포넌트(ResultScreen)와 같은 모양이다.
 function FeeTransferStepLayout({
   illustration,
   title,
+  titleVariant = "heading1",
   description,
   contentGap = 16,
   children,
@@ -80,8 +89,8 @@ function FeeTransferStepLayout({
         <div className="flex flex-col gap-2">
           <Typography
             as="h1"
-            color="semantic.label.strong"
-            variant="heading1"
+            color={TITLE_STYLES[titleVariant].color}
+            variant={TITLE_STYLES[titleVariant].variant}
             weight="bold"
           >
             {title}
