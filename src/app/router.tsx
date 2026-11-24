@@ -34,11 +34,13 @@ import FeedbacksListScreen from "@/features/feedbacks/FeedbacksListScreen";
 import FeedbacksMineDetailScreen from "@/features/feedbacks/FeedbacksMineDetailScreen";
 import FeedbacksMineScreen from "@/features/feedbacks/FeedbacksMineScreen";
 import FeedbacksNewScreen from "@/features/feedbacks/FeedbacksNewScreen";
-import { HOME_PATH } from "@/features/home/constants/home";
+import {
+  HOME_LOCKER_NOTICE_PATH,
+  HOME_PATH,
+} from "@/features/home/constants/home";
 import HomeScreen from "@/features/home/HomeScreen";
 import LockersApplyCompleteScreen from "@/features/lockers/LockersApplyCompleteScreen";
 import LockersApplyFailureScreen from "@/features/lockers/LockersApplyFailureScreen";
-import LockersApplyScreen from "@/features/lockers/LockersApplyScreen";
 import LockersAssignmentScreen from "@/features/lockers/LockersAssignmentScreen";
 import LockersCellSelectScreen from "@/features/lockers/LockersCellSelectScreen";
 import LockersMineScreen from "@/features/lockers/LockersMineScreen";
@@ -249,8 +251,8 @@ const routes = [
             path: "/settings/withdrawal/complete",
           },
           {
-            element: <LockersApplyScreen />,
-            // 시트만 있는 화면이라 뒤에 Bottom Nav가 비쳐도 Figma(홈 위에 뜨는 시트)와 같다
+            // 유의사항 시트는 홈 위에 뜬다 — 예전 주소로 들어와도 홈에서 시트를 연다
+            element: <Navigate replace to={HOME_LOCKER_NOTICE_PATH} />,
             path: "/lockers/apply",
           },
           {
