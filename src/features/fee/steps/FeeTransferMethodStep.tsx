@@ -13,7 +13,7 @@ import type { FeeTransferMethod } from "@/features/fee/constants/feeTransferFunn
 // - 계좌이체: 학생회 계좌번호를 복사하고(화면에는 보여 주지 않고 토스트로만 알린다) 송금 후 복귀 안내 단계로 넘긴다
 // 실제로 여는·복사하는 일은 퍼널(FeeTransferScreen)이 맡는다.
 //
-// 고른 방법은 퍼널이 들고 있어서(`method`) 송금 확인에서 뒤로 돌아와도 남는다.
+// 고른 방법은 퍼널이 들고 있어서(`method`) 송금 확인·복귀 안내에서 뒤로 돌아와도 남는다.
 //
 // 토스 이동 실패(Figma 3562:163046)는 이 단계 안의 state다 — 서버가 송금 링크를 주지 않았을 때(`hasTossLink`)
 // 토스를 고르면 띄운다. 토스는 딥링크라 실제로 열렸는지 브라우저가 알려주지 않아서 링크가 있으면 열기만 한다.
@@ -38,7 +38,7 @@ function FeeTransferMethodStep({
   onChangeMethod: (method: FeeTransferMethod) => void;
   /** 토스를 열고 송금 확인 단계로 넘긴다 */
   onOpenToss: () => void;
-  /** 계좌번호를 복사해 토스트로 알리고 송금 확인 단계로 넘긴다 */
+  /** 계좌번호를 복사해 토스트로 알리고 송금 후 복귀 안내 단계로 넘긴다 */
   onCopyAccount: () => void;
 }) {
   const [hasTossFailed, setTossFailed] = useState(false);

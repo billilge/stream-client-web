@@ -9,7 +9,7 @@ import FeeTransferStepLayout from "@/features/fee/components/FeeTransferStepLayo
 const CONFIRM_LABEL = "네, 송금했어요";
 
 // Figma: 계좌 송금 - 토스 다녀와서 확인 버튼 (nodeId 3562:162973)
-// 송금하고 돌아온 사용자에게 확인을 받는 단계(토스는 송금 방법에서, 계좌이체는 송금 후 복귀 안내에서 온다).
+// 토스로 송금하고 돌아온 사용자에게 확인을 받는 단계 — 계좌이체는 송금 후 복귀 안내가 이 확인을 대신한다.
 // 실제 입금 확인은 학생회가 수동으로 하기 때문에 여기서 "네"를 눌러야 확인 요청이 접수된다.
 // 아이콘과 제목 사이는 8px이다(수정 5364:3200에서 12 → 8px).
 //
