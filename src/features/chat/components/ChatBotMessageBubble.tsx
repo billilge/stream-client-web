@@ -12,9 +12,11 @@ interface ChatBotMessageBubbleProps {
 }
 
 // AI 서버는 공지·행사를 근거로 답하면 마지막 줄에 `출처: [제목](/notices/11) (게시일)`을 보낸다(stream-ai #82).
-// 주소는 `/`로 시작하는 앱 안 경로만 링크로 만든다 — 답변은 모델이 쓴 글이라 `//다른사이트`·`https:`·`javascript:`가
-// 섞여 와도 누르는 링크가 되면 안 된다. 그런 것은 글자 그대로 둔다.
-const MARKDOWN_LINK_PATTERN = /\[([^\]\n]+)\]\((\/(?!\/)[^)\s]*)\)/g;
+// 주소는 공지·행사 상세 경로(`/notices/숫자`, `/events/숫자`)만 링크로 만든다 — 답변은 모델이 쓴 글이라
+// `//다른사이트`·`/\다른사이트`·`https:`·`javascript:`가 섞여 와도 누르는 링크가 되면 안 된다.
+// `/`로 시작하는지만 보면 `/\evil.example`이 통과하고, 브라우저는 역슬래시를 슬래시로 읽어 외부 사이트로 이동한다.
+// 출처 링크는 공지·행사만 오므로 그 두 경로만 허용하고, 나머지는 글자 그대로 둔다.
+const MARKDOWN_LINK_PATTERN = /\[([^\]\n]+)\]\((\/(?:notices|events)\/\d+)\)/g;
 
 // Figma: 챗봇 대화창의 Bot Response(nodeId 1770:63307) — 아바타(44px, Atomic/Blue/65
 // #4F95FF·홈 FAB의 primary #0066FF와는 다른 대화 중 전용 색) + 말풍선(왼쪽 정렬, 좌상단만
