@@ -1,5 +1,5 @@
 import { Typography } from "@wanteddev/wds";
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 
 import botIcon from "@/assets/icons/chat/bot.svg";
 
@@ -56,4 +56,6 @@ function renderBold(text: string): ReactNode[] {
   );
 }
 
-export default ChatBotMessageBubble;
+// 답변 중에는 글자가 붙을 때마다(프레임마다) 대화 전체가 다시 그려진다(useChatStream의 setMessages).
+// 이미 끝난 답변은 bubbles 배열이 그대로라 memo로 감싸 다시 그리지 않는다 — 대화가 길어져도 자라는 말풍선 하나만 그린다.
+export default memo(ChatBotMessageBubble);
