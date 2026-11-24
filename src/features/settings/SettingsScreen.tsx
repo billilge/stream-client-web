@@ -79,7 +79,7 @@ function SettingsScreen() {
           </Suspense>
         </SettingsSection>
 
-        <SettingsSection rowGap="compact">
+        <SettingsSection>
           <SettingsRow
             label="로그아웃"
             onClick={() => setLogoutOpen(true)}
