@@ -8,11 +8,20 @@ import { getFeedbackPath } from "@/features/feedbacks/constants/feedbacks";
 import { feedbacksQueries } from "@/shared/entities/feedbacks/feedbacksQueries";
 import type { FeedbackResponse } from "@/shared/entities/feedbacks/feedbacksTypes";
 
-// 카드 한 장이 차지하는 가로 길이(카드끼리 gap이 없어서 카드 폭 그 자체다). 카드가 캐러셀
-// 폭에 꽉 차는 크기라 뷰포트마다 실제 폭이 다르기 때문에 상수로 박아두면 한쪽에서 점이
-// 어긋난다 — 실제 카드 폭을 DOM에서 재서 쓴다.
-function getCarouselItemWidth(el: HTMLDivElement): number {
-  return el.firstElementChild?.getBoundingClientRect().width ?? 0;
+// 한 장 넘길 때 움직이는 가로 거리(카드 폭 + 카드 사이 간격). 카드가 화면 폭에 맞춰 늘고 줄어서
+// 상수로 박아두면 뷰포트마다 점이 어긋난다 — 실제 카드 위치에서 잰다(홈 공지 배너와 같은 방식).
+// 카드가 한 장뿐이면 넘길 일이 없어서 카드 폭을 그대로 쓴다.
+function getCarouselStep(el: HTMLDivElement): number {
+  const [first, second] = el.children;
+  if (!first) {
+    return 0;
+  }
+  if (!second) {
+    return first.getBoundingClientRect().width;
+  }
+  return (
+    second.getBoundingClientRect().left - first.getBoundingClientRect().left
+  );
 }
 
 // 스와이프/드래그로 인정할 최소 이동 비율(카드 폭 대비). 이보다 짧게 움직이면 그대로
@@ -90,11 +99,11 @@ function FeedbacksRecentCarouselView({
     if (!el) {
       return;
     }
-    const itemWidth = getCarouselItemWidth(el);
-    if (!itemWidth) {
+    const step = getCarouselStep(el);
+    if (!step) {
       return;
     }
-    setCarouselPage(Math.round(el.scrollLeft / itemWidth) + 1);
+    setCarouselPage(Math.round(el.scrollLeft / step) + 1);
   };
 
   const scrollCarouselToPage = (page: number) => {
@@ -104,7 +113,7 @@ function FeedbacksRecentCarouselView({
     }
     el.scrollTo({
       behavior: "smooth",
-      left: (page - 1) * getCarouselItemWidth(el),
+      left: (page - 1) * getCarouselStep(el),
     });
   };
 
@@ -166,8 +175,10 @@ function FeedbacksRecentCarouselView({
       // 페이지를 다시 목표로 잡아버린다(실사용 중 발견) — 스크롤이 실제로 끝나길 기다리지
       // 않고 여기서 바로 "의도한 다음 페이지"로 미리 갱신해 둔다.
       carouselPageRef.current = nextPage;
-      const itemWidth = getCarouselItemWidth(el);
-      el.scrollTo({ behavior: "smooth", left: (nextPage - 1) * itemWidth });
+      el.scrollTo({
+        behavior: "smooth",
+        left: (nextPage - 1) * getCarouselStep(el),
+      });
     };
     el.addEventListener("wheel", handleWheel, { passive: false });
     return () => el.removeEventListener("wheel", handleWheel);
@@ -257,12 +268,12 @@ function FeedbacksRecentCarouselView({
       }
       const { lastDeltaX, velocityX, startPage } = drag;
       drag = null;
-      const itemWidth = getCarouselItemWidth(el);
-      if (!itemWidth) {
+      const step = getCarouselStep(el);
+      if (!step) {
         return;
       }
       const isFarEnough =
-        Math.abs(lastDeltaX) > itemWidth * CAROUSEL_DRAG_COMMIT_RATIO;
+        Math.abs(lastDeltaX) > step * CAROUSEL_DRAG_COMMIT_RATIO;
       const isFlick = Math.abs(velocityX) > CAROUSEL_FLICK_VELOCITY_PX_MS;
       // 드래그 도중 라이브 스크롤 위치로 갱신된 carouselPageRef가 아니라, 제스처 시작 시점에
       // 고정해 둔 startPage를 기준으로 계산한다 — 그래야 카드 폭 절반을 넘게 끌어도 정확히
@@ -278,7 +289,7 @@ function FeedbacksRecentCarouselView({
       // 바로 "의도한 다음 페이지"를 기록해 둔다 — 그래야 스크롤 애니메이션이 끝나기 전에
       // 바로 이어서 스와이프해도 같은 카드를 다시 목표로 잡지 않는다.
       carouselPageRef.current = nextPage;
-      el.scrollTo({ behavior: "smooth", left: (nextPage - 1) * itemWidth });
+      el.scrollTo({ behavior: "smooth", left: (nextPage - 1) * step });
     };
 
     el.addEventListener("touchstart", handleTouchStart, { passive: true });
@@ -295,8 +306,9 @@ function FeedbacksRecentCarouselView({
 
   return (
     <>
-      <div className="flex flex-col gap-3 px-5 pt-2">
+      <div className="flex flex-col gap-3 pt-2">
         <Typography
+          className="px-5"
           color="semantic.label.normal"
           variant="headline2"
           weight="bold"
@@ -304,8 +316,12 @@ function FeedbacksRecentCarouselView({
           최근 피드백
         </Typography>
         <div className="flex flex-col items-center gap-4">
+          {/* 좌우 여백(px-5)을 스크롤 영역 안쪽에 둬서 넘길 때 카드가 여백에서 잘리지 않고 화면 끝까지 보이게 한다
+              (Figma 수정 요청 5364:2813, 홈 공지 배너와 같은 방식). 멈추는 자리는 scroll-px-5로 여백 안쪽에 맞추고,
+              카드는 지금처럼 여백 안쪽 폭에 꽉 차게 둔다. 카드 사이(gap-10)를 좌우 여백 합(40px)과 같게 둬서
+              한 장이 멈춰 있을 때 이웃 카드는 화면 밖에 있다. */}
           <div
-            className="scrollbar-hidden flex w-full snap-x snap-mandatory overflow-x-auto"
+            className="scrollbar-hidden flex w-full snap-x snap-mandatory scroll-px-5 gap-10 overflow-x-auto px-5"
             onScroll={handleCarouselScroll}
             ref={carouselRef}
           >

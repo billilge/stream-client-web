@@ -1,13 +1,6 @@
 import { TopNavigationButton, Typography } from "@wanteddev/wds";
 import { IconBell, IconPlus, IconSearch } from "@wanteddev/wds-icon";
-import {
-  Suspense,
-  type UIEvent,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -15,8 +8,10 @@ import ScreenToast from "@/components/ui/ScreenToast";
 import { useScreenHeader } from "@/components/ui/useScreenHeader";
 import FeedbacksAllSection from "@/features/feedbacks/components/FeedbacksAllSection";
 import FeedbacksAllSkeleton from "@/features/feedbacks/components/FeedbacksAllSkeleton";
+import FeedbacksIntro from "@/features/feedbacks/components/FeedbacksIntro";
 import FeedbacksRecentCarousel from "@/features/feedbacks/components/FeedbacksRecentCarousel";
 import FeedbacksRecentSkeleton from "@/features/feedbacks/components/FeedbacksRecentSkeleton";
+import { MY_FEEDBACKS_PATH } from "@/features/feedbacks/constants/feedbacks";
 import { NOTIFICATIONS_PATH } from "@/features/notifications/constants/notifications";
 import { getSearchPath } from "@/features/search/constants/search";
 
@@ -24,31 +19,36 @@ interface FeedbacksListLocationState {
   feedbackSent?: boolean;
 }
 
-// FAB 축소 상태의 지름(Figma QA nodeId 2849:56930의 44px 원형 상태).
-const FAB_COLLAPSED_WIDTH = 44;
-
-// Figma: 게시판 - 열린피드백 (nodeId 1410:50011), 피드백 전송 완료 토스트 (nodeId 1410:50080)
+// Figma: 게시판 - 열린피드백 (nodeId 1410:50011), 피드백 전송 완료 토스트 (nodeId 1410:50080),
+// 열린피드백 개선 UI 1123 (nodeId 5421:95607 — 맨 위 소개 영역과 스크롤 시 플로팅 버튼)
 // 헤더·FAB·토스트는 데이터와 무관해서 바로 그리고, "최근 피드백"과 "전체 피드백"은 각자 데이터를 받는 동안
 // 자기 자리만 스켈레톤으로 채운다.
 function FeedbacksListScreen() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 피드백 작성 FAB — 맨 위에서는 아이콘+텍스트, 스크롤해서 내려가면 아이콘만 남는 원형으로
-  // 축소된다(Figma QA nodeId 2849:56930). "맨 위 복귀 시" 다시 텍스트가 붙으라는 요구라
-  // 스크롤 방향이 아니라 맨 위(scrollTop === 0) 여부만 본다.
-  const [isFabExpanded, setIsFabExpanded] = useState(true);
-  const fabRef = useRef<HTMLButtonElement>(null);
-  // width를 애니메이션하려면 확장 상태의 실제 폭이 필요하다(padding만 바꾸면 텍스트가
-  // 마운트/언마운트되며 폭이 툭 튀어서 축소 방향만 애니메이션이 안 도는 것처럼 보였다).
-  // 텍스트를 상수로 재지 않고 DOM에서 실측한다 — 마운트 시 한 번만 잰다. isFabExpanded가
-  // true로 바뀔 때마다 다시 재면, 축소→확장 전환 중(트랜지션이 아직 44px에서 안 벗어난
-  // 시점)에 값을 읽어버려 폭이 44로 고정돼버리는 문제가 있었다.
-  const [fabExpandedWidth, setFabExpandedWidth] = useState<number>();
+  // 피드백 작성 플로팅 버튼 — 소개 영역의 '피드백 작성하기' 버튼이 보이는 동안은 숨기고, 스크롤해서 그 버튼이
+  // 화면 밖으로 나가면 '+ 피드백 작성'으로 띄운다(Figma 5323:69763 "스크롤 시 플로팅", 디스크립션 4번).
+  // 같은 동작을 하는 버튼이 두 개 겹쳐 보이지 않게 하려는 것이라, 스크롤 위치 대신 그 버튼이 실제로 보이는지를 본다.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const writeButtonRef = useRef<HTMLButtonElement>(null);
+  const [isFabVisible, setIsFabVisible] = useState(false);
 
-  useLayoutEffect(() => {
-    setFabExpandedWidth(fabRef.current?.getBoundingClientRect().width);
+  useEffect(() => {
+    const root = scrollRef.current;
+    const target = writeButtonRef.current;
+    if (!root || !target) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsFabVisible(!entry.isIntersecting),
+      { root },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
   }, []);
+
+  const goToWrite = () => navigate("/feedbacks/new");
 
   // 피드백 작성 화면에서 넘어올 때만 history state로 신호를 받는다(navigate state) — 그 외
   // 진입(바텀 탭 등)에서는 안 뜬다. 새로고침 시 재노출을 막으려고 받자마자 state를 비운다.
@@ -63,10 +63,6 @@ function FeedbacksListScreen() {
       navigate(location.pathname, { replace: true, state: null });
     }
   }, [location.pathname, location.state, navigate]);
-
-  const handleContentScroll = (event: UIEvent<HTMLDivElement>) => {
-    setIsFabExpanded(event.currentTarget.scrollTop <= 0);
-  };
 
   // "공지"/"열린피드백" 토글은 게시판-공지 화면과 같은 ScreenHeaderToggleTitle을 쓴다. 이제
   // 두 화면이 다 있어서 클릭하면 실제로 이동하도록 onChange를 연결한다(공지 쪽도 함께 연결).
@@ -102,10 +98,18 @@ function FeedbacksListScreen() {
 
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden">
-      <div
-        className="scrollbar-hidden flex-1 overflow-y-auto"
-        onScroll={handleContentScroll}
-      >
+      <div className="scrollbar-hidden flex-1 overflow-y-auto" ref={scrollRef}>
+        {/* 소개 영역 아래 여백 20px + 최근 피드백 위 8px(pt-2) = Figma 구분선 아래 28px */}
+        <div className="mb-5">
+          <FeedbacksIntro
+            onViewHistory={() =>
+              navigate(MY_FEEDBACKS_PATH, { viewTransition: true })
+            }
+            onWrite={goToWrite}
+            writeButtonRef={writeButtonRef}
+          />
+        </div>
+
         <Suspense fallback={<FeedbacksRecentSkeleton />}>
           <FeedbacksRecentCarousel />
         </Suspense>
@@ -115,25 +119,20 @@ function FeedbacksListScreen() {
         </Suspense>
       </div>
 
+      {/* 숨어 있을 때는 inert로 키보드·스크린리더에서도 빼서, 보이는 '피드백 작성하기' 버튼과 겹쳐 잡히지 않게 한다 */}
       <button
-        aria-label="피드백 작성"
-        className={`absolute right-5 bottom-5 flex items-center gap-1 overflow-hidden rounded-full bg-primary shadow-[0px_6px_5px_rgba(23,23,23,0.08),0px_16px_12px_rgba(23,23,23,0.08)] transition-[width,padding] duration-500 ease-in-out motion-reduce:transition-none ${
-          isFabExpanded ? "px-4 py-3" : "p-3"
+        className={`absolute right-5 bottom-5 flex items-center gap-1 rounded-full bg-primary px-4 py-3 shadow-[0px_6px_5px_rgba(23,23,23,0.08),0px_16px_12px_rgba(23,23,23,0.08)] transition-[opacity,translate] duration-200 ease-out motion-reduce:transition-none ${
+          isFabVisible
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none translate-y-2 opacity-0"
         }`}
-        onClick={() => navigate("/feedbacks/new")}
-        ref={fabRef}
-        style={{
-          width: isFabExpanded ? fabExpandedWidth : FAB_COLLAPSED_WIDTH,
-        }}
+        inert={!isFabVisible}
+        onClick={goToWrite}
         type="button"
       >
         <IconPlus className="size-5 shrink-0 text-white" />
-        {/* 텍스트를 마운트/언마운트하지 않고 항상 렌더링한 채 opacity로만 넘겼다 뺐다 한다
-            — 그래야 버튼 폭(width) 전환과 같은 타이밍에 자연스럽게 같이 움직인다. */}
         <Typography
-          className={`shrink-0 whitespace-nowrap transition-opacity duration-500 ease-in-out motion-reduce:transition-none ${
-            isFabExpanded ? "opacity-100" : "opacity-0"
-          }`}
+          className="whitespace-nowrap"
           color="atomic.common.100"
           variant="label1"
           weight="bold"
