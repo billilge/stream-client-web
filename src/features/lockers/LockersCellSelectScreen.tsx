@@ -31,6 +31,7 @@ import LockersSelectedLockerBar from "@/features/lockers/components/LockersSelec
 import { LOCKER_ASSIGNMENT_PATH } from "@/features/lockers/constants/lockers";
 import { LOCKERS_APPLY_SUBMITTING_TEXT } from "@/features/lockers/constants/lockersApplySubmit";
 import { useLockersApplySubmit } from "@/features/lockers/hooks/useLockersApplySubmit";
+import { useLockersRefresh } from "@/features/lockers/hooks/useLockersRefresh";
 import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
 import {
   hasLockerInPeriod,
@@ -137,6 +138,12 @@ function SectionLockerSelect({
     setIsUnavailableToastOpen(true);
   };
 
+  const { fadeClassName, isRefreshing, refresh } = useLockersRefresh(() =>
+    queryClient.refetchQueries({
+      queryKey: lockersKeys.sectionDetail(lockerPeriodId, detail.sectionId),
+    }),
+  );
+
   useScreenHeader(
     <ScreenHeader
       leading={
@@ -168,14 +175,7 @@ function SectionLockerSelect({
           )}
           <TopNavigationButton
             aria-label="새로고침"
-            onClick={() =>
-              queryClient.refetchQueries({
-                queryKey: lockersKeys.sectionDetail(
-                  lockerPeriodId,
-                  detail.sectionId,
-                ),
-              })
-            }
+            onClick={refresh}
             variant="icon"
           >
             <IconReset />
@@ -209,7 +209,12 @@ function SectionLockerSelect({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <LockersMapView legend={<LockersLegend />} map={map} />
+      <div
+        aria-busy={isRefreshing}
+        className={`flex min-h-0 flex-1 flex-col ${fadeClassName}`}
+      >
+        <LockersMapView legend={<LockersLegend />} map={map} />
+      </div>
 
       <LockersSelectedLockerBar
         lockerLabel={selectableLocker?.lockerLabel ?? null}

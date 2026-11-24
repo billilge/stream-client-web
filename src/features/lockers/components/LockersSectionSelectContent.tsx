@@ -20,6 +20,8 @@ interface LockersSectionSelectBodyProps {
   selectedSectionId: number | null;
   onSelect: (sectionId: number) => void;
   onConfirm: (sectionId: number) => void;
+  isRefreshing?: boolean;
+  mapClassName?: string;
 }
 
 // 평면도 + 선택 완료 버튼. 새로고침으로 고른 구역이 마감되면 선택을 풀어 버튼을 잠근다.
@@ -28,6 +30,8 @@ export function LockersSectionSelectBody({
   selectedSectionId,
   onSelect,
   onConfirm,
+  isRefreshing = false,
+  mapClassName = "",
 }: LockersSectionSelectBodyProps) {
   const selectedSection = [...(sections?.values() ?? [])].find(
     (section) =>
@@ -36,7 +40,10 @@ export function LockersSectionSelectBody({
 
   return (
     <>
-      <div className="scrollbar-hidden flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-1 pb-2">
+      <div
+        aria-busy={isRefreshing}
+        className={`scrollbar-hidden flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-1 pb-2 ${mapClassName}`}
+      >
         <LockersFloorMap
           onSelect={onSelect}
           sections={sections}

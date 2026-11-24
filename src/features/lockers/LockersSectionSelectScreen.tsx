@@ -10,6 +10,7 @@ import { HOME_PATH } from "@/features/home/constants/home";
 import LockersSectionSelectContent, {
   LockersSectionSelectBody,
 } from "@/features/lockers/components/LockersSectionSelectContent";
+import { useLockersRefresh } from "@/features/lockers/hooks/useLockersRefresh";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
 import { lockersKeys } from "@/shared/entities/lockers/lockersKeys";
 
@@ -21,6 +22,12 @@ function LockersSectionSelectScreen() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const handleBack = useBackNavigation(HOME_PATH);
+  const { fadeClassName, isRefreshing, refresh } = useLockersRefresh(() =>
+    queryClient.refetchQueries({
+      queryKey: lockersKeys.sections(),
+      type: "active",
+    }),
+  );
 
   useScreenHeader(
     <ScreenHeader
@@ -37,12 +44,7 @@ function LockersSectionSelectScreen() {
       trailing={
         <TopNavigationButton
           aria-label="새로고침"
-          onClick={() =>
-            queryClient.refetchQueries({
-              queryKey: lockersKeys.sections(),
-              type: "active",
-            })
-          }
+          onClick={refresh}
           variant="icon"
         >
           <IconReset />
@@ -60,6 +62,7 @@ function LockersSectionSelectScreen() {
       <Suspense
         fallback={
           <LockersSectionSelectBody
+            mapClassName={fadeClassName}
             onConfirm={goToSection}
             onSelect={setSelectedSectionId}
             selectedSectionId={null}
@@ -67,6 +70,8 @@ function LockersSectionSelectScreen() {
         }
       >
         <LockersSectionSelectContent
+          isRefreshing={isRefreshing}
+          mapClassName={fadeClassName}
           onConfirm={goToSection}
           onSelect={setSelectedSectionId}
           selectedSectionId={selectedSectionId}
