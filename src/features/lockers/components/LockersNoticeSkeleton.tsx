@@ -8,7 +8,7 @@ function LockersNoticeSkeleton() {
 
   return (
     <div className="flex flex-col gap-6">
-      {["usage", "one-per-person", "apply"].map((key) => (
+      {["usage", "no-change", "apply"].map((key) => (
         <div className="flex items-center gap-3" key={key}>
           <Skeleton
             animation={animation}
