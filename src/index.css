@@ -24,6 +24,9 @@
      사물함 평면도의 호실·화장실·계단 점선 테두리가 이 값이다. */
   --color-line-solid-normal: var(--semantic-line-solid-normal);
   --color-line-normal-neutral: var(--semantic-line-normal-neutral);
+  /* Figma "Line/Normal/Normal"(rgba(112,115,124,0.22)) — Line/Normal/Neutral(0.16)보다 진하다.
+     학생회비 송금 방법 카드의 고르지 않은 테두리가 이 값이다(nodeId 5365:89337). */
+  --color-line-normal-normal: var(--semantic-line-normal-normal);
   --color-line-solid-alternative: var(--semantic-line-solid-alternative);
 
   /* 챗봇 대화창의 "내가 보낸" 말풍선 배경(Figma "Label/Neutral", rgba(46,47,51,0.88)) */

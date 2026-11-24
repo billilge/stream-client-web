@@ -16,6 +16,7 @@ import {
 import FeeTransferCompleteStep from "@/features/fee/steps/FeeTransferCompleteStep";
 import FeeTransferConfirmStep from "@/features/fee/steps/FeeTransferConfirmStep";
 import FeeTransferMethodStep from "@/features/fee/steps/FeeTransferMethodStep";
+import FeeTransferReturnGuideStep from "@/features/fee/steps/FeeTransferReturnGuideStep";
 import FeeTransferSemesterStep from "@/features/fee/steps/FeeTransferSemesterStep";
 import FeeTransferTranscriptStep from "@/features/fee/steps/FeeTransferTranscriptStep";
 import { HOME_PATH } from "@/features/home/constants/home";
@@ -37,7 +38,7 @@ import {
 } from "@/shared/entities/service-links/serviceLinksQueries";
 import type { ServiceLinkResponse } from "@/shared/entities/service-links/serviceLinksTypes";
 
-// 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 송금 방법 → 송금 확인 → 확인요청 완료)을
+// 학생회비 계좌 송금(남은 학기 수 → 학점이수현황 캡처 → 송금 방법 → 송금 확인(토스) 또는 송금 후 복귀 안내(계좌이체) → 확인요청 완료)을
 // useFunnel 하나로 묶은 화면이다. 단계 화면은 `steps/`에 하나씩 나눠 두고, 이 파일은 단계 전환
 // (어느 단계에서 어디로, 무슨 값을 넘기는지)만 맡는다 — 로그인·온보딩 퍼널(AuthSignUpScreen)과 같은 구성이다.
 // 단계는 `/fee/transfer?fee.step=...`으로 나뉘고 단계마다 브라우저 뒤로가기가 한 단계씩 돌아간다.
@@ -55,7 +56,7 @@ const SLIDE = { viewTransition: true };
 const INITIAL_STATE = { context: {}, step: "semester" } as const;
 
 // 단계를 넘기지 못했을 때 띄우는 토스트 문구
-// 송금 확인 단계의 실패는 이미 송금한 뒤라 "다시 송금하라"로 읽히지 않게 요청 실패로만 안내한다
+// 납부 요청(송금 확인·송금 후 복귀 안내)의 실패는 이미 송금한 뒤라 "다시 송금하라"로 읽히지 않게 요청 실패로만 안내한다
 const TOAST_MESSAGES = {
   invalidProofImage: "캡처를 확인하지 못했어요. 다시 올려 주세요.",
   invalidTranscript: "10MB 이하의 PNG·JPG·WEBP 이미지만 올릴 수 있어요.",
@@ -122,7 +123,7 @@ function FeeTransferFunnel() {
   const { mutate: submitFee, isPending: isSubmitting } = useSubmitFeeMutation();
   // 고른 캡처 — 단계를 오가도 이 화면은 그대로 떠 있어서 송금 단계에서 돌아와도 남는다
   const [transcript, setTranscript] = useState<File>();
-  // 고른 송금 방법 — 캡처처럼 이 화면이 들고 있어서 송금 확인에서 뒤로 돌아와도 남는다
+  // 고른 송금 방법 — 캡처처럼 이 화면이 들고 있어서 송금 확인·복귀 안내에서 뒤로 돌아와도 남는다
   const [transferMethod, setTransferMethod] =
     useState<FeeTransferMethod>("toss");
   // 캡처 단계의 "다음" — 캡처를 올리고 송금 안내를 받는 동안 버튼을 막는다
@@ -161,6 +162,44 @@ function FeeTransferFunnel() {
     return fileKey;
   };
 
+  // 납부 확인 요청 — 토스는 송금 확인에서, 계좌이체는 송금 후 복귀 안내에서 보낸다.
+  // 요청을 보내면 그 단계로 돌아올 일이 없어서 완료로 갈 때 히스토리를 대체한다(onComplete).
+  const submitTransfer = (
+    { proofImageKey, semester }: { proofImageKey: string; semester: number },
+    {
+      onComplete,
+      onInvalidProofImage,
+    }: { onComplete: () => void; onInvalidProofImage: () => void },
+  ) =>
+    submitFee(
+      { proofImageKey, remainingSemesters: semester },
+      {
+        onSuccess: onComplete,
+        onError: (error) => {
+          // 이미 요청이 들어가 있다 — 응답을 못 받고 다시 누른 경우라 요청은 된 것으로 본다
+          if (
+            isApiError(error) &&
+            error.code === FEE_ERROR_CODES.alreadyRequested
+          ) {
+            onComplete();
+            return;
+          }
+          console.error(error);
+          // 올린 캡처를 서버가 못 찾았다 — 같은 키를 다시 쓰지 않게 비우고 캡처 단계로 돌려보낸다
+          if (
+            isApiError(error) &&
+            error.code === FEE_ERROR_CODES.invalidProofImage
+          ) {
+            lastUploadRef.current = null;
+            showToast(TOAST_MESSAGES.invalidProofImage);
+            onInvalidProofImage();
+            return;
+          }
+          showToast(TOAST_MESSAGES.submitFailed);
+        },
+      },
+    );
+
   // 이미 납부 확인을 요청했거나 납부가 끝났으면 송금까지 다 하고 409를 받기 전에 납부내역으로 보낸다
   if (!canPay) {
     return <Navigate replace to={FEE_PAYMENTS_PATH} />;
@@ -177,38 +216,11 @@ function FeeTransferFunnel() {
             isSubmitting={isSubmitting}
             onBack={() => history.back()}
             onConfirm={() =>
-              submitFee(
-                {
-                  proofImageKey: context.proofImageKey,
-                  remainingSemesters: context.semester,
-                },
-                {
-                  // 확인 요청을 보내면 송금 확인으로 돌아올 일이 없어서 히스토리를 대체한다
-                  onSuccess: () => history.replace("complete", {}, SLIDE),
-                  onError: (error) => {
-                    // 이미 요청이 들어가 있다 — 응답을 못 받고 다시 누른 경우라 요청은 된 것으로 본다
-                    if (
-                      isApiError(error) &&
-                      error.code === FEE_ERROR_CODES.alreadyRequested
-                    ) {
-                      history.replace("complete", {}, SLIDE);
-                      return;
-                    }
-                    console.error(error);
-                    // 올린 캡처를 서버가 못 찾았다 — 같은 키를 다시 쓰지 않게 비우고 캡처 단계로 돌려보낸다
-                    if (
-                      isApiError(error) &&
-                      error.code === FEE_ERROR_CODES.invalidProofImage
-                    ) {
-                      lastUploadRef.current = null;
-                      showToast(TOAST_MESSAGES.invalidProofImage);
-                      history.go(-2);
-                      return;
-                    }
-                    showToast(TOAST_MESSAGES.submitFailed);
-                  },
-                },
-              )
+              submitTransfer(context, {
+                onComplete: () => history.replace("complete", {}, SLIDE),
+                // 송금 확인 → 송금 방법 → 캡처
+                onInvalidProofImage: () => history.go(-2),
+              })
             }
             // 송금을 미루고 나가는 길 — 다음에 들어오면 플로우를 처음부터 다시 탄다
             onPostpone={() => exitFunnel(index)}
@@ -234,7 +246,7 @@ function FeeTransferFunnel() {
             method={transferMethod}
             onBack={() => history.back()}
             onChangeMethod={setTransferMethod}
-            // 은행 앱에서 보내고 돌아오면 송금 확인 단계가 기다리게 바로 넘긴다(토스와 같다).
+            // 복사하면 송금 후 복귀 안내로 넘긴다 — 은행 앱에서 보내고 돌아와 그 화면에서 바로 납부 확인을 요청한다.
             // 복사가 막혀도 토스트에 담긴 계좌로 보낼 수 있어서 같이 넘긴다 — 여기서 멈추면 다음으로 갈 길이 없다
             onCopyAccount={() => {
               // 은행 앱이 붙여 넣은 계좌를 알아보기 쉽게 은행 이름을 붙여 복사한다
@@ -256,7 +268,7 @@ function FeeTransferFunnel() {
                       },
                     );
                   }
-                  history.push("confirm", {}, SLIDE);
+                  history.push("returnGuide", {}, SLIDE);
                 },
               );
             }}
@@ -271,6 +283,21 @@ function FeeTransferFunnel() {
             }}
             remainingSemesters={context.semester}
             transferAmount={context.transferAmount}
+          />
+        )}
+        returnGuide={({ context, history, index }) => (
+          <FeeTransferReturnGuideStep
+            isSubmitting={isSubmitting}
+            onBack={() => history.back()}
+            // 계좌이체는 송금 확인을 거치지 않고 여기서 바로 납부 확인을 요청한다
+            onContinue={() =>
+              submitTransfer(context, {
+                onComplete: () => history.replace("complete", {}, SLIDE),
+                // 복귀 안내 → 송금 방법 → 캡처
+                onInvalidProofImage: () => history.go(-2),
+              })
+            }
+            onPostpone={() => exitFunnel(index)}
           />
         )}
         transcript={({ context, history }) => (
@@ -342,8 +369,10 @@ function FeeTransferFunnel() {
             setToast((prev) => ({ ...prev, isOpen: false }));
           }
         }}
-        // 송금 확인 단계만 메인 버튼 아래 "다음에 할게요"가 쌓여 있어서 그 위로 올린다(복사 안내·요청 실패 토스트가 버튼을 가리지 않게)
-        aboveStackedActions={funnel.step === "confirm"}
+        // 송금 확인·송금 후 복귀 안내는 메인 버튼 아래 "다음에 할게요"가 쌓여 있어서 그 위로 올린다(복사 안내·요청 실패 토스트가 버튼을 가리지 않게)
+        aboveStackedActions={
+          funnel.step === "confirm" || funnel.step === "returnGuide"
+        }
         open={toast.isOpen}
         variant={toast.variant}
       />

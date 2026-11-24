@@ -76,15 +76,13 @@ function FeeTransferTranscriptStep({
         onBack={onBack}
         title={
           <>
-            {/* Figma에서 "K스마트멘토↗"만 primary + 밑줄이고, 누르면 이동 확인 모달이 뜬다 */}
+            {/* Figma에서 "K스마트멘토↗"만 primary + 밑줄이고, 누르면 이동 확인 모달이 뜬다.
+                밑줄은 글자(span)에 그어서 글자와 같은 Primary 색이 된다 — 버튼에 그으면 제목 색(검정)이 된다(Figma 5365:85732) */}
             {onOpenGuide ? (
-              <button
-                className="underline"
-                onClick={() => setGuideModalOpen(true)}
-                type="button"
-              >
+              <button onClick={() => setGuideModalOpen(true)} type="button">
                 <Typography
                   as="span"
+                  className="underline"
                   color="semantic.primary.normal"
                   variant="heading1"
                   weight="bold"
