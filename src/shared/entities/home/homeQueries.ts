@@ -68,8 +68,8 @@ export const homeResponseSchema = z.looseObject({
   // 작성한 열린피드백 질문 수
   openFeedback: z.looseObject({ writtenCount: z.number() }),
   locker: z.looseObject({
-    // 신청한 적이 없으면 NOT_APPLIED
-    status: z.enum(["NOT_APPLIED", "ASSIGNED", "EXPIRED"]),
+    // 신청이 시작된 가장 최근 회차 기준 — 신청 기간인데 신청하지 않았으면 APPLICABLE, 그 밖에 신청하지 않았으면 NOT_APPLIED
+    status: z.enum(["NOT_APPLIED", "APPLICABLE", "ASSIGNED", "EXPIRED"]),
     // 배정된 사물함 이름. ASSIGNED일 때만 있다
     lockerNumber: z.string().nullable(),
   }),

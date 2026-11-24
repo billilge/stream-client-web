@@ -24,6 +24,7 @@ const LOCKER_ASSIGNMENT_STATUSES: Record<
   HomeLockerStatus,
   LockerAssignmentStatus
 > = {
+  APPLICABLE: "applicable",
   ASSIGNED: "assigned",
   EXPIRED: "expired",
   NOT_APPLIED: "none",
@@ -36,7 +37,7 @@ function selectMyInfo({ studentFee, openFeedback, locker }: HomeResponse) {
 interface InfoBadge {
   label: string;
   // 없으면 neutral(회색) 배지
-  color?: "orange" | "red" | "green";
+  color?: "blue" | "orange" | "red" | "green";
 }
 
 function InfoBadgeView({ badge }: { badge: InfoBadge }) {
