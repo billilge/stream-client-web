@@ -58,9 +58,10 @@ function HomeNoticeCard({
       type={onSelect ? "button" : undefined}
     >
       {imageUrl ? (
+        // 카드가 넓어지면 세로가 넘쳐서, 그림이 있는 위쪽 기준으로 맞춰 아래만 자른다
         <img
           alt=""
-          className="absolute inset-0 size-full object-cover"
+          className="absolute inset-0 size-full object-cover object-top"
           src={imageUrl}
         />
       ) : (
