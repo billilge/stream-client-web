@@ -8,6 +8,10 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import { ARCHIVES_PATH } from "@/features/archives/constants/archives";
 import { BILLILGE_TAB_PATHS } from "@/features/billilge/constants/billilge";
 import { useBillilgeReturnRequest } from "@/features/billilge/hooks/useBillilgeReturnRequest";
+import {
+  CALENDARS_PATH,
+  getCalendarsPath,
+} from "@/features/calendars/constants/calendars";
 import { EVENTS_TAB_PATHS } from "@/features/events/constants/events";
 import {
   FEE_PAYMENTS_PATH,
@@ -18,6 +22,7 @@ import HomeAppliedEventSection from "@/features/home/components/HomeAppliedEvent
 import HomeAppliedEventSkeleton from "@/features/home/components/HomeAppliedEventSkeleton";
 import HomeApplyCardList from "@/features/home/components/HomeApplyCardList";
 import HomeArchiveBanner from "@/features/home/components/HomeArchiveBanner";
+import HomeCalendarSection from "@/features/home/components/HomeCalendarSection";
 import HomeInfoList from "@/features/home/components/HomeInfoList";
 import HomeInfoListSkeleton from "@/features/home/components/HomeInfoListSkeleton";
 import HomeNoticeBanner from "@/features/home/components/HomeNoticeBanner";
@@ -204,6 +209,13 @@ function HomeScreen() {
                   onSelect={(event) => push(`/events/${event.eventId}`)}
                 />
               </Suspense>
+            </div>
+            {/* 학사 일정은 홈 조회가 아니라 학사 일정 조회로 받아서, 카드가 자기 안에서 일정 영역만 Suspense로 감싼다 */}
+            <div className="px-5">
+              <HomeCalendarSection
+                onMore={(date) => push(getCalendarsPath(date))}
+                onOpen={() => push(CALENDARS_PATH)}
+              />
             </div>
             <div className="px-5">
               <Suspense fallback={<HomeInfoListSkeleton />}>

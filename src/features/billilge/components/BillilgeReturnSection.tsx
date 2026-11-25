@@ -1,9 +1,8 @@
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { Button, Divider, Typography } from "@wanteddev/wds";
 import { Fragment } from "react";
-
-import rentalHistoryEmptyIllustration from "@/assets/icons/billilge-empty/rental-history.svg";
 import returnItemsEmptyIllustration from "@/assets/icons/billilge-empty/return-items.svg";
+import rentalHistoryEmptyIllustration from "@/assets/icons/common/empty-calendar.svg";
 import BillilgeEmptyState from "@/features/billilge/components/BillilgeEmptyState";
 import BillilgeItemCard from "@/features/billilge/components/BillilgeItemCard";
 import BillilgeRentalHistoryEntry from "@/features/billilge/components/BillilgeRentalHistoryEntry";
