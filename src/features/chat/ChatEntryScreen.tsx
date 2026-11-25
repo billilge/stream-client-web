@@ -1,6 +1,6 @@
 import { TopNavigationButton, Typography } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -57,9 +57,17 @@ function ChatEntryScreen() {
   }, [location.key]);
 
   // 답변 속 링크를 누르면 상세 화면으로 떠나며 이 화면이 사라진다 — 뒤로 돌아왔을 때 이어 가도록 대화를 맡겨 둔다
-  function keepChatForReturn() {
-    saveChatSnapshot(location.key, { conversationId, messages });
-  }
+  // 답변 중에는 messages가 프레임마다 바뀐다 — 함수가 매번 새로 만들어지면 말풍선 memo가 풀리므로 최신 대화는 ref로 읽는다
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+  const keepChatForReturn = useCallback(() => {
+    saveChatSnapshot(location.key, {
+      conversationId,
+      messages: messagesRef.current,
+    });
+  }, [location.key, conversationId]);
   const chatStarted = messages.length > 0;
 
   // 메시지가 추가되거나 답변 조각이 붙을 때, 응답 대기 점이 나타날 때마다 최신 대화가 보이도록 맨 아래로 스크롤한다.
