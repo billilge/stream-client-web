@@ -13,6 +13,7 @@ interface ConfirmModalProps {
   highlight?: string;
   title: string;
   description?: string;
+  descriptionTone?: "default" | "negative";
   cancelLabel: string;
   confirmLabel: string;
   onCancel: () => void;
@@ -32,6 +33,7 @@ function ConfirmModal({
   highlight,
   title,
   description,
+  descriptionTone = "default",
   cancelLabel,
   confirmLabel,
   onCancel,
@@ -87,9 +89,13 @@ function ConfirmModal({
             <Typography
               as="p"
               className="whitespace-pre-line"
-              color="semantic.label.alternative"
+              color={
+                descriptionTone === "negative"
+                  ? "semantic.status.negative"
+                  : "semantic.label.alternative"
+              }
               variant="label1-reading"
-              weight="regular"
+              weight={descriptionTone === "negative" ? "medium" : "regular"}
             >
               {description}
             </Typography>

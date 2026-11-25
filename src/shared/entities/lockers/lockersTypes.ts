@@ -14,7 +14,7 @@ import type {
 // 내 사물함 배정 — 신청하면 바로 확정이라 배정대기 상태가 없다. 신청하지 않았으면 null.
 export interface LockerAssignment {
   semester: string;
-  status: Exclude<LockerAssignmentStatus, "none">;
+  status: Exclude<LockerAssignmentStatus, "none" | "applicable">;
   appliedAt: string;
   usageStartDate: string;
   usageEndDate: string;
@@ -24,8 +24,12 @@ export interface LockerAssignment {
   sectionId: number;
 }
 
-// 홈 내 정보 목록의 사물함 배정 상태 — 미신청 · 배정완료 · 기간종료
-export type LockerAssignmentStatus = "none" | "assigned" | "expired";
+// 홈 내 정보 목록의 사물함 배정 상태 — 미신청 · 신청가능 · 배정완료 · 기간종료
+export type LockerAssignmentStatus =
+  | "none"
+  | "applicable"
+  | "assigned"
+  | "expired";
 
 export type LockerApplyStatus = (typeof LOCKER_APPLY_STATUSES)[number];
 export type LockerAvailabilityStatus =

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import type { ChatSnapshot } from "@/features/chat/utils/chatSnapshot";
 import {
   createTypingQueue,
   type TypingQueue,
@@ -24,17 +25,27 @@ export type ChatMessage = ChatUserMessage | ChatBotMessage;
 interface UseChatStreamOptions {
   // 답변을 받지 못했을 때 — 보낸 질문을 돌려주니 화면은 입력창에 되살리고 토스트를 띄운다
   onFailure: (question: string) => void;
+  // 출처 링크로 떠났다가 뒤로 돌아왔을 때 이어 갈 대화(utils/chatSnapshot). 없으면 새 대화로 시작한다
+  restored?: ChatSnapshot | null;
 }
 
 // 챗봇 대화 한 번(채팅방 입장 한 번)의 상태. 질문을 보내고 답변 조각을 말풍선에 이어 붙인다.
-export function useChatStream({ onFailure }: UseChatStreamOptions) {
+export function useChatStream({ onFailure, restored }: UseChatStreamOptions) {
   // 화면이 처음 그려질 때 한 번 만든다. 나갔다 다시 들어오면 새로 그려져 새 대화가 된다 —
-  // 화면이 "들어올 때마다 새 대화"인 것과 서버가 이력을 붙이는 범위를 맞춘다
-  const [conversationId] = useState(() => crypto.randomUUID());
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // 화면이 "들어올 때마다 새 대화"인 것과 서버가 이력을 붙이는 범위를 맞춘다.
+  // 출처 링크에서 뒤로 돌아온 경우만 떠날 때의 대화를 이어 간다. 서버 이력도 이어지도록 ID까지 되살린다
+  const [conversationId] = useState(
+    () => restored?.conversationId ?? crypto.randomUUID(),
+  );
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    () => restored?.messages ?? [],
+  );
   // 질문을 보낸 뒤 done·error가 올 때까지. 서버도 한 사람당 답변 하나만 받아서 그동안 입력을 막는다
   const [isAnswering, setIsAnswering] = useState(false);
-  const nextMessageIdRef = useRef(0);
+  // 되살린 말풍선과 번호가 겹치지 않게 그다음 번호부터 쓴다(말풍선 key로 쓰는 값이다)
+  const nextMessageIdRef = useRef(
+    Math.max(0, ...(restored?.messages ?? []).map((message) => message.id)),
+  );
   const abortControllerRef = useRef<AbortController | null>(null);
   const typingQueueRef = useRef<TypingQueue | null>(null);
 
@@ -135,7 +146,7 @@ export function useChatStream({ onFailure }: UseChatStreamOptions) {
   // 보낸 뒤 첫 조각이 오기 전까지만 응답 대기 점을 보여준다 — 조각이 오면 말풍선이 그 자리를 잇는다
   const isWaitingForAnswer = isAnswering && lastMessage?.sender === "user";
 
-  return { isAnswering, isWaitingForAnswer, messages, send };
+  return { conversationId, isAnswering, isWaitingForAnswer, messages, send };
 }
 
 function appendToLastBubble(bubbles: string[], text: string): string[] {

@@ -24,6 +24,9 @@
      사물함 평면도의 호실·화장실·계단 점선 테두리가 이 값이다. */
   --color-line-solid-normal: var(--semantic-line-solid-normal);
   --color-line-normal-neutral: var(--semantic-line-normal-neutral);
+  /* Figma "Line/Normal/Normal"(rgba(112,115,124,0.22)) — Line/Normal/Neutral(0.16)보다 진하다.
+     학생회비 송금 방법 카드의 고르지 않은 테두리가 이 값이다(nodeId 5365:89337). */
+  --color-line-normal-normal: var(--semantic-line-normal-normal);
   --color-line-solid-alternative: var(--semantic-line-solid-alternative);
 
   /* 챗봇 대화창의 "내가 보낸" 말풍선 배경(Figma "Label/Neutral", rgba(46,47,51,0.88)) */
@@ -60,6 +63,9 @@
   /* 학생회비 송금 — 업로드한 파일 행 배경(Figma "Atomic/Blue/99", 3562:162922).
      primary-subtle(Blue/95)보다 훨씬 옅어서 흰 카드 위에서 행만 살짝 떠 보인다 */
   --color-blue-99: var(--atomic-blue-99);
+  /* 열린피드백 소개 버튼 — '피드백 작성하기' 배경과 '작성내역 보기' 테두리(Figma "Atomic/Blue/60", 5421:95620).
+     primary(Blue/50)보다 한 단계 밝은 파랑이다 */
+  --color-blue-60: var(--atomic-blue-60);
   --color-line-solid-alternative: var(--semantic-line-solid-alternative);
 
   --color-status-positive: var(--semantic-status-positive);

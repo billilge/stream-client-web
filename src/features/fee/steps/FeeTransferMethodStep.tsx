@@ -6,14 +6,14 @@ import FeeTransferStepLayout from "@/features/fee/components/FeeTransferStepLayo
 import { formatWon } from "@/features/fee/constants/fee";
 import type { FeeTransferMethod } from "@/features/fee/constants/feeTransferFunnel";
 
-// 송금 방법 고르기 — 토스를 쓰지 않는 학생도 낼 수 있게 토스 이동 안내(Figma 3562:163025)를 대신한다.
-// Figma에 없는 화면이라 WDS `RadioGroup` 선택 카드 두 개로 그렸다. 고른 방법에 따라 메인 버튼만 바뀐다.
-// - 토스로 송금: 금액이 채워진 토스 송금 화면을 연다
-// - 계좌이체: 학생회 계좌번호를 복사한다. 계좌번호는 화면에 보여 주지 않고 토스트로만 알린다
-// 어느 쪽이든 누르면 퍼널이 송금 확인 단계로 넘긴다 — 송금하고 돌아오면 그 화면이 기다린다.
+// Figma: 계좌 송금 - 송금 방식 선택 (nodeId 5365:89327)
+// 송금 방법 고르기 — 토스를 쓰지 않는 학생도 낼 수 있게 토스 이동 안내(3562:163025)를 대신한다.
+// WDS `RadioGroup` 선택 카드 두 개이고, 고른 방법에 따라 메인 버튼만 바뀐다. 제목만 다른 단계와 달리 Heading 2다.
+// - 토스로 송금: 금액이 채워진 토스 송금 화면을 열고 송금 확인 단계로 넘긴다
+// - 계좌이체: 학생회 계좌번호를 복사하고(화면에는 보여 주지 않고 토스트로만 알린다) 송금 후 복귀 안내 단계로 넘긴다
 // 실제로 여는·복사하는 일은 퍼널(FeeTransferScreen)이 맡는다.
 //
-// 고른 방법은 퍼널이 들고 있어서(`method`) 송금 확인에서 뒤로 돌아와도 남는다.
+// 고른 방법은 퍼널이 들고 있어서(`method`) 송금 확인·복귀 안내에서 뒤로 돌아와도 남는다.
 //
 // 토스 이동 실패(Figma 3562:163046)는 이 단계 안의 state다 — 서버가 송금 링크를 주지 않았을 때(`hasTossLink`)
 // 토스를 고르면 띄운다. 토스는 딥링크라 실제로 열렸는지 브라우저가 알려주지 않아서 링크가 있으면 열기만 한다.
@@ -38,7 +38,7 @@ function FeeTransferMethodStep({
   onChangeMethod: (method: FeeTransferMethod) => void;
   /** 토스를 열고 송금 확인 단계로 넘긴다 */
   onOpenToss: () => void;
-  /** 계좌번호를 복사해 토스트로 알리고 송금 확인 단계로 넘긴다 */
+  /** 계좌번호를 복사해 토스트로 알리고 송금 후 복귀 안내 단계로 넘긴다 */
   onCopyAccount: () => void;
 }) {
   const [hasTossFailed, setTossFailed] = useState(false);
@@ -93,6 +93,8 @@ function FeeTransferMethodStep({
           </ActionAreaButton>
         )
       }
+      // Figma Transfer Method Content(5365:89331)는 안내 문구와 카드 사이가 12px이다
+      contentGap={12}
       // 보낼 금액은 계좌이체면 은행 앱에 직접 넣어야 해서(토스트에는 적지 않는다) Primary 굵게 강조한다
       description={
         <>
@@ -110,6 +112,7 @@ function FeeTransferMethodStep({
       }
       onBack={onBack}
       title="어떻게 송금할까요?"
+      titleVariant="heading2"
     >
       <RadioGroup
         aria-label="송금 방법"

@@ -4,20 +4,14 @@ import type { ReactNode } from "react";
 interface SettingsSectionProps {
   /** 섹션 라벨("계정 정보"·"서비스 정보") — 알림 설정·로그아웃 카드처럼 없는 섹션도 있다 */
   title?: string;
-  /** Figma 기준 행 사이 간격: 계정 정보·서비스 정보는 20px, 로그아웃은 16px */
-  rowGap?: "default" | "compact";
   children: ReactNode;
 }
 
 // Figma: 설정 화면(nodeId 3524:152322)의 흰 카드 — Account Section(3524:152329),
 // Notification Settings Section(3524:152343), Service Info Section(3524:152347),
 // Logout Section(3524:152359) 넷이 같은 배경·radius·padding이라 하나로 합쳤다.
-// 섹션 라벨 유무와 행 간격만 다르다.
-function SettingsSection({
-  title,
-  rowGap = "default",
-  children,
-}: SettingsSectionProps) {
+// 섹션 라벨 유무만 다르고, 행 사이는 모두 20px이다(로그아웃 카드도 수정 5364:3268에서 16 → 20px).
+function SettingsSection({ title, children }: SettingsSectionProps) {
   return (
     <section className="flex flex-col gap-4 rounded-xl bg-background-normal p-4">
       {title && (
@@ -30,11 +24,7 @@ function SettingsSection({
           {title}
         </Typography>
       )}
-      <div
-        className={`flex flex-col ${rowGap === "compact" ? "gap-4" : "gap-5"}`}
-      >
-        {children}
-      </div>
+      <div className="flex flex-col gap-5">{children}</div>
     </section>
   );
 }
