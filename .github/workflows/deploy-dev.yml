@@ -1,9 +1,11 @@
 name: Deploy (dev)
 
 # main에 푸시되면 dev 환경으로 배포한다.
+# push 이벤트가 유실돼 배포가 안 돌았을 때를 위해 Actions 화면에서 직접 실행할 수도 있다.
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: deploy-dev
