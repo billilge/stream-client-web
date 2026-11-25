@@ -87,7 +87,7 @@ function ChatEntryScreen() {
           <IconChevronLeft />
         </TopNavigationButton>
       }
-      title="Stream AI"
+      title="stream AI"
       variant="normal"
     />,
   );
@@ -122,7 +122,7 @@ function ChatEntryScreen() {
                 weight="bold"
               >
                 <span className="bg-gradient-to-r from-primary to-[#6f66ff] bg-clip-text text-transparent">
-                  Stream AI
+                  stream AI
                 </span>
                 가
               </Typography>
