@@ -13,8 +13,9 @@ import type {
 
 const AUTO_SLIDE_MS = 5000;
 
-// 배너가 하나도 없을 때 보여 주는 stream 만족도조사 카드(Figma 5365:84424) — 아직 누를 곳이 없다
-const DEFAULT_BANNER = {
+// 등록된 배너 뒤에 항상 붙는 stream 만족도조사 카드(Figma 5365:84424). 배너가 없으면 이 카드만 나온다.
+// 설문 구글폼이 아직 없어서 누를 곳이 없다
+const SURVEY_CARD = {
   subtitle: "여러분의 의견을 들려 주세요",
   title: "stream에\n바라는 점이 있다면?",
 };
@@ -28,17 +29,17 @@ interface HomeNoticeCardProps {
   total: number;
   // 마지막 카드 뒤에 붙는 첫 카드 복제본 — 스크린리더가 두 번 읽지 않게 숨긴다
   isClone?: boolean;
-  // 배너가 없을 때의 기본 카드 — 일반공지 그림 대신 만족도조사 그림을 깐다
-  isDefault?: boolean;
-  // 없으면 누를 수 없는 카드(배너가 없을 때의 기본 카드)
+  // 만족도조사 카드 — 일반공지 그림 대신 만족도조사 그림을 깐다
+  isSurvey?: boolean;
+  // 없으면 누를 수 없는 카드(만족도조사 카드)
   onSelect?: () => void;
 }
 
 // Figma: Notice Carousel (nodeId 3562:163869) — 일반공지 3562:163870, 행사 3562:163888,
 // 제휴 3562:163897, 사물함 3562:163906, 간식 3562:163915
 // 배경은 서버가 이미지 한 장(카드 전체 크기, 그림과 배경색을 합친 것)으로 준다 — 운영진이 고른 카테고리의
-// 정해진 이미지거나 직접 올린 이미지다. 이미지가 지워진 배너는 일반공지 그림을, 기본 카드는 만족도조사 그림을
-// 배경색 위에 직접 깐다.
+// 정해진 이미지거나 직접 올린 이미지다. 이미지가 지워진 배너는 일반공지 그림을, 만족도조사 카드는 만족도조사
+// 그림을 배경색 위에 직접 깐다.
 function HomeNoticeCard({
   title,
   subtitle,
@@ -46,7 +47,7 @@ function HomeNoticeCard({
   index,
   total,
   isClone,
-  isDefault,
+  isSurvey,
   onSelect,
 }: HomeNoticeCardProps) {
   // 공지·행사·외부 링크로 가는 카드는 버튼으로 그린다
@@ -73,7 +74,7 @@ function HomeNoticeCard({
         <img
           alt=""
           className="absolute top-0 left-1/2 w-83.75 max-w-none -translate-x-1/2"
-          src={isDefault ? noticeSurvey : noticeGeneral}
+          src={isSurvey ? noticeSurvey : noticeGeneral}
         />
       )}
       <div className="relative flex items-end justify-between gap-2">
@@ -123,7 +124,7 @@ function selectBanners(home: HomeResponse) {
 }
 
 // 5초마다 다음 카드로 넘어간다. 누르고 있는 동안은 멈추고, 손을 떼거나 스크롤이 멈추면 다시 5초를 센다.
-// 배너가 하나면 넘기지 않는다.
+// 페이지 표시(1/N)와 넘기는 개수에는 마지막 만족도조사 카드도 들어간다. 배너가 없어 만족도조사 카드만 있으면 넘기지 않는다.
 // 마지막 카드 오른쪽에 첫 카드 복제본을 두어 끝에서도 같은 방향으로 이어지고, 복제본에 멈추면
 // 진짜 첫 카드 위치로 순간 이동한다.
 // 카드 폭은 화면 폭 - 40(Figma 375 기준 335)이고, 카드 사이(gap-10)도 좌우 여백 합 40이라 이전·다음 카드는 화면 밖에 있다.
@@ -141,7 +142,9 @@ function HomeNoticeBanner({ onSelect }: HomeNoticeBannerProps) {
     ...homeQueries.home(),
     select: selectBanners,
   });
-  const canSlide = banners.length > 1;
+  // 등록된 배너 + 마지막 만족도조사 카드
+  const total = banners.length + 1;
+  const canSlide = total > 1;
 
   useEffect(() => {
     const scroller = scrollerRef.current;
@@ -151,9 +154,7 @@ function HomeNoticeBanner({ onSelect }: HomeNoticeBannerProps) {
 
     // 복제본 자리면 진짜 첫 카드로 순간 이동한다. 공지 수가 줄어 복제본 자리에 걸린 경우도 여기서 풀린다.
     const jumpIfClone = () => {
-      if (
-        Math.round(scroller.scrollLeft / getStep(scroller)) >= banners.length
-      ) {
+      if (Math.round(scroller.scrollLeft / getStep(scroller)) >= total) {
         scroller.scrollTo({ behavior: "instant", left: 0 });
       }
     };
@@ -230,34 +231,32 @@ function HomeNoticeBanner({ onSelect }: HomeNoticeBannerProps) {
       window.removeEventListener("touchend", handleRelease);
       window.removeEventListener("touchcancel", handleRelease);
     };
-  }, [canSlide, prefersReducedMotion, banners.length]);
+  }, [canSlide, prefersReducedMotion, total]);
 
   return (
     <div
       className={`scrollbar-hidden -my-15 flex gap-10 px-5 py-15 ${canSlide ? "snap-x snap-mandatory scroll-px-5 overflow-x-auto" : "overflow-hidden"}`}
       ref={scrollerRef}
     >
-      {banners.length === 0 ? (
+      {banners.map((banner, index) => (
         <HomeNoticeCard
-          index={0}
-          isDefault
-          subtitle={DEFAULT_BANNER.subtitle}
-          title={DEFAULT_BANNER.title}
-          total={1}
+          imageUrl={banner.imageUrl}
+          index={index}
+          key={banner.bannerId}
+          onSelect={() => onSelect(banner)}
+          subtitle={banner.subtitle}
+          title={banner.title}
+          total={total}
         />
-      ) : (
-        banners.map((banner, index) => (
-          <HomeNoticeCard
-            imageUrl={banner.imageUrl}
-            index={index}
-            key={banner.bannerId}
-            onSelect={() => onSelect(banner)}
-            subtitle={banner.subtitle}
-            title={banner.title}
-            total={banners.length}
-          />
-        ))
-      )}
+      ))}
+      <HomeNoticeCard
+        index={banners.length}
+        isSurvey
+        subtitle={SURVEY_CARD.subtitle}
+        title={SURVEY_CARD.title}
+        total={total}
+      />
+      {/* 넘길 수 있으면 첫 카드는 항상 등록된 배너다(만족도조사 카드는 맨 뒤) */}
       {canSlide && (
         <HomeNoticeCard
           imageUrl={banners[0].imageUrl}
@@ -266,7 +265,7 @@ function HomeNoticeBanner({ onSelect }: HomeNoticeBannerProps) {
           onSelect={() => onSelect(banners[0])}
           subtitle={banners[0].subtitle}
           title={banners[0].title}
-          total={banners.length}
+          total={total}
         />
       )}
     </div>
