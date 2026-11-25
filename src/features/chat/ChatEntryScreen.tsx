@@ -1,7 +1,7 @@
 import { TopNavigationButton, Typography } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -16,6 +16,11 @@ import SuggestedQuestion from "@/features/chat/components/SuggestedQuestion";
 import { CHAT_SEND_FAILURE_MESSAGE } from "@/features/chat/constants/chat";
 import { CHAT_SUGGESTED_QUESTIONS } from "@/features/chat/constants/chatSuggestedQuestions";
 import { useChatStream } from "@/features/chat/hooks/useChatStream";
+import {
+  clearChatSnapshot,
+  readChatSnapshot,
+  saveChatSnapshot,
+} from "@/features/chat/utils/chatSnapshot";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 // Figma: 챗봇 진입 화면(nodeId 1887:91534)과 챗봇 대화창(1770:63314) — 메시지를 하나라도
@@ -24,6 +29,9 @@ import { useBackNavigation } from "@/hooks/useBackNavigation";
 // 레이아웃이 튀지 않는다.
 function ChatEntryScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // 출처 링크로 공지·행사에 갔다가 뒤로 돌아왔으면 떠날 때의 대화를 이어 간다(utils/chatSnapshot)
+  const [restored] = useState(() => readChatSnapshot(location.key));
   const [inputValue, setInputValue] = useState("");
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
   const [isFailureToastOpen, setIsFailureToastOpen] = useState(false);
@@ -33,13 +41,25 @@ function ChatEntryScreen() {
   const messageListRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   // 답변을 받지 못하면 보낸 말풍선을 걷고 질문을 입력창에 되살려 둔다 — 그대로 다시 보낼 수 있게
-  const { isAnswering, isWaitingForAnswer, messages, send } = useChatStream({
-    onFailure: (question) => {
-      setInputValue(question);
-      setFailureCount((prev) => prev + 1);
-      setIsFailureToastOpen(true);
-    },
-  });
+  const { conversationId, isAnswering, isWaitingForAnswer, messages, send } =
+    useChatStream({
+      onFailure: (question) => {
+        setInputValue(question);
+        setFailureCount((prev) => prev + 1);
+        setIsFailureToastOpen(true);
+      },
+      restored,
+    });
+
+  // 되살린 대화는 화면 상태로 옮겨 왔으니 보관본을 지운다
+  useEffect(() => {
+    clearChatSnapshot(location.key);
+  }, [location.key]);
+
+  // 답변 속 링크를 누르면 상세 화면으로 떠나며 이 화면이 사라진다 — 뒤로 돌아왔을 때 이어 가도록 대화를 맡겨 둔다
+  function keepChatForReturn() {
+    saveChatSnapshot(location.key, { conversationId, messages });
+  }
   const chatStarted = messages.length > 0;
 
   // 메시지가 추가되거나 답변 조각이 붙을 때, 응답 대기 점이 나타날 때마다 최신 대화가 보이도록 맨 아래로 스크롤한다.
@@ -158,6 +178,7 @@ function ChatEntryScreen() {
               <ChatBotMessageBubble
                 bubbles={message.bubbles}
                 key={message.id}
+                onLinkClick={keepChatForReturn}
               />
             ),
           )}
