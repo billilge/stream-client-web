@@ -30,22 +30,6 @@ interface EventsDetailContentProps {
   onViewApplication: (applicationId: string) => void;
 }
 
-// Figma: 행사 상세 (nodeId 1133:42433 모집중 / 1156:53992 모집예정 / 1156:54125 모집종료)
-// 행사 데이터를 받아 그리는 부분. 데이터를 받는 동안은 EventsDetailScreen의 Suspense가
-// EventsDetailSkeleton을 보여준다. 이동 같은 화면 동작은 Screen이 콜백으로 넘긴다.
-//
-// 사진이 있으면 Figma처럼 뒤로가기 버튼을 Hero 이미지 위 오버레이로 띄운다 — ScreenLayout의 헤더
-// 슬롯은 본문 위에 자리를 차지하는 구조라, 슬롯을 null(0px)로 비워 Hero가 화면 최상단부터 시작하게 한다.
-// 공용 ScreenHeader에 overlay 옵션을 넣는 방안도 검토했지만 다른 화면에 영향이 가서 로컬로 뒀다.
-// 사진이 없으면 공지 상세처럼 Hero를 빼고 흰 배경 헤더에 뒤로가기를 둔다 — 덮을 사진이 없는데
-// 회색 자리와 상단 그라데이션만 남으면 빈 화면처럼 보인다.
-//
-// 상태별로 갈리는 건 뱃지와 하단 CTA뿐이다.
-// - 모집중: 활성. 단 신청 자격(isFeeEligible)이 없으면 disabled에 "학생회비 납부자만 신청할 수 있어요"
-// - 모집예정: disabled에 신청 시작 일시("8월 10일 18시 오픈")
-// - 모집종료: Figma "CTA 없음"(1156:54125)대로 하단 버튼(Action Area)을 그리지 않는다
-// 이미 신청한 행사는 모집 상태와 상관없이 하단 버튼이 "신청내역 보기"가 돼 신청내역 상세로 보낸다 —
-// 모집종료여도 내 신청을 확인하러 올 수 있어서 버튼을 그린다. Figma에 이 상태가 없어서 정한 것이다.
 function EventsDetailContent({
   eventId,
   onBack,
@@ -85,8 +69,6 @@ function EventsDetailContent({
     );
   }
 
-  // 납부자 전용 행사의 신청 자격은 서버가 납부자 명부로 판단해 준다 — 앱 납부 요청 기록(/fee/me)은
-  // 레거시 납부자를 미납으로 보여서 쓰지 않는다
   const isFeeRequired = !event.isFeeEligible;
   const canApply = event.recruitStatus === "OPEN" && !isFeeRequired;
   const applyLabel =
@@ -110,23 +92,13 @@ function EventsDetailContent({
     applicationId !== null || event.recruitStatus !== "CLOSED";
 
   return (
-    // Figma 상세 루트 배경은 Background/Normal/Normal(#FFFFFF)이다 — ScreenLayout 기본
-    // 배경(Background/Normal/Alternative, #F7F7F8)과 다르다. 흰 배경이어야 Action Area의
-    // 흰 그라데이션이 본문으로 자연스럽게 사라진다(회색 위에 깔면 경계선으로 보인다).
-    //
-    // Action Area는 Figma처럼 absolute로 본문을 덮는다. 아래 형제로 두면 스크롤 영역이
-    // Action Area 위에서 끝나 버려서, 글이 그 아래로 흘러 들어가며 사라지는 효과가 안 난다.
     <div className="relative flex-1 overflow-hidden bg-background-normal">
       <div className="scrollbar-hidden h-full overflow-y-auto">
-        {/* Hero — 행사 사진(images). Figma는 375×375 정사각이라 폭이 유동인 지금 레이아웃에서는 aspect-square로 둔다.
-            이미지가 여러 장이면 가로 스크롤 스냅으로 한 장씩 넘긴다(공지 상세와 같은 PhotoGallery). */}
         {photoCount > 0 && (
           <PhotoGallery
             idPrefix={eventId}
             key={eventId}
             overlay={
-              // 뒤로가기는 스크롤되지 않게 스크롤 컨테이너 밖에 절대배치한다. 사진이 있으면
-              // 헤더 슬롯을 비우고 이미지 위 오버레이 버튼이라 슬롯이 아니라 overlay로 넘긴다.
               <div className="absolute top-4 left-4 z-10">
                 <TopNavigationButton
                   aria-label="뒤로가기"
@@ -146,13 +118,13 @@ function EventsDetailContent({
           />
         )}
 
-        {/* 사진이 없으면 공지 상세처럼 헤더 바로 아래에서 시작한다 */}
         <div
           className={`flex flex-col gap-5 px-5 ${photoCount > 0 ? "pt-5" : ""}`}
         >
           <div className="flex flex-col gap-3">
             <div className="flex flex-col items-start gap-2">
               <EventsStatusBadge
+                applied={event.applicationId !== null}
                 size="medium"
                 status={event.recruitStatus}
                 statusLabel={getEventStatusLabel(event)}
@@ -167,10 +139,8 @@ function EventsDetailContent({
               </Typography>
             </div>
 
-            {/* Figma는 라벨 칼럼(28px)과 값 칼럼을 gap 12로 나란히 두고, 각 칼럼 안은 gap 8이다 */}
             <div className="flex gap-3">
               <div className="flex shrink-0 flex-col gap-2">
-                {/* 장소가 없는 행사(서버 place null)는 장소 줄을 라벨·값 칼럼에서 같이 뺀다 */}
                 {(event.place === null
                   ? ["일시", "대상"]
                   : ["일시", "장소", "대상"]
@@ -202,7 +172,6 @@ function EventsDetailContent({
                     {event.place}
                   </Typography>
                 )}
-                {/* 대상만 여러 줄 — Figma도 한 값 안에서 줄을 나눠 놨다 */}
                 <div className="flex flex-col">
                   {getEventAudience(event).map((line) => (
                     <Typography
@@ -221,8 +190,6 @@ function EventsDetailContent({
 
           <Divider color="semantic.line.normal.alternative" />
 
-          {/* 본문은 Figma "Label 1/Reading - Regular"(14px, line-height 1.571) = label1-reading.
-              서버 본문의 줄바꿈을 whitespace-pre-wrap으로 살린다. */}
           <Typography
             color="semantic.label.normal"
             sx={{ whiteSpace: "pre-wrap" }}
@@ -233,18 +200,12 @@ function EventsDetailContent({
           </Typography>
         </div>
 
-        {/* Action Area가 본문을 덮으므로 끝부분이 영구히 가리지 않도록 같은 높이를 비워둔다.
-            96px = Action Area 위아래 padding 20+20 + 버튼 56. 데스크톱 프레임에서는
-            홈 인디케이터 여백 14px이 더 붙는다(아래 filler와 같은 규칙).
-            신청하지 않은 모집종료는 Action Area가 없어서 이 여백도 두지 않는다 — Figma(1156:54125)도 본문에서 끝난다. */}
         {hasActionArea && <div className="h-24 sm:h-[110px]" />}
       </div>
 
       {hasActionArea && (
         <div className="absolute inset-x-0 bottom-0">
           <ActionArea background>
-            {/* WDS ActionAreaButton은 항상 Button size="large"(padding 12px 28px → 48px)로 그리는데,
-                Figma Main Action은 padding 16px 28px(56px)이라 세로 padding만 sx로 맞춘다. */}
             <ActionAreaButton
               disabled={action.disabled}
               onClick={action.onClick}
@@ -253,9 +214,6 @@ function EventsDetailContent({
               {action.label}
             </ActionAreaButton>
           </ActionArea>
-          {/* Figma Action Area(110px)는 버튼 아래가 iOS Home Bar 여백까지 합쳐 34px인데,
-              WDS ActionArea는 아래 padding 20px만 준다 — 모자란 14px을 여기서 더한다.
-              앱 WebView에서는 네이티브 세이프에어리어와 중복이라 데스크톱 프레임에서만 남긴다(BottomNav와 같은 규칙). */}
           <div className="h-safe-bottom-extra bg-background-elevated-normal sm:h-[14px]" />
         </div>
       )}
