@@ -28,8 +28,8 @@ function ChatBotMessageBubble({
 }: ChatBotMessageBubbleProps) {
   return (
     <div className="flex flex-col items-start gap-3 px-5">
-      <div className="flex size-11 items-center justify-center rounded-[22px] bg-chatbot-avatar">
-        <img alt="" className="h-[19.6px] w-[23.4px]" src={botIcon} />
+      <div className="flex size-11 justify-center rounded-[22px] bg-chatbot-avatar pt-[6.7px]">
+        <img alt="" className="h-[26.3px] w-[31.4px]" src={botIcon} />
       </div>
       <div className="flex flex-col items-start gap-2">
         {bubbles.map((bubble, index) => (
