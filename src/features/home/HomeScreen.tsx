@@ -179,18 +179,8 @@ function HomeScreen() {
             <HomeNoticeBanner onSelect={openBanner} />
           </Suspense>
           {/* 배너 카드(relative)가 뒤 섹션보다 나중에 그려져 그림자가 덮지 않게 뒤 섹션도 relative로 둔다 */}
-          {/* 대여 중인 물품 → 신청 안내(신청마감 D-nn) → 신청한 행사 순으로, 내 대여·신청 현황을 먼저 보여 준다 */}
+          {/* Figma: 홈 주간 캘린더 추가ver (nodeId 5556:34771) — 신청 안내(신청마감 D-nn) → 학사 일정 → 대여 중인 물품 → 신청한 행사 순 */}
           <div className="relative flex flex-col gap-2">
-            <div className="px-5">
-              {/* 대여 현황은 반납 대기·확인을 나눠 보여 주려고 홈 조회가 아니라 빌릴게 반납 조회·대여 내역 조회로 받는다 */}
-              <Suspense fallback={<HomeRentalSkeleton />}>
-                <HomeRentalSection
-                  onBrowse={() => navigate(BILLILGE_TAB_PATHS.rent)}
-                  onMore={() => navigate(BILLILGE_TAB_PATHS.return)}
-                  onReturnRequest={openReturnRequest}
-                />
-              </Suspense>
-            </div>
             <Suspense fallback={null}>
               <HomeApplyCardList
                 onApply={(section) =>
@@ -201,6 +191,23 @@ function HomeScreen() {
                 onSelect={openApplySection}
               />
             </Suspense>
+            {/* 학사 일정은 홈 조회가 아니라 학사 일정 조회로 받아서, 카드가 자기 안에서 일정 영역만 Suspense로 감싼다 */}
+            <div className="px-5">
+              <HomeCalendarSection
+                onMore={(date) => push(getCalendarsPath(date))}
+                onOpen={() => push(CALENDARS_PATH)}
+              />
+            </div>
+            <div className="px-5">
+              {/* 대여 현황은 반납 대기·확인을 나눠 보여 주려고 홈 조회가 아니라 빌릴게 반납 조회·대여 내역 조회로 받는다 */}
+              <Suspense fallback={<HomeRentalSkeleton />}>
+                <HomeRentalSection
+                  onBrowse={() => navigate(BILLILGE_TAB_PATHS.rent)}
+                  onMore={() => navigate(BILLILGE_TAB_PATHS.return)}
+                  onReturnRequest={openReturnRequest}
+                />
+              </Suspense>
+            </div>
             <div className="px-5">
               <Suspense fallback={<HomeAppliedEventSkeleton />}>
                 <HomeAppliedEventSection
@@ -209,13 +216,6 @@ function HomeScreen() {
                   onSelect={(event) => push(`/events/${event.eventId}`)}
                 />
               </Suspense>
-            </div>
-            {/* 학사 일정은 홈 조회가 아니라 학사 일정 조회로 받아서, 카드가 자기 안에서 일정 영역만 Suspense로 감싼다 */}
-            <div className="px-5">
-              <HomeCalendarSection
-                onMore={(date) => push(getCalendarsPath(date))}
-                onOpen={() => push(CALENDARS_PATH)}
-              />
             </div>
             <div className="px-5">
               <Suspense fallback={<HomeInfoListSkeleton />}>
