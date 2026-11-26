@@ -26,7 +26,7 @@ interface HomeCalendarSectionProps {
   onMore: (date: string) => void;
 }
 
-// Figma: 학사일정 · 주간 (nodeId 5365:90592), 홈 주간 캘린더 추가ver (5365:90496)
+// Figma: 학사일정 · 주간 (nodeId 5556:34815), 홈 주간 캘린더 추가ver (5556:34771)
 // 카드 라운드는 Figma가 이 카드만 16px(radius 변수)로 그렸다.
 function HomeCalendarSection({ onOpen, onMore }: HomeCalendarSectionProps) {
   const [today] = useState(getToday);

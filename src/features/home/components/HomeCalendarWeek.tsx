@@ -9,7 +9,7 @@ import {
 } from "@/features/calendars/utils/calendarSchedules";
 import { calendarsQueries } from "@/shared/entities/calendars/calendarsQueries";
 
-// Figma 학사일정 · 주간(5365:90592)은 일정 카드 3개 아래에 "1건 더보기"를 둔다
+// 일정 카드는 3개까지 보이고 나머지는 "N건 더보기"로 넘긴다
 const VISIBLE_SCHEDULE_LIMIT = 3;
 
 interface HomeCalendarWeekProps {
@@ -49,11 +49,13 @@ function HomeCalendarWeek({
         <ul className="flex flex-col gap-2">
           {daySchedules.slice(0, VISIBLE_SCHEDULE_LIMIT).map((schedule) => (
             <li
-              className="flex flex-col gap-1 rounded-xl border border-line-normal-neutral p-3"
+              className="flex items-center justify-between gap-2 rounded-xl border border-line-normal-neutral p-3"
               key={schedule.scheduleId}
             >
+              {/* 한 줄 카드라 긴 제목은 기간을 밀어내지 않게 말줄임한다 */}
               <Typography
                 as="p"
+                className="min-w-0 truncate"
                 color="semantic.label.normal"
                 variant="label2"
                 weight="bold"
@@ -62,6 +64,7 @@ function HomeCalendarWeek({
               </Typography>
               <Typography
                 as="p"
+                className="shrink-0"
                 color="semantic.label.alternative"
                 variant="caption1"
                 weight="regular"
