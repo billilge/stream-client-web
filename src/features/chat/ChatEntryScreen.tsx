@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { TopNavigationButton, Typography } from "@wanteddev/wds";
 import { IconChevronLeft } from "@wanteddev/wds-icon";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -14,7 +15,6 @@ import ChatLoadingDots from "@/features/chat/components/ChatLoadingDots";
 import ChatMessageBubble from "@/features/chat/components/ChatMessageBubble";
 import SuggestedQuestion from "@/features/chat/components/SuggestedQuestion";
 import { CHAT_SEND_FAILURE_MESSAGE } from "@/features/chat/constants/chat";
-import { CHAT_SUGGESTED_QUESTIONS } from "@/features/chat/constants/chatSuggestedQuestions";
 import { useChatStream } from "@/features/chat/hooks/useChatStream";
 import {
   clearChatSnapshot,
@@ -22,6 +22,7 @@ import {
   saveChatSnapshot,
 } from "@/features/chat/utils/chatSnapshot";
 import { useBackNavigation } from "@/hooks/useBackNavigation";
+import { chatQueries } from "@/shared/entities/chat/chatQueries";
 
 // Figma: 챗봇 진입 화면(nodeId 1887:91534)과 챗봇 대화창(1770:63314) — 메시지를 하나라도
 // 보내면 진입 화면의 웰컴 문구·그라데이션·추천 질문이 페이드아웃되고 대화창(말풍선 + 응답
@@ -32,6 +33,8 @@ function ChatEntryScreen() {
   const location = useLocation();
   // 출처 링크로 공지·행사에 갔다가 뒤로 돌아왔으면 떠날 때의 대화를 이어 간다(utils/chatSnapshot)
   const [restored] = useState(() => readChatSnapshot(location.key));
+  // 추천 질문은 보조 기능이라 받는 중·실패·0개면 영역을 그리지 않는다 — 입력창은 기다리지 않는다
+  const { data: faqs = [] } = useQuery(chatQueries.faqs());
   const [inputValue, setInputValue] = useState("");
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
   const [isFailureToastOpen, setIsFailureToastOpen] = useState(false);
@@ -163,15 +166,17 @@ function ChatEntryScreen() {
               </Typography>
             </div>
           </div>
-          <div className="flex flex-col items-start gap-2">
-            {CHAT_SUGGESTED_QUESTIONS.map((question) => (
-              <SuggestedQuestion
-                key={question.id}
-                onClick={() => sendMessage(question.text)}
-                question={question.text}
-              />
-            ))}
-          </div>
+          {faqs.length > 0 && (
+            <div className="flex flex-col items-start gap-2">
+              {faqs.map((faq) => (
+                <SuggestedQuestion
+                  key={faq.faqId}
+                  onClick={() => sendMessage(faq.question)}
+                  question={faq.question}
+                />
+              ))}
+            </div>
+          )}
         </div>
         <div
           className={`absolute inset-0 flex flex-col gap-3 overflow-y-auto pt-4 pb-4 transition-opacity duration-300 ${
