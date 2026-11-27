@@ -65,8 +65,10 @@ function renderLinks(text: string, onLinkClick?: () => void): ReactNode[] {
         {renderBold(text.slice(lastIndex, match.index))}
       </Fragment>,
       // 공지 목록→상세처럼 화면을 쌓는 이동이라 슬라이드 전환을 켠다(coding-style 「라우팅」)
+      // 본문과 같은 검정에 밑줄만 있으면 누를 수 있는지 알아보기 어렵다(#271). 챗봇 Figma엔 링크 시안이 없어
+      // 송금 화면의 "K스마트멘토↗" 링크(Primary + 밑줄, Figma 5365:85732)를 따른다
       <Link
-        className="underline"
+        className="text-primary underline"
         key={`link-${match.index}`}
         onClick={onLinkClick}
         to={path}
